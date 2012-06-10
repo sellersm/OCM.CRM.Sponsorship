@@ -11,11 +11,12 @@
     <AssemblyName>MoM.Sponsorship.Catalog</AssemblyName>
     <MyType>Windows</MyType>
     <OptionStrict>Off</OptionStrict>
-    <TargetFrameworkVersion>v2.0</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileUpgradeFlags>
     </FileUpgradeFlags>
     <OldToolsVersion>2.0</OldToolsVersion>
     <UpgradeBackupLocation />
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -49,13 +50,11 @@
     <OptionInfer>On</OptionInfer>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Blackbaud.AppFx.Server, Version=1.0.128.756, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <Private>False</Private>
+    <Reference Include="Blackbaud.AppFx.Server">
+      <HintPath>..\..\..\References\Third Party\Blackbaud.AppFx.Server.dll</HintPath>
     </Reference>
-    <Reference Include="Blackbaud.AppFx.XmlTypes, Version=1.0.128.756, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <Private>False</Private>
+    <Reference Include="Blackbaud.AppFx.XmlTypes">
+      <HintPath>..\..\..\References\Third Party\Blackbaud.AppFx.XmlTypes.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
