@@ -1,0 +1,826 @@
+﻿<PageDefinitionSpec xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" ID="0f392d71-5884-4363-b6e3-a75755f8402a" Name="Sponsorship Opportunity Page" Description="Displays all the information on a given sponsorship opportunity" Author="Blackbaud Product Development" ExpressionDataFormID="2c5e91ff-ec60-4f8a-9361-9eae6549aa69" ContextRecordType="Sponsorship opportunity" xmlns="bb_appfx_pagedefinition">
+  <InstalledProductList xmlns="bb_appfx_commontypes">
+    <InstalledProduct ID="3117d2c8-7f46-42f2-abeb-b654f2f63046" />
+  </InstalledProductList>
+  <ResourceFile AssemblyName="Blackbaud.AppFx.Sponsorship.Catalog.dll" ClassName="Blackbaud.AppFx.Sponsorship.Catalog.SponsorshipOpportunity.Page" />
+  <DockedSections>
+    <DockedPageSection ID="1a960d2e-c8a7-4789-95a6-9b733f71616f" Caption="Smart Fields">
+      <Section ID="9b4a1f22-30b9-4050-ba8b-c45ea2eacae1">
+        <DataList ID="fe301e8c-4a42-4e39-a29c-1f501f066e61">
+          <RenderStyle>
+            <StandardView />
+          </RenderStyle>
+        </DataList>
+      </Section>
+    </DockedPageSection>
+  </DockedSections>
+  <PageHeader Caption="=Page.Fields!NAME" ImageKey="=IIF(Page.Fields!SPONSORSHIPOPPORTUNITYTYPECODE=1,&quot;catalog:Blackbaud.AppFx.Sponsorship.Catalog.dll,Blackbaud.AppFx.Sponsorship.Catalog.child_icon_32.png&quot;,&quot;catalog:Blackbaud.AppFx.Sponsorship.Catalog.dll,Blackbaud.AppFx.Sponsorship.Catalog.project_32.png&quot;)" />
+  <SummarySection ID="ed245fee-30ca-4e72-a833-e6c775280c26" Caption="Profile" HideCaption="true" CaptionResourceKey="$$profile">
+    <DataForm ID="20a1c198-6745-49f0-984d-3751558113f2" />
+  </SummarySection>
+  <Tabs>
+    <Tab Caption="Who Am I" ID="b6cecb36-a9ab-4f9b-a9f5-c4e2cf10e790" Visible="=Page.Fields!SPONSORSHIPOPPORTUNITYTYPECODE=1">
+      <Sections>
+        <Section ID="c3587b66-6801-4e42-83b2-066a43ccc1b4" HideCaption="true" DisplayStyle="Inline">
+          <DataForm ID="2c5e91ff-ec60-4f8a-9361-9eae6549aa69" />
+          <SectionContext>
+            <PageContextID xmlns="bb_appfx_commontypes" />
+          </SectionContext>
+          <Actions>
+            <Action ID="88f04602-be1e-4f89-b1f6-c6d15702ec1a" Caption="Edit">
+              <ShowDataForm DataFormID="a8f78a3f-2df5-4b67-b237-464dde855c87" xmlns="bb_appfx_commontypes">
+                <ActionContext>
+                  <PageContextID />
+                </ActionContext>
+                <PostActionEvent>
+                  <RefreshSection />
+                </PostActionEvent>
+              </ShowDataForm>
+            </Action>
+          </Actions>
+          <HelpKey>SPChildPageDetails.html</HelpKey>
+        </Section>
+        <Section ID="9b9bafe9-34a3-4225-a1e6-32bc1117eff4" HideCaption="True">
+          <DataForm ID="341c23a6-648b-4c2c-bd6f-d33ddebda22b" />
+          <Actions>
+            <Action ID="73b7f581-dda2-4a95-8541-79634ca7770f" Caption="Edit">
+              <ShowDataForm DataFormID="b143f07b-c96d-4cc8-9878-685540330506" xmlns="bb_appfx_commontypes">
+                <ActionContext>
+                  <PageContextID />
+                </ActionContext>
+                <PostActionEvent>
+                  <RefreshSection />
+                </PostActionEvent>
+              </ShowDataForm>
+            </Action>
+          </Actions>
+        </Section>
+      </Sections>
+    </Tab>
+    <Tab Caption="Who Am I" ID="b23446e4-60e4-409f-b922-28111ee5bdca" Visible="=Page.Fields!SPONSORSHIPOPPORTUNITYTYPECODE=2">
+      <Sections>
+        <Section ID="ce5ff55d-4a4c-49ed-b22b-3b3feb0f178c" HideCaption="true">
+          <DataForm ID="2c5e91ff-ec60-4f8a-9361-9eae6549aa69" />
+          <SectionContext>
+            <PageContextID xmlns="bb_appfx_commontypes" />
+          </SectionContext>
+          <HelpKey>SPProjectPageDetails.html</HelpKey>
+        </Section>
+        <Section ID="e5e1bce9-da05-4195-a8fd-75a5ffc1526c" HideCaption="True">
+          <DataForm ID="341c23a6-648b-4c2c-bd6f-d33ddebda22b" />
+        </Section>
+      </Sections>
+    </Tab>
+    <Tab Caption="Who I Live With" ID="fd28c521-c494-49da-b5b6-455f04abc737">
+      <Sections>
+        <Section ID="06502ba3-c0ef-4611-bae0-5172c79eaeeb">
+          <DataForm ID="3626cd83-acd8-4277-9fd4-96477d76e385" />
+          <Actions>
+            <Action ID="730fc6e2-4aa5-4725-b1db-5d7106732773" Caption="Edit">
+              <ShowDataForm DataFormID="eea105ac-bc35-40e5-b8ef-91126478848d" xmlns="bb_appfx_commontypes">
+                <ActionContext>
+                  <PageContextID />
+                </ActionContext>
+                <PostActionEvent>
+                  <RefreshSection />
+                </PostActionEvent>
+              </ShowDataForm>
+            </Action>
+          </Actions>
+        </Section>
+      </Sections>
+    </Tab>
+    <Tab Caption="Siblings" ID="a5be23b7-4e7c-4327-94b8-a1a1b221280e">
+      <Sections>
+        <Section ID="2e9972e4-1c6a-439b-beef-2385e87b804c">
+          <DataList ID="aa31ed30-32f3-4afd-920b-25945dde7bc8">
+            <RenderStyle>
+              <StandardView />
+            </RenderStyle>
+          </DataList>
+          <Actions>
+            <Action ID="0b252815-4228-46f5-8708-5a0d4b122b6b" Caption="Add">
+              <ShowAddDataForm DataFormID="173d9386-e5d8-4628-b756-2beac170f91f" xmlns="bb_appfx_commontypes">
+                <ActionContext>
+                  <PageContextID />
+                </ActionContext>
+              </ShowAddDataForm>
+            </Action>
+            <Action ID="9141a871-ab04-409f-a3de-8b9a34498212" Caption="Edit">
+              <ShowDataForm DataFormID="4d77ddc3-6245-4173-a15f-2aaa346fb6e5" xmlns="bb_appfx_commontypes">
+                <ActionContext>
+                  <Expression>= Fields!ID</Expression>
+                </ActionContext>
+              </ShowDataForm>
+            </Action>
+          </Actions>
+        </Section>
+      </Sections>
+    </Tab>
+    <Tab Caption="Where I Live" ID="69cafb88-b6a2-4f98-a083-7d45942e4b6d">
+      <Sections>
+        <Section ID="4c98a497-a767-4f10-85a2-c8b076016a18">
+          <DataForm ID="ed76eb09-aea1-4121-811c-c0ba5fb8ccd5" />
+          <Actions>
+            <Action ID="bc0806ce-56d2-4189-b1dd-b627f1129354" Caption="Edit">
+              <ShowDataForm DataFormID="c19be720-044a-47fb-a9db-9a56f53d389e" xmlns="bb_appfx_commontypes">
+                <ActionContext>
+                  <PageContextID />
+                </ActionContext>
+                <PostActionEvent>
+                  <RefreshSection />
+                </PostActionEvent>
+              </ShowDataForm>
+            </Action>
+          </Actions>
+        </Section>
+      </Sections>
+    </Tab>
+    <Tab Caption="About Me" ID="d5f4fd2c-674c-43f4-8cc3-4c56eb6a6443">
+      <Sections>
+        <Section ID="6f6b3fe6-e59c-4f32-9a0a-e404a281971a">
+          <DataForm ID="ca862083-b06e-4f92-98d3-fc4b883c8f38" />
+          <Actions>
+            <Action ID="d91512c8-0eb6-47b8-9aee-a7899f71c317" Caption="Edit">
+              <ShowDataForm DataFormID="55f5b7f0-5207-40c6-ba5a-5907a7721aa7" xmlns="bb_appfx_commontypes">
+                <ActionContext>
+                  <PageContextID />
+                </ActionContext>
+                <PostActionEvent>
+                  <RefreshSection />
+                </PostActionEvent>
+              </ShowDataForm>
+            </Action>
+          </Actions>
+        </Section>
+      </Sections>
+    </Tab>
+    <Tab Caption="Development" ID="537013b4-3676-44ac-b181-2496e7d292e8">
+      <Sections>
+        <Section ID="ea774ea1-6973-4def-a3db-bea78e30b81c">
+          <DataForm ID="72fb51be-6011-4c70-b58f-bf6ad204bc94" />
+          <Actions>
+            <Action ID="555b51df-f1af-4880-9c45-596e59ad6abc" Caption="Edit">
+              <ShowDataForm DataFormID="262037d6-634d-4be6-b9c8-36847751b97c" xmlns="bb_appfx_commontypes">
+                <ActionContext>
+                  <PageContextID />
+                </ActionContext>
+                <PostActionEvent>
+                  <RefreshSection />
+                </PostActionEvent>
+              </ShowDataForm>
+            </Action>
+          </Actions>
+        </Section>
+      </Sections>
+    </Tab>
+    <Tab Caption="Additional Info" ID="e131132e-c628-41e1-b435-f269b4f9345e">
+      <Sections>
+        <Section ID="aa3101d9-ae8c-4c9c-af33-143e1c874526">
+          <DataForm ID="b9390174-f5b7-4a6a-b73b-9d5b9cb5b1c4" />
+          <Actions>
+            <Action ID="60eca6c5-14de-4c8b-9d73-48b5e5271a60" Caption="Edit">
+              <ShowDataForm DataFormID="4491a326-4cf5-4008-acbc-7b10d138ec41" xmlns="bb_appfx_commontypes">
+                <ActionContext>
+                  <PageContextID />
+                </ActionContext>
+                <PostActionEvent>
+                  <RefreshSection />
+                </PostActionEvent>
+              </ShowDataForm>
+            </Action>
+          </Actions>
+        </Section>
+      </Sections>
+    </Tab>
+    <Tab Caption="Eligibility" ID="8fdc7125-066c-4066-a76f-add6c437b4d9" Visible="=Page.Fields!SPONSORSHIPOPPORTUNITYTYPECODE=1" CaptionResourceKey="$$eligibility">
+      <Sections>
+        <Section ID="1cc5f879-3fc3-4cec-a9cb-9cdd27dc5f2a" Caption="Pending Reasons" Visible="=Page.Fields!ELIGIBILITYCODE=0 Or Page.Fields!ELIGIBILITYCODE=1" CaptionResourceKey="$$pending_reasons">
+          <DataList ID="4df2fbeb-32ba-4fd0-99c9-474b165387b1">
+            <RenderStyle>
+              <StandardView />
+            </RenderStyle>
+          </DataList>
+          <SectionContext>
+            <PageContextID xmlns="bb_appfx_commontypes" />
+          </SectionContext>
+          <Actions>
+            <Action ID="de84bb78-2ac6-4ed5-9b8a-d14a64693e6b" Caption="Edit pending reasons" ImageKey="res:edit" Visible="=Page.Fields!ELIGIBILITYCODE = 0 Or Page.Fields!ELIGIBILITYCODE=1" CaptionResourceKey="$$edit_pending_reasons">
+              <ShowDataForm DataFormID="955e8a91-8a01-4762-93de-7246ec732dc8" xmlns="bb_appfx_commontypes">
+                <ActionContext>
+                  <PageContextID />
+                </ActionContext>
+                <PostActionEvent>
+                  <RefreshPage />
+                </PostActionEvent>
+              </ShowDataForm>
+              <HelpKey>SPChildPageEligibility.html</HelpKey>
+            </Action>
+          </Actions>
+          <HelpKey>SPChildPageEligibility.html</HelpKey>
+        </Section>
+      </Sections>
+    </Tab>
+    <Tab Caption="Bio" ID="c4b6c594-3009-4078-a6d1-e8bf1055aa70" Visible="true">
+      <Sections>
+        <Section ID="ae830cc2-1d35-4ac1-9665-c25ec0df822b" Caption="Child Bio" Visible="true">
+          <DataList ID="37f0f7b5-f222-47dd-8419-a10ea4bae845" ShowRowTotals="False">
+            <RenderStyle>
+              <StandardView>
+                <DetailViewForm ViewDataFormID="664ad089-af34-423f-9e53-33ada21f42ef" RecordIDField="Notes\System record ID" />
+              </StandardView>
+            </RenderStyle>
+          </DataList>
+          <Actions>
+            <Action ID="b9c30bdf-c63b-41ae-9172-bffea2e2dd5e" Caption="Add" ImageKey="RES:NewItem" CaptionResourceKey="$$note">
+              <ShowAddDataForm DataFormID="d22d309b-33e8-440e-9acc-c60a1b52931c" xmlns="bb_appfx_commontypes">
+                <ActionContext>
+                  <PageContextID />
+                </ActionContext>
+                <PostActionEvent>
+                  <RefreshPage />
+                </PostActionEvent>
+              </ShowAddDataForm>
+              <HelpKey>GLBEditNotes.html</HelpKey>
+            </Action>
+            <Action ID="dc12eee9-2147-4857-8eea-33f86c41cf28" Caption="One Click Proof" ImageKey="RES:actions" Enabled="=Fields!Type=&quot;Child Bio - Draft&quot;">
+              <ExecuteRecordOperation RecordOperationID="1e807895-f729-4b37-90cb-d8c41c564a30" xmlns="bb_appfx_commontypes">
+                <ActionContext>
+                  <SectionField>Notes\System record ID</SectionField>
+                </ActionContext>
+                <PostActionEvent>
+                  <RefreshPage />
+                </PostActionEvent>
+              </ExecuteRecordOperation>
+            </Action>
+            <Action ID="cb3411c0-f0f4-4fce-bdff-cc587a94e261" Caption="Edit" ImageKey="RES:Edit" DefaultAction="True" CaptionResourceKey="$$edit">
+              <ShowDataForm DataFormID="741f3d26-7bcd-4026-9df9-29ffa45c09ae" xmlns="bb_appfx_commontypes">
+                <ActionContext>
+                  <SectionField>Notes\System record ID</SectionField>
+                </ActionContext>
+                <PostActionEvent>
+                  <RefreshPage />
+                </PostActionEvent>
+              </ShowDataForm>
+              <HelpKey>GLBEditNotes.html</HelpKey>
+            </Action>
+            <Action ID="d43f4f3b-bc3d-4f2d-904e-a76e1ce4ede8" Caption="Date Proofed" ImageKey="RES:Edit">
+              <ShowDataForm DataFormID="b296c8f2-9235-4be3-8401-2bf063a8025f" xmlns="bb_appfx_commontypes">
+                <ActionContext>
+                  <SectionField>Notes\System record ID</SectionField>
+                </ActionContext>
+                <PostActionEvent>
+                  <RefreshPage />
+                </PostActionEvent>
+              </ShowDataForm>
+            </Action>
+            <Action ID="f00cab6f-d634-4d1b-b3b9-5584a867a50c" Caption="Delete" ImageKey="res:delete" Enabled="true" CaptionResourceKey="$$delete">
+              <ExecuteRecordOperation RecordOperationID="27fe9cf7-b2e9-4d20-ab0d-b21028db413a" xmlns="bb_appfx_commontypes">
+                <ActionContext>
+                  <SectionField>Notes\System record ID</SectionField>
+                </ActionContext>
+                <PostActionEvent>
+                  <RefreshPage />
+                </PostActionEvent>
+              </ExecuteRecordOperation>
+              <HelpKey>SPAttributesDelete.html</HelpKey>
+            </Action>
+          </Actions>
+        </Section>
+      </Sections>
+    </Tab>
+    <Tab Caption="Sponsorships" ID="a2f561b0-487c-4b01-9a5b-77d548fe976e">
+      <Sections>
+        <Section ID="7aa09fab-abd1-4cfc-a321-26418ee5806d" Caption="Active Sponsorship">
+          <DataList ID="5ce70d8a-f9f5-4baa-936f-845176446c18" AutoDisplayFilters="true">
+            <RenderStyle>
+              <StandardView AutoSize="true" />
+            </RenderStyle>
+          </DataList>
+          <Actions>
+            <Action ID="aaab5f9f-3e41-4ca7-85ec-34de135b9197" Caption="Go to sponsorship" ImageKey="RES:goto_round" DefaultAction="True" CaptionResourceKey="$$go_to_sponsorship">
+              <ShowPage PageID="428f040a-eb45-4171-8c52-a030b9992d65" TabID="00000000-0000-0000-0000-000000000000" xmlns="bb_appfx_commontypes">
+                <ActionContext>
+                  <SectionField>System record ID</SectionField>
+                </ActionContext>
+              </ShowPage>
+              <HelpKey>SPViewSponsorship.html</HelpKey>
+            </Action>
+            <Action ID="ff3b8c87-6b9b-4626-b2ae-de44166c84a6" Caption="Go to sponsor" ImageKey="RES:goto_round" ToolTipText="=string.concat(&quot;Go to &quot;, Fields(&quot;Financial Sponsor&quot;))">
+              <ShowPage PageID="88159265-2b7e-4c7b-82a2-119d01ecd40f" TabID="00000000-0000-0000-0000-000000000000" xmlns="bb_appfx_commontypes">
+                <ActionContext>
+                  <SectionField>Financial sponsor\System record ID</SectionField>
+                </ActionContext>
+              </ShowPage>
+            </Action>
+            <Action ID="1879b992-072e-4bb4-ba74-55fe1d239b0c" Caption="Go to correspondent" ToolTipText="=string.concat(&quot;Go to &quot;, fields!Correspondent)" Visible="= Fields!Correspondent&lt;&gt;Fields(&quot;Financial Sponsor&quot;)">
+              <ShowPage PageID="88159265-2b7e-4c7b-82a2-119d01ecd40f" TabID="00000000-0000-0000-0000-000000000000" xmlns="bb_appfx_commontypes">
+                <ActionContext>
+                  <SectionField>Sponsor\System record ID</SectionField>
+                </ActionContext>
+              </ShowPage>
+            </Action>
+          </Actions>
+        </Section>
+        <Section ID="23bf2cc4-b3ef-485c-a32a-2008011bc9ec" Caption="Former Sponsorships">
+          <DataList ID="a129e399-232f-4cec-b425-3ba66aa4e7a6">
+            <RenderStyle>
+              <StandardView AutoSize="true" />
+            </RenderStyle>
+          </DataList>
+          <Actions>
+            <Action ID="e94c86b7-225d-44dc-9f8b-e3052af012b7" Caption="Go to sponsorship" ImageKey="RES:goto_round" DefaultAction="True" CaptionResourceKey="$$go_to_sponsorship">
+              <ShowPage PageID="428f040a-eb45-4171-8c52-a030b9992d65" TabID="00000000-0000-0000-0000-000000000000" xmlns="bb_appfx_commontypes">
+                <ActionContext>
+                  <SectionField>System record ID</SectionField>
+                </ActionContext>
+              </ShowPage>
+              <HelpKey>SPViewSponsorship.html</HelpKey>
+            </Action>
+            <Action ID="fc41e1ca-0bca-40ad-a6cc-148e8eea3926" Caption="Go to sponsor" ImageKey="RES:goto_round" ToolTipText="=string.concat(&quot;Go to &quot;, Fields(&quot;Financial Sponsor&quot;))">
+              <ShowPage PageID="88159265-2b7e-4c7b-82a2-119d01ecd40f" TabID="00000000-0000-0000-0000-000000000000" xmlns="bb_appfx_commontypes">
+                <ActionContext>
+                  <SectionField>Financial sponsor\System record ID</SectionField>
+                </ActionContext>
+              </ShowPage>
+            </Action>
+            <Action ID="ba943695-7007-4be4-b086-c9411d0cceeb" Caption="Go to correspondent" ImageKey="RES:goto_round" ToolTipText="=string.concat(&quot;Go to &quot;, fields!Correspondent)" Visible="= Fields!Correspondent&lt;&gt;Fields(&quot;Financial Sponsor&quot;)">
+              <ShowPage PageID="88159265-2b7e-4c7b-82a2-119d01ecd40f" TabID="00000000-0000-0000-0000-000000000000" xmlns="bb_appfx_commontypes">
+                <ActionContext>
+                  <SectionField>Sponsor\System record ID</SectionField>
+                </ActionContext>
+              </ShowPage>
+            </Action>
+          </Actions>
+        </Section>
+      </Sections>
+    </Tab>
+    <Tab Caption="Household" ID="1a7fea0c-4c2c-11dc-8314-0800200c9a66" Visible="=Page.Fields!SPONSORSHIPOPPORTUNITYTYPECODE=1 And Page.Fields!CURRENTMEMBERCOUNT&gt;1" CaptionResourceKey="$$household">
+      <Sections>
+        <Section ID="2153c5a5-8ecb-4fdc-a052-c5872574f7e1" Caption="=&quot;Current members in household: &quot; &amp; Page.Fields!CURRENTMEMBERCOUNT">
+          <DataList ID="3c451e1d-934f-40d2-9979-eb61b13b11c8">
+            <RenderStyle>
+              <StandardView>
+                <DetailViewForm ViewDataFormID="225531f2-2ecb-47d5-8485-d1c17f06557b" RecordIDField="GROUPMEMBERID" HeaderCaption="Details" HeaderCaptionResourceKey="$$details" DockStyle="Right" />
+              </StandardView>
+            </RenderStyle>
+          </DataList>
+          <SectionContext>
+            <PageExpressionField xmlns="bb_appfx_commontypes">HOUSEHOLDID</PageExpressionField>
+          </SectionContext>
+          <HelpKey>SPChildPageHousehold.html</HelpKey>
+        </Section>
+      </Sections>
+    </Tab>
+    <Tab Caption="Relationships" ID="bcd9ae35-b911-4eb5-bf9d-2e1a39e6a1a6" Visible="=Page.Fields!SPONSORSHIPOPPORTUNITYTYPECODE=1 AndAlso Page.Fields!HASRELATIONSHIPS" CaptionResourceKey="$$relationships">
+      <Sections>
+        <Section ID="d471a0e6-12bb-43d7-8186-aee7692de908" Caption="Relationships" CaptionResourceKey="$$relationships">
+          <DataList ID="637b5deb-c762-4002-a856-9d1859f17769">
+            <RenderStyle>
+              <GroupedView>
+                <Groups>
+                  <Group ColumnName="RELATIONSHIPTYPE" Default="true" />
+                </Groups>
+                <DetailViewForm ViewDataFormID="E9190728-2A47-4D07-8AF9-63FA16CF3900" HeaderCaption="=Fields!NAME" />
+              </GroupedView>
+            </RenderStyle>
+          </DataList>
+          <HelpKey>SPChildPageRelationships.html</HelpKey>
+        </Section>
+      </Sections>
+    </Tab>
+    <Tab Caption="Status" ID="eccc5cb7-39e2-4bea-a05c-ecea2fc08e51" Visible="=Page.Fields!SPONSORSHIPOPPORTUNITYTYPECODE=2" CaptionResourceKey="$$status">
+      <Sections>
+        <Section ID="8e85c555-3c13-41f0-b609-ff3e26cfb44a" Caption="Pending reasons" Visible="=Page.Fields!ELIGIBILITYCODE=0 Or Page.Fields!ELIGIBILITYCODE=1" CaptionResourceKey="$$pending_reasons">
+          <DataList ID="4df2fbeb-32ba-4fd0-99c9-474b165387b1">
+            <RenderStyle>
+              <StandardView />
+            </RenderStyle>
+          </DataList>
+          <SectionContext>
+            <PageContextID xmlns="bb_appfx_commontypes" />
+          </SectionContext>
+          <Actions>
+            <Action ID="cc72a7b4-7b8c-47fb-bd0f-4f4a466db2c8" Caption="Edit pending reasons" ImageKey="res:edit" Visible="=Page.Fields!ELIGIBILITYCODE = 0 Or Page.Fields!ELIGIBILITYCODE=1" CaptionResourceKey="$$edit_pending_reasons">
+              <ShowDataForm DataFormID="955e8a91-8a01-4762-93de-7246ec732dc8" xmlns="bb_appfx_commontypes">
+                <ActionContext>
+                  <PageContextID />
+                </ActionContext>
+                <PostActionEvent>
+                  <RefreshPage />
+                </PostActionEvent>
+              </ShowDataForm>
+              <HelpKey>SPProjectPageStatus.html</HelpKey>
+            </Action>
+          </Actions>
+          <HelpKey>SPProjectPageStatus.html</HelpKey>
+        </Section>
+      </Sections>
+    </Tab>
+    <Tab Caption="Documentation" ID="5c5c6350-d991-47ad-8f9e-3a4cd9d34d20" CaptionResourceKey="$$documentation">
+      <Sections>
+        <Section ID="ca9e383a-d374-44e1-a10d-476bda72a0ec" Caption="Documentation" CaptionResourceKey="$$documentation">
+          <DataList ID="1eb02c18-8111-4129-b718-e35ef62e1cfa">
+            <RenderStyle>
+              <GroupedView>
+                <Groups>
+                  <Group ColumnName="DOCUMENTATIONTYPE" Default="true" />
+                  <Group ColumnName="TYPE" />
+                </Groups>
+                <DetailViewForm ViewDataFormID="=Fields!ViewFormID" />
+              </GroupedView>
+            </RenderStyle>
+          </DataList>
+          <SectionContext>
+            <PageContextID xmlns="bb_appfx_commontypes" />
+          </SectionContext>
+          <Actions>
+            <Action ID="1ea95ea7-c1e5-4980-aa96-662022f70dd9" Caption="Open file" ImageKey="RES:ShowDetails" Visible="=Fields!DocumentationTypeCode = 0 OrElse Fields!DocumentationTypeCode = 1" AppendSeparator="true" CaptionResourceKey="$$open_file">
+              <ExecuteCLRAction xmlns="bb_appfx_commontypes">
+                <ComponentIdentifier AssemblyName="Blackbaud.AppFx.Platform.ClientComponents.dll" ClassName="Blackbaud.AppFx.Platform.ClientComponents.ShellToURL" />
+              </ExecuteCLRAction>
+              <HelpKey>GLBOpenMediaLinkAttachmentFiles.html</HelpKey>
+            </Action>
+            <Action ID="05f1aa42-c952-4fdf-bf29-c72598b9438a" Caption="Open file" ImageKey="RES:ShowDetails" Visible="=(Fields!DocumentationTypeCode = 2) AndAlso Globals.CurrentAppUserGrantedForm(&quot;7126725A-12F2-4A37-A992-10891CEEA336&quot;)" AppendSeparator="true" CaptionResourceKey="$$open_file">
+              <ExecuteCLRAction xmlns="bb_appfx_commontypes">
+                <ComponentIdentifier AssemblyName="Blackbaud.AppFx.Platform.ClientComponents.dll" ClassName="Blackbaud.AppFx.Platform.ClientComponents.ShellToBinaryFile" />
+              </ExecuteCLRAction>
+              <HelpKey>GLBOpenMediaLinkAttachmentFiles.html</HelpKey>
+            </Action>
+            <Action ID="deded227-5e0c-4c9a-ae19-30170f7e6abb" Caption="Add" ImageKey="RES:NewItem" CaptionResourceKey="$$add">
+              <ActionGroup>
+                <Actions>
+                  <Action ID="3582444b-79aa-4b48-b3c6-3c0ca866ebf2" Caption="Attachment" ImageKey="RES:NewItem" AppendSeparator="true" CaptionResourceKey="$$attachment">
+                    <ShowAddDataForm DataFormID="e0dc65fb-0a66-41ca-8f80-3aafc42a3d8d" xmlns="bb_appfx_commontypes">
+                      <ActionContext>
+                        <PageContextID />
+                      </ActionContext>
+                    </ShowAddDataForm>
+                    <HelpKey>GLBAddAttachments.html</HelpKey>
+                  </Action>
+                  <Action ID="9b1db230-0010-4b01-9cf2-c6fc0a9d4579" Caption="Media link" ImageKey="RES:NewItem" CaptionResourceKey="$$media_link">
+                    <ShowAddDataForm DataFormID="6803e06d-ba77-42bc-aedd-0bdbfabc6ae1" xmlns="bb_appfx_commontypes">
+                      <ActionContext>
+                        <PageContextID />
+                      </ActionContext>
+                    </ShowAddDataForm>
+                    <HelpKey>GLBAddMediaLinks.html</HelpKey>
+                  </Action>
+                  <Action ID="dd2a0577-552a-49a1-afe8-8b335019eaad" Caption="Note" ImageKey="RES:NewItem" CaptionResourceKey="$$note">
+                    <ShowAddDataForm DataFormID="bd3f4bc6-51d6-409c-98f3-90927c533465" xmlns="bb_appfx_commontypes">
+                      <ActionContext>
+                        <PageContextID />
+                      </ActionContext>
+                    </ShowAddDataForm>
+                    <HelpKey>GLBEditNotes.html</HelpKey>
+                  </Action>
+                </Actions>
+              </ActionGroup>
+            </Action>
+            <Action ID="c8e2edf3-5b53-4604-b16b-6d3435a94169" Caption="Edit" ImageKey="RES:Edit" DefaultAction="true" Visible="=Fields!DocumentationTypeCode = 0" Enabled="=Fields!DocumentationTypeCode = 0" CaptionResourceKey="$$edit">
+              <ShowDataForm DataFormID="6ae14992-c9f8-4760-bb0f-225ab86eba96" xmlns="bb_appfx_commontypes">
+                <ActionContext>
+                  <SectionField>ID</SectionField>
+                </ActionContext>
+              </ShowDataForm>
+              <HelpKey>GLBEditNotes.html</HelpKey>
+            </Action>
+            <Action ID="fdce4b9e-1c5b-4704-a3b0-87ab97702c63" Caption="Edit" ImageKey="RES:Edit" DefaultAction="true" Visible="=Fields!DocumentationTypeCode = 1" Enabled="=Fields!DocumentationTypeCode = 1" CaptionResourceKey="$$edit">
+              <ShowDataForm DataFormID="e86c6da4-cc31-43d8-bd88-a7fdd035d6b8" xmlns="bb_appfx_commontypes">
+                <ActionContext>
+                  <SectionField>ID</SectionField>
+                </ActionContext>
+              </ShowDataForm>
+              <HelpKey>GLBEditMediaLinks.html</HelpKey>
+            </Action>
+            <Action ID="ea58a014-54ef-474e-9ef4-e56a4407f6a3" Caption="Edit" ImageKey="RES:Edit" DefaultAction="true" Visible="=Fields!DocumentationTypeCode = 2" Enabled="=Fields!DocumentationTypeCode = 2" CaptionResourceKey="$$edit">
+              <ShowDataForm DataFormID="81ad19cb-a7d4-474e-ac37-cdad28ab2063" xmlns="bb_appfx_commontypes">
+                <ActionContext>
+                  <SectionField>ID</SectionField>
+                </ActionContext>
+              </ShowDataForm>
+              <HelpKey>GLBEditAttachments.html</HelpKey>
+            </Action>
+            <Action ID="339156c8-4a92-4ead-afeb-b305927e95bc" Caption="Delete" ImageKey="RES:Delete" Visible="=Fields!DocumentationTypeCode = 0" CaptionResourceKey="$$delete">
+              <ExecuteRecordOperation RecordOperationID="b4d75b0a-259d-4f7a-86fb-187d5e1699aa" xmlns="bb_appfx_commontypes">
+                <ActionContext>
+                  <SectionField>ID</SectionField>
+                </ActionContext>
+              </ExecuteRecordOperation>
+              <HelpKey>GLBDeleteNotes.html</HelpKey>
+            </Action>
+            <Action ID="b3fe5c61-7206-4575-aec2-a085ca425fef" Caption="Delete" ImageKey="RES:Delete" Visible="=Fields!DocumentationTypeCode = 1" CaptionResourceKey="$$delete">
+              <ExecuteRecordOperation RecordOperationID="c51f6ad4-a37c-4e18-81e1-d4be7b018df7" xmlns="bb_appfx_commontypes">
+                <ActionContext>
+                  <SectionField>ID</SectionField>
+                </ActionContext>
+              </ExecuteRecordOperation>
+              <HelpKey>GLBDeleteMediaLinks.html</HelpKey>
+            </Action>
+            <Action ID="638981cc-8b14-4c62-9ee3-568475f8ec21" Caption="Delete" ImageKey="RES:Delete" Visible="=Fields!DocumentationTypeCode = 2" CaptionResourceKey="$$delete">
+              <ExecuteRecordOperation RecordOperationID="1f7a123a-f715-4165-bc66-16828e0946ed" xmlns="bb_appfx_commontypes">
+                <ActionContext>
+                  <SectionField>ID</SectionField>
+                </ActionContext>
+              </ExecuteRecordOperation>
+              <HelpKey>GLBDeleteAttachments.html</HelpKey>
+            </Action>
+          </Actions>
+          <HelpKey>SPDocumentationTab.html</HelpKey>
+        </Section>
+      </Sections>
+    </Tab>
+    <Tab Caption="Attributes" ID="8050217e-d9be-4395-98bd-9b43ae45797f" Visible="=Fields!ATTRIBUTEDEFINED = True" CaptionResourceKey="$$attributes">
+      <Sections>
+        <Section ID="e1acb60b-66c7-4a7f-8b0b-f5414721383e" Caption="Attributes" CaptionResourceKey="$$attributes">
+          <DataList ID="bfbc525a-db98-4437-a06b-91323b51f878">
+            <RenderStyle>
+              <GroupedView>
+                <Groups>
+                  <Group ColumnName="CATEGORY" />
+                  <Group ColumnName="ATTRIBUTEGROUP" />
+                </Groups>
+              </GroupedView>
+            </RenderStyle>
+          </DataList>
+          <Actions>
+            <Action ID="a8158c70-d384-4755-be16-53ee36ed3035" Caption="Add" ImageKey="res:newitem" CaptionResourceKey="$$add">
+              <ShowAddDataForm DataFormID="6d7de1be-a475-4642-85d5-f90f0b4b3954" xmlns="bb_appfx_commontypes">
+                <ActionContext>
+                  <PageContextID />
+                </ActionContext>
+                <PostActionEvent>
+                  <RefreshSection />
+                </PostActionEvent>
+              </ShowAddDataForm>
+              <HelpKey>SPAttributesAdd.html</HelpKey>
+            </Action>
+            <Action ID="84c30a33-52c3-404a-aa82-367bf923c453" Caption="Edit" ImageKey="res:edit" DefaultAction="true" CaptionResourceKey="$$edit">
+              <ShowDataForm DataFormID="212630ed-2950-4167-a0c0-b3bb19a0bb81" xmlns="bb_appfx_commontypes">
+                <ActionContext>
+                  <SectionField>ATTRIBUTEKEY</SectionField>
+                </ActionContext>
+                <PostActionEvent>
+                  <RefreshSection />
+                </PostActionEvent>
+              </ShowDataForm>
+              <HelpKey>SPAttributesEdit.html</HelpKey>
+            </Action>
+            <Action ID="f00cab6f-d634-4d1b-b3b9-5584a867a50c" Caption="Delete" ImageKey="res:delete" CaptionResourceKey="$$delete">
+              <ExecuteRecordOperation RecordOperationID="c4b3220b-aead-4d46-a6b0-a4ec5eccfb0d" xmlns="bb_appfx_commontypes">
+                <ActionContext>
+                  <SectionField>ATTRIBUTEKEY</SectionField>
+                </ActionContext>
+                <PostActionEvent>
+                  <RefreshSection />
+                </PostActionEvent>
+              </ExecuteRecordOperation>
+              <HelpKey>SPAttributesDelete.html</HelpKey>
+            </Action>
+          </Actions>
+          <HelpKey>SPChildPageAttributes.html</HelpKey>
+        </Section>
+      </Sections>
+    </Tab>
+    <Tab Caption="Smart Fields" ID="606c03dc-4772-40a8-b169-2e54022d2393" Visible="=Page.Fields!SMARTFIELDDEFINED = True and Page.Fields!SPONSORSHIPOPPORTUNITYTYPECODE = 1" CaptionResourceKey="$$smart_fields">
+      <Sections>
+        <Section ID="a786bd99-ca89-4042-af62-d0ff8ec99194" Caption="Smart Fields" CaptionResourceKey="$$smart_fields">
+          <DataList ID="fe301e8c-4a42-4e39-a29c-1f501f066e61">
+            <RenderStyle>
+              <StandardView />
+            </RenderStyle>
+          </DataList>
+          <HelpKey>SPChildPageSmartFields.html</HelpKey>
+        </Section>
+      </Sections>
+    </Tab>
+    <Tab Caption="Smart Fields" ID="e7b5c6cf-8647-46e8-a99f-70dcacd87b2f" Visible="=Page.Fields!SMARTFIELDDEFINED = True and Page.Fields!SPONSORSHIPOPPORTUNITYTYPECODE = 2" CaptionResourceKey="$$smart_fields">
+      <Sections>
+        <Section ID="add559e8-6b98-42ba-b3a6-d3d9459d1754" Caption="Smart Fields" CaptionResourceKey="$$smart_fields">
+          <DataList ID="26b58ef1-11c4-417b-99a8-4deeca9d84b7">
+            <RenderStyle>
+              <StandardView />
+            </RenderStyle>
+          </DataList>
+          <HelpKey>SPProjectPageSmartFields.html</HelpKey>
+        </Section>
+      </Sections>
+    </Tab>
+  </Tabs>
+  <PageActionGroups>
+    <PageActionGroup ID="d3db7753-92ba-4969-a544-a3f184f1b800" Caption="Tasks" ImageKey="RES:Tasks" CaptionResourceKey="$$tasks">
+      <Actions>
+        <Action ID="b3fd32d1-9428-4eaf-a11c-569bce87e60a" Caption="Edit child" ImageKey="RES:Edit" Visible="=Page.Fields!SPONSORSHIPOPPORTUNITYTYPECODE=1 AndAlso 1=2" CaptionResourceKey="$$edit_child">
+          <ShowDataForm DataFormID="a8f78a3f-2df5-4b67-b237-464dde855c87" xmlns="bb_appfx_commontypes">
+            <ActionContext>
+              <PageContextID />
+            </ActionContext>
+            <PostActionEvent>
+              <RefreshPage />
+            </PostActionEvent>
+          </ShowDataForm>
+          <HelpKey>SPSponsorshipEditChild.html</HelpKey>
+        </Action>
+        <Action ID="bc9910b1-84bf-4d65-8ff1-cc2808034278" Caption="Edit project" ImageKey="RES:Edit" Visible="=Page.Fields!SPONSORSHIPOPPORTUNITYTYPECODE=2" CaptionResourceKey="$$edit_project">
+          <ShowDataForm DataFormID="f6a7a004-04a4-4b89-aa9b-17a432fed409" xmlns="bb_appfx_commontypes">
+            <ActionContext>
+              <PageContextID />
+            </ActionContext>
+            <PostActionEvent>
+              <RefreshPage />
+            </PostActionEvent>
+          </ShowDataForm>
+          <HelpKey>SPSponsorshipEditProject.html</HelpKey>
+        </Action>
+        <Action ID="c15f00a0-31a3-449c-aec2-10fc4c8f4dbb" Caption="Edit last documentation date" ImageKey="RES:Edit" CaptionResourceKey="$$edit_last_documentation_date">
+          <ShowDataForm DataFormID="dc58b936-a5ff-4ac1-a96c-f4c4756f3d13" xmlns="bb_appfx_commontypes">
+            <ActionContext>
+              <PageContextID />
+            </ActionContext>
+            <PostActionEvent>
+              <RefreshPage />
+            </PostActionEvent>
+          </ShowDataForm>
+          <HelpKey>SPEditLastDocDate.html</HelpKey>
+        </Action>
+        <Action ID="a760f7cb-73a2-4202-b2aa-3d0b2e00187f" Caption="Edit lookup ID" ImageKey="RES:Edit" CaptionResourceKey="$$edit_lookup_id">
+          <ShowDataForm DataFormID="193197e2-cabd-4ec6-a98c-ea3d4dfa5224" xmlns="bb_appfx_commontypes">
+            <ActionContext>
+              <PageContextID />
+            </ActionContext>
+            <PostActionEvent>
+              <RefreshPage />
+            </PostActionEvent>
+          </ShowDataForm>
+          <HelpKey>SPEditLookupID.html</HelpKey>
+        </Action>
+        <Action ID="22cf2e24-28c7-4d44-a709-e95144ddace6" Caption="Mark eligible" ImageKey="RES:RecordOperationSpec" Visible="=Page.Fields!ELIGIBILITYCODE=2 AndAlso Page.Fields!SPONSORSHIPOPPORTUNITYTYPECODE=1" CaptionResourceKey="$$mark_eligible">
+          <ExecuteRecordOperation RecordOperationID="4ef7a0fc-fea8-4fe6-b8d6-f8b68855eafb" xmlns="bb_appfx_commontypes">
+            <ActionContext>
+              <PageContextID />
+            </ActionContext>
+            <PostActionEvent>
+              <RefreshPage />
+            </PostActionEvent>
+          </ExecuteRecordOperation>
+          <HelpKey>SPChildMarkEligible.html</HelpKey>
+        </Action>
+        <Action ID="5f038adc-8ec2-402e-97b3-bdde4bcce0a6" Caption="Mark open" ImageKey="RES:RecordOperationSpec" Visible="=Page.Fields!ELIGIBILITYCODE=2 AndAlso Page.Fields!SPONSORSHIPOPPORTUNITYTYPECODE=2" CaptionResourceKey="$$mark_open">
+          <ExecuteRecordOperation RecordOperationID="4ef7a0fc-fea8-4fe6-b8d6-f8b68855eafb" xmlns="bb_appfx_commontypes">
+            <ActionContext>
+              <PageContextID />
+            </ActionContext>
+            <PostActionEvent>
+              <RefreshPage />
+            </PostActionEvent>
+          </ExecuteRecordOperation>
+          <HelpKey>SPProjectPageMarkOpen.html</HelpKey>
+        </Action>
+        <Action ID="bb86613b-795e-4738-88a4-0b3923913b15" Caption="Mark ineligible" ImageKey="RES:BusinessProcessSpec" Visible="=Page.Fields!SPONSORSHIPOPPORTUNITYTYPECODE=1 And (Page.Fields!ELIGIBILITYCODE=0 Or Page.Fields!ELIGIBILITYCODE=1)" CaptionResourceKey="$$mark_ineligible">
+          <StartBusinessProcess BusinessProcessID="7ee47ea0-8e7f-475c-a1c3-3b4b127e9136" StatusPageID="177290bd-6da5-456a-972e-3f1e73708637" StatusTabID="00000000-0000-0000-0000-000000000000" PreprocessEditFormID="366ec3c1-a3b7-4492-8f7d-a127860912be" xmlns="bb_appfx_commontypes">
+            <ActionContext>
+              <PageContextID />
+            </ActionContext>
+            <PostActionEvent>
+              <RefreshPage />
+            </PostActionEvent>
+          </StartBusinessProcess>
+          <HelpKey>SPChildMarkIneligible.html</HelpKey>
+        </Action>
+        <Action ID="9d3993c3-899c-4609-8b1f-62a84703b786" Caption="Edit ineligible reason" ImageKey="res:BusinessProcessSpec" Visible="=Page.Fields!SPONSORSHIPOPPORTUNITYTYPECODE=1 AndAlso Page.Fields!ELIGIBILITYCODE = 2" CaptionResourceKey="$$edit_ineligible_reason">
+          <StartBusinessProcess BusinessProcessID="7ee47ea0-8e7f-475c-a1c3-3b4b127e9136" StatusPageID="177290bd-6da5-456a-972e-3f1e73708637" StatusTabID="00000000-0000-0000-0000-000000000000" PreprocessEditFormID="366ec3c1-a3b7-4492-8f7d-a127860912be" xmlns="bb_appfx_commontypes">
+            <ActionContext>
+              <PageContextID />
+            </ActionContext>
+            <PostActionEvent>
+              <RefreshPage />
+            </PostActionEvent>
+          </StartBusinessProcess>
+          <HelpKey>SPChildMarkIneligible.html</HelpKey>
+        </Action>
+        <Action ID="21c11ea4-e065-483a-b6a7-add6c3ba0fd5" Caption="Unreserve" ImageKey="RES:RecordOperationSpec" Visible="=Page.Fields!ISRESERVED AndAlso Page.Fields!SPONSORSHIPOPPORTUNITYTYPECODE=1" CaptionResourceKey="$$unreserve">
+          <ExecuteRecordOperation RecordOperationID="585b46e6-e720-43e1-81e1-a2afba4b77f2" xmlns="bb_appfx_commontypes">
+            <ActionContext>
+              <PageContextID />
+            </ActionContext>
+            <PostActionEvent>
+              <RefreshPage />
+            </PostActionEvent>
+          </ExecuteRecordOperation>
+        </Action>
+        <Action ID="eccb8528-2a63-415c-a02f-745833151a00" Caption="Mark closed" ImageKey="RES:BusinessProcessSpec" Visible="=Page.Fields!SPONSORSHIPOPPORTUNITYTYPECODE=2 And (Page.Fields!ELIGIBILITYCODE=0 Or Page.Fields!ELIGIBILITYCODE=1)" CaptionResourceKey="$$mark_closed">
+          <StartBusinessProcess BusinessProcessID="7ee47ea0-8e7f-475c-a1c3-3b4b127e9136" StatusPageID="177290bd-6da5-456a-972e-3f1e73708637" StatusTabID="00000000-0000-0000-0000-000000000000" PreprocessEditFormID="c409fc21-5ff5-4f97-b7d6-dc8ff80ab2be" xmlns="bb_appfx_commontypes">
+            <ActionContext>
+              <PageContextID />
+            </ActionContext>
+            <PostActionEvent>
+              <RefreshPage />
+            </PostActionEvent>
+          </StartBusinessProcess>
+          <HelpKey>SPProjectPageMarkClose.html</HelpKey>
+        </Action>
+        <Action ID="6c920047-2bc8-4d1a-94d6-a3c9ec44cb78" Caption="Edit closed reason" ImageKey="res:BusinessProcessSpec" Visible="=Page.Fields!SPONSORSHIPOPPORTUNITYTYPECODE=2 AndAlso Page.Fields!ELIGIBILITYCODE = 2" CaptionResourceKey="$$edit_closed_reason">
+          <StartBusinessProcess BusinessProcessID="7ee47ea0-8e7f-475c-a1c3-3b4b127e9136" StatusPageID="177290bd-6da5-456a-972e-3f1e73708637" StatusTabID="00000000-0000-0000-0000-000000000000" PreprocessEditFormID="c409fc21-5ff5-4f97-b7d6-dc8ff80ab2be" xmlns="bb_appfx_commontypes">
+            <ActionContext>
+              <PageContextID />
+            </ActionContext>
+            <PostActionEvent>
+              <RefreshPage />
+            </PostActionEvent>
+          </StartBusinessProcess>
+          <HelpKey>SPProjectPageMarkClose.html</HelpKey>
+        </Action>
+        <Action ID="9252aa90-38e7-437c-ab3d-19510066a79f" Caption="=String.Format(Me.Globals.GetResourceString(&quot;Opportunity_Delete&quot;), Fields!NAME)" ImageKey="RES:Delete">
+          <ExecuteRecordOperation RecordOperationID="694b7331-bc3d-471c-ad58-ae8d31f5a891" xmlns="bb_appfx_commontypes">
+            <ActionContext>
+              <PageContextID />
+            </ActionContext>
+            <PostActionEvent>
+              <GoToPage>
+                <FunctionalArea FunctionalAreaID="9ea48d9c-7e2d-42e6-91cc-210792618017" />
+              </GoToPage>
+            </PostActionEvent>
+          </ExecuteRecordOperation>
+          <HelpKey>SPSponsorshipDeleteOpportunity.html</HelpKey>
+        </Action>
+        <Action ID="362191f6-e97c-4124-9dde-5297db52e56c" Caption="Change base currency" Visible="=Page.Fields!SPONSORSHIPOPPORTUNITYTYPECODE=2 AndAlso Globals.ConditionSettingExists(&quot;Multicurrency&quot;)" CaptionResourceKey="$$change_base_currency">
+          <ShowDataForm DataFormID="da54b608-5cf8-4f4f-b472-206c4eb78873" xmlns="bb_appfx_commontypes">
+            <ActionContext>
+              <PageContextID />
+            </ActionContext>
+            <PostActionEvent>
+              <RefreshPage />
+            </PostActionEvent>
+          </ShowDataForm>
+          <HelpKey>FRCEditCampaignBaseCurrency.html</HelpKey>
+        </Action>
+        <Action ID="c1baaf60-e993-47a7-a3f6-b8ffe3723623" Caption="Check Eligibility" ImageKey="RES:RecordOperationSpec">
+          <ExecuteRecordOperation RecordOperationID="2f8a2891-a7e9-4ba2-a613-01c7b7c849bc" xmlns="bb_appfx_commontypes">
+            <ActionContext>
+              <PageContextID />
+            </ActionContext>
+            <PostActionEvent>
+              <RefreshPage />
+            </PostActionEvent>
+          </ExecuteRecordOperation>
+        </Action>
+        <Action ID="d9854646-7319-4701-a0c6-ac447e93ec04" Caption="=String.Format(&quot;Depart {0}&quot;, Page.Fields!FIRSTNAME)" ImageKey="RES:goto_square" Visible="= Not Page.Fields!DEPARTUREEXISTS">
+          <ShowAddDataForm DataFormID="ac89e520-149a-4a66-83c2-1e5e906a5809" xmlns="bb_appfx_commontypes">
+            <ActionContext>
+              <PageContextID />
+            </ActionContext>
+            <PostActionEvent>
+              <RefreshPage />
+            </PostActionEvent>
+          </ShowAddDataForm>
+        </Action>
+      </Actions>
+    </PageActionGroup>
+    <PageActionGroup ID="87a91e84-628d-4733-8d9d-18456f014674" Caption="Go to" CaptionResourceKey="$$go_to">
+      <Actions>
+        <Action ID="e8ff85bb-7d8e-46a1-a1fa-e5e6376b4d97" Caption="=String.Concat(&quot;Mark &quot;,IIf(Page.Fields!SPONSORSHIPOPPORTUNITYTYPECODE=1,&quot;ineligible&quot;,&quot;closed&quot;),&quot; process&quot;)" ImageKey="RES:goto_round" Visible="=Fields!SHOWPROCESSPAGE">
+          <ShowPage PageID="177290bd-6da5-456a-972e-3f1e73708637" TabID="00000000-0000-0000-0000-000000000000" xmlns="bb_appfx_commontypes">
+            <ActionContext>
+              <PageContextID />
+            </ActionContext>
+          </ShowPage>
+          <HelpKey>SPMarkIneligibleProc.html</HelpKey>
+        </Action>
+        <Action ID="518bf2be-4da1-4a89-8168-9469cff4c3c7" Caption="Interactions">
+          <ShowPage PageID="ede4cf10-a84d-4434-87ef-ae143c78eaaf" TabID="00000000-0000-0000-0000-000000000000" xmlns="bb_appfx_commontypes">
+            <ActionContext>
+              <Expression>= Page.Fields!CONSTITUENTID</Expression>
+            </ActionContext>
+          </ShowPage>
+        </Action>
+        <Action ID="d5a6e4c6-1fa8-4253-9b8e-ec1bb9fa1522" Caption="Departure" ImageKey="RES:goto_round" Visible="=Page.Fields!DEPARTUREEXISTS">
+          <ShowPage PageID="77a8e713-0038-425f-9969-3893c322de15" TabID="00000000-0000-0000-0000-000000000000" xmlns="bb_appfx_commontypes">
+            <ActionContext>
+              <PageContextID />
+            </ActionContext>
+          </ShowPage>
+        </Action>
+      </Actions>
+    </PageActionGroup>
+    <PageActionGroup ID="1382d02d-f410-42d5-91dc-0a417e72ace0" Caption="CCH">
+      <Actions>
+        <Action ID="18dbe163-5a9f-48b5-9563-0cc8605d3db8" Caption="Add" Visible="= Not Page.Fields!CCHEXISTS">
+          <ShowAddDataForm DataFormID="199882b0-1b47-4af7-b1f6-186f88e5c343" xmlns="bb_appfx_commontypes">
+            <ActionContext>
+              <PageContextID />
+            </ActionContext>
+            <PostActionEvent>
+              <RefreshPage />
+            </PostActionEvent>
+          </ShowAddDataForm>
+        </Action>
+      </Actions>
+    </PageActionGroup>
+  </PageActionGroups>
+  <HelpKey>SPSponsorshipOpportunityPage.html</HelpKey>
+  <PageExpressionForms>
+    <PageExpressionForm DataFormInstanceID="0656af60-2c61-49be-bced-4c9018b107eb" />
+    <PageExpressionForm DataFormInstanceID="90579643-32b2-48ef-9c53-5ee3e6213ca7" />
+    <PageExpressionForm DataFormInstanceID="4c5654c6-93b2-494d-862b-5887bc96f972" />
+  </PageExpressionForms>
+</PageDefinitionSpec>

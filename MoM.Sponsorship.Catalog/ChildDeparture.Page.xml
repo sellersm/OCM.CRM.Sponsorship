@@ -1,0 +1,126 @@
+﻿<PageDefinitionSpec
+  xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  ID="77a8e713-0038-425f-9969-3893c322de15" 
+  Name="ChildDeparture Page" 
+  Description="Child Departure Page" 
+  Author="Memphis Sellers" 
+  ExpressionDataFormID="b5ebbe6a-9f57-4dcf-b9ea-6ddc173aa479" 
+  ContextRecordType="ChildDeparture" 
+  xmlns="bb_appfx_pagedefinition">
+  <PageHeader Caption="= Page.Fields!CHILDNAME" />
+  <SummarySection ID="99cb09d9-bda1-4e1f-94f4-efcd30ec1d86" Caption="General Information">
+    <DataForm ID="b5ebbe6a-9f57-4dcf-b9ea-6ddc173aa479" />
+  </SummarySection>
+  <Tabs>
+    <Tab Caption="Reason For Departure" ID="180734c7-549e-44e1-8f3a-cb06b52d37be">
+      <Sections>
+        <Section ID="f6886996-c942-49a6-b784-1c6fc18655c7" Caption="Social and Emotional Impact" HideCaption="true" DisplayStyle="InlineBlock">
+          <DataForm ID="0e3ce299-26d8-4c99-b7c2-f1a178c99bab" />
+          <Actions>
+            <Action ID="66727a87-e517-4d1e-9650-e6365e2c1ba2" Caption="Edit">
+              <ShowDataForm DataFormID="d4f6b9ab-1167-4bcf-bac7-a4be916e264a" xmlns="bb_appfx_commontypes">
+                <ActionContext>
+                  <PageContextID />
+                </ActionContext>
+                <PostActionEvent>
+                  <RefreshSection />
+                </PostActionEvent>
+              </ShowDataForm>
+            </Action>
+          </Actions>
+        </Section>
+      </Sections>
+    </Tab>
+    <Tab Caption="Spiritual and Physical Impact" ID="ac7d5b74-dafb-4693-93e3-9b35fa1cda55">
+      <Sections>
+        <Section ID="d66340d1-c97f-461d-8576-1bf427dbf7d7">
+          <DataForm ID="c63f6464-8ea0-431a-9251-00d83de4c355" />
+          <Actions>
+            <Action ID="0b0eaf04-3cb0-47fc-b5dd-7b1884e85b20" Caption="Edit">
+              <ShowDataForm DataFormID="72121a1e-2b21-45e9-a334-012fae466e6a" xmlns="bb_appfx_commontypes">
+                <ActionContext>
+                  <PageContextID />
+                </ActionContext>
+                <PostActionEvent>
+                  <RefreshSection />
+                </PostActionEvent>
+              </ShowDataForm>
+            </Action>
+          </Actions>
+        </Section>
+      </Sections>
+    </Tab>
+    <Tab Caption="Social and Cognitive Impact" ID="b95c4fd2-4fc9-4c51-9d4f-c5bf91807a86">
+      <Sections>
+        <Section ID="f2dd789a-344a-400f-80cf-8f09773ffb74">
+          <DataForm ID="68c8570f-6ba2-45f5-807b-1f712f31e414" />
+          <Actions>
+            <Action ID="8b84e485-25d8-4776-89c4-4b2d294f3a6c" Caption="Edit">
+              <ShowDataForm DataFormID="4b675cd6-4aed-4c4b-b104-ec9129921e39" xmlns="bb_appfx_commontypes">
+                <ActionContext>
+                  <PageContextID />
+                </ActionContext>
+              </ShowDataForm>
+            </Action>
+          </Actions>
+        </Section>
+      </Sections>
+    </Tab>
+    <Tab Caption="General Comments" ID="0f7ae0e0-2d07-446f-ba3f-09b7e6b3640f">
+      <Sections>
+        <Section ID="6541c739-e96e-4993-a210-28c4b0a6ac82">
+          <DataForm ID="fd694a10-d47d-41ec-a82c-5b56ede13c2d" />
+          <Actions>
+            <Action ID="10cb6f59-cab8-4ac4-8aac-9f5ccb3f6769" Caption="Edit">
+              <ShowDataForm DataFormID="af0fb3b2-ce40-42b9-8356-6eee03250946" xmlns="bb_appfx_commontypes">
+                <ActionContext>
+                  <PageContextID />
+                </ActionContext>
+              </ShowDataForm>
+            </Action>
+          </Actions>
+        </Section>
+      </Sections>
+    </Tab>
+  </Tabs>
+  <PageActionGroups>
+    <PageActionGroup ID="8333c524-dde5-4b34-af93-2b6f772d959a" Caption="Tasks">
+      <Actions>
+        <Action ID="cb8452ce-85d9-4754-885c-d2e04d9d9eeb" Caption="Edit">
+          <ShowDataForm DataFormID="b3be4d91-42b5-4b50-bcf1-b9eb976c8c16" xmlns="bb_appfx_commontypes">
+            <ActionContext>
+              <PageContextID />
+            </ActionContext>
+            <PostActionEvent>
+              <RefreshPage />
+            </PostActionEvent>
+          </ShowDataForm>
+        </Action>
+        <Action ID="dbba11b8-a418-4727-a42f-4055c3a37f19" Caption="Delete" ImageKey="RES:delete">
+          <ExecuteRecordOperation RecordOperationID="22479045-589c-447e-8713-82f7bb0486e5" xmlns="bb_appfx_commontypes">
+            <ActionContext>
+              <PageContextID />
+            </ActionContext>
+            <PostActionEvent>
+              <GoToPage>
+                <PreviousPage />
+              </GoToPage>
+            </PostActionEvent>
+          </ExecuteRecordOperation>
+        </Action>
+      </Actions>
+    </PageActionGroup>
+    <PageActionGroup ID="52778393-7a89-4ab9-b7d6-6666961065ef" Caption="Go to">
+      <Actions>
+        <Action ID="b05c5bdc-bf13-426e-81fc-a3e06ef23cd6" Caption="=String.Format(&quot;Goto {0}&quot;, Page.Fields!CHILDNAME)">
+          <ShowPage PageID="0f392d71-5884-4363-b6e3-a75755f8402a" TabID="00000000-0000-0000-0000-000000000000" xmlns="bb_appfx_commontypes">
+            <ActionContext>
+              <PageContextID />
+            </ActionContext>
+          </ShowPage>
+        </Action>
+      </Actions>
+    </PageActionGroup>
+  </PageActionGroups>
+</PageDefinitionSpec>
