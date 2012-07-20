@@ -77,6 +77,13 @@
     <Folder Include="Global Changes\" />
     <Folder Include="Images\" />
   </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Sponsorship Specs\Sponsorship.PackageVersion.DataList.xml" />
+    <EmbeddedResource Include="Tables\Code Tables\Sponsorship.Performance.CodeTable.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Sponsorship Specs\Sponsorship.Package.xml" />
+  </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.VisualBasic.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

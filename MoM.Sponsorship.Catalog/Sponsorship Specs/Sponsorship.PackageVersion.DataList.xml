@@ -1,0 +1,41 @@
+﻿<DataListSpec 
+	xmlns="bb_appfx_datalist"
+	xmlns:common="bb_appfx_commontypes" 
+	ID="cc5cc4c8-6190-4127-a952-557c0eddc2ac" 
+	Name="Sponsorship Package Version Data List"
+	Description="Used to display the version of the package deployment."
+	Author="Cary Mayeda"
+    common:SecurityUIFolder="Sponsorship\Opportunity\Country" >
+
+	<!-- 
+	Remarks:    This is used to view the package version that has been loaded.  #VersionNumber# is modifed automatically on the build machine to match the build version number.
+
+	History:
+	Date            Modified By     Comments
+	19-Jul-2012		CMayeda			Initial Version
+	-->
+
+	<!-- define the SP that returns the data for the datalist -->
+	<SPDataList SPName="USR_USP_DATALIST_SPONSORSHIPPACKAGEVERSION">
+		<common:CreateProcedureSQL>
+			<![CDATA[
+			
+create procedure dbo.USR_USP_DATALIST_SPONSORSHIPPACKAGEVERSION
+as
+begin
+	select 'Version #VersionNumber#' as version
+end
+
+]]>
+		</common:CreateProcedureSQL>
+	</SPDataList>
+
+
+	<!-- define the output fields in the list -->
+	<Output>
+		<OutputFields>
+			<OutputField FieldID="version" Caption="Sponsorship Package" DataType="String" />
+		</OutputFields>
+	</Output>
+
+</DataListSpec>
