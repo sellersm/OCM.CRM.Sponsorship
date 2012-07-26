@@ -76,6 +76,7 @@
   <ItemGroup>
     <Folder Include="Global Changes\" />
     <Folder Include="Images\" />
+    <Folder Include="SearchLists\" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Sponsorship Specs\Sponsorship.PackageVersion.DataList.xml" />
@@ -87,9 +88,25 @@
     <EmbeddedResource Include="Sponsorship Specs\Sponsorship.Package.xml" />
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="Add Forms\SponsorshipAdd_Wrapped.Add.xml" />
+    <EmbeddedResource Include="DataLists\ChildrenToSponsor.SimpleList.xml" />
+    <EmbeddedResource Include="DataLists\SponsorshipOpportunityMatchCustom.DataList.xml" />
+    <EmbeddedResource Include="Packages\MoM.Sponsorship.Package.xml" />
+    <EmbeddedResource Include="RecordOperations\DeleteChildSelectedForSponsorshipLock.RecordOperation.xml" />
+    <EmbeddedResource Include="RecordOperations\LockSelectedChild.RecordOperation.xml" />
+    <EmbeddedResource Include="SearchForms\SponsorshipOpportunityChild_MoMCustom.Search.xml" />
     <Content Include="Sponsorship Specs\SponsorshipLocation\SponsorshipLocationExtension.Edit.xml" />
     <Content Include="Sponsorship Specs\SponsorshipLocation\SponsorshipLocationExtension.Table.xml" />
     <Content Include="Sponsorship Specs\SponsorshipLocation\SponsorshipLocationHierarchyMoM.DataList.xml" />
+    <EmbeddedResource Include="SQL\Stored Procedures\USR_DELETE_LOCK_CHILD_FOR_SPONSORSHIP_SELECTION.xml" />
+    <EmbeddedResource Include="SQL\Stored Procedures\USR_USP_INSERT_LOCK_CHILD_FOR_SPONSORSHIP_SELECTION.xml" />
+    <EmbeddedResource Include="SQL\Stored Procedures\USR_USP_SPONSORSHIP_ACQUIREOPPORTUNITY_MOMCUSTOM.xml" />
+    <EmbeddedResource Include="SQL\Stored Procedures\USR_USP_SPONSORSHIP_MATCHOPPORTUNITY_MOMCUSTOM.xml" />
+    <EmbeddedResource Include="SQL\User Functions\UFN_CHILDREN_FOR_SPONSORSHIP_FROMITEMLISTXML.xml" />
+    <EmbeddedResource Include="SQL\User Functions\USR_UFN_IS_SELECTED_CHILD_LOCKED_FOR_SPONSORSHIP_SELECTION.xml" />
+    <EmbeddedResource Include="SQL\User Functions\USR_UFN_SPONSORSHIP_MATCHEDOPPORTUNITY_CHILDSPONSORSHIP.xml" />
+    <EmbeddedResource Include="Tables\USR_CHILD_SELECTED_FOR_SPONSORSHIP_LOCK.Table.xml" />
+    <EmbeddedResource Include="Tasks\SponsorshipAdd_Wrapped.Task.xml" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.VisualBasic.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

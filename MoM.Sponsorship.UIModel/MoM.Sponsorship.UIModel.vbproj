@@ -1,0 +1,146 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="4.0">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>9.0.30729</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{76A2384F-A332-43B0-9722-46B0CCC5DF65}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <RootNamespace>MoM.Sponsorship.UIModel</RootNamespace>
+    <AssemblyName>MoM.Sponsorship.UIModel</AssemblyName>
+    <MyType>Windows</MyType>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <OptionInfer>On</OptionInfer>
+    <OptionStrict>Off</OptionStrict>
+    <OldToolsVersion>2.0</OldToolsVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <DefineDebug>true</DefineDebug>
+    <DefineTrace>true</DefineTrace>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DocumentationFile>
+    </DocumentationFile>
+    <NoWarn>42016,41999,42017,42018,42019,42032,42036,42020,42021,42022,42353,42354,42355</NoWarn>
+    <RunCodeAnalysis>false</RunCodeAnalysis>
+    <CodeAnalysisRules>
+    </CodeAnalysisRules>
+    <CodeAnalysisRuleSet>SecurityRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <DefineDebug>false</DefineDebug>
+    <DefineTrace>true</DefineTrace>
+    <Optimize>true</Optimize>
+    <OutputPath>..\..\..\..\..\CRM2.93_SDK\SDK\DLLReferences\</OutputPath>
+    <DocumentationFile>
+    </DocumentationFile>
+    <NoWarn>42016,41999,42017,42018,42019,42032,42036,42020,42021,42022,42353,42354,42355</NoWarn>
+    <RunCodeAnalysis>true</RunCodeAnalysis>
+    <CodeAnalysisRules>
+    </CodeAnalysisRules>
+    <CodeAnalysisRuleSet>UIModel.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup>
+    <OptionExplicit>On</OptionExplicit>
+  </PropertyGroup>
+  <PropertyGroup>
+    <OptionCompare>Binary</OptionCompare>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Blackbaud.AppFx, Version=1.0.363.1205, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Blackbaud.AppFx.Fundraising.UIModel, Version=2.93.2034.0, Culture=neutral, processorArchitecture=MSIL" />
+    <Reference Include="Blackbaud.AppFx.Server, Version=1.0.443.759, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Blackbaud.AppFx.Sponsorship.UIModel, Version=2.93.2034.0, Culture=neutral, processorArchitecture=MSIL" />
+    <Reference Include="Blackbaud.AppFx.UIModeling.Core, Version=1.0.363.1205, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Blackbaud.AppFx.XmlTypes, Version=1.0.443.759, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Blackbaud.AppFx.XmlTypes.XmlSerializers, Version=1.0.443.759, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core">
+      <RequiredTargetFramework>3.5</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Import Include="Blackbaud.AppFx.UIModeling.Core" />
+    <Import Include="Blackbaud.AppFx" />
+    <Import Include="Microsoft.VisualBasic" />
+    <Import Include="System" />
+    <Import Include="System.Collections" />
+    <Import Include="System.Collections.Generic" />
+    <Import Include="System.ComponentModel" />
+    <Import Include="System.Data" />
+    <Import Include="System.Diagnostics" />
+    <Import Include="System.Linq" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="My Project\AssemblyInfo.vb" />
+    <Compile Include="SponsorshipAddFormWrappedCHILDRENUIModel.CodeGen.vb">
+      <DependentUpon>SponsorshipAddFormWrappedUIModel.vb</DependentUpon>
+    </Compile>
+    <Compile Include="SponsorshipAddFormWrappedINSTALLMENTSUIModel.CodeGen.vb">
+      <DependentUpon>SponsorshipAddFormWrappedUIModel.vb</DependentUpon>
+    </Compile>
+    <Compile Include="SponsorshipAddFormWrappedUIModel.CodeGen.vb">
+      <DependentUpon>SponsorshipAddFormWrappedUIModel.vb</DependentUpon>
+    </Compile>
+    <Compile Include="SponsorshipAddFormWrappedUIModel.vb" />
+    <Compile Include="SponsorshipOpportunityChildMoMCustomSearchUIModel.CodeGen.vb">
+      <DependentUpon>SponsorshipOpportunityChildMoMCustomSearchUIModel.vb</DependentUpon>
+    </Compile>
+    <Compile Include="SponsorshipOpportunityChildMoMCustomSearchUIModel.vb" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="htmlforms\mom.sponsorship\" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="UIModel.ruleset" />
+    <None Include="postbuild.bat" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\MoM.Sponsorship.Catalog\SearchForms\SponsorshipOpportunityChild_MoMCustom.Search.xml">
+      <Link>LinkedSpecs\SponsorshipOpportunityChild_MoMCustom.Search.xml</Link>
+    </None>
+    <Content Include="htmlforms\SponsorshipAddFormWrapped.html" />
+    <Content Include="htmlforms\SponsorshipOpportunityChildMoMCustomSearch.html" />
+    <Content Include="SponsorshipOpportunityChildMoMCustomSearchUIModel.xml">
+      <DependentUpon>SponsorshipOpportunityChildMoMCustomSearchUIModel.vb</DependentUpon>
+    </Content>
+    <None Include="..\MoM.Sponsorship.Catalog\Add Forms\SponsorshipAdd_Wrapped.Add.xml">
+      <Link>LinkedSpecs\SponsorshipAdd_Wrapped.Add.xml</Link>
+    </None>
+    <Content Include="SponsorshipAddFormWrappedUIModel.xml">
+      <DependentUpon>SponsorshipAddFormWrappedUIModel.vb</DependentUpon>
+    </Content>
+  </ItemGroup>
+  <Import Project="$(MSBuildBinPath)\Microsoft.VisualBasic.targets" />
+  <PropertyGroup>
+    <PostBuildEvent>
+    </PostBuildEvent>
+  </PropertyGroup>
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>
