@@ -13,10 +13,10 @@
 		<InstalledProduct ID="3117d2c8-7f46-42f2-abeb-b654f2f63046" />
 	</InstalledProductList>
 	<ResourceFile AssemblyName="Blackbaud.AppFx.Sponsorship.Catalog.dll" ClassName="Blackbaud.AppFx.Sponsorship.Catalog.SponsorshipLocationHierarchy.DataList" />
-	<SPDataList SPName="USP_DATALIST_SPONSORSHIPLOCATIONHIERARCHY_MOFM">
+	<SPDataList SPName="USP_DATALIST_SPONSORSHIPLOCATIONHIERARCHY_MOM">
 		<CreateProcedureSQL xmlns="bb_appfx_commontypes">
 
-			create procedure dbo.USP_DATALIST_SPONSORSHIPLOCATIONHIERARCHY_MOFM(
+			create procedure dbo.USP_DATALIST_SPONSORSHIPLOCATIONHIERARCHY_MOM(
 			@INCLUDEACTIVE bit = 1,
 			@INCLUDEINACTIVE bit = 1,
 			@INCLUDECLOSED bit = 1,
