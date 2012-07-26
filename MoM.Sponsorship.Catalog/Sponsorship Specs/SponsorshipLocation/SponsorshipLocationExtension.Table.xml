@@ -1,0 +1,19 @@
+﻿<TableSpec 
+	xmlns="bb_appfx_table"
+	xmlns:common="bb_appfx_commontypes" 
+	ID="1267e646-f78d-462d-9860-1075fbbbc318"
+	Name="SponsorshipLocationExtention"
+	Description="Used for the report recipient for additional Sponsorship Location Fields"
+	Author="Cary Mayeda"
+	Tablename="USR_SPONSORSHIPLOCATIONEXTENSION"		
+	>
+
+	<!-- define fields on the table -->
+	<Fields>
+		<ForeignKeyField Name="SPONSORSHIPLOCATIONID" Cardinality="OneToOne" ForeignTable="SPONSORSHIPLOCATION" OnDelete="CascadeDelete" Required="true"/>
+		<GuidField Name="REPORTRECIPIENTID" Description="The person who should receive the reports for the location and all locations below it."/>
+	
+
+	</Fields>
+
+</TableSpec>

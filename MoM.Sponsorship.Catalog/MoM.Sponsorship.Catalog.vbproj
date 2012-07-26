@@ -79,10 +79,17 @@
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Sponsorship Specs\Sponsorship.PackageVersion.DataList.xml" />
-    <EmbeddedResource Include="Tables\Code Tables\Sponsorship.Performance.CodeTable.xml" />
+    <EmbeddedResource Include="Tables\Code Tables\Sponsorship.Performance.CodeTable.xml">
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Sponsorship Specs\Sponsorship.Package.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Sponsorship Specs\SponsorshipLocation\SponsorshipLocationExtension.Edit.xml" />
+    <Content Include="Sponsorship Specs\SponsorshipLocation\SponsorshipLocationExtension.Table.xml" />
+    <Content Include="Sponsorship Specs\SponsorshipLocation\SponsorshipLocationHierarchyMoM.DataList.xml" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.VisualBasic.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
