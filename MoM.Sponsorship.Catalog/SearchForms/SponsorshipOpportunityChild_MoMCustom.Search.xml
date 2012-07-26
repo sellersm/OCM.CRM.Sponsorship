@@ -62,6 +62,7 @@ as begin
 	set nocount on;
 
 	declare @tempid uniqueidentifier = newid();
+  --declare @programId uniqueidentifier;
 
 	if ISNULL(@KEYNAME,'%') = '%' and ISNULL(@FIRSTNAME, '%') = '%' and ISNULL(@LOOKUPID,'%')='%' and ISNULL(@SPONSORSHIPLOCATIONID,@tempid)=@tempid
 	begin
@@ -94,7 +95,8 @@ as begin
 			SO.AVAILABILITY,
 			C.GENDER,
 			C.BIRTHDATE,
-			dbo.UFN_SPONSORSHIPLOCATION_GETFULLNAME(OPPORTUNITYLOCATION.ID) LOCATION
+			dbo.UFN_SPONSORSHIPLOCATION_GETFULLNAME(OPPORTUNITYLOCATION.ID) LOCATION,
+      SPONSORSHIPPROGRAM.ID as PROGRAMID
 	  from	SPONSORSHIPOPPORTUNITY SO
 
 inner join	SPONSORSHIPOPPORTUNITYCHILD SC on SC.ID =SO.ID
@@ -262,6 +264,7 @@ end
       <OutputField FieldID="GENDER" Caption="Gender" DataType="String" CaptionResourceKey="$$gender" />
       <OutputField FieldID="BIRTHDATE" Caption="Birth date" DataType="FuzzyDate" CaptionResourceKey="$$birth_date" />
       <OutputField FieldID="LOCATION" Caption="Location" DataType="String" CaptionResourceKey="$$location" />
+      <OutputField FieldID="PROGRAMID" Caption="Program ID" DataType="Guid" IsHidden="true" />
     </OutputFields>
   </Output>
 

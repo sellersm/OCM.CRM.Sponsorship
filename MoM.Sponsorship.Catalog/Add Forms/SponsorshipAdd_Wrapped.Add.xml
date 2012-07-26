@@ -195,13 +195,12 @@ begin try
 
   declare @r int
   declare chidCursor cursor fast_forward for 
-  select
-    CHILDID
+  select ID, CHILDID
   from @TempTbl 
 
   open chidCursor 
 
-  fetch next from chidCursor into @SPONSORSHIPOPPORTUNITYIDCHILD
+  fetch next from chidCursor into @SPONSORSHIPPROGRAMID, @SPONSORSHIPOPPORTUNITYIDCHILD
 
   while @@FETCH_STATUS = 0
   begin
@@ -274,7 +273,7 @@ begin try
 	    end
     */
     --
-    fetch next from chidCursor into @SPONSORSHIPOPPORTUNITYIDCHILD
+    fetch next from chidCursor into @SPONSORSHIPPROGRAMID, @SPONSORSHIPOPPORTUNITYIDCHILD
   end
 
   close chidCursor 

@@ -47,6 +47,7 @@ Public Class SponsorshipAddFormWrappedUIModel
     Private _revenueConstituent As String
     Private _revenueConstituentName As String
     Private _lookupid As String
+    Private _programid As String
 
     Private _programValue As Guid
     '(case [SPONSORSHIPOPPORTUNITYTYPECODE] when (1) then N'Child' when (2) then N'Project'  end)
@@ -157,6 +158,8 @@ Public Class SponsorshipAddFormWrappedUIModel
         SetupInitialValues()
 
         Me.SPONSORSHIPOPPORTUNITYIDCHILD.Enabled = True
+
+        _programid = String.Empty
 
     End Sub
 
@@ -1003,6 +1006,8 @@ Public Class SponsorshipAddFormWrappedUIModel
             If LockThisChild(Me.MATCHEDOPPORTUNITYID.Value) Then
                 'set the lookupid
                 _lookupid = Me.MOPPORTUNITYLOOKUPID.Value.ToString()
+                'set the programid
+                _programid = Me.SPONSORSHIPPROGRAMID.Value.ToString()
                 AddChildToList()
             Else
                 DisplayPrompt("Unable to lock this selected child!")
@@ -1717,7 +1722,8 @@ Public Class SponsorshipAddFormWrappedUIModel
     Private Sub AddChildToList(ByVal childId As Guid)
         'try to lock the child first, to ensure that this user can select the child for sponsorshp:
         Dim newChild As New SponsorshipAddFormWrappedCHILDRENUIModel()
-        newChild.ID = New GuidField("ID") 'Guid.NewGuid()
+        'store the ID of the currently selected programid value
+        newChild.ID.Value = New Guid(_programid)  'New GuidField("ID") 'Guid.NewGuid()
         newChild.NAME = New SimpleDataListField(Of Guid) 'Me.SPONSORSHIPOPPORTUNITYIDCHILD
         newChild.LOOKUPID.Value = _lookupid
         newChild.NAME.Value = childId
@@ -1731,6 +1737,8 @@ Public Class SponsorshipAddFormWrappedUIModel
             Me.ADDSELECTEDCHILD.Enabled = True
             'set the lookupid of the selected child:
             _lookupid = e.SelectedRow.Values.ToList().Item(2).ToString()
+            'set the programid value that the user used for searching for this child:
+            _programid = e.SelectedRow.Values.ToList().Item(9).ToString()
         Else
             _lookupid = String.Empty
         End If
