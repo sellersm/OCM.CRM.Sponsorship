@@ -50,27 +50,28 @@
     <OptionCompare>Binary</OptionCompare>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Blackbaud.AppFx, Version=1.0.363.1205, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <Private>False</Private>
+    <Reference Include="Blackbaud.AppFx, Version=2.93.2034.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\..\References\Third Party\2.93\Blackbaud.AppFx.dll</HintPath>
     </Reference>
-    <Reference Include="Blackbaud.AppFx.Fundraising.UIModel, Version=2.93.2034.0, Culture=neutral, processorArchitecture=MSIL" />
-    <Reference Include="Blackbaud.AppFx.Server, Version=1.0.443.759, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="Blackbaud.AppFx.Fundraising.UIModel, Version=2.93.2034.13, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <Private>False</Private>
+      <HintPath>..\..\..\References\Third Party\2.93\Blackbaud.AppFx.Fundraising.UIModel.dll</HintPath>
     </Reference>
-    <Reference Include="Blackbaud.AppFx.Sponsorship.UIModel, Version=2.93.2034.0, Culture=neutral, processorArchitecture=MSIL" />
-    <Reference Include="Blackbaud.AppFx.UIModeling.Core, Version=1.0.363.1205, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="Blackbaud.AppFx.Server, Version=2.93.2034.13, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <Private>False</Private>
+      <HintPath>..\..\..\References\Third Party\2.93\Blackbaud.AppFx.Server.dll</HintPath>
     </Reference>
-    <Reference Include="Blackbaud.AppFx.XmlTypes, Version=1.0.443.759, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <Private>False</Private>
+    <Reference Include="Blackbaud.AppFx.Sponsorship.UIModel, Version=2.93.2034.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\..\References\Third Party\2.93\Blackbaud.AppFx.Sponsorship.UIModel.dll</HintPath>
     </Reference>
-    <Reference Include="Blackbaud.AppFx.XmlTypes.XmlSerializers, Version=1.0.443.759, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <Private>False</Private>
+    <Reference Include="Blackbaud.AppFx.UIModeling.Core, Version=2.93.2034.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\..\References\Third Party\2.93\Blackbaud.AppFx.UIModeling.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="Blackbaud.AppFx.XmlTypes, Version=2.93.2034.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\..\References\Third Party\2.93\Blackbaud.AppFx.XmlTypes.dll</HintPath>
+    </Reference>
+    <Reference Include="Blackbaud.AppFx.XmlTypes.XmlSerializers, Version=2.93.2034.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\..\References\Third Party\2.93\Blackbaud.AppFx.XmlTypes.XmlSerializers.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core">
