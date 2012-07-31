@@ -1733,6 +1733,13 @@ Public Class SponsorshipAddFormWrappedUIModel
         newChild.NAME.Value = childId
         Me.CHILDREN.Value.Add(newChild)
         Me.REMOVESELECTEDCHILD.Enabled = True
+        'turn on the payment tab
+        Me.TAB_PAYMENT.Enabled = True
+
+        'manage the payment fields:
+        UpdatePaymentFieldsEnabled()
+        EnableFieldsForConstituent()
+
     End Sub
 
     Private Sub _sponsorshipopportunityidchild_SearchItemSelected(ByVal sender As Object, ByVal e As Blackbaud.AppFx.UIModeling.Core.SearchItemSelectedEventArgs) Handles _sponsorshipopportunityidchild.SearchItemSelected
