@@ -327,9 +327,11 @@ Public Class SponsorshipAddFormWrappedUIModel
             Me.CONSTITUENTACCOUNTID.Value = Nothing
             Me.CONSTITUENTACCOUNTID.ResetDataSource()
             'placeholder for when changing opportunity
-            If CheckSelectedOpportunity("financial sponsor") = CHANGEOPPORTUNITY.YES Then
-                HandleChangeFinancialSponsor()
-            End If
+            ' Commented out by Memphis to turn off the automatic finding of greatest need.
+            ' We're forcing the user to click the Find button!
+            'If CheckSelectedOpportunity("financial sponsor") = CHANGEOPPORTUNITY.YES Then
+            '    HandleChangeFinancialSponsor()
+            'End If
             _changeEventFired = False
         End If
     End Sub
@@ -401,6 +403,7 @@ Public Class SponsorshipAddFormWrappedUIModel
     Private Sub _sponsorshipprogramid_ValueChanged(ByVal sender As Object, ByVal e As UIModeling.Core.ValueChangedEventArgs) Handles _sponsorshipprogramid.ValueChanged
         ' commented by Memphis so the greatest need search isn't ever disabled:
         'Me.FINDOPPORTUNITY.Enabled = False
+        'commented by Memphis to disable the automatic finding the greatest need for the new program.
         If Not _displayConfirm AndAlso Me.SPONSORSHIPPROGRAMID.HasValue Then
             HandleChangeProgram()
         End If
@@ -408,9 +411,10 @@ Public Class SponsorshipAddFormWrappedUIModel
 
     Private Sub HandleChangeProgramOpportunity()
         HandleSponsorshipProgram(True, True)
-        If MatchValid() Then
-            MatchOpportunity()
-        End If
+        'we're forcing the user to click the Find button if they want to find a greatest need child:
+        'If MatchValid() Then
+        '    MatchOpportunity()
+        'End If
         SaveKeyValues()
     End Sub
 
