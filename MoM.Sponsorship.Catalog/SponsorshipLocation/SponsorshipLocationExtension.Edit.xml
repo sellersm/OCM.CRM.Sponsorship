@@ -137,6 +137,7 @@ as
 			</common:WebUI>
 		</common:WebUIComponent>
 	</common:FormMetaData>
-	
-	
+
+	<!--<common:DataFormExtension DataFormInstanceID="5ff6a34c-43f3-4552-a2da-a2a22302f161" RenderStyle="AfterParent" TabCaption="Recipient"/>-->
+
 </EditDataFormTemplateSpec>

@@ -57,8 +57,6 @@
 	-->
 	
 	<common:DependencyList>
-		<!-- Code Tables -->
-        <common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.Sponsorship.Performance.CodeTable.xml" />
 
 		<!-- Sponsorship Location Extension -->
 		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.SponsorshipLocationExtension.Table.xml" />
@@ -66,8 +64,6 @@
 		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.SponsorshipLocationHierarchyMoM.DataList.xml" />
 
 		
-		<!-- Package Versions -->
-		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.Sponsorship.PackageVersion.DataList.xml" />
     </common:DependencyList>
 
 </PackageSpec>

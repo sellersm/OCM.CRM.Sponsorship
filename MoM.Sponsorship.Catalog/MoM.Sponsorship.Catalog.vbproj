@@ -77,27 +77,29 @@
     <Folder Include="Global Changes\" />
     <Folder Include="Images\" />
     <Folder Include="SearchLists\" />
+    <Folder Include="Sponsorship Specs\" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Sponsorship Specs\Sponsorship.PackageVersion.DataList.xml" />
+    <EmbeddedResource Include="DataLists\Sponsorship.PackageVersion.DataList.xml" />
     <EmbeddedResource Include="Tables\Code Tables\Sponsorship.Performance.CodeTable.xml">
       <SubType>Designer</SubType>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Sponsorship Specs\Sponsorship.Package.xml" />
-  </ItemGroup>
-  <ItemGroup>
     <EmbeddedResource Include="Add Forms\SponsorshipAdd_Wrapped.Add.xml" />
     <EmbeddedResource Include="DataLists\ChildrenToSponsor.SimpleList.xml" />
     <EmbeddedResource Include="DataLists\SponsorshipOpportunityMatchCustom.DataList.xml" />
-    <EmbeddedResource Include="Packages\MoM.Sponsorship.Package.xml" />
+    <EmbeddedResource Include="Packages\MoM.Sponsorship.Package.xml">
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
     <EmbeddedResource Include="RecordOperations\DeleteChildSelectedForSponsorshipLock.RecordOperation.xml" />
     <EmbeddedResource Include="RecordOperations\LockSelectedChild.RecordOperation.xml" />
     <EmbeddedResource Include="SearchForms\SponsorshipOpportunityChild_MoMCustom.Search.xml" />
-    <Content Include="Sponsorship Specs\SponsorshipLocation\SponsorshipLocationExtension.Edit.xml" />
-    <Content Include="Sponsorship Specs\SponsorshipLocation\SponsorshipLocationExtension.Table.xml" />
-    <Content Include="Sponsorship Specs\SponsorshipLocation\SponsorshipLocationHierarchyMoM.DataList.xml" />
+    <Content Include="SponsorshipLocation\SponsorshipLocationExtension.Edit.xml">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="SponsorshipLocation\SponsorshipLocationExtension.Table.xml" />
+    <Content Include="SponsorshipLocation\SponsorshipLocationHierarchyMoM.DataList.xml" />
     <EmbeddedResource Include="SQL\Stored Procedures\USR_DELETE_LOCK_CHILD_FOR_SPONSORSHIP_SELECTION.xml" />
     <EmbeddedResource Include="SQL\Stored Procedures\USR_USP_INSERT_LOCK_CHILD_FOR_SPONSORSHIP_SELECTION.xml" />
     <EmbeddedResource Include="SQL\Stored Procedures\USR_USP_SPONSORSHIP_ACQUIREOPPORTUNITY_MOMCUSTOM.xml" />

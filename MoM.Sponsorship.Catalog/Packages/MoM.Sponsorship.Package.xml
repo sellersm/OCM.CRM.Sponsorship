@@ -4,9 +4,16 @@
     ID="529f3afb-034f-4e57-a2e1-c3fbe7cd11aa"
     Name="MoM.Sponsorship Package"
     Description="MoM Sponsorship Package for all customizations related to Sponsorship"
-    Author="Memphis Sellers"
-    >
+    Author="Memphis Sellers" >
+	
+	<!-- 
+	Remarks:    
 
+	History:
+	Date            Modified By     Comments
+	01-Aug-2012		CMayeda			Added Code Table
+	-->
+	
   <!-- Note:  the order of the items listed here is important.  For example, you won't be able to load a data form that references 
 	a table that hasn't been loaded, etc.  In general, the following order is recommended:
 	
@@ -50,7 +57,10 @@
 	-->
 
   <common:DependencyList>
-    <!-- Tables -->
+	<!-- Code Tables -->
+	<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.Sponsorship.Performance.CodeTable.xml" />
+
+	<!-- Tables -->
     <common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.USR_CHILD_SELECTED_FOR_SPONSORSHIP_LOCK.Table.xml" />
 
     <!-- SQL Functions and Sprocs-->
@@ -77,14 +87,11 @@
     <!-- Tasks -->
     <common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.SponsorshipAdd_Wrapped.Task.xml" />
     
-  <!-- These are from Cary's orginal Sponsorship.Package file -->
-    <!-- Code Tables -->
-    <common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.Sponsorship.Performance.CodeTable.xml" />
-
-    <!-- Sponsorship Location Extension -->
+    <!-- Sponsorship Location Extension 
     <common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.SponsorshipLocationExtension.Table.xml" />
     <common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.SponsorshipLocationExtension.Edit.xml" />
     <common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.SponsorshipLocationHierarchyMoM.DataList.xml" />
+	-->
 
 
     <!-- Package Versions -->

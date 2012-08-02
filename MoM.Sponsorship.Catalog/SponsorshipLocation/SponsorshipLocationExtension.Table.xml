@@ -5,15 +5,12 @@
 	Name="SponsorshipLocationExtention"
 	Description="Used for the report recipient for additional Sponsorship Location Fields"
 	Author="Cary Mayeda"
-	Tablename="USR_SPONSORSHIPLOCATIONEXTENSION"		
-	>
+	Tablename="USR_SPONSORSHIPLOCATIONEXTENSION" 
+	PrimaryKeyAsForeignKeyTablename="SPONSORSHIPLOCATION" >
 
 	<!-- define fields on the table -->
 	<Fields>
-		<ForeignKeyField Name="SPONSORSHIPLOCATIONID" Cardinality="OneToOne" ForeignTable="SPONSORSHIPLOCATION" OnDelete="CascadeDelete" Required="true"/>
 		<GuidField Name="REPORTRECIPIENTID" Description="The person who should receive the reports for the location and all locations below it."/>
-	
-
 	</Fields>
 
 </TableSpec>
