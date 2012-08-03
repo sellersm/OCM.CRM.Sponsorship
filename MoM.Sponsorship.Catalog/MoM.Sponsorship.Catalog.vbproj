@@ -98,7 +98,9 @@
     <Content Include="SponsorshipLocation\SponsorshipLocationExtension.Edit.xml">
       <SubType>Designer</SubType>
     </Content>
-    <Content Include="SponsorshipLocation\SponsorshipLocationExtension.Table.xml" />
+    <Content Include="SponsorshipLocation\SponsorshipLocationExtension.Table.xml">
+      <SubType>Designer</SubType>
+    </Content>
     <Content Include="SponsorshipLocation\SponsorshipLocationHierarchyMoM.DataList.xml" />
     <EmbeddedResource Include="SQL\Stored Procedures\USR_DELETE_LOCK_CHILD_FOR_SPONSORSHIP_SELECTION.xml" />
     <EmbeddedResource Include="SQL\Stored Procedures\USR_USP_INSERT_LOCK_CHILD_FOR_SPONSORSHIP_SELECTION.xml" />

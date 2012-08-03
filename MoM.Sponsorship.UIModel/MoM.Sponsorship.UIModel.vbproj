@@ -34,7 +34,7 @@
     <DefineDebug>false</DefineDebug>
     <DefineTrace>true</DefineTrace>
     <Optimize>true</Optimize>
-    <OutputPath>..\..\..\..\..\CRM2.93_SDK\SDK\DLLReferences\</OutputPath>
+    <OutputPath>..\..\MoM.Sponsorship.Child\MoM.Sponsorship.Child.UIModel\bin\</OutputPath>
     <DocumentationFile>
     </DocumentationFile>
     <NoWarn>42016,41999,42017,42018,42019,42032,42036,42020,42021,42022,42353,42354,42355</NoWarn>
@@ -52,26 +52,33 @@
   <ItemGroup>
     <Reference Include="Blackbaud.AppFx, Version=2.93.2034.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\..\..\References\Third Party\2.93\Blackbaud.AppFx.dll</HintPath>
+      <Private>False</Private>
     </Reference>
     <Reference Include="Blackbaud.AppFx.Fundraising.UIModel, Version=2.93.2034.13, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\References\Third Party\2.93\Blackbaud.AppFx.Fundraising.UIModel.dll</HintPath>
+      <Private>False</Private>
     </Reference>
     <Reference Include="Blackbaud.AppFx.Server, Version=2.93.2034.13, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\References\Third Party\2.93\Blackbaud.AppFx.Server.dll</HintPath>
+      <Private>False</Private>
     </Reference>
     <Reference Include="Blackbaud.AppFx.Sponsorship.UIModel, Version=2.93.2034.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\..\..\References\Third Party\2.93\Blackbaud.AppFx.Sponsorship.UIModel.dll</HintPath>
+      <Private>False</Private>
     </Reference>
     <Reference Include="Blackbaud.AppFx.UIModeling.Core, Version=2.93.2034.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\..\..\References\Third Party\2.93\Blackbaud.AppFx.UIModeling.Core.dll</HintPath>
+      <Private>False</Private>
     </Reference>
     <Reference Include="Blackbaud.AppFx.XmlTypes, Version=2.93.2034.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\..\..\References\Third Party\2.93\Blackbaud.AppFx.XmlTypes.dll</HintPath>
+      <Private>False</Private>
     </Reference>
     <Reference Include="Blackbaud.AppFx.XmlTypes.XmlSerializers, Version=2.93.2034.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\..\..\References\Third Party\2.93\Blackbaud.AppFx.XmlTypes.XmlSerializers.dll</HintPath>
+      <Private>False</Private>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core">
