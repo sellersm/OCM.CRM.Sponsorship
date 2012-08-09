@@ -5,7 +5,7 @@
 	Name="Sponsorship Package Version Data List"
 	Description="Used to display the version of the package deployment."
 	Author="Cary Mayeda"
-    common:SecurityUIFolder="Sponsorship\Opportunity\Country" >
+    common:SecurityUIFolder="Sponsorship" >
 
 	<!-- 
 	Remarks:    This is used to view the package version that has been loaded.  #VersionNumber# is modifed automatically on the build machine to match the build version number.

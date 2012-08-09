@@ -119,6 +119,10 @@
       <DependentUpon>SponsorshipOpportunityChildMoMCustomSearchUIModel.vb</DependentUpon>
     </Compile>
     <Compile Include="SponsorshipOpportunityChildMoMCustomSearchUIModel.vb" />
+    <Compile Include="SponsorshipUIModelVersionUIModel.CodeGen.vb">
+      <DependentUpon>SponsorshipUIModelVersionUIModel.vb</DependentUpon>
+    </Compile>
+    <Compile Include="SponsorshipUIModelVersionUIModel.vb" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="htmlforms\mom.sponsorship\" />
@@ -128,6 +132,13 @@
     <None Include="postbuild.bat" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="..\MoM.Sponsorship.Catalog\View Forms\MoM.Sponsorship.UIModelVersion.View.xml">
+      <Link>LinkedSpecs\MoM.Sponsorship.UIModelVersion.View.xml</Link>
+    </None>
+    <Content Include="htmlforms\Sponsorship.UIModelVersion.ViewForm.html" />
+    <Content Include="SponsorshipUIModelVersionUIModel.xml">
+      <DependentUpon>SponsorshipUIModelVersionUIModel.vb</DependentUpon>
+    </Content>
     <None Include="..\MoM.Sponsorship.Catalog\SearchForms\SponsorshipOpportunityChild_MoMCustom.Search.xml">
       <Link>LinkedSpecs\SponsorshipOpportunityChild_MoMCustom.Search.xml</Link>
     </None>

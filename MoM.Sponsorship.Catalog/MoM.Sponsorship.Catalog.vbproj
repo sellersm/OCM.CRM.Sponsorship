@@ -88,6 +88,7 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="View Forms\MoM.Sponsorship.UIModelVersion.View.xml" />
     <EmbeddedResource Include="Add Forms\SponsorshipAdd_Wrapped.Add.xml" />
     <EmbeddedResource Include="DataLists\ChildrenToSponsor.SimpleList.xml" />
     <EmbeddedResource Include="DataLists\SponsorshipOpportunityMatchCustom.DataList.xml" />
