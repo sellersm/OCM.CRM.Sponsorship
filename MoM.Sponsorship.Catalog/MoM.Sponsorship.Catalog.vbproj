@@ -80,7 +80,9 @@
     <Folder Include="Sponsorship Specs\" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="DataLists\Sponsorship.PackageVersion.DataList.xml" />
+    <EmbeddedResource Include="DataLists\Sponsorship.PackageVersion.DataList.xml">
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
     <EmbeddedResource Include="Tables\Code Tables\Sponsorship.Performance.CodeTable.xml">
       <SubType>Designer</SubType>
     </EmbeddedResource>
