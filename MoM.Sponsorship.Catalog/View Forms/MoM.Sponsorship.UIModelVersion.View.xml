@@ -54,7 +54,7 @@ as
         <common:WebUIComponent>
             <common:UIModel AssemblyName="MoM.Sponsorship.UIModel.dll" ClassName="MoM.Sponsorship.UIModel.SponsorshipUIModelVersionUIModel" />
             <common:WebUI>
-                <common:ExternalResource Url="browser/htmlforms/Sponsorship.UIModelVersion.ViewForm.html" />
+                <common:ExternalResource Url="browser/htmlforms/custom/Sponsorship.UIModelVersion.ViewForm.html" />
             </common:WebUI>
         </common:WebUIComponent>
 

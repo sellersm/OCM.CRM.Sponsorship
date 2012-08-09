@@ -95,7 +95,8 @@
 
 
     <!-- Package Versions -->
-    <common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.Sponsorship.PackageVersion.DataList.xml" />    
+    <common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.Sponsorship.PackageVersion.DataList.xml" />
+	<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.MoM.Sponsorship.UIModelVersion.View.xml" />
   </common:DependencyList>
 
 </PackageSpec>
