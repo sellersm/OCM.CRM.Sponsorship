@@ -31,7 +31,7 @@
 				<AlterTabs>
 					<AlterTab TabID="2df5c1b1-9aa0-4cb4-819a-124e58c31664">
 						<AlterSections>
-							<AlterDataListSection DataListID="39ac2263-c6cc-41c1-a5f7-f295d5bd614e" SectionID="230d6aef-0784-4fb9-b777-1753dac51604">
+							<AlterDataListSection DataListID="fcf2af72-75bb-408e-934d-47199e94eef1" SectionID="230d6aef-0784-4fb9-b777-1753dac51604">
 								<ReplaceDataList NewDataListID="39ac2263-c6cc-41c1-a5f7-f295d5bd614e" />
 								<AlterActions>
 									<AddAction>

@@ -133,17 +133,17 @@ end
 			<OutputField FieldID="SPONSORSHIPREASONID" Caption="SPONSORSHIPREASONID" IsHidden="true" DataType="Guid" />
 			<OutputField FieldID="REASON" Caption="Reason" DataType="String" CaptionResourceKey="$$reason" />
 			<OutputField FieldID="LOOKUPID" Caption="Lookup ID" DataType="String" />
-			<OutputField FieldID="DESIGNATIONID" Caption="DESIGNATIONID" IsHidden="true" DataType="Guid" />
-			<OutputField FieldID="DESIGNATIONNAME" Caption="Designation" DataType="String" CaptionResourceKey="$$designation" />
 			<OutputField FieldID="PARENTID" Caption="PARENTID" IsHidden="true" DataType="Guid" />
 			<OutputField FieldID="SHOWPROCESSPAGE" Caption="SHOWPROCESSPAGE" IsHidden="true" DataType="Boolean" />
 			<OutputField FieldID="ALLOWMARKACTIVE" Caption="ALLOWMARKACTIVE" IsHidden="true" DataType="Boolean" />
 			<OutputField FieldID="ALLOWMARKINACTIVE" Caption="ALLOWMARKINACTIVE" IsHidden="true" DataType="Boolean" />
 			<OutputField FieldID="FIELDOFFICEID" Caption="Field Office system record ID" IsHidden="true" DataType="Guid" />
-			<OutputField FieldID="FIELDOFFICELOOKUPID" Caption="Field Office Lookup ID" DataType="String" />
+			<OutputField FieldID="FIELDOFFICELOOKUPID" Caption="Field Office ID" DataType="String" />
 			<OutputField FieldID="FIELDOFFICENAME" Caption="Field Office"  DataType="String" />
 			<OutputField FieldID="REPORTRECIPIENTID" Caption="Report Recipient system record ID" IsHidden="true" DataType="Guid" />
 			<OutputField FieldID="REPORTRECIPIENTNAME" Caption="Report recipient" DataType="String" />
+			<OutputField FieldID="DESIGNATIONID" Caption="DESIGNATIONID" IsHidden="true" DataType="Guid" />
+			<OutputField FieldID="DESIGNATIONNAME" Caption="Designation" DataType="String" CaptionResourceKey="$$designation" />
 		</OutputFields>
 	</Output>
 </DataListSpec>
