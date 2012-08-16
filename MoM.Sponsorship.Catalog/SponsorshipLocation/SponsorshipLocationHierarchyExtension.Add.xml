@@ -1,0 +1,87 @@
+﻿<AddDataFormTemplateSpec 
+	xmlns="bb_appfx_adddataformtemplate"
+	xmlns:common="bb_appfx_commontypes" 
+	ID="76499e7d-2c0a-45ca-9780-7df91077f082" 
+	Name="Sponsorship Location Hierarchy Add Form Extension"
+    Description="Add a new sponsorship location at the root of the hierarchy. Extended to include Report Recipient."
+    Author="Cary Mayeda"
+	DataFormInstanceID="6c29014c-06db-44cb-9eaa-a6f78a9acdec" 
+    RecordType="Sponsorship Location"
+	common:SecurityUIFolder="Sponsorship\Configuration\Locations" >
+
+	<!-- 
+	Remarks:    This extends the Sponsorship Location Hierarchy Add Form to include the Report Recipient
+
+	History:
+	Date            Modified By     Comments
+	15-Aug-2012		CMayeda			Initial Version
+	-->
+
+	<SPDataForm>
+
+		<!-- describe the save SP -->
+		<SaveImplementation SPName="USR_USP_DATAFORMTEMPLATE_ADD_SPONSORSHIPLOCATION_HIERARCHYEXTENSION">
+			<common:CreateProcedureSQL>
+				<![CDATA[
+create procedure dbo.USR_USP_DATAFORMTEMPLATE_ADD_SPONSORSHIPLOCATION_HIERARCHYEXTENSION
+(
+    @ID uniqueidentifier = null output,
+	@CONTEXTID uniqueidentifier,
+    @CHANGEAGENTID uniqueidentifier = null,
+	@REPORTRECIPIENTID uniqueidentifier = null 
+)
+as begin
+
+	set nocount on;
+
+	set @ID = @CONTEXTID
+	
+	if @CHANGEAGENTID is null  
+		exec dbo.USP_CHANGEAGENT_GETORCREATECHANGEAGENT @CHANGEAGENTID output
+
+	declare @currentDate datetime
+	set @currentDate = getdate()
+
+	begin try
+		-- handle inserting the data
+		insert into dbo.TABLE1
+			(ID, REPORTRECIPIENTID, ADDEDBYID, CHANGEDBYID, DATEADDED, DATECHANGED)
+		values
+			(@ID, @REPORTRECIPIENTID, @CHANGEAGENTID, @CHANGEAGENTID, @CHANGEAGENTID, @CHANGEAGENTID, @currentDate, @currentDate)
+	
+	end try
+
+	begin catch
+		exec dbo.USP_RAISE_ERROR
+		return 1
+	end catch
+
+	return 0
+end 
+				]]>
+			</common:CreateProcedureSQL>
+		</SaveImplementation>
+	</SPDataForm>
+
+	<!-- describe the context ID for this form (if applicable), which corresponds to a parameter in the SP. -->
+	<Context ContextRecordType="Sponsorship Location" RecordIDParameter="CONTEXTID"/>
+
+	<!-- describe fields on the form, which correspond to parameters on the SP.  Note that system parameters 
+	like the context @ID, @CONTEXTID, and @CURRENTAPPUSERID need not be listed. -->
+	<common:FormMetaData FixedDialog="true">
+		<common:FormFields>
+			<common:FormField FieldID="REPORTRECIPIENTID" Caption="Report recipient" DataType="Guid">
+				<common:SearchList SearchListID="23c5c603-d7d8-4106-aecc-65392b563887" />
+			</common:FormField>
+		</common:FormFields>
+		<common:WebUIComponent>
+			<common:WebUI>
+				<common:DefaultWebUI/>
+			</common:WebUI>
+		</common:WebUIComponent>
+	</common:FormMetaData>
+	
+	<common:DataFormExtension DataFormInstanceID="61e3952f-a46f-4b25-86eb-a43231290659" RenderStyle="Tab" TabCaption="Reporting Info"/>
+
+	
+</AddDataFormTemplateSpec>

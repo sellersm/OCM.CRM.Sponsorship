@@ -2,11 +2,19 @@
 	xmlns="bb_appfx_table"
 	xmlns:common="bb_appfx_commontypes" 
 	ID="1267e646-f78d-462d-9860-1075fbbbc318"
-	Name="SponsorshipLocationExtention"
+	Name="Sponsorship Location Extension"
 	Description="Used for the report recipient for additional Sponsorship Location Fields"
 	Author="Cary Mayeda"
 	Tablename="USR_SPONSORSHIPLOCATIONEXTENSION" 
 	PrimaryKeyAsForeignKeyTablename="SPONSORSHIPLOCATION" >
+
+	<!-- 
+	Remarks:    This extends the Sponsorship Location to include the Report Recipient
+
+	History:
+	Date            Modified By     Comments
+	15-Aug-2012		CMayeda			Initial Version
+	-->
 
 	<!-- define fields on the table -->
 	<Fields>

@@ -1,31 +1,45 @@
-﻿<DataListSpec xmlns:xsd="http://www.w3.org/2001/XMLSchema" 
-			  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
-			  ID="39AC2263-C6CC-41C1-A5F7-F295D5BD614E" 
-			  Name="Sponsorship Location Hierarchy Data List - Mission of Mercy" 
-			  Description="List of all sponsorship locations in a hierarchical format. Based off 'Sponsorship Location Hierarchy Data List'.  Added Field Office ID and Name" 
-			  Author="Cary Mayeda" 
-			  xmlns="bb_appfx_datalist">
+﻿<DataListSpec 
+	xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	ID="39AC2263-C6CC-41C1-A5F7-F295D5BD614E"
+	Name="Sponsorship Location Hierarchy Data List Extension"
+	Description="List of all sponsorship locations in a hierarchical format. Based off 'Sponsorship Location Hierarchy Data List'. "
+	Author="Cary Mayeda"
+	xmlns="bb_appfx_datalist">
+
+	<!-- 
+	Remarks:    Added Field Office ID, Name, Lookup ID, and Report Recipient ID and Name to the OOB blackbaud 'Sponsorship Location Hierarchy Data List' (fcf2af72-75bb-408e-934d-47199e94eef1) 
+
+	History:
+	Date            Modified By     Comments
+	15-Aug-2012		CMayeda			Initial Version
+	-->
+	
 	
 	<DependencyList xmlns="bb_appfx_commontypes">
 		<Dependency CatalogAssembly="Blackbaud.AppFx.Sponsorship.Catalog.dll" CatalogItem="Blackbaud.AppFx.Sponsorship.Catalog.UFN_SPONSORSHIPLOCATION_FULLSTRING.xml" />
 	</DependencyList>
+	
 	<InstalledProductList xmlns="bb_appfx_commontypes">
 		<InstalledProduct ID="3117d2c8-7f46-42f2-abeb-b654f2f63046" />
 	</InstalledProductList>
+	
 	<ResourceFile AssemblyName="Blackbaud.AppFx.Sponsorship.Catalog.dll" ClassName="Blackbaud.AppFx.Sponsorship.Catalog.SponsorshipLocationHierarchy.DataList" />
-	<SPDataList SPName="USP_DATALIST_SPONSORSHIPLOCATIONHIERARCHY_MOM">
+	
+	<SPDataList SPName="USR_USP_DATALIST_SPONSORSHIPLOCATIONHIERARCHY_EXTENSION">
 		<CreateProcedureSQL xmlns="bb_appfx_commontypes">
+			<![CDATA[
+			
+create procedure dbo.USR_USP_DATALIST_SPONSORSHIPLOCATIONHIERARCHY_EXTENSION(
+	@INCLUDEACTIVE bit = 1,
+	@INCLUDEINACTIVE bit = 1,
+	@INCLUDECLOSED bit = 1,
+	@INCLUDEONLINEONLY bit = 0
+)
+as begin
+	set nocount on;
 
-			create procedure dbo.USP_DATALIST_SPONSORSHIPLOCATIONHIERARCHY_MOM(
-			@INCLUDEACTIVE bit = 1,
-			@INCLUDEINACTIVE bit = 1,
-			@INCLUDECLOSED bit = 1,
-			@INCLUDEONLINEONLY bit = 0
-			)
-			as
-			set nocount on;
-
-			select	L.ID,
+	select	L.ID,
 			L.NAME,
 			SPONSORSHIPLOCATIONTYPECODE.DESCRIPTION TYPE,
 			L.STATUS,
@@ -37,64 +51,67 @@
 			(select ID from dbo.SPONSORSHIPLOCATION P where L.HIERARCHYPATH.GetAncestor(1)= P.HIERARCHYPATH) as PARENTID,
 			case when SPONSORSHIPLOCATIONCLOSEPROCESS.ID is not null then 1 else 0 end SHOWPROCESSPAGE,
 			case L.STATUSCODE
-			when 0 then 0  -- can't mark active if any parent is not active
-			else case when exists(select 'x' from dbo.SPONSORSHIPLOCATION P
-			where L.HIERARCHYPATH.IsDescendantOf(P.HIERARCHYPATH) = 1
-			and P.ID &lt;&gt; L.ID
-													and P.STATUSCODE &lt;&gt; 0) then 0 
-								else 1 end
-					end ALLOWMARKACTIVE,
-					case L.STATUSCODE
-						when 0 then 1
-						when 1 then 0 -- can't mark inactive if any parent is closed
-						else case 
-								when exists(select 'x' from dbo.SPONSORSHIPLOCATION P where L.HIERARCHYPATH.IsDescendantOf(P.HIERARCHYPATH) = 1 and P.ID &lt;&gt; L.ID and P.STATUSCODE = 2) then 0
-			else 1
-			end
+				when 0 then 0  -- can't mark active if any parent is not active
+				else case 
+						when exists(select 'x' from dbo.SPONSORSHIPLOCATION P
+									  where L.HIERARCHYPATH.IsDescendantOf(P.HIERARCHYPATH) = 1
+										and P.ID <> L.ID
+										and P.STATUSCODE <> 0) then 0
+						else 1 
+					 end
+			end ALLOWMARKACTIVE,
+			case L.STATUSCODE
+				when 0 then 1
+				when 1 then 0 -- can't mark inactive if any parent is closed
+				else case
+						when exists(select 'x' from dbo.SPONSORSHIPLOCATION P where L.HIERARCHYPATH.IsDescendantOf(P.HIERARCHYPATH) = 1 and P.ID <> L.ID and P.STATUSCODE = 2) then 0
+						else 1
+					end
 			end ALLOWMARKINACTIVE,
 
 			-- Extended these fields
 			FIELDOFFICEID,
 			CONSTITUENT.NAME as FIELDOFFICENAME,
+			CONSTITUENT.LOOKUPID as	FIELDOFFICELOOKUPID,
 			USR_SPONSORSHIPLOCATIONEXTENTION.REPORTRECIPIENTID,
 			REPORTRECIPENTCONSTITUENT.NAME AS REPORTRECIPIENTNAME
 
-			from dbo.SPONSORSHIPLOCATION L
+	  from	dbo.SPONSORSHIPLOCATION L
 
-			inner join	dbo.SPONSORSHIPLOCATIONTYPECODE on
-			SPONSORSHIPLOCATIONTYPECODE.ID = L.SPONSORSHIPLOCATIONTYPECODEID
+inner join	dbo.SPONSORSHIPLOCATIONTYPECODE on
+				SPONSORSHIPLOCATIONTYPECODE.ID = L.SPONSORSHIPLOCATIONTYPECODEID
+	
+left outer join dbo.DESIGNATION on
+				DESIGNATION.ID = L.DESIGNATIONID
 
-			left outer join dbo.DESIGNATION on
-			DESIGNATION.ID = L.DESIGNATIONID
-
-			left outer join dbo.SPONSORSHIPREASON on
-			SPONSORSHIPREASON.ID = L.SPONSORSHIPREASONID
-			left outer join dbo.SPONSORSHIPLOCATIONCLOSEPROCESS on
-			SPONSORSHIPLOCATIONCLOSEPROCESS.ID = L.ID
+left outer join dbo.SPONSORSHIPREASON on
+				SPONSORSHIPREASON.ID = L.SPONSORSHIPREASONID
+left outer join dbo.SPONSORSHIPLOCATIONCLOSEPROCESS on
+				SPONSORSHIPLOCATIONCLOSEPROCESS.ID = L.ID
 
 			-- added these joins
-			left outer join dbo.CONSTITUENT ON
-			CONSTITUENT.ID = L.FIELDOFFICEID
+left outer join dbo.CONSTITUENT ON
+				CONSTITUENT.ID = L.FIELDOFFICEID
 
-			left outer join dbo.USR_SPONSORSHIPLOCATIONEXTENTION ON
-			USR_SPONSORSHIPLOCATIONEXTENTION.SPONSORSHIPLOCATIONID = L.ID
+left outer join dbo.USR_SPONSORSHIPLOCATIONEXTENTION ON
+					USR_SPONSORSHIPLOCATIONEXTENTION.SPONSORSHIPLOCATIONID = L.ID
 
-			left outer join dbo.CONSTITUENT REPORTRECIPENTCONSTITUENT ON
-			USR_SPONSORSHIPLOCATIONEXTENTION.REPORTRECIPIENTID = REPORTRECIPENTCONSTITUENT.ID
+left outer join dbo.CONSTITUENT REPORTRECIPENTCONSTITUENT ON
+				USR_SPONSORSHIPLOCATIONEXTENTION.REPORTRECIPIENTID = REPORTRECIPENTCONSTITUENT.ID
 
-			where	case STATUSCODE
-			when 0 then @INCLUDEACTIVE
-			when 1 then @INCLUDEINACTIVE
-			when 2 then @INCLUDECLOSED
+	 where	case STATUSCODE
+				when 0 then @INCLUDEACTIVE
+				when 1 then @INCLUDEINACTIVE
+				when 2 then @INCLUDECLOSED
 			end = 1
-			and (@INCLUDEONLINEONLY = 0 or DISPLAYONLINE = 1)
+	   and	(@INCLUDEONLINEONLY = 0 or DISPLAYONLINE = 1)
 
-			order by
-
-			L.LOOKUPID;
+  order by	L.LOOKUPID;
 			--dbo.UFN_SPONSORSHIPLOCATION_FULLSTRING(L.ID,'|',0,0);
 
+end
 
+	]]>
 		</CreateProcedureSQL>
 	</SPDataList>
 	<Parameters>
@@ -115,17 +132,18 @@
 			<OutputField FieldID="STATUS" Caption="Status" DataType="String" CaptionResourceKey="$$status" />
 			<OutputField FieldID="SPONSORSHIPREASONID" Caption="SPONSORSHIPREASONID" IsHidden="true" DataType="Guid" />
 			<OutputField FieldID="REASON" Caption="Reason" DataType="String" CaptionResourceKey="$$reason" />
-			<OutputField FieldID="LOOKUPID" Caption="Lookup ID" IsHidden="false" DataType="String" />
+			<OutputField FieldID="LOOKUPID" Caption="Lookup ID" DataType="String" />
 			<OutputField FieldID="DESIGNATIONID" Caption="DESIGNATIONID" IsHidden="true" DataType="Guid" />
 			<OutputField FieldID="DESIGNATIONNAME" Caption="Designation" DataType="String" CaptionResourceKey="$$designation" />
 			<OutputField FieldID="PARENTID" Caption="PARENTID" IsHidden="true" DataType="Guid" />
 			<OutputField FieldID="SHOWPROCESSPAGE" Caption="SHOWPROCESSPAGE" IsHidden="true" DataType="Boolean" />
 			<OutputField FieldID="ALLOWMARKACTIVE" Caption="ALLOWMARKACTIVE" IsHidden="true" DataType="Boolean" />
 			<OutputField FieldID="ALLOWMARKINACTIVE" Caption="ALLOWMARKINACTIVE" IsHidden="true" DataType="Boolean" />
-			<OutputField FieldID="FIELDOFFICEID" Caption="FIELDOFFICEID" IsHidden="true" DataType="Guid" />
-			<OutputField FieldID="FIELDOFFICENAME" Caption="Field Office" IsHidden="false" DataType="String" />
-			<OutputField FieldID="REPORTRECIPIENT" Caption="Report Recipient" IsHidden="true" DataType="Guid" />
-			<OutputField FieldID="REPORTRECIPIENTNAME" Caption="Report recipient" IsHidden="false" DataType="String" />
+			<OutputField FieldID="FIELDOFFICELOOKUPID" Caption="Field Office Lookup ID" DataType="String" />
+			<OutputField FieldID="FIELDOFFICEID" Caption="Field Office system record ID" IsHidden="true" DataType="Guid" />
+			<OutputField FieldID="FIELDOFFICENAME" Caption="Field Office"  DataType="String" />
+			<OutputField FieldID="REPORTRECIPIENTID" Caption="Report Recipient system record ID" IsHidden="true" DataType="Guid" />
+			<OutputField FieldID="REPORTRECIPIENTNAME" Caption="Report recipient" DataType="String" />
 		</OutputFields>
 	</Output>
 </DataListSpec>

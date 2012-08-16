@@ -1,0 +1,76 @@
+﻿<PageDefinitionSpec
+    xmlns="bb_appfx_pagedefinition"
+    xmlns:common="bb_appfx_commontypes"
+    ID="144b65f5-620e-4b82-86c1-c86241047e57"
+    Name="SponsorshipLocationExtension Page"
+    Description="Alter page for Sponsorship Locations"
+    Author="Cary Mayeda"
+    ContextRecordType="Sponsorship Location" >
+
+	<!-- 
+	Remarks:    This changes the data list from the oob data list 'Sponsorship Location Hierarchy Data List' (fcf2af72-75bb-408e-934d-47199e94eef1) to our extended version
+				It also adds Go to actions for Field Office and Report Recipient
+
+	History:
+	Date            Modified By     Comments
+	15-Aug-2012		CMayeda			Initial Version
+	-->
+	
+	<!-- Note:  A page can optionally have a view form associated with it as the "Expression form".  While implemented as a view data form,
+	this form has no UI in this context, and is simply used as a way of loading additional information associated with the page.  The fields
+	returned by the expression form can be used as expressions in various properties throughout the page.  To specify an expression form for this
+	page, add the following attribute:		ExpressionDataFormID="<some guid>"-->
+
+	<!-- define how the page header should appear -->
+	<PageHeader Caption="This alters the Sponsorship Locations Page" ImageKey="" />
+
+
+	<AlterExistingPages>
+		<AlterPages>
+			<AlterPage PageID="a6d03d11-ee08-4549-a9cd-10a712fc410f">
+				<AlterTabs>
+					<AlterTab TabID="2df5c1b1-9aa0-4cb4-819a-124e58c31664">
+						<AlterSections>
+							<AlterDataListSection DataListID="39ac2263-c6cc-41c1-a5f7-f295d5bd614e" SectionID="230d6aef-0784-4fb9-b777-1753dac51604">
+								<ReplaceDataList NewDataListID="39ac2263-c6cc-41c1-a5f7-f295d5bd614e" />
+								<AlterActions>
+									<AddAction>
+										<Action ID="5A611839-57E2-4AC7-8C58-93C6BA14EC3D" Caption="Go to" ImageKey="res:goto_round" CaptionResourceKey="$$add">
+											<ActionGroup>
+												<Actions>
+													<Action ID="750B57FF-6CD1-484E-95DE-9EDF6FE46ADF" Caption="Designation"  LinkFieldID="DESIGNATIONNAME" CaptionResourceKey="$$go_to_designation">
+														<ShowPage PageID="158571a0-52d3-4a27-9d30-0dbbfa9f1386" TabID="00000000-0000-0000-0000-000000000000" xmlns="bb_appfx_commontypes">
+															<ActionContext>
+																<SectionField>DESIGNATIONID</SectionField>
+															</ActionContext>
+														</ShowPage>
+														<HelpKey>SPSponsorshipLocationsGoToDesignatioin.html</HelpKey>
+													</Action>
+													<Action ID="41906973-CE08-4C54-B613-9864BD8784E9" Caption="Field office" >
+														<ShowPage PageID="88159265-2b7e-4c7b-82a2-119d01ecd40f" TabID="00000000-0000-0000-0000-000000000000" xmlns="bb_appfx_commontypes">
+															<ActionContext>
+																<SectionField>FIELDOFFICEID</SectionField>
+															</ActionContext>
+														</ShowPage>
+													</Action>
+													<Action ID="55C93FA6-0BF6-4BF2-8C59-EF50421F7EBE" Caption="Report Recipient" >
+														<ShowPage PageID="88159265-2b7e-4c7b-82a2-119d01ecd40f" TabID="00000000-0000-0000-0000-000000000000" xmlns="bb_appfx_commontypes">
+															<ActionContext>
+																<SectionField>REPORTRECIPIENTID</SectionField>
+															</ActionContext>
+														</ShowPage>
+													</Action>
+												</Actions>
+											</ActionGroup>
+										</Action>
+									</AddAction>
+								</AlterActions>
+							</AlterDataListSection>
+						</AlterSections>
+					</AlterTab>
+				</AlterTabs>
+			</AlterPage>
+		</AlterPages>
+	</AlterExistingPages>
+
+</PageDefinitionSpec>
