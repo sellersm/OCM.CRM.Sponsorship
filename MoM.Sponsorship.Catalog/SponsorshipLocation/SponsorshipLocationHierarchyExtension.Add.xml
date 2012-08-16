@@ -44,10 +44,10 @@ as begin
 
 	begin try
 		-- handle inserting the data
-		insert into dbo.TABLE1
+		insert into dbo.USR_SPONSORSHIPLOCATIONEXTENSION
 			(ID, REPORTRECIPIENTID, ADDEDBYID, CHANGEDBYID, DATEADDED, DATECHANGED)
 		values
-			(@ID, @REPORTRECIPIENTID, @CHANGEAGENTID, @CHANGEAGENTID, @CHANGEAGENTID, @CHANGEAGENTID, @currentDate, @currentDate)
+			(@ID, @REPORTRECIPIENTID, @CHANGEAGENTID, @CHANGEAGENTID, @currentDate, @currentDate)
 	
 	end try
 

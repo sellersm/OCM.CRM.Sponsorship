@@ -71,33 +71,33 @@ as begin
 
 			-- Extended these fields
 			FIELDOFFICEID,
-			CONSTITUENT.NAME as FIELDOFFICENAME,
-			CONSTITUENT.LOOKUPID as	FIELDOFFICELOOKUPID,
-			USR_SPONSORSHIPLOCATIONEXTENSION.REPORTRECIPIENTID,
-			REPORTRECIPENTCONSTITUENT.NAME AS REPORTRECIPIENTNAME
+			fieldoffice.LOOKUPID as	FIELDOFFICELOOKUPID,
+			fieldoffice.NAME as FIELDOFFICENAME,
+			sl_ext.REPORTRECIPIENTID,
+			reportrecip_constituent.NAME AS REPORTRECIPIENTNAME
 
 	  from	dbo.SPONSORSHIPLOCATION L
 
 inner join	dbo.SPONSORSHIPLOCATIONTYPECODE on
-				SPONSORSHIPLOCATIONTYPECODE.ID = L.SPONSORSHIPLOCATIONTYPECODEID
+					SPONSORSHIPLOCATIONTYPECODE.ID = L.SPONSORSHIPLOCATIONTYPECODEID
 	
 left outer join dbo.DESIGNATION on
-				DESIGNATION.ID = L.DESIGNATIONID
+					DESIGNATION.ID = L.DESIGNATIONID
 
 left outer join dbo.SPONSORSHIPREASON on
-				SPONSORSHIPREASON.ID = L.SPONSORSHIPREASONID
+					SPONSORSHIPREASON.ID = L.SPONSORSHIPREASONID
 left outer join dbo.SPONSORSHIPLOCATIONCLOSEPROCESS on
-				SPONSORSHIPLOCATIONCLOSEPROCESS.ID = L.ID
+					SPONSORSHIPLOCATIONCLOSEPROCESS.ID = L.ID
 
 			-- added these joins
-left outer join dbo.CONSTITUENT ON
-				CONSTITUENT.ID = L.FIELDOFFICEID
+left outer join dbo.CONSTITUENT fieldoffice ON
+					fieldoffice.ID = L.FIELDOFFICEID
 
-left outer join dbo.USR_SPONSORSHIPLOCATIONEXTENSION ON
-					USR_SPONSORSHIPLOCATIONEXTENSION.ID = L.ID
+left outer join dbo.USR_SPONSORSHIPLOCATIONEXTENSION sl_ext ON
+					sl_ext.ID = L.ID
 
-left outer join dbo.CONSTITUENT REPORTRECIPENTCONSTITUENT ON
-				USR_SPONSORSHIPLOCATIONEXTENSION.REPORTRECIPIENTID = REPORTRECIPENTCONSTITUENT.ID
+left outer join dbo.CONSTITUENT reportrecip_constituent ON
+					sl_ext.REPORTRECIPIENTID = reportrecip_constituent.ID
 
 	 where	case STATUSCODE
 				when 0 then @INCLUDEACTIVE
@@ -139,8 +139,8 @@ end
 			<OutputField FieldID="SHOWPROCESSPAGE" Caption="SHOWPROCESSPAGE" IsHidden="true" DataType="Boolean" />
 			<OutputField FieldID="ALLOWMARKACTIVE" Caption="ALLOWMARKACTIVE" IsHidden="true" DataType="Boolean" />
 			<OutputField FieldID="ALLOWMARKINACTIVE" Caption="ALLOWMARKINACTIVE" IsHidden="true" DataType="Boolean" />
-			<OutputField FieldID="FIELDOFFICELOOKUPID" Caption="Field Office Lookup ID" DataType="String" />
 			<OutputField FieldID="FIELDOFFICEID" Caption="Field Office system record ID" IsHidden="true" DataType="Guid" />
+			<OutputField FieldID="FIELDOFFICELOOKUPID" Caption="Field Office Lookup ID" DataType="String" />
 			<OutputField FieldID="FIELDOFFICENAME" Caption="Field Office"  DataType="String" />
 			<OutputField FieldID="REPORTRECIPIENTID" Caption="Report Recipient system record ID" IsHidden="true" DataType="Guid" />
 			<OutputField FieldID="REPORTRECIPIENTNAME" Caption="Report recipient" DataType="String" />

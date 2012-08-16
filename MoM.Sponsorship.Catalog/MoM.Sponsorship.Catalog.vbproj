@@ -107,7 +107,9 @@
     <EmbeddedResource Include="SponsorshipLocation\SponsorshipLocationExtension.Edit.xml">
       <SubType>Designer</SubType>
     </EmbeddedResource>
-    <EmbeddedResource Include="SponsorshipLocation\SponsorshipLocationHierarchyMoM.DataList.xml" />
+    <EmbeddedResource Include="SponsorshipLocation\SponsorshipLocationHierarchyMoM.DataList.xml">
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
     <EmbeddedResource Include="SQL\Stored Procedures\USR_DELETE_LOCK_CHILD_FOR_SPONSORSHIP_SELECTION.xml" />
     <EmbeddedResource Include="SQL\Stored Procedures\USR_USP_INSERT_LOCK_CHILD_FOR_SPONSORSHIP_SELECTION.xml" />
     <EmbeddedResource Include="SQL\Stored Procedures\USR_USP_SPONSORSHIP_ACQUIREOPPORTUNITY_MOMCUSTOM.xml" />
