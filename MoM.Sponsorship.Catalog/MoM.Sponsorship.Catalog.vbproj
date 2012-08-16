@@ -101,10 +101,12 @@
     <EmbeddedResource Include="SponsorshipLocation\SponsorshipLocationHierarchyExtension.Add.xml" />
     <EmbeddedResource Include="SponsorshipLocation\SponsorshipLocationExtension.Add.xml" />
     <EmbeddedResource Include="SponsorshipLocation\SponsorshipLocationExtension.Alter.Page.xml" />
-    <EmbeddedResource Include="SponsorshipLocation\SponsorshipLocationExtension.Table.xml">
+    <EmbeddedResource Include="Tables\SponsorshipLocationExtension.Table.xml">
       <SubType>Designer</SubType>
     </EmbeddedResource>
-    <EmbeddedResource Include="SponsorshipLocation\SponsorshipLocationExtension.Edit.xml" />
+    <EmbeddedResource Include="SponsorshipLocation\SponsorshipLocationExtension.Edit.xml">
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
     <EmbeddedResource Include="SponsorshipLocation\SponsorshipLocationHierarchyMoM.DataList.xml" />
     <EmbeddedResource Include="SQL\Stored Procedures\USR_DELETE_LOCK_CHILD_FOR_SPONSORSHIP_SELECTION.xml" />
     <EmbeddedResource Include="SQL\Stored Procedures\USR_USP_INSERT_LOCK_CHILD_FOR_SPONSORSHIP_SELECTION.xml" />
