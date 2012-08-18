@@ -100,7 +100,9 @@
     <EmbeddedResource Include="SearchForms\SponsorshipOpportunityChild_MoMCustom.Search.xml" />
     <EmbeddedResource Include="SponsorshipLocation\SponsorshipLocationHierarchyExtension.Add.xml" />
     <EmbeddedResource Include="SponsorshipLocation\SponsorshipLocationExtension.Add.xml" />
-    <EmbeddedResource Include="SponsorshipLocation\SponsorshipLocationExtension.Alter.Page.xml" />
+    <EmbeddedResource Include="SponsorshipLocation\SponsorshipLocationExtension.Alter.Page.xml">
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
     <EmbeddedResource Include="Tables\SponsorshipLocationExtension.Table.xml">
       <SubType>Designer</SubType>
     </EmbeddedResource>
@@ -119,6 +121,9 @@
     <EmbeddedResource Include="SQL\User Functions\USR_UFN_SPONSORSHIP_MATCHEDOPPORTUNITY_CHILDSPONSORSHIP.xml" />
     <EmbeddedResource Include="Tables\USR_CHILD_SELECTED_FOR_SPONSORSHIP_LOCK.Table.xml" />
     <EmbeddedResource Include="Tasks\SponsorshipAdd_Wrapped.Task.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="DataLists\Sponsorship.WithLookupID.DataList.xml" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.VisualBasic.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

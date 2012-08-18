@@ -53,7 +53,7 @@
 															</ActionContext>
 														</ShowPage>
 													</Action>
-													<Action ID="55C93FA6-0BF6-4BF2-8C59-EF50421F7EBE" Caption="Report Recipient" >
+													<Action ID="55C93FA6-0BF6-4BF2-8C59-EF50421F7EBE" Caption="Report recipient" >
 														<ShowPage PageID="88159265-2b7e-4c7b-82a2-119d01ecd40f" TabID="00000000-0000-0000-0000-000000000000" xmlns="bb_appfx_commontypes">
 															<ActionContext>
 																<SectionField>REPORTRECIPIENTID</SectionField>
