@@ -65,7 +65,8 @@
 		<!-- Tables -->
 		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.USR_CHILD_SELECTED_FOR_SPONSORSHIP_LOCK.Table.xml" />
 		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.SponsorshipLocationExtension.Table.xml" />
-
+		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.Sponsorship.ProgramAnOpportunityConsistentGroup.Table.xml" />
+		
 		<!-- SQL Functions and Sprocs-->
 		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.UFN_CHILDREN_FOR_SPONSORSHIP_FROMITEMLISTXML.xml" />
 		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.USR_UFN_IS_SELECTED_CHILD_LOCKED_FOR_SPONSORSHIP_SELECTION.xml" />
@@ -74,7 +75,8 @@
 		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.USR_USP_INSERT_LOCK_CHILD_FOR_SPONSORSHIP_SELECTION.xml" />
 		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.USR_USP_SPONSORSHIP_ACQUIREOPPORTUNITY_MOMCUSTOM.xml" />
 		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.USR_USP_SPONSORSHIP_MATCHOPPORTUNITY_MOMCUSTOM.xml" />
-
+		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.UFN_SPONSORSHIP_PROGRAMANDOPPORTUNITYCONSISTENT.xml" />
+		
 		<!-- Record Operations-->
 		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.DeleteChildSelectedForSponsorshipLock.RecordOperation.xml" />
 		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.LockSelectedChild.RecordOperation.xml" />
@@ -84,6 +86,7 @@
 		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.SponsorshipOpportunityMatchCustom.DataList.xml" />
 		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.SponsorshipLocationHierarchyMoM.DataList.xml"/>
 		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.Sponsorship.WithLookupID.DataList.xml" />
+		
 		<!-- Forms -->
 		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.SponsorshipAdd_Wrapped.Add.xml" />
 		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.SponsorshipOpportunityChild_MoMCustom.Search.xml" />

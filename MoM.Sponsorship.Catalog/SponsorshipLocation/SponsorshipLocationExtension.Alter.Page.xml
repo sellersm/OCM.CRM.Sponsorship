@@ -14,6 +14,7 @@
 	History:
 	Date            Modified By     Comments
 	15-Aug-2012		CMayeda			Initial Version
+	19-Aug-2012		CMayeda			Added Go to actions to go to the child project or country extension pages instead of the constituent page.
 	-->
 	
 	<!-- Note:  A page can optionally have a view form associated with it as the "Expression form".  While implemented as a view data form,
@@ -31,7 +32,7 @@
 				<AlterTabs>
 					<AlterTab TabID="2df5c1b1-9aa0-4cb4-819a-124e58c31664">
 						<AlterSections>
-							<AlterDataListSection DataListID="fcf2af72-75bb-408e-934d-47199e94eef1" SectionID="230d6aef-0784-4fb9-b777-1753dac51604">
+							<AlterDataListSection DataListID="fcf2af72-75bb-408e-934d-47199e94eef1" SectionID="230d6aef-0784-4fb9-b777-1753dac51604"> <!--Original DataListID="fcf2af72-75bb-408e-934d-47199e94eef1" -->
 								<ReplaceDataList NewDataListID="39ac2263-c6cc-41c1-a5f7-f295d5bd614e" />
 								<AlterActions>
 									<AddAction>
@@ -46,13 +47,31 @@
 														</ShowPage>
 														<HelpKey>SPSponsorshipLocationsGoToDesignatioin.html</HelpKey>
 													</Action>
-													<Action ID="41906973-CE08-4C54-B613-9864BD8784E9" Caption="Field office" >
+													<Action ID="41906973-ce08-4c54-b613-9864bd8784e9" Caption="Field office" Visible="= not(Fields!FIELDOFFICEISCHILDPROJECT=1 or Fields!FIELDOFFICEISCOUNTRY=1)">
 														<ShowPage PageID="88159265-2b7e-4c7b-82a2-119d01ecd40f" TabID="00000000-0000-0000-0000-000000000000" xmlns="bb_appfx_commontypes">
 															<ActionContext>
 																<SectionField>FIELDOFFICEID</SectionField>
 															</ActionContext>
 														</ShowPage>
 													</Action>
+
+													<Action ID="4D07A7D2-822D-43CA-88ED-960F70895E88" Caption="Field office - child project" Visible="= Fields!FIELDOFFICEISCHILDPROJECT=1">
+														<ShowPage PageID="29d5b7a5-d032-4b66-80f9-b1d451292ad6" TabID="00000000-0000-0000-0000-000000000000" xmlns="bb_appfx_commontypes">
+															<ActionContext>
+																<SectionField>FIELDOFFICEID</SectionField>
+															</ActionContext>
+														</ShowPage>
+													</Action>
+
+													<Action ID="F9788DA0-8977-4B3D-9E96-A00778267CA2" Caption="Field office - country" Visible="= Fields!FIELDOFFICEISCOUNTRY=1">
+														<ShowPage PageID="8bc1a2a0-c984-49b3-bd7a-6b4a62dba25f" TabID="00000000-0000-0000-0000-000000000000" xmlns="bb_appfx_commontypes">
+															<ActionContext>
+																<SectionField>FIELDOFFICEID</SectionField>
+															</ActionContext>
+														</ShowPage>
+													</Action>
+
+													
 													<Action ID="55C93FA6-0BF6-4BF2-8C59-EF50421F7EBE" Caption="Report recipient" >
 														<ShowPage PageID="88159265-2b7e-4c7b-82a2-119d01ecd40f" TabID="00000000-0000-0000-0000-000000000000" xmlns="bb_appfx_commontypes">
 															<ActionContext>

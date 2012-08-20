@@ -13,6 +13,7 @@
 	History:
 	Date            Modified By     Comments
 	15-Aug-2012		CMayeda			Initial Version
+	19-Aug-2012		CMayeda			Added fields FIELDOFFICEISCHILDPROJECT and FIELDOFFICEISCOUNTRY so that Go to actions can be configured to go to the appropriate page for the field office (child project, country extension, constituent)
 	-->
 	
 	
@@ -73,6 +74,14 @@ as begin
 			fieldoffice.NAME as FIELDOFFICENAME,
 			sl_ext.REPORTRECIPIENTID,
 			reportrecip_constituent.NAME AS REPORTRECIPIENTNAME,
+			case 
+				when childproj.ID is not null then 1
+				else 0
+			end as FIELDOFFICEISCHILDPROJECT,
+			case 
+				when country.ID is not null then 1
+				else 0
+			end as FIELDOFFICEISCOUNTRY,
 			
 			-- moved these
 			L.DESIGNATIONID,
@@ -85,7 +94,6 @@ inner join	dbo.SPONSORSHIPLOCATIONTYPECODE on
 	
 left outer join dbo.DESIGNATION on
 					DESIGNATION.ID = L.DESIGNATIONID
-
 left outer join dbo.SPONSORSHIPREASON on
 					SPONSORSHIPREASON.ID = L.SPONSORSHIPREASONID
 left outer join dbo.SPONSORSHIPLOCATIONCLOSEPROCESS on
@@ -94,12 +102,14 @@ left outer join dbo.SPONSORSHIPLOCATIONCLOSEPROCESS on
 			-- added these joins
 left outer join dbo.CONSTITUENT fieldoffice ON
 					fieldoffice.ID = L.FIELDOFFICEID
-
 left outer join dbo.USR_SPONSORSHIPLOCATIONEXTENSION sl_ext ON
 					sl_ext.ID = L.ID
-
 left outer join dbo.CONSTITUENT reportrecip_constituent ON
 					sl_ext.REPORTRECIPIENTID = reportrecip_constituent.ID
+left outer join dbo.USR_CHILDPROJECTEXTENSION childproj ON
+					L.FIELDOFFICEID = childproj.ID
+left outer join dbo.USR_COUNTRYEXTENSION country ON
+					L.FIELDOFFICEID = country.ID
 
 	 where	case STATUSCODE
 				when 0 then @INCLUDEACTIVE
@@ -144,6 +154,8 @@ end
 			<OutputField FieldID="FIELDOFFICENAME" Caption="Field office"  DataType="String" />
 			<OutputField FieldID="REPORTRECIPIENTID" Caption="Report recipient system record ID" IsHidden="true" DataType="Guid" />
 			<OutputField FieldID="REPORTRECIPIENTNAME" Caption="Report recipient" DataType="String" />
+			<OutputField FieldID="FIELDOFFICEISCHILDPROJECT" Caption="Field office is child project" DataType="TinyInt" IsHidden="true" />
+			<OutputField FieldID="FIELDOFFICEISCOUNTRY" Caption="Field office is country" DataType="TinyInt" IsHidden="true" />
 			<OutputField FieldID="DESIGNATIONID" Caption="DESIGNATIONID" IsHidden="true" DataType="Guid" />
 			<OutputField FieldID="DESIGNATIONNAME" Caption="Designation" DataType="String" CaptionResourceKey="$$designation" />
 		</OutputFields>
