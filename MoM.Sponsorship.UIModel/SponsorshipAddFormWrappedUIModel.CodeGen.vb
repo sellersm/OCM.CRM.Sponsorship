@@ -179,7 +179,9 @@ Partial Public Class [SponsorshipAddFormWrappedUIModel]
     Private WithEvents _removeselectedchild As Global.Blackbaud.AppFx.UIModeling.Core.GenericUIAction
     Private WithEvents _addselectedchild As Global.Blackbaud.AppFx.UIModeling.Core.GenericUIAction
     Private WithEvents _sourcecodelookup As Global.Blackbaud.AppFx.UIModeling.Core.ShowSearchFormUIAction
-    Private WithEvents _currencyaction As Global.Blackbaud.AppFx.UIModeling.Core.ShowCustomFormUIAction
+	Private WithEvents _currencyaction As Global.Blackbaud.AppFx.UIModeling.Core.ShowCustomFormUIAction
+	Private WithEvents _clearsearchaction As Global.Blackbaud.AppFx.UIModeling.Core.GenericUIAction
+
 
     <System.CodeDom.Compiler.GeneratedCodeAttribute("BBUIModelLibrary", "2.93.2034.0")> _
     Public Sub New()
@@ -265,7 +267,8 @@ Partial Public Class [SponsorshipAddFormWrappedUIModel]
         _removeselectedchild = New Global.Blackbaud.AppFx.UIModeling.Core.GenericUIAction
         _addselectedchild = New Global.Blackbaud.AppFx.UIModeling.Core.GenericUIAction
         _sourcecodelookup = New Global.Blackbaud.AppFx.UIModeling.Core.ShowSearchFormUIAction
-        _currencyaction = New Global.Blackbaud.AppFx.UIModeling.Core.ShowCustomFormUIAction
+		_currencyaction = New Global.Blackbaud.AppFx.UIModeling.Core.ShowCustomFormUIAction
+		_clearsearchaction = New Global.Blackbaud.AppFx.UIModeling.Core.GenericUIAction
 
         MyBase.Mode = Global.Blackbaud.AppFx.UIModeling.Core.DataFormMode.Add
         MyBase.DataFormTemplateId = New Guid("32ce36c3-3881-4b80-b7a9-94eef6a58cb7")
@@ -941,7 +944,13 @@ Partial Public Class [SponsorshipAddFormWrappedUIModel]
         '
         _findopportunity.Name = "FINDOPPORTUNITY"
         _findopportunity.Caption = "Find"
-        Me.Actions.Add(_findopportunity)
+		Me.Actions.Add(_findopportunity)
+		'
+		'_clearsearchaction
+		'
+		_clearsearchaction.Name = "CLEARSEARCHACTION"
+		_clearsearchaction.Caption = "Clear"
+		Me.Actions.Add(_clearsearchaction)
         '
         '_removeselectedchild
         '
@@ -1791,7 +1800,21 @@ Partial Public Class [SponsorshipAddFormWrappedUIModel]
         Get
             Return _findopportunity
         End Get
-    End Property
+	End Property
+
+
+	''' <summary>
+	''' Clear
+	''' </summary>
+	<System.ComponentModel.Description("Clear")> _
+ <System.CodeDom.Compiler.GeneratedCodeAttribute("BBUIModelLibrary", "2.93.2034.0")> _
+ Public ReadOnly Property [CLEARSEARCHACTION]() As Global.Blackbaud.AppFx.UIModeling.Core.GenericUIAction
+		Get
+			Return _clearsearchaction
+		End Get
+	End Property
+
+
     ''' <summary>
     ''' Remove
     ''' </summary>
