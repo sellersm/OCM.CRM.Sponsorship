@@ -859,6 +859,7 @@ return @r;
 				</c:UIFields>
 				<c:UIActions>
 						<c:UIAction ActionID="FINDOPPORTUNITY" Caption="Find" CaptionResourceKey="$$find" />
+					<c:UIAction ActionID="CLEARSEARCHACTION" Caption="Clear" CaptionResourceKey="$$find" />
 						<c:UIAction ActionID="SOURCECODELOOKUP" Description="Look up a source code to associate with this gift" DescriptionResourceKey="$$look_up_a_source_code_to_associate_with_this_gift" ImageKey="RES:findsmall">
 								<c:ShowSearch SearchListID="ef764bb7-fdf0-45c2-a50f-294bf460f200" />
 						</c:UIAction>
