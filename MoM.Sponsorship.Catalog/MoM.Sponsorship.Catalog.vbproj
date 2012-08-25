@@ -76,7 +76,7 @@
   <ItemGroup>
     <Folder Include="Global Changes\" />
     <Folder Include="Images\" />
-    <Folder Include="Sponsorship Specs\" />
+    <Folder Include="SearchLists\" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="DataLists\Sponsorship.PackageVersion.DataList.xml">
@@ -137,9 +137,7 @@
     <EmbeddedResource Include="SQL\User Functions\USR_UFN_SPONSORSHIP_GETCORRESPONDENT.xml" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="SearchLists\PartnerForMercyOrg.Search.xml">
-      <SubType>Designer</SubType>
-    </EmbeddedResource>
+    <EmbeddedResource Include="SponsorshipLocation\USR_UFN_SPONSORSHIPLOCATION_GETRECIPIENTS_BYFIELDOFFICEID.xml" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.VisualBasic.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
