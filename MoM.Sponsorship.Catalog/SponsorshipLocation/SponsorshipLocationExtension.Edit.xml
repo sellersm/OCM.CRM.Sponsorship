@@ -88,8 +88,8 @@ end
     </SPDataForm>
     <c:FormMetaData FixedDialog="true">
         <c:FormFields>
-        	<c:FormField FieldID="REPORTRECIPIENTID" Caption="Report recipient" DataType="Guid">
-				<c:SearchList SearchListID="23c5c603-d7d8-4106-aecc-65392b563887" />
+        	<c:FormField FieldID="REPORTRECIPIENTID" Caption="Report recipient" DataType="Guid" >
+				<c:SearchList SearchListID="23c5c603-d7d8-4106-aecc-65392b563887"/>
 			</c:FormField>
 		</c:FormFields>
 		
