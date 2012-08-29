@@ -1809,4 +1809,22 @@ Public Class SponsorshipAddFormWrappedUIModel
 	End Sub
 
 
+	Private Sub _pfmid_ValueChanged(ByVal sender As Object, ByVal e As Blackbaud.AppFx.UIModeling.Core.ValueChangedEventArgs) Handles _pfmid.ValueChanged
+		If _initialLoadComplete AndAlso Not _changeEventFired Then
+			_changeEventFired = True
+			'If Not Me.GIFTRECIPIENT.Value Then
+			'	Me.SPONSORSHIPCONSTITUENTID.Value = Me.REVENUECONSTITUENTID.Value
+			'	Me.SPONSORSHIPCONSTITUENTID.UpdateDisplayText(Me.REVENUECONSTITUENTID.Value)
+			'End If
+			'Me.CONSTITUENTACCOUNTID.Value = Nothing
+			'Me.CONSTITUENTACCOUNTID.ResetDataSource()
+			''placeholder for when changing opportunity
+			'' Commented out by Memphis to turn off the automatic finding of greatest need.
+			'' We're forcing the user to click the Find button!
+			''If CheckSelectedOpportunity("financial sponsor") = CHANGEOPPORTUNITY.YES Then
+			''    HandleChangeFinancialSponsor()
+			''End If
+			'_changeEventFired = False
+		End If
+	End Sub
 End Class

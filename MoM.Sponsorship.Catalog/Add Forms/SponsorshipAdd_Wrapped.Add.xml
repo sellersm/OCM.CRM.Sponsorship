@@ -11,7 +11,18 @@
     FormHeaderResourceKey="$$add_a_sponsorship"
     xmlns="bb_appfx_adddataformtemplate"
     >
-		<c:ImpliedSecurityList>
+	
+	<!-- 
+	Remarks:    This is a COPY (wrapped) of the OOB Add Sponsorship form with our customizations added.
+				
+	History:
+	Date            Modified By     Comments
+	25-Aug-2012		Memphis			added the PFM Search field, using custom search with ID a00235ec-b143-4f50-ad74-4c653d605cdf
+									FogBugz Case #785
+	28-Aug-2012		Memphis			added the code in Save to create the PFM relationship, if user selected one.
+	-->
+
+	<c:ImpliedSecurityList>
 				<c:ImpliedSecurity Type="Datalist" ID="26c9edcb-a40f-4cf3-9cd4-fb01f773a777" />
 				<c:ImpliedSecurity Type="Datalist" ID="298a1b75-b1e4-4be6-b4af-dc5d1633f436" />
 				<c:ImpliedSecurity Type="Datalist" ID="ecf6002d-f1c1-4880-a715-fefd5ffa86f4" />
@@ -165,12 +176,12 @@ create procedure dbo.USR_USP_DATAFORMTEMPLATE_ADD_SPONSORSHIP_WRAPPED
 		@EXPIRATIONREASONID uniqueidentifier = null,
 		@TRANSACTIONCURRENCYID uniqueidentifier = null,
 		@BASEEXCHANGERATEID uniqueidentifier = null,
-		@EXCHANGERATE decimal(20,
-		8) = null,
+		@EXCHANGERATE decimal(20,8) = null,
 		@CURRENTAPPUSERID uniqueidentifier = null,
 		@BATCHNUMBER nvarchar(100) = '',
 		@DONOTACKNOWLEDGE bit = 0,
-    @CHILDREN xml = null
+		@CHILDREN xml = null,
+		@PFMID uniqueidentifier = null
 )
 
 
@@ -261,7 +272,7 @@ begin try
     if @@error = 0 and @r = 0
     begin
       -- try to remove the lock on this opportunity
-      exec dbo.USR_DELETE_LOCK_CHILD_FOR_SPONSORSHIP_SELECTION @SPONSORSHIPOPPORTUNITYIDCHILD
+      exec dbo.USR_DELETE_LOCK_CHILD_FOR_SPONSORSHIP_SELECTION @SPONSORSHIPOPPORTUNITYIDCHILD		
     end
     
     /*   
@@ -278,6 +289,84 @@ begin try
 
   close chidCursor 
   deallocate chidCursor 
+
+	-- do the Partnership for Mercy setup if the user picked one:
+	if @PFMID is not null
+	begin
+		declare  @CONSTITUENTID uniqueidentifier
+		declare  @RELATIONSHIPSTARTDATE datetime
+		declare  @COMMENTS nvarchar(256) = ''
+		declare  @PRIMARYSOFTCREDITRELATIONSHIPEXISTS bit = 0
+		declare  @PRIMARYSOFTCREDITMATCHFACTOR decimal(5,2) = 100
+		declare  @RECIPROCALSOFTCREDITRELATIONSHIPEXISTS bit = 0
+		declare  @RECIPROCALSOFTCREDITMATCHFACTOR decimal(5,2) = 100
+		declare  @PRIMARYRECOGNITIONTYPECODEID uniqueidentifier = null
+		declare  @RECIPROCALRECOGNITIONTYPECODEID uniqueidentifier = null
+		declare  @CURRENTDATE datetime = getdate()
+		declare  @ISCONTACT bit = 0
+		declare  @ISPRIMARYCONTACT bit = 0
+		declare  @CONTACTTYPECODEID uniqueidentifier = null
+		declare  @RELATIONSHIPENDDATE datetime = null
+		declare	 @ISPRIMARYBUSINESS bit = 0
+		declare  @ISMATCHINGGIFTRELATIONSHIP bit = 0
+		declare  @RECIPROCALCONSTITUENTID uniqueidentifier = null
+		declare  @RECIPROCALTYPECODEID uniqueidentifier = null
+		declare  @RELATIONSHIPTYPECODEID uniqueidentifier = null
+	
+		-- set the values & call the create relationship sproc
+		set @RECIPROCALCONSTITUENTID = @PFMID				-- this is the PFM ID the user selected: Testing Partnership for Mercy ORG
+		-- this is the code of the 'CHURCH' relationship type, which describes the reciprocal/PFM org: 
+		set @RECIPROCALTYPECODEID = (select ID
+									from dbo.RELATIONSHIPTYPECODE
+									where lower(DESCRIPTION) = LOWER('church')
+									and ACTIVE = 1)     
+		-- this is the code of the 'Church Member' relationship type, which describes the constituent relationship
+		set @RELATIONSHIPTYPECODEID = (select ID
+										from dbo.RELATIONSHIPTYPECODE
+										where lower(DESCRIPTION) = LOWER('Church Member')
+										and ACTIVE = 1)
+			
+		-- make sure we have the ID values or we can't continue
+		if (@RECIPROCALTYPECODEID is null) or (@RELATIONSHIPTYPECODEID is null)
+			RAISERROR 1000000 'Could not find either the "Church" or "Church Member" Relationship Type code!'
+		else
+		begin								
+			set @RELATIONSHIPSTARTDATE = getdate()   -- date the relationship started
+			set @COMMENTS = N'created by adding a new sponsorship'
+			set @PRIMARYSOFTCREDITRELATIONSHIPEXISTS = 1
+			set @PRIMARYSOFTCREDITMATCHFACTOR = @AMOUNT
+			set @RECIPROCALSOFTCREDITRELATIONSHIPEXISTS = 0
+			set @RECIPROCALSOFTCREDITMATCHFACTOR = @AMOUNT
+			--set @PRIMARYRECOGNITIONTYPECODEID = '78E81015-8AB8-424B-9E56-67BBADB1D891'
+			set @RECIPROCALRECOGNITIONTYPECODEID = NULL
+			if @CHANGEAGENTID is null  
+				exec dbo.USP_CHANGEAGENT_GETORCREATECHANGEAGENT @CHANGEAGENTID output
+			--set @CHANGEAGENTID = '1EBCC2A6-4FDA-4A7E-90B1-8AFEC457A564'
+			set @CONSTITUENTID = @SPONSORSHIPCONSTITUENTID      -- this is the con/sponsor	
+			
+			exec dbo.USR_USP_CREATE_PARTNERSHIP_WITH_SPONSOR
+				@ID OUTPUT
+				,@CHANGEAGENTID
+				,@CONSTITUENTID
+				,@RECIPROCALCONSTITUENTID
+				,@RECIPROCALTYPECODEID
+				,@RELATIONSHIPTYPECODEID
+				,@RELATIONSHIPSTARTDATE
+				,@COMMENTS
+				,@PRIMARYSOFTCREDITRELATIONSHIPEXISTS
+				,@PRIMARYSOFTCREDITMATCHFACTOR
+				,@RECIPROCALSOFTCREDITRELATIONSHIPEXISTS
+				,@RECIPROCALSOFTCREDITMATCHFACTOR				  
+				,@RECIPROCALRECOGNITIONTYPECODEID
+				,@CURRENTDATE
+				,@ISCONTACT
+				,@ISPRIMARYCONTACT
+				,@CONTACTTYPECODEID
+				,@RELATIONSHIPENDDATE
+				,@ISPRIMARYBUSINESS
+				,@ISMATCHINGGIFTRELATIONSHIP
+		end
+	end
 
 end try
 begin catch
@@ -743,6 +832,22 @@ return @r;
 								<c:CodeTable CodeTableName="REVENUEDEVELOPMENTFUNCTIONCODE" />
 						</c:FormField>
 						<c:FormField FieldID="DONOTACKNOWLEDGE" DataType="Boolean" Caption="Do not acknowledge" DefaultValueText="0" CaptionResourceKey="$$do_not_acknowledge" />
+					
+					<!-- Memphis 8/25 -->
+					<c:FormField FieldID="PFMID" DataType="Guid" Required="false" Caption="PFM" CaptionResourceKey="$$financial_sponsor">
+						<c:SearchList SearchListID="a00235ec-b143-4f50-ad74-4c653d605cdf" EnableQuickFind="true">
+							<!--<c:FormFieldOverrides>
+								<c:FormFieldOverride FieldID="INCLUDENONCONSTITUENTRECORDS" Hidden="true" DefaultValueText="true" />
+								<c:FormFieldOverride FieldID="FORMHEADER" DefaultValueText="Record Search" />
+							</c:FormFieldOverrides>
+							<c:AddDataForms>
+								<c:AddDataForm ID="6949e415-6cd0-4af5-be9f-acebd318f478" Caption="Individual" CaptionResourceKey="$$individual" />
+								<c:AddDataForm ID="d846a816-46c7-470e-9ad0-973b2730e836" Caption="Household" CaptionResourceKey="$$household" />
+								<c:AddDataForm ID="f0f6426a-fccd-48bb-846b-eb3d1a4a0ed4" Caption="Group" CaptionResourceKey="$$group" />
+								<c:AddDataForm ID="0706d187-af1a-4bd6-8365-8fb7419e5600" Caption="Organization" CaptionResourceKey="$$organization" />
+							</c:AddDataForms>-->
+						</c:SearchList>
+					</c:FormField>					
 				</c:FormFields>
 
         <c:WebUIComponent>
@@ -856,6 +961,7 @@ return @r;
 										</c:Fields>
 								</c:Collection>
 						</c:FormField>
+					
 				</c:UIFields>
 				<c:UIActions>
 						<c:UIAction ActionID="FINDOPPORTUNITY" Caption="Find" CaptionResourceKey="$$find" />
