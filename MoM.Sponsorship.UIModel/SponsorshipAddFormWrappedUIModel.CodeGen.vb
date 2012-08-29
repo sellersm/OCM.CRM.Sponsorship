@@ -100,7 +100,8 @@ Partial Public Class [SponsorshipAddFormWrappedUIModel]
 #End Region
 
     Private WithEvents _formtitle As Global.Blackbaud.AppFx.UIModeling.Core.StringField
-    Private WithEvents _revenueconstituentid As Global.Blackbaud.AppFx.UIModeling.Core.SearchListField(Of Guid)
+	Private WithEvents _revenueconstituentid As Global.Blackbaud.AppFx.UIModeling.Core.SearchListField(Of Guid)
+	Private WithEvents _pfmid As Global.Blackbaud.AppFx.UIModeling.Core.SearchListField(Of Guid)
     Private WithEvents _giftrecipient As Global.Blackbaud.AppFx.UIModeling.Core.BooleanField
     Private WithEvents _sponsorshipconstituentid As Global.Blackbaud.AppFx.UIModeling.Core.SearchListField(Of Guid)
     Private WithEvents _sponsorshipreasonid As Global.Blackbaud.AppFx.UIModeling.Core.SimpleDataListField(Of Guid)
@@ -188,7 +189,8 @@ Partial Public Class [SponsorshipAddFormWrappedUIModel]
         MyBase.New()
 
         _formtitle = New Global.Blackbaud.AppFx.UIModeling.Core.StringField
-        _revenueconstituentid = New Global.Blackbaud.AppFx.UIModeling.Core.SearchListField(Of Guid)
+		_revenueconstituentid = New Global.Blackbaud.AppFx.UIModeling.Core.SearchListField(Of Guid)
+		_pfmid = New Global.Blackbaud.AppFx.UIModeling.Core.SearchListField(Of Guid)
         _giftrecipient = New Global.Blackbaud.AppFx.UIModeling.Core.BooleanField
         _sponsorshipconstituentid = New Global.Blackbaud.AppFx.UIModeling.Core.SearchListField(Of Guid)
         _sponsorshipreasonid = New Global.Blackbaud.AppFx.UIModeling.Core.SimpleDataListField(Of Guid)
@@ -301,7 +303,24 @@ Partial Public Class [SponsorshipAddFormWrappedUIModel]
         _revenueconstituentid.SearchListAddForms.Add(New Global.Blackbaud.AppFx.UIModeling.Core.SearchListAddForm(New Guid("0706d187-af1a-4bd6-8365-8fb7419e5600"), "Organization"))
         _revenueconstituentid.SearchFieldOverrides.Add(New Global.Blackbaud.AppFx.UIModeling.Core.FieldOverride() With {.FieldId = "INCLUDENONCONSTITUENTRECORDS", .Hidden = True, .DefaultValueText = "true"})
         _revenueconstituentid.SearchFieldOverrides.Add(New Global.Blackbaud.AppFx.UIModeling.Core.FieldOverride() With {.FieldId = "FORMHEADER", .DefaultValueText = "Record Search"})
-        Me.Fields.Add(_revenueconstituentid)
+		Me.Fields.Add(_revenueconstituentid)
+		'
+		'_pfmid
+		'
+		_pfmid.Name = "PFMID"
+		_pfmid.Caption = "PFM"
+		_pfmid.Required = False
+		_pfmid.SearchListId = New Guid("a00235ec-b143-4f50-ad74-4c653d605cdf")
+		_pfmid.EnableQuickFind = True
+		'_pfmid.SearchListAddForms.Add(New Global.Blackbaud.AppFx.UIModeling.Core.SearchListAddForm(New Guid("6949e415-6cd0-4af5-be9f-acebd318f478"), "Individual"))
+		'_pfmid.SearchListAddForms.Add(New Global.Blackbaud.AppFx.UIModeling.Core.SearchListAddForm(New Guid("d846a816-46c7-470e-9ad0-973b2730e836"), "Household"))
+		'_pfmid.SearchListAddForms.Add(New Global.Blackbaud.AppFx.UIModeling.Core.SearchListAddForm(New Guid("f0f6426a-fccd-48bb-846b-eb3d1a4a0ed4"), "Group"))
+		'_pfmid.SearchListAddForms.Add(New Global.Blackbaud.AppFx.UIModeling.Core.SearchListAddForm(New Guid("0706d187-af1a-4bd6-8365-8fb7419e5600"), "Organization"))
+		'_pfmid.SearchFieldOverrides.Add(New Global.Blackbaud.AppFx.UIModeling.Core.FieldOverride() With {.FieldId = "INCLUDENONCONSTITUENTRECORDS", .Hidden = True, .DefaultValueText = "true"})
+		_pfmid.SearchFieldOverrides.Add(New Global.Blackbaud.AppFx.UIModeling.Core.FieldOverride() With {.FieldId = "FORMHEADER", .DefaultValueText = "Partnership For Mercy Record Search"})
+		Me.Fields.Add(_pfmid)
+
+
         '
         '_giftrecipient
         '
@@ -1003,7 +1022,19 @@ Partial Public Class [SponsorshipAddFormWrappedUIModel]
         Get
             Return _revenueconstituentid
         End Get
-    End Property
+	End Property
+
+	''' <summary>
+	''' PFM
+	''' </summary>
+	<System.ComponentModel.Description("PFM")> _
+	<System.CodeDom.Compiler.GeneratedCodeAttribute("BBUIModelLibrary", "2.93.2034.0")> _
+	Public ReadOnly Property [PFM]() As Global.Blackbaud.AppFx.UIModeling.Core.SearchListField(Of Guid)
+		Get
+			Return _pfmid
+		End Get
+	End Property
+
 
     ''' <summary>
     ''' Gift
