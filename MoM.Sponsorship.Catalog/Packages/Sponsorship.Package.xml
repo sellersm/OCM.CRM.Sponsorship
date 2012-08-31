@@ -15,6 +15,7 @@
 	15-Aug-2012		CMayeda			Added Sponsorship Location Extension specs
 									Changed name from MoM.Sponsorship Package to Sponsorship Customizations Package
 	28-Aug-2012		Memphis			Added the USR_USP_CREATE_PARTNERSHIP_RELATIONSHIP_WITH_SPONSOR.xml sproc
+	30-Aug-2012		CMayeda			Added SponsorshipLocationExtension.ReportRecipient.Delete.RecordOperation.xml
 	-->
 
 	<!-- Note:  the order of the items listed here is important.  For example, you won't be able to load a data form that references 
@@ -85,6 +86,7 @@
 		<!-- Record Operations-->
 		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.DeleteChildSelectedForSponsorshipLock.RecordOperation.xml" />
 		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.LockSelectedChild.RecordOperation.xml" />
+		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.SponsorshipLocationExtension.ReportRecipient.Delete.RecordOperation.xml" />
 
 		<!-- DataLists -->
 		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.ChildrenToSponsor.SimpleList.xml" />

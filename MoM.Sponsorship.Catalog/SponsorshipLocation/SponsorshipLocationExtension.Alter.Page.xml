@@ -15,6 +15,7 @@
 	Date            Modified By     Comments
 	15-Aug-2012		CMayeda			Initial Version
 	19-Aug-2012		CMayeda			Added Go to actions to go to the child project or country extension pages instead of the constituent page.
+	30-Aug-2012		CMayeda			Added action to call the "Sponsorship Location Report Recipient Delete" record operation - Fogbugz Case 789
 	-->
 	
 	<!-- Note:  A page can optionally have a view form associated with it as the "Expression form".  While implemented as a view data form,
@@ -81,6 +82,18 @@
 													</Action>
 												</Actions>
 											</ActionGroup>
+										</Action>
+									</AddAction>
+									<AddAction>
+										<Action ID="33397b0f-4d2e-4963-b9f8-fdf69ab4d762" Caption="Remove report recipient" ImageKey="RES:Delete">
+											<ExecuteRecordOperation RecordOperationID="5358d7ac-4437-4660-a17d-51c6a7ba7b44" xmlns="bb_appfx_commontypes">
+												<ActionContext>
+													<SectionField>ID</SectionField>
+												</ActionContext>
+												<PostActionEvent>
+													<RefreshSection />
+												</PostActionEvent>
+											</ExecuteRecordOperation>
 										</Action>
 									</AddAction>
 								</AlterActions>
