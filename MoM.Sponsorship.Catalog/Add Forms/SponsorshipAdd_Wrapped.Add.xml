@@ -334,9 +334,9 @@ begin try
 			set @RELATIONSHIPSTARTDATE = getdate()   -- date the relationship started
 			set @COMMENTS = N'created by adding a new sponsorship'
 			set @PRIMARYSOFTCREDITRELATIONSHIPEXISTS = 1
-			set @PRIMARYSOFTCREDITMATCHFACTOR = @AMOUNT
+			set @PRIMARYSOFTCREDITMATCHFACTOR = 100
 			set @RECIPROCALSOFTCREDITRELATIONSHIPEXISTS = 0
-			set @RECIPROCALSOFTCREDITMATCHFACTOR = @AMOUNT
+			set @RECIPROCALSOFTCREDITMATCHFACTOR = 0
 			--set @PRIMARYRECOGNITIONTYPECODEID = '78E81015-8AB8-424B-9E56-67BBADB1D891'
 			set @RECIPROCALRECOGNITIONTYPECODEID = NULL
 			if @CHANGEAGENTID is null  
@@ -344,7 +344,7 @@ begin try
 			--set @CHANGEAGENTID = '1EBCC2A6-4FDA-4A7E-90B1-8AFEC457A564'
 			set @CONSTITUENTID = @SPONSORSHIPCONSTITUENTID      -- this is the con/sponsor	
 			
-			exec dbo.USR_USP_CREATE_PARTNERSHIP_WITH_SPONSOR
+			exec dbo.USR_USP_CREATE_PARTNERSHIP_RELATIONSHIP_WITH_SPONSOR
 				@ID OUTPUT
 				,@CHANGEAGENTID
 				,@CONSTITUENTID
@@ -365,8 +365,41 @@ begin try
 				,@RELATIONSHIPENDDATE
 				,@ISPRIMARYBUSINESS
 				,@ISMATCHINGGIFTRELATIONSHIP
+		end   -- @RECIPROCALTYPECODEID is not null
+		
+		-- now add the constituency code of 'Partnership for mercy' to sponsor if not there:
+		declare @CONSTITUENCYCODEID uniqueidentifier
+		declare @DATEFROM datetime
+		declare @DATETO datetime
+		
+		-- get the constituency code id for Partnership for mercy
+		select @CONSTITUENCYCODEID = ID
+		from dbo.CONSTITUENCYCODE
+		where DESCRIPTION = 'Partnership for Mercy'
+
+		if @CONSTITUENCYCODEID is null
+			RAISERROR 1000000 'Could not find the "Partnership for mercy" constituency code!'
+			
+		-- check now for the given constituency code for the given constituent
+		declare @ISPARTNER bit = 0;
+		
+		select @ISPARTNER = dbo.USR_UFN_CONSTITUENT_HAS_CONSTITUENCYCODE (@CONSTITUENTID, @CONSTITUENCYCODEID)
+		
+		-- 0 means it isn't present, 1 means it was found:
+		if @ISPARTNER = 0
+		begin
+			set @DATEFROM = getdate()
+			-- finally add the code
+			exec dbo.USR_USP_ADD_CONSTITUENT_CONSTITUENCYCODE
+				   @ID OUTPUT
+				  ,@CHANGEAGENTID
+				  ,@CONSTITUENTID
+				  ,@CONSTITUENCYCODEID
+				  ,@DATEFROM
+				  ,@DATETO			  
 		end
-	end
+		
+	end  -- @PFMID is not null
 
 end try
 begin catch
@@ -862,12 +895,13 @@ return @r;
 				<c:FieldGroups>
 						<c:FieldGroup ID="GENERALINFORMATION" Caption="General" CaptionResourceKey="$$general">
 								<c:Fields>
-										<c:Field>REVENUECONSTITUENTID</c:Field>
-										<c:Field>FINDERNUMBER</c:Field>
-										<c:Field>GIFTRECIPIENT</c:Field>
-										<c:Field>SPONSORSHIPCONSTITUENTID</c:Field>										
-										<c:Field>STARTDATE</c:Field>
-										<c:Field>SPONSORSHIPREASONID</c:Field>
+									<c:Field>REVENUECONSTITUENTID</c:Field>
+									<c:Field>FINDERNUMBER</c:Field>
+									<c:Field>GIFTRECIPIENT</c:Field>
+									<c:Field>SPONSORSHIPCONSTITUENTID</c:Field>										
+									<c:Field>STARTDATE</c:Field>
+									<c:Field>SPONSORSHIPREASONID</c:Field>
+									<c:Field>PFMID</c:Field>
 								</c:Fields>
 						</c:FieldGroup>
 						<c:FieldGroup ID="SPONSORSHIPOPPORTUNITY" Caption="Sponsorship Opportunity" CaptionResourceKey="$$sponsorship_opportunity">
