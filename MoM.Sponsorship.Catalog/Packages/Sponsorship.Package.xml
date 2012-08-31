@@ -7,7 +7,7 @@
     Author="Memphis Sellers" >
 
 	<!-- 
-	Remarks:    
+	Remarks:    This has dependencies on the Constituent Package, so be sure to load that first!
 
 	History:
 	Date            Modified By     Comments
