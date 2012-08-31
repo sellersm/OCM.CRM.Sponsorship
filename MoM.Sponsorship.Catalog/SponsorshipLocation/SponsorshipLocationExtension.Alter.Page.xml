@@ -84,8 +84,8 @@
 											</ActionGroup>
 										</Action>
 									</AddAction>
-									<AddAction>
-										<Action ID="33397b0f-4d2e-4963-b9f8-fdf69ab4d762" Caption="Remove report recipient" ImageKey="RES:Delete">
+									<AddAction Sequence ="20">
+										<Action ID="33397b0f-4d2e-4963-b9f8-fdf69ab4d762" Caption="Remove report recipient" ImageKey="RES:Delete" AppendSeparator="true">
 											<ExecuteRecordOperation RecordOperationID="5358d7ac-4437-4660-a17d-51c6a7ba7b44" xmlns="bb_appfx_commontypes">
 												<ActionContext>
 													<SectionField>ID</SectionField>

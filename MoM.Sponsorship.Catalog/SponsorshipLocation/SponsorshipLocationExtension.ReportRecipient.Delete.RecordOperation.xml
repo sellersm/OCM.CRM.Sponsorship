@@ -29,11 +29,14 @@ create procedure dbo.USR_USP_SPONSORSHIPLOCATION_REPORTRECIPIENT_DELETE
 	@CHANGEAGENTID uniqueidentifier
 )
 as begin
-	--check deletion rules, if any
+	if @CHANGEAGENTID is null  
+		exec dbo.USP_CHANGEAGENT_GETORCREATECHANGEAGENT @CHANGEAGENTID output
+				
 
-	-- use the system generated delete routine to allow proper recording of the deleting agent
 	update	dbo.USR_SPONSORSHIPLOCATIONEXTENSION
-	   set	REPORTRECIPIENTID = null
+	   set	REPORTRECIPIENTID = null,
+			CHANGEDBYID = @CHANGEAGENTID,
+			DATECHANGED = getdate()
 	 where	ID = @ID
 	 
 	return 0;
@@ -46,7 +49,7 @@ end
 
 	<!-- optionally, offer a prompt before executing the record operation -->
 	<Prompt>
-		<StandardPrompt Text="Are you sure you want to continue?" />
+		<StandardPrompt Text="Are you sure you want to remove the report recipient?" />
 	</Prompt>
 
 </RecordOperationSpec>
