@@ -1,0 +1,86 @@
+﻿<AddDataFormTemplateSpec
+	xmlns="bb_appfx_adddataformtemplate"
+	xmlns:common="bb_appfx_commontypes"
+	ID="ce735f86-c863-4135-ae13-20414cf645a8"
+	Name="Sponsorship Location Add Form Extension"
+	Description="Add a new sponsorship location to the hierarchy. Extended to include Report Recipient."
+    Author="Cary Mayeda"
+	DataFormInstanceID="47b4ac31-2013-4e40-851e-edfe4907b2c3"
+    RecordType="Sponsorship Location"
+	common:SecurityUIFolder="Sponsorship\Configuration\Locations" >
+
+	<!-- 
+	Remarks:    This extends the Sponsorship Location Add Form to include the Report Recipient
+
+	History:
+	Date            Modified By     Comments
+	15-Aug-2012		CMayeda			Initial Version
+	-->
+
+	<SPDataForm>
+		<!-- describe the save SP -->
+		<SaveImplementation SPName="USR_USP_DATAFORMTEMPLATE_ADD_SPONSORSHIPLOCATION_EXTENSION">
+			<common:CreateProcedureSQL>
+				<![CDATA[
+create procedure dbo.USR_USP_DATAFORMTEMPLATE_ADD_SPONSORSHIPLOCATION_EXTENSION
+(
+    @ID uniqueidentifier = null output,
+	@CONTEXTID uniqueidentifier,
+    @CHANGEAGENTID uniqueidentifier = null,
+	@REPORTRECIPIENTID uniqueidentifier = null 
+)
+as begin
+
+	set nocount on;
+
+	set @ID = @CONTEXTID
+	
+	if @CHANGEAGENTID is null  
+		exec dbo.USP_CHANGEAGENT_GETORCREATECHANGEAGENT @CHANGEAGENTID output
+
+	declare @currentDate datetime
+	set @currentDate = getdate()
+
+	begin try
+		-- handle inserting the data
+		insert into dbo.USR_SPONSORSHIPLOCATIONEXTENSION
+			(ID, REPORTRECIPIENTID, ADDEDBYID, CHANGEDBYID, DATEADDED, DATECHANGED)
+		values
+			(@ID, @REPORTRECIPIENTID, @CHANGEAGENTID, @CHANGEAGENTID, @currentDate, @currentDate)
+	
+	end try
+
+	begin catch
+		exec dbo.USP_RAISE_ERROR
+		return 1
+	end catch
+
+	return 0
+end 
+				]]>
+			</common:CreateProcedureSQL>
+		</SaveImplementation>
+	</SPDataForm>
+
+	<!-- describe the context ID for this form (if applicable), which corresponds to a parameter in the SP. -->
+	<Context ContextRecordType="Sponsorship Location" RecordIDParameter="CONTEXTID"/>
+
+	<!-- describe fields on the form, which correspond to parameters on the SP.  Note that system parameters 
+	like the context @ID, @CONTEXTID, and @CURRENTAPPUSERID need not be listed. -->
+	<common:FormMetaData FixedDialog="true">
+		<common:FormFields>
+			<common:FormField FieldID="REPORTRECIPIENTID" Caption="Report recipient" DataType="Guid">
+				<common:SearchList SearchListID="23c5c603-d7d8-4106-aecc-65392b563887" />
+			</common:FormField>
+		</common:FormFields>
+		<common:WebUIComponent>
+			<common:WebUI>
+				<common:DefaultWebUI/>
+			</common:WebUI>
+		</common:WebUIComponent>
+	</common:FormMetaData>
+
+	<common:DataFormExtension DataFormInstanceID="F01B9616-F1FF-465B-BCCF-A41C18CB02B0" RenderStyle="Tab" TabCaption="Reporting Info"/>
+
+
+</AddDataFormTemplateSpec>

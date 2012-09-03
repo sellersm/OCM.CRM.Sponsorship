@@ -1,0 +1,83 @@
+﻿<SQLFunctionSpec
+	xmlns="bb_appfx_sqlfunction"
+	xmlns:common="bb_appfx_commontypes" 
+	ID="80cc2b9e-b19a-4f04-bf1f-893f54b80568"
+	Name="USR_UFN_SPONSORSHIP_MATCHEDOPPORTUNITY_CHILDSPONSORSHIP"
+	Description="MoM Customized Function to get the greatest need match, for adding a sponsorship"
+	Author="Memphis Sellers"
+	DBFunctionName="USR_UFN_SPONSORSHIP_MATCHEDOPPORTUNITY_CHILDSPONSORSHIP"
+	>
+  
+  <!-- customized function to find the greatest need match. this is called from the add-a-sponsorship
+       form, it accounts for one or more children being selected for sponsorship which are tracked
+       in the USR_CHILD_SELECTED_FOR_SPONSORSHIP_LOCK table.-->
+
+	<CreateFunctionSQL>
+		<![CDATA[
+CREATE function dbo.USR_UFN_SPONSORSHIP_MATCHEDOPPORTUNITY_CHILDSPONSORSHIP
+(
+  @SPONSORSHIPPROGRAMID uniqueidentifier,
+  @MATCHRULE tinyint = 0,   -- 0=Greatest need, 1=Nearest location
+  @SPONSORSHIPLOCATIONID uniqueidentifier = null,
+  @GENDERCODE tinyint = 0,
+  @SPROPPAGERANGEID uniqueidentifier = null,
+  @ISHIVPOSITIVECODE tinyint = 0,
+  @HASCONDITIONCODE tinyint = 0,
+  @ISORPHANEDCODE tinyint = 0,
+  @SPROPPPROJECTCATEGORYCODEID uniqueidentifier = null,
+  @SPONSORID uniqueidentifier = null,
+  @ISSOLESPONSORSHIP bit = 0,
+  @EXCLUDEOPPORTUNITYID uniqueidentifier = null,
+  @ORIGINALLOCATIONID uniqueidentifier = null,
+  @REVENUECONSTITUENTID uniqueidentifier = null
+)
+returns uniqueidentifier
+as begin
+  declare @SPONSORSHIPOPPORTUNITYID uniqueidentifier
+  
+  select top 1 @SPONSORSHIPOPPORTUNITYID = GN.ID
+  from dbo.V_QUERY_SPONSORSHIPGREATESTNEEDCHILD GN
+  inner join dbo.SPONSORSHIPPROGRAM P on P.SPONSORSHIPOPPORTUNITYGROUPID = GN.SPONSORSHIPOPPORTUNITYGROUPID
+  left outer join dbo.SPONSOR as FINANCIALSPONSOR on FINANCIALSPONSOR.ID = @REVENUECONSTITUENTID
+  left outer join dbo.SPONSORSHIPLOCATION OPPORTUNITYLOCATION on OPPORTUNITYLOCATION.ID = GN.SPONSORSHIPLOCATIONID
+  left outer join dbo.SPONSORSHIPLOCATION PREFERREDLOCATION on PREFERREDLOCATION.ID = @SPONSORSHIPLOCATIONID
+  where P.ID = @SPONSORSHIPPROGRAMID
+  and (@SPONSORSHIPLOCATIONID is null or OPPORTUNITYLOCATION.HIERARCHYPATH.IsDescendantOf(PREFERREDLOCATION.HIERARCHYPATH) = 1)
+  and (@GENDERCODE = 0 or GN.GENDERCODE = @GENDERCODE)
+  and (@SPROPPAGERANGEID is null or GN.SPONSORSHIPOPPORTUNITYAGERANGEID = @SPROPPAGERANGEID)
+  and (@ISHIVPOSITIVECODE = 0 or GN.ISHIVPOSITIVE = case @ISHIVPOSITIVECODE when 1 then 1 when 2 then 0 end)
+  and (@HASCONDITIONCODE = 0 or (@HASCONDITIONCODE = 1 and GN.SPROPPCHILDCONDITIONCODEID is not null) or (@HASCONDITIONCODE = 2 and GN.SPROPPCHILDCONDITIONCODEID is null))
+  and (@ISORPHANEDCODE = 0 or GN.ISORPHANED = case @ISORPHANEDCODE when 1 then 1 when 2 then 0 end)
+  -- make sure this child isn't already selected for a sponsorship by someone in the add-a-sponsorship process
+  and (dbo.USR_UFN_IS_SELECTED_CHILD_LOCKED_FOR_SPONSORSHIP_SELECTION(GN.ID) = 0) 
+  -- For transfers, prevents assignment back to the original opportunity
+  and (@EXCLUDEOPPORTUNITYID is null or GN.ID <> @EXCLUDEOPPORTUNITYID)
+  -- prevent more than one active sponsorship between the same sponsor/opportunity
+  -- prevent selection of an opportunity that already has active sponsors if this is a sole sponsorship
+  and not exists(select 'x'
+                 from dbo.SPONSORSHIP S
+                 where S.SPONSORSHIPOPPORTUNITYID = GN.ID
+                 and (S.CONSTITUENTID = @SPONSORID or @ISSOLESPONSORSHIP = 1)
+                 and S.STATUSCODE in(0,1))
+  -- prevent more than one active sponsorship between the same gift sponsorship donor and opportunity, if applicable
+  and (FINANCIALSPONSOR.UNIQUEOPPORTUNITIESFORGIFTDONOR is null or
+	   FINANCIALSPONSOR.UNIQUEOPPORTUNITIESFORGIFTDONOR = 0 or
+       not exists(select 'x'
+                  from dbo.REVENUE
+                  inner join dbo.REVENUESPLIT on REVENUESPLIT.REVENUEID = REVENUE.ID
+                  inner join dbo.SPONSORSHIP on SPONSORSHIP.REVENUESPLITID = REVENUESPLIT.ID
+                  where REVENUE.CONSTITUENTID = FINANCIALSPONSOR.ID
+                  and SPONSORSHIP.SPONSORSHIPOPPORTUNITYID = GN.ID
+                  and SPONSORSHIP.STATUSCODE in(0,1)))
+  order by
+    -- nearest location if using matchrule 1
+    case when @MATCHRULE = 1 then dbo.UFN_SPONSORSHIPLOCATION_RELATIVEPOSITION(@ORIGINALLOCATIONID,GN.SPONSORSHIPLOCATIONID) else 0 end,
+    -- greatest need
+    GN.NUMBERACTIVESPONSORS asc
+
+  return @SPONSORSHIPOPPORTUNITYID
+end
+		]]>
+	</CreateFunctionSQL>
+
+</SQLFunctionSpec>

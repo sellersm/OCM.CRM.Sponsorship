@@ -1,0 +1,272 @@
+<SearchListSpec 
+    xmlns="bb_appfx_searchlist"
+    xmlns:common="bb_appfx_commontypes"
+    ID="f9183b88-9f54-40de-848e-c8fbacf92e79"
+    Name="Sponsorship Opportunity Child MoM Custom Search"
+    Description="Search for a SponsorshipOpportunityChild based on MoM's custom rules"
+    Author="Memphis Sellers"
+    RecordType="Sponsorship Opportunity"
+    TranslationFunctionID="266f9175-c97b-46a5-b125-2d90820eb8d4"
+    QuickFindCriteriaFieldID="QUICKSEARCH"
+    ImageKey="catalog:Blackbaud.AppFx.Sponsorship.Catalog.dll,Blackbaud.AppFx.Sponsorship.Catalog.child_search_32.png"
+    common:SecurityUIFolder="Sponsorship\Opportunity\Child"
+    HelpKey="SPSponsorshipOppChileSrchScreen.html"
+    NameResourceKey="$$sponsorship_opportunity_child_search"
+    >
+
+  <common:DependencyList>
+    <common:Dependency CatalogAssembly="Blackbaud.AppFx.Sponsorship.Catalog.dll" CatalogItem="Blackbaud.AppFx.Sponsorship.Catalog.UFN_SPONSORSHIPOPPORTUNITY_TRANSLATIONFUNCTION.xml" />
+    <common:Dependency CatalogAssembly="Blackbaud.AppFx.Sponsorship.Catalog.dll" CatalogItem="Blackbaud.AppFx.Sponsorship.Catalog.UFN_SPONSORSHIPPROGRAM_FILTERLOCATIONS.xml" />
+    <common:Dependency CatalogAssembly="Blackbaud.AppFx.Sponsorship.Catalog.dll" CatalogItem="Blackbaud.AppFx.Sponsorship.Catalog.SponsorshipProgram.SimpleList.xml" />
+    <common:Dependency CatalogAssembly="Blackbaud.AppFx.Sponsorship.Catalog.dll" CatalogItem="Blackbaud.AppFx.Sponsorship.Catalog.SponsorshipOpportunityGroup.SimpleList.xml" />
+    <common:Dependency CatalogAssembly="Blackbaud.AppFx.Sponsorship.Catalog.dll" CatalogItem="Blackbaud.AppFx.Sponsorship.Catalog.SponsorshipOpportunityReservation.Search.xml" />
+    <common:Dependency CatalogAssembly="Blackbaud.AppFx.Sponsorship.Catalog.dll" CatalogItem="Blackbaud.AppFx.Sponsorship.Catalog.SponsorshipLocation.Search.xml" />
+  </common:DependencyList>
+
+  <common:ImpliedSecurityList>
+    <common:ImpliedSecurity Type="SimpleDataList" ID="755c0b35-29bb-40df-85a2-7054c986c6f6" />
+    <common:ImpliedSecurity Type="SimpleDataList" ID="fca96cc4-1aad-4072-8bca-ba010e9e4e31" />
+    <common:ImpliedSecurity Type="SearchList" ID="7d7ac450-86f7-42f7-9299-e2458592ad14" />
+    <common:ImpliedSecurity Type="SearchList" ID="617890DC-3770-4505-B963-B6072CADCED7" />
+  </common:ImpliedSecurityList>
+  <common:InstalledProductList>
+    <common:InstalledProduct ID="3117D2C8-7F46-42F2-ABEB-B654F2F63046" />
+  </common:InstalledProductList>
+
+  <ResourceFile AssemblyName="Blackbaud.AppFx.Sponsorship.Catalog.dll" ClassName="Blackbaud.AppFx.Sponsorship.Catalog.SponsorshipOpportunityChild.Search" />
+
+  <SPSearchList SPName="USR_USP_SPONSORSHIPOPPORTUNITYCHILD_SEARCH_MOM">
+    <common:CreateProcedureSQL>
+      <![CDATA[
+create procedure dbo.USR_USP_SPONSORSHIPOPPORTUNITYCHILD_SEARCH_MOM (
+      @QUICKSEARCH nvarchar(100) = null,
+      @KEYNAME nvarchar(100) = null,
+      @FIRSTNAME nvarchar(100) = null,
+      @LOOKUPID nvarchar(100) = null,
+      @SPONSORSHIPOPPORTUNITYGROUPID uniqueidentifier = null,
+      @SPONSORSHIPPROGRAMID uniqueidentifier = null,
+      @SPONSORSHIPLOCATIONID uniqueidentifier = null,
+      @ELIGIBILITYCODE smallint = -1,  
+      @AVAILABILITYCODE smallint = -1,          
+      @RESTRICTFORSOLESPONSORSHIP bit = 0,
+      @EXCLUDEOPPORTUNITYID uniqueidentifier = null,
+      @MAXROWS smallint = 500,
+      @RESERVATIONKEYID uniqueidentifier = null,
+      -- used by add sponsorship
+      @SPONSORSHIPOPPORTUNITYID uniqueidentifier = null,
+      @CORRESPONDINGSPONSORID uniqueidentifier = null,
+      @FINANCIALSPONSORID uniqueidentifier = null
+      )
+as begin
+
+	set nocount on;
+
+	declare @tempid uniqueidentifier = newid();
+  --declare @programId uniqueidentifier;
+
+	if ISNULL(@KEYNAME,'%') = '%' and ISNULL(@FIRSTNAME, '%') = '%' and ISNULL(@LOOKUPID,'%')='%' and ISNULL(@SPONSORSHIPLOCATIONID,@tempid)=@tempid
+	begin
+		set @KEYNAME = '%';
+		set @FIRSTNAME = '%';
+		set @LOOKUPID='%';
+	end
+	else
+	begin
+		if @KEYNAME is not null
+		begin
+			set @KEYNAME = @KEYNAME + '%';
+		end
+		if @FIRSTNAME is not null
+		begin
+			set @FIRSTNAME = @FIRSTNAME + '%';
+		end
+		if @LOOKUPID is not null
+		begin
+			set @LOOKUPID = @LOOKUPID + '%';
+		end
+	end
+
+	select	top(@MAXROWS)
+			SO.ID,
+			dbo.UFN_SPONSORSHIPOPPORTUNITY_TRANSLATIONFUNCTION(SO.ID) as NAME,
+			SO.LOOKUPID,
+			(select NAME from dbo.SPONSORSHIPOPPORTUNITYGROUP SPR WHERE SPR.ID = SO.SPONSORSHIPOPPORTUNITYGROUPID) OPPORTUNITYGROUP,
+			SO.ELIGIBILITY,
+			SO.AVAILABILITY,
+			C.GENDER,
+			C.BIRTHDATE,
+			dbo.UFN_SPONSORSHIPLOCATION_GETFULLNAME(OPPORTUNITYLOCATION.ID) LOCATION,
+      SPONSORSHIPPROGRAM.ID as PROGRAMID
+	  from	SPONSORSHIPOPPORTUNITY SO
+
+inner join	SPONSORSHIPOPPORTUNITYCHILD SC on SC.ID =SO.ID
+inner join	CONSTITUENT C on C.ID=  SC.CONSTITUENTID
+left outer join dbo.SPONSORSHIPLOCATION SELECTEDLOCATION on SELECTEDLOCATION.ID = @SPONSORSHIPLOCATIONID
+left outer join dbo.SPONSORSHIPLOCATION OPPORTUNITYLOCATION on OPPORTUNITYLOCATION.ID = SO.SPONSORSHIPLOCATIONID
+left outer join dbo.SPONSORSHIPPROGRAM on SPONSORSHIPPROGRAM.ID = @SPONSORSHIPPROGRAMID
+
+ 	 where	(@SPONSORSHIPOPPORTUNITYID is null or SO.ID = @SPONSORSHIPOPPORTUNITYID)
+	   and	(@KEYNAME is null or C.KEYNAME like @KEYNAME)
+	   and	(@FIRSTNAME is null or C.FIRSTNAME like @FIRSTNAME)
+	   and	(@LOOKUPID is null or SO.LOOKUPID like @LOOKUPID)
+	   and	(@SPONSORSHIPLOCATIONID is null or OPPORTUNITYLOCATION.HIERARCHYPATH.IsDescendantOf(SELECTEDLOCATION.HIERARCHYPATH) = 1)
+	   and	(@SPONSORSHIPOPPORTUNITYGROUPID is null or SO.SPONSORSHIPOPPORTUNITYGROUPID = @SPONSORSHIPOPPORTUNITYGROUPID)
+	   and	(@SPONSORSHIPPROGRAMID is null or
+			(SO.SPONSORSHIPOPPORTUNITYGROUPID = SPONSORSHIPPROGRAM.SPONSORSHIPOPPORTUNITYGROUPID and
+			(SPONSORSHIPPROGRAM.FILTERLOCATIONCODE = 0 or
+			(SPONSORSHIPPROGRAM.FILTERLOCATIONCODE = 1 and
+			 exists(select 'x'
+					  from dbo.UFN_SPONSORSHIPPROGRAM_FILTERLOCATIONS(SPONSORSHIPPROGRAM.FILTERLOCATIONS) X
+			    inner join dbo.SPONSORSHIPLOCATION FILTERLOCATION on FILTERLOCATION.ID = X.SPONSORSHIPLOCATIONID
+			         where OPPORTUNITYLOCATION.HIERARCHYPATH.IsDescendantOf(FILTERLOCATION.HIERARCHYPATH) = 1)) or
+			(SPONSORSHIPPROGRAM.FILTERLOCATIONCODE = 2 and
+			 not exists(select 'x'
+						  from dbo.UFN_SPONSORSHIPPROGRAM_FILTERLOCATIONS(SPONSORSHIPPROGRAM.FILTERLOCATIONS) X
+				    inner join dbo.SPONSORSHIPLOCATION FILTERLOCATION on FILTERLOCATION.ID = X.SPONSORSHIPLOCATIONID
+						 where OPPORTUNITYLOCATION.HIERARCHYPATH.IsDescendantOf(FILTERLOCATION.HIERARCHYPATH) = 1)))))
+	   and	(@ELIGIBILITYCODE = -1 or SO.ELIGIBILITYCODE = @ELIGIBILITYCODE)
+	   and	(@AVAILABILITYCODE = -1 or SO.AVAILABILITYCODE = @AVAILABILITYCODE)
+	   and	(@EXCLUDEOPPORTUNITYID is null or SO.ID <> @EXCLUDEOPPORTUNITYID)
+	   and	(@RESTRICTFORSOLESPONSORSHIP = 0 or
+			 not exists(select 'x'
+						  from dbo.SPONSORSHIP S
+						 where SO.ID = S.SPONSORSHIPOPPORTUNITYID
+						   and S.STATUSCODE in(0,1)))
+	   and	(@QUICKSEARCH is null or C.NAME like '%'+@QUICKSEARCH+'%' or SO.LOOKUPID like @QUICKSEARCH)
+	   and	(@RESERVATIONKEYID is null or SO.RESERVATIONKEYID = @RESERVATIONKEYID)
+	   and	(@CORRESPONDINGSPONSORID is null or
+			 not exists(select 'x'
+						  from dbo.SPONSORSHIP S
+						 where S.SPONSORSHIPOPPORTUNITYID = SO.ID
+						   and S.CONSTITUENTID = @CORRESPONDINGSPONSORID
+						   and S.STATUSCODE in(0,1)))
+	   and	(@FINANCIALSPONSORID is null or
+			(select UNIQUEOPPORTUNITIESFORGIFTDONOR from dbo.SPONSOR where ID = @FINANCIALSPONSORID) = 0 or
+			 not exists(select 'x'
+						  from dbo.REVENUE
+				    inner join dbo.REVENUESPLIT on REVENUESPLIT.REVENUEID = REVENUE.ID
+				    inner join dbo.SPONSORSHIP on SPONSORSHIP.REVENUESPLITID = REVENUESPLIT.ID
+						 where REVENUE.CONSTITUENTID = @FINANCIALSPONSORID
+						   and SPONSORSHIP.SPONSORSHIPOPPORTUNITYID = SO.ID
+						   and SPONSORSHIP.STATUSCODE in(0,1)))
+	   and	(@ELIGIBILITYCODE <> 1 or dbo.UFN_SPONSORSHIPOPPORTUNITY_AGEVALID(SO.SPONSORSHIPOPPORTUNITYGROUPID,C.BIRTHDATE) = 1)
+	   and  (not exists (select OPPORTUNITYID from USR_CHILD_SELECTED_FOR_SPONSORSHIP_LOCK where OPPORTUNITYID = SO.ID));			-- Added by CMayeda to remove those locked for sponsorship selection
+		
+end
+			]]>
+    </common:CreateProcedureSQL>
+  </SPSearchList>
+
+  <common:FormMetaData>
+    <common:FormFields>
+      <common:FormField FieldID="QUICKSEARCH" DataType="String" Hidden="true" MaxLength="100" />
+      <common:FormField FieldID="KEYNAME" Caption="Last name" DataType="String" MaxLength="100" CaptionResourceKey="$$last_name" />
+      <common:FormField FieldID="FIRSTNAME" Caption="First name" DataType="String" MaxLength="100" CaptionResourceKey="$$first_name" />
+      <common:FormField FieldID="SPONSORSHIPOPPORTUNITYGROUPID" Caption="Child group" CaptionResourceKey="$$child_group">
+        <common:SimpleDataList SimpleDataListID="755c0b35-29bb-40df-85a2-7054c986c6f6">
+          <common:Params>
+            <common:Param ID="TYPE">
+              <common:Value>1</common:Value>
+            </common:Param>
+            <common:Param ID="INCLUDEINACTIVE">
+              <common:Value>1</common:Value>
+            </common:Param>
+          </common:Params>
+        </common:SimpleDataList>
+      </common:FormField>
+      <common:FormField FieldID="SPONSORSHIPPROGRAMID" Caption="Sponsorship program" CaptionResourceKey="$$sponsorship_program">
+        <common:SimpleDataList SimpleDataListID="fca96cc4-1aad-4072-8bca-ba010e9e4e31">
+          <common:Params>
+            <common:Param ID="TYPE">
+              <common:Value>1</common:Value>
+            </common:Param>
+            <common:Param ID="INCLUDEINACTIVE">
+              <common:Value>1</common:Value>
+            </common:Param>
+          </common:Params>
+        </common:SimpleDataList>
+      </common:FormField>
+      <common:FormField FieldID="SPONSORSHIPLOCATIONID" Caption="Location" DataType="Guid" CaptionResourceKey="$$location">
+        <common:SearchList SearchListID="7d7ac450-86f7-42f7-9299-e2458592ad14" EnableQuickFind="true">
+          <common:FormFieldOverrides>
+            <common:FormFieldOverride FieldID="WITHINLOCATION" DefaultValueText="" Hidden="true" />
+            <common:FormFieldOverride FieldID="WITHINLOCATIONDISPLAY" DefaultValueText="" Hidden="true" />
+          </common:FormFieldOverrides>
+        </common:SearchList>
+      </common:FormField>
+      <common:FormField FieldID="LOOKUPID" Caption="Lookup ID" DataType="String" MaxLength="100" CaptionResourceKey="$$lookup_id" />
+      <common:FormField FieldID="ELIGIBILITYCODE" Caption="Eligibility" DataType="TinyInt" CaptionResourceKey="$$eligibility">
+        <common:ValueList>
+          <common:Items>
+            <common:Item LabelResourceKey="$$pending">
+              <common:Value>0</common:Value>
+              <common:Label>Pending</common:Label>
+            </common:Item>
+            <common:Item LabelResourceKey="$$eligible">
+              <common:Value>1</common:Value>
+              <common:Label>Eligible</common:Label>
+            </common:Item>
+            <common:Item LabelResourceKey="$$ineligible">
+              <common:Value>2</common:Value>
+              <common:Label>Ineligible</common:Label>
+            </common:Item>
+          </common:Items>
+        </common:ValueList>
+      </common:FormField>
+      <common:FormField FieldID="AVAILABILITYCODE" Caption="Availability" DataType="TinyInt" CaptionResourceKey="$$availability">
+        <common:ValueList>
+          <common:Items>
+            <common:Item LabelResourceKey="$$available">
+              <common:Value>0</common:Value>
+              <common:Label>Available</common:Label>
+            </common:Item>
+            <common:Item LabelResourceKey="$$reserved">
+              <common:Value>1</common:Value>
+              <common:Label>Reserved</common:Label>
+            </common:Item>
+            <common:Item LabelResourceKey="$$unavailable">
+              <common:Value>2</common:Value>
+              <common:Label>Unavailable</common:Label>
+            </common:Item>
+          </common:Items>
+        </common:ValueList>
+      </common:FormField>
+      <common:FormField FieldID="RESTRICTFORSOLESPONSORSHIP" Caption="Only include unsponsored" DataType="Boolean" Hidden="true" DefaultValueText="0" />
+      <common:FormField FieldID="EXCLUDEOPPORTUNITYID" DataType="Guid" Hidden="true" />
+      <common:FormField FieldID="RESERVATIONKEYID" DataType="Guid" Caption="Reservation key" CaptionResourceKey="$$reservation_key">
+        <common:SearchList SearchListID="617890DC-3770-4505-B963-B6072CADCED7" EnableQuickFind="true" />
+      </common:FormField>
+      <common:FormField FieldID="SPONSORSHIPOPPORTUNITYID" DataType="Guid" Hidden="true" />
+      <common:FormField FieldID="CORRESPONDINGSPONSORID" DataType="Guid" Hidden="true" />
+      <common:FormField FieldID="FINANCIALSPONSORID" DataType="Guid" Hidden="true" />
+    </common:FormFields>
+
+        <common:WebUIComponent>
+            <common:UIModel AssemblyName="MoM.Sponsorship.UIModel.dll" ClassName="MoM.Sponsorship.UIModel.SponsorshipOpportunityChildMoMCustomSearchUIModel" />
+            <common:WebUI>
+                <common:ExternalResource Url="browser/htmlforms/custom/SponsorshipOpportunityChildMoMCustomSearch.html" />
+            </common:WebUI>
+        </common:WebUIComponent>
+
+        
+
+    
+  </common:FormMetaData>
+
+  <Output TranslationField="NAME">
+    <OutputFields>
+      <OutputField FieldID="ID" Caption="ID" DataType="Guid" IsHidden="true" CaptionResourceKey="$$id" />
+      <OutputField FieldID="NAME" Caption="Name" DataType="String" CaptionResourceKey="$$name" />
+      <OutputField FieldID="LOOKUPID" Caption="Lookup ID" DataType="String" CaptionResourceKey="$$lookup_id" />
+      <OutputField FieldID="OPPORTUNITYGROUP" Caption="Child group" DataType="String" CaptionResourceKey="$$child_group" />
+      <OutputField FieldID="ELIGIBILITY" Caption="Eligibility" DataType="String" CaptionResourceKey="$$eligibility" />
+      <OutputField FieldID="AVAILABILITY" Caption="Availability" DataType="String" CaptionResourceKey="$$availability" />
+      <OutputField FieldID="GENDER" Caption="Gender" DataType="String" CaptionResourceKey="$$gender" />
+      <OutputField FieldID="BIRTHDATE" Caption="Birth date" DataType="FuzzyDate" CaptionResourceKey="$$birth_date" />
+      <OutputField FieldID="LOCATION" Caption="Location" DataType="String" CaptionResourceKey="$$location" />
+      <OutputField FieldID="PROGRAMID" Caption="Program ID" DataType="Guid" IsHidden="true" />
+    </OutputFields>
+  </Output>
+
+</SearchListSpec>
+

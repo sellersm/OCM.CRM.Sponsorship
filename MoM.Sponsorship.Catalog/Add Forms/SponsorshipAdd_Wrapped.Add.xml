@@ -1,0 +1,1021 @@
+<AddDataFormTemplateSpec 
+    xmlns:c="bb_appfx_commontypes"
+    ID="32ce36c3-3881-4b80-b7a9-94eef6a58cb7"
+    Name="Sponsorship Add Form (Wrapped)"
+    Description="An Add Form for adding a sponsorship record (Wrapped)"
+    Author="Memphis Sellers"
+    RecordType="Sponsorship"
+    DataFormInstanceID="bd01386b-95f1-47d4-aab5-49822ed9126f"
+    HelpKey="SPAddASponsorshipScr.html"
+    FormHeader="Add a sponsorship"
+    FormHeaderResourceKey="$$add_a_sponsorship"
+    xmlns="bb_appfx_adddataformtemplate"
+    >
+	
+	<!-- 
+	Remarks:    This is a COPY (wrapped) of the OOB Add Sponsorship form with our customizations added.
+				
+	History:
+	Date            Modified By     Comments
+	25-Aug-2012		Memphis			added the PFM Search field, using custom search with ID a00235ec-b143-4f50-ad74-4c653d605cdf
+									FogBugz Case #785
+	28-Aug-2012		Memphis			added the code in Save to create the PFM relationship, if user selected one.
+	01-Sep-2012		Memphis			added the INTERACTIONTYPECODEID field, selected from the code table: USR_NEWSPONSORSHIPINTERACTIONTYPECODE
+	-->
+
+	<c:ImpliedSecurityList>
+				<c:ImpliedSecurity Type="Datalist" ID="26c9edcb-a40f-4cf3-9cd4-fb01f773a777" />
+				<c:ImpliedSecurity Type="Datalist" ID="298a1b75-b1e4-4be6-b4af-dc5d1633f436" />
+				<c:ImpliedSecurity Type="Datalist" ID="ecf6002d-f1c1-4880-a715-fefd5ffa86f4" />
+				<c:ImpliedSecurity Type="Datalist" ID="1b958a23-8976-433a-9216-4c485e7ee7ef" />
+				<c:ImpliedSecurity Type="DataFormSpec" ID="b5b49bc6-70ca-416d-aa1b-7b56187ad833" />
+				<c:ImpliedSecurity Type="Datalist" ID="dfd49aaf-1dfc-453f-9f8c-325651df76e1" />
+				<c:ImpliedSecurity Type="Datalist" ID="156c6b80-a895-411f-bebb-198c7a2f9874" />
+				<c:ImpliedSecurity Type="RecordOperation" ID="66267281-2786-45b5-8869-600104ad37f0" />
+				<c:ImpliedSecurity Type="SimpleDataList" ID="fca96cc4-1aad-4072-8bca-ba010e9e4e31" />
+				<c:ImpliedSecurity Type="SearchList" ID="23c5c603-d7d8-4106-aecc-65392b563887" />
+				<c:ImpliedSecurity Type="SearchList" ID="7d7ac450-86f7-42f7-9299-e2458592ad14" />
+				<c:ImpliedSecurity Type="SimpleDataList" ID="b2b6fb02-19df-49d4-8092-de9611e98b2a" />
+				<c:ImpliedSecurity Type="SearchList" ID="ab076868-114a-4696-afe9-8d590677708c" />
+				<c:ImpliedSecurity Type="SearchList" ID="b095dc74-4c09-40c9-9c9d-e8ff55b584ce" />
+				<c:ImpliedSecurity Type="SimpleDataList" ID="0dd77a47-21b4-4953-abac-190e313b2d32" />
+				<c:ImpliedSecurity Type="DataFormSpec" ID="87c4e1ae-2ff3-48e0-9a74-874d39ded3ac" />
+				<c:ImpliedSecurity Type="SearchList" ID="617890dc-3770-4505-b963-b6072cadced7" />
+				<c:ImpliedSecurity Type="SearchList" ID="7d004826-2a51-4938-9f14-4eda9dade2df" />
+				<c:ImpliedSecurity Type="DataFormSpec" ID="2736a8b5-ab2e-4330-ba15-98818321c643" />
+				<c:ImpliedSecurity Type="SearchList" ID="349397cb-e2dd-43e8-a4ca-af5647c91d99" />
+				<c:ImpliedSecurity Type="SimpleDataList" ID="d9dd46ce-6651-4fcc-b9fe-e59162662224" />
+				<c:ImpliedSecurity Type="SimpleDataList" ID="c8d3128e-a2eb-4413-b0b4-1585ad5bf001" />
+				<c:ImpliedSecurity Type="Datalist" ID="d9b37525-ff33-472e-b66a-8bded0d2e9f2" />
+				<c:ImpliedSecurity Type="DataFormSpec" ID="9b63c3a7-f580-4b09-a00e-a3058dc22b6d" />
+				<c:ImpliedSecurity Type="Datalist" ID="2034f63b-b270-4a9e-b85e-fdd55205fca0" />
+				<c:ImpliedSecurity Type="Datalist" ID="f87afcf8-e743-4017-8d00-fbf4cdabe38b" />
+				<c:ImpliedSecurity Type="Datalist" ID="55bbc2dd-aab3-4bf4-b45a-2cb66815b804" />
+				<c:ImpliedSecurity Type="RecordOperation" ID="2dd6ea0b-dbe2-4b95-b266-eb7c6243e413" />
+				<c:ImpliedSecurity Type="RecordOperation" ID="8b382b28-764a-4443-9ebe-6f291dc55167" />
+				<c:ImpliedSecurity Type="RecordOperation" ID="0eee0709-2a41-45c5-bda2-4a22cd867606" />
+				<c:ImpliedSecurity Type="Datalist" ID="ec9c9ceb-32fc-48ce-b3d3-ee200048f327" />
+				<c:ImpliedSecurity Type="DataFormSpec" ID="3f043eb3-46bb-4607-8782-fe623e188a00" />
+		</c:ImpliedSecurityList>
+		<c:InstalledProductList>
+				<c:InstalledProduct ID="3117d2c8-7f46-42f2-abeb-b654f2f63046" />
+		</c:InstalledProductList>
+		<ResourceFile AssemblyName="Blackbaud.AppFx.Sponsorship.Catalog.dll" ClassName="Blackbaud.AppFx.Sponsorship.Catalog.Sponsorship.Add" />
+		<SPDataForm>
+				<LoadImplementation SPName="USR_USP_DATAFORMTEMPLATE_ADD_SPONSORSHIP_LOAD_WRAPPED">
+						<c:CreateProcedureSQL>
+<![CDATA[
+create procedure dbo.USR_USP_DATAFORMTEMPLATE_ADD_SPONSORSHIP_LOAD_WRAPPED 
+(
+		@FORMTITLE nvarchar(100) = null output,
+		@REVENUECONSTITUENTID uniqueidentifier = null output,
+		@SPONSORSHIPCONSTITUENTID uniqueidentifier = null output,
+		@SPONSORSHIPREASONID uniqueidentifier = null output,
+		@CURRENTAPPUSERID uniqueidentifier = null,
+		@TRANSACTIONCURRENCYID uniqueidentifier = null output,
+		@BASECURRENCYID uniqueidentifier = null output,
+		@BASEAMOUNT money = null output,
+		@EXCHANGERATE decimal(20,
+		8) = null output,
+		@BASECURRENCYDECIMALDIGITS tinyint = null output,
+		@BASECURRENCYROUNDINGTYPECODE tinyint = null output,
+		@REVENUEDEVELOPMENTFUNCTIONCODEID uniqueidentifier = null output
+)
+
+
+as
+
+set nocount on;
+
+/* Handle any custom "pre-load" logic here */
+
+declare @r int
+exec @r = dbo.USP_DATAFORMTEMPLATE_ADD_SPONSORSHIP_LOAD 
+	@FORMTITLE = @FORMTITLE output, 
+	@REVENUECONSTITUENTID = @REVENUECONSTITUENTID output, 
+	@SPONSORSHIPCONSTITUENTID = @SPONSORSHIPCONSTITUENTID output, 
+	@SPONSORSHIPREASONID = @SPONSORSHIPREASONID output, 
+	@CURRENTAPPUSERID = @CURRENTAPPUSERID, 
+	@TRANSACTIONCURRENCYID = @TRANSACTIONCURRENCYID output, 
+	@BASECURRENCYID = @BASECURRENCYID output, 
+	@BASEAMOUNT = @BASEAMOUNT output, 
+	@EXCHANGERATE = @EXCHANGERATE output, 
+	@BASECURRENCYDECIMALDIGITS = @BASECURRENCYDECIMALDIGITS output, 
+	@BASECURRENCYROUNDINGTYPECODE = @BASECURRENCYROUNDINGTYPECODE output, 
+	@REVENUEDEVELOPMENTFUNCTIONCODEID = @REVENUEDEVELOPMENTFUNCTIONCODEID output
+
+/* Handle any custom "after-load" logic here */
+
+if @@error <> 0 
+	begin
+		if @r <> 0 return @r
+		return 1;
+	end
+
+return @r;
+
+
+]]>
+</c:CreateProcedureSQL>
+				</LoadImplementation>
+      
+      <!-- The save procedure:
+            - it needs to create a new sponsorship for each child in the CHILDREN XML parameter, re-using all other values...
+            - build table of all children by calling something like UFN_COLLECTION_TEST_CHILDREN_FROMITEMLISTXML
+            - for each child in that temp table, call the [USP_DATAFORMTEMPLATE_ADD_SPONSORSHIP] sproc to add the new sponsorship
+            - the @SPONSORSHIPOPPORTUNITYIDCHILD parameter needs to have the sponsorshipopportunityid value of the child
+      -->
+      
+				<SaveImplementation SPName="USR_USP_DATAFORMTEMPLATE_ADD_SPONSORSHIP_WRAPPED">
+						<c:CreateProcedureSQL>
+<![CDATA[
+create procedure dbo.USR_USP_DATAFORMTEMPLATE_ADD_SPONSORSHIP_WRAPPED 
+(
+		@ID uniqueidentifier = null output,
+		@CHANGEAGENTID uniqueidentifier = null,
+		@REVENUECONSTITUENTID uniqueidentifier = null,
+		@SPONSORSHIPCONSTITUENTID uniqueidentifier = null,
+		@SPONSORSHIPPROGRAMID uniqueidentifier = null,
+		@SPONSORSHIPLOCATIONID uniqueidentifier = null,
+		@GENDERCODE int = 0,
+		@SPROPPAGERANGEID uniqueidentifier = null,
+		@ISHIVPOSITIVECODE int = 0,
+		@HASCONDITIONCODE int = 0,
+		@ISORPHANEDCODE int = 0,
+		@SPROPPPROJECTCATEGORYCODEID uniqueidentifier = null,
+		@SPONSORSHIPOPPORTUNITYIDCHILD uniqueidentifier = null,
+		@SPONSORSHIPOPPORTUNITYIDPROJECT uniqueidentifier = null,
+		@ISSOLESPONSORSHIP bit = 0,
+		@STARTDATE date = null,
+		@AMOUNT money = 0,
+		@PAYMENTMETHODCODE tinyint = 2,
+		@REFERENCEDATE dbo.UDT_FUZZYDATE = '00000000',
+		@REFERENCENUMBER nvarchar(20) = '',
+		@CARDHOLDERNAME nvarchar(255) = '',
+		@CREDITCARDNUMBER nvarchar(20) = '',
+		@CREDITTYPECODEID uniqueidentifier = null,
+		@EXPIRESON dbo.UDT_FUZZYDATE = null,
+		@CONSTITUENTACCOUNTID uniqueidentifier = null,
+		@FREQUENCYCODE tinyint = 3,
+		@REVENUESCHEDULEENDDATE datetime = null,
+		@REVENUESCHEDULESTARTDATE datetime = null,
+		@AUTOPAY bit = 1,
+		@CREDITCARDTOKEN uniqueidentifier = null,
+		@GIFTRECIPIENT bit = 0,
+		@PLANNEDENDDATE date = null,
+		@RESERVEDOPPORTUNITYIDCHILD uniqueidentifier = null,
+		@RESERVATIONKEY uniqueidentifier = null,
+		@MATCHEDOPPORTUNITYID uniqueidentifier = null,
+		@SENDREMINDER bit = 1,
+		@FINDERNUMBER bigint = null,
+		@SOURCECODE nvarchar(50) = null,
+		@APPEALID uniqueidentifier = null,
+		@MAILINGID uniqueidentifier = null,
+		@CHANNELCODEID uniqueidentifier = null,
+		@REFERENCE nvarchar(255) = null,
+		@CATEGORYCODEID uniqueidentifier = null,
+		@EXPIRATIONREASONID uniqueidentifier = null,
+		@TRANSACTIONCURRENCYID uniqueidentifier = null,
+		@BASEEXCHANGERATEID uniqueidentifier = null,
+		@EXCHANGERATE decimal(20,8) = null,
+		@CURRENTAPPUSERID uniqueidentifier = null,
+		@BATCHNUMBER nvarchar(100) = '',
+		@DONOTACKNOWLEDGE bit = 0,
+		@CHILDREN xml = null,
+		@PFMID uniqueidentifier = null,
+		@INTERACTIONTYPECODEID uniqueidentifier = null
+)
+
+
+as
+
+set nocount on;
+
+
+begin try
+	-- Handle any custom "before-save" logic here
+  -- build table of all children by calling something like UFN_COLLECTION_TEST_CHILDREN_FROMITEMLISTXML
+  -- for each child in that temp table, call the [USP_DATAFORMTEMPLATE_ADD_SPONSORSHIP] sproc to add the new sponsorship
+  -- the @SPONSORSHIPOPPORTUNITYIDCHILD parameter needs to have the sponsorshipopportunityid value of the child
+  declare @TempTbl table (
+	   [ID] uniqueidentifier,
+	   [CHILDID] nvarchar(50))
+
+	insert into @TempTbl select 
+		[ID],
+		[CHILDID] 
+	from dbo.UFN_CHILDREN_FOR_SPONSORSHIP_FROMITEMLISTXML(@CHILDREN)
+
+  declare @r int
+  declare chidCursor cursor fast_forward for 
+  select ID, CHILDID
+  from @TempTbl 
+
+  open chidCursor 
+
+  fetch next from chidCursor into @SPONSORSHIPPROGRAMID, @SPONSORSHIPOPPORTUNITYIDCHILD
+
+  while @@FETCH_STATUS = 0
+  begin
+    -- do the work of adding the sponsorship here:
+      set @ID = newid()
+      exec @r = dbo.USP_DATAFORMTEMPLATE_ADD_SPONSORSHIP 
+	    @ID = @ID output, 
+	    @CHANGEAGENTID = @CHANGEAGENTID, 
+	    @REVENUECONSTITUENTID = @REVENUECONSTITUENTID, 
+	    @SPONSORSHIPCONSTITUENTID = @SPONSORSHIPCONSTITUENTID, 
+	    @SPONSORSHIPPROGRAMID = @SPONSORSHIPPROGRAMID, 
+	    @SPONSORSHIPLOCATIONID = @SPONSORSHIPLOCATIONID, 
+	    @GENDERCODE = @GENDERCODE, 
+	    @SPROPPAGERANGEID = @SPROPPAGERANGEID, 
+	    @ISHIVPOSITIVECODE = @ISHIVPOSITIVECODE, 
+	    @HASCONDITIONCODE = @HASCONDITIONCODE, 
+	    @ISORPHANEDCODE = @ISORPHANEDCODE, 
+	    @SPROPPPROJECTCATEGORYCODEID = @SPROPPPROJECTCATEGORYCODEID, 
+	    @SPONSORSHIPOPPORTUNITYIDCHILD = @SPONSORSHIPOPPORTUNITYIDCHILD, 
+	    @SPONSORSHIPOPPORTUNITYIDPROJECT = @SPONSORSHIPOPPORTUNITYIDPROJECT, 
+	    @ISSOLESPONSORSHIP = @ISSOLESPONSORSHIP, 
+	    @STARTDATE = @STARTDATE, 
+	    @AMOUNT = @AMOUNT, 
+	    @PAYMENTMETHODCODE = @PAYMENTMETHODCODE, 
+	    @REFERENCEDATE = @REFERENCEDATE, 
+	    @REFERENCENUMBER = @REFERENCENUMBER, 
+	    @CARDHOLDERNAME = @CARDHOLDERNAME, 
+	    @CREDITCARDNUMBER = @CREDITCARDNUMBER, 
+	    @CREDITTYPECODEID = @CREDITTYPECODEID, 
+	    @EXPIRESON = @EXPIRESON, 
+	    @CONSTITUENTACCOUNTID = @CONSTITUENTACCOUNTID, 
+	    @FREQUENCYCODE = @FREQUENCYCODE, 
+	    @REVENUESCHEDULEENDDATE = @REVENUESCHEDULEENDDATE, 
+	    @REVENUESCHEDULESTARTDATE = @REVENUESCHEDULESTARTDATE, 
+	    @AUTOPAY = @AUTOPAY, 
+	    @CREDITCARDTOKEN = @CREDITCARDTOKEN, 
+	    @GIFTRECIPIENT = @GIFTRECIPIENT, 
+	    @PLANNEDENDDATE = @PLANNEDENDDATE, 
+	    @RESERVEDOPPORTUNITYIDCHILD = @RESERVEDOPPORTUNITYIDCHILD, 
+	    @RESERVATIONKEY = @RESERVATIONKEY, 
+	    @MATCHEDOPPORTUNITYID = @MATCHEDOPPORTUNITYID, 
+	    @SENDREMINDER = @SENDREMINDER, 
+	    @FINDERNUMBER = @FINDERNUMBER, 
+	    @SOURCECODE = @SOURCECODE, 
+	    @APPEALID = @APPEALID, 
+	    @MAILINGID = @MAILINGID, 
+	    @CHANNELCODEID = @CHANNELCODEID, 
+	    @REFERENCE = @REFERENCE, 
+	    @CATEGORYCODEID = @CATEGORYCODEID, 
+	    @EXPIRATIONREASONID = @EXPIRATIONREASONID, 
+	    @TRANSACTIONCURRENCYID = @TRANSACTIONCURRENCYID, 
+	    @BASEEXCHANGERATEID = @BASEEXCHANGERATEID, 
+	    @EXCHANGERATE = @EXCHANGERATE, 
+	    @CURRENTAPPUSERID = @CURRENTAPPUSERID, 
+	    @BATCHNUMBER = @BATCHNUMBER, 
+	    @DONOTACKNOWLEDGE = @DONOTACKNOWLEDGE
+
+    if @@error = 0 and @r = 0
+    begin
+      -- try to remove the lock on this opportunity
+      exec dbo.USR_DELETE_LOCK_CHILD_FOR_SPONSORSHIP_SELECTION @SPONSORSHIPOPPORTUNITYIDCHILD		
+    end
+    
+    /*   
+    -- what to do with errors?
+    if @@error <> 0 
+	    begin
+		    if @r <> 0 return @r
+		    return 1;
+	    end
+    */
+    --
+    fetch next from chidCursor into @SPONSORSHIPPROGRAMID, @SPONSORSHIPOPPORTUNITYIDCHILD
+  end
+
+  close chidCursor 
+  deallocate chidCursor 
+
+	-- do the Partnership for Mercy setup if the user picked one:
+	if @PFMID is not null
+	begin
+		declare  @CONSTITUENTID uniqueidentifier
+		declare  @RELATIONSHIPSTARTDATE datetime
+		declare  @COMMENTS nvarchar(256) = ''
+		declare  @PRIMARYSOFTCREDITRELATIONSHIPEXISTS bit = 0
+		declare  @PRIMARYSOFTCREDITMATCHFACTOR decimal(5,2) = 100
+		declare  @RECIPROCALSOFTCREDITRELATIONSHIPEXISTS bit = 0
+		declare  @RECIPROCALSOFTCREDITMATCHFACTOR decimal(5,2) = 100
+		declare  @PRIMARYRECOGNITIONTYPECODEID uniqueidentifier = null
+		declare  @RECIPROCALRECOGNITIONTYPECODEID uniqueidentifier = null
+		declare  @CURRENTDATE datetime = getdate()
+		declare  @ISCONTACT bit = 0
+		declare  @ISPRIMARYCONTACT bit = 0
+		declare  @CONTACTTYPECODEID uniqueidentifier = null
+		declare  @RELATIONSHIPENDDATE datetime = null
+		declare	 @ISPRIMARYBUSINESS bit = 0
+		declare  @ISMATCHINGGIFTRELATIONSHIP bit = 0
+		declare  @RECIPROCALCONSTITUENTID uniqueidentifier = null
+		declare  @RECIPROCALTYPECODEID uniqueidentifier = null
+		declare  @RELATIONSHIPTYPECODEID uniqueidentifier = null
+	
+		-- set the values & call the create relationship sproc
+		set @RECIPROCALCONSTITUENTID = @PFMID				-- this is the PFM ID the user selected: Testing Partnership for Mercy ORG
+		-- this is the code of the 'CHURCH' relationship type, which describes the reciprocal/PFM org: 
+		set @RECIPROCALTYPECODEID = (select ID
+									from dbo.RELATIONSHIPTYPECODE
+									where lower(DESCRIPTION) = LOWER('church')
+									and ACTIVE = 1)     
+		-- this is the code of the 'Church Member' relationship type, which describes the constituent relationship
+		set @RELATIONSHIPTYPECODEID = (select ID
+										from dbo.RELATIONSHIPTYPECODE
+										where lower(DESCRIPTION) = LOWER('Church Member')
+										and ACTIVE = 1)
+			
+		-- make sure we have the ID values or we can't continue
+		if (@RECIPROCALTYPECODEID is null) or (@RELATIONSHIPTYPECODEID is null)
+			RAISERROR 1000000 'Could not find either the "Church" or "Church Member" Relationship Type code!'
+		else
+		begin								
+			set @RELATIONSHIPSTARTDATE = getdate()   -- date the relationship started
+			set @COMMENTS = N'created by adding a new sponsorship'
+			set @PRIMARYSOFTCREDITRELATIONSHIPEXISTS = 1
+			set @PRIMARYSOFTCREDITMATCHFACTOR = 100
+			set @RECIPROCALSOFTCREDITRELATIONSHIPEXISTS = 0
+			set @RECIPROCALSOFTCREDITMATCHFACTOR = 0
+			--set @PRIMARYRECOGNITIONTYPECODEID = '78E81015-8AB8-424B-9E56-67BBADB1D891'
+			set @RECIPROCALRECOGNITIONTYPECODEID = NULL
+			if @CHANGEAGENTID is null  
+				exec dbo.USP_CHANGEAGENT_GETORCREATECHANGEAGENT @CHANGEAGENTID output
+			--set @CHANGEAGENTID = '1EBCC2A6-4FDA-4A7E-90B1-8AFEC457A564'
+			set @CONSTITUENTID = @SPONSORSHIPCONSTITUENTID      -- this is the con/sponsor	
+			
+			exec dbo.USR_USP_CREATE_PARTNERSHIP_RELATIONSHIP_WITH_SPONSOR
+				@ID OUTPUT
+				,@CHANGEAGENTID
+				,@CONSTITUENTID
+				,@RECIPROCALCONSTITUENTID
+				,@RECIPROCALTYPECODEID
+				,@RELATIONSHIPTYPECODEID
+				,@RELATIONSHIPSTARTDATE
+				,@COMMENTS
+				,@PRIMARYSOFTCREDITRELATIONSHIPEXISTS
+				,@PRIMARYSOFTCREDITMATCHFACTOR
+				,@RECIPROCALSOFTCREDITRELATIONSHIPEXISTS
+				,@RECIPROCALSOFTCREDITMATCHFACTOR				  
+				,@RECIPROCALRECOGNITIONTYPECODEID
+				,@CURRENTDATE
+				,@ISCONTACT
+				,@ISPRIMARYCONTACT
+				,@CONTACTTYPECODEID
+				,@RELATIONSHIPENDDATE
+				,@ISPRIMARYBUSINESS
+				,@ISMATCHINGGIFTRELATIONSHIP
+		end   -- @RECIPROCALTYPECODEID is not null
+		
+		-- now add the constituency code of 'Partnership for mercy' to sponsor if not there:
+		declare @CONSTITUENCYCODEID uniqueidentifier
+		declare @DATEFROM datetime
+		declare @DATETO datetime
+		
+		-- get the constituency code id for Partnership for mercy
+		select @CONSTITUENCYCODEID = ID
+		from dbo.CONSTITUENCYCODE
+		where DESCRIPTION = 'Partnership for Mercy'
+
+		if @CONSTITUENCYCODEID is null
+			RAISERROR 1000000 'Could not find the "Partnership for mercy" constituency code!'
+			
+		-- check now for the given constituency code for the given constituent
+		declare @ISPARTNER bit = 0;
+		
+		select @ISPARTNER = dbo.USR_UFN_CONSTITUENT_HAS_CONSTITUENCYCODE (@CONSTITUENTID, @CONSTITUENCYCODEID)
+		
+		-- 0 means it isn't present, 1 means it was found:
+		if @ISPARTNER = 0
+		begin
+			set @DATEFROM = getdate()
+			-- finally add the code
+			exec dbo.USR_USP_ADD_CONSTITUENT_CONSTITUENCYCODE
+				   @ID OUTPUT
+				  ,@CHANGEAGENTID
+				  ,@CONSTITUENTID
+				  ,@CONSTITUENCYCODEID
+				  ,@DATEFROM
+				  ,@DATETO			  
+		end
+		
+	end  -- @PFMID is not null
+
+end try
+begin catch
+	exec dbo.USP_RAISE_ERROR;
+	return 1;
+end catch
+
+
+/* invoke the default implementation */
+
+
+/*
+begin try
+	-- Handle any custom "after-save" logic here 
+end try
+begin catch
+	exec dbo.USP_RAISE_ERROR;
+	return 1;
+end catch
+*/
+
+return @r;
+
+
+]]>
+</c:CreateProcedureSQL>
+						<c:ExpectedDBExceptions>
+								<c:Constraints>
+										<c:Constraint Name="CK_SPONSORSHIP_OPPORTUNITYUNIQUEFORCONSTITUENTACTIVESPONSORSHIPS" Field="REVENUECONSTITUENTID" Type="Format">
+												<c:CustomErrorMsg>This sponsor already has an active sponsorship to the selected opportunity.</c:CustomErrorMsg>
+										</c:Constraint>
+										<c:Constraint Name="CK_DIRECTDEBITPAYMENTMETHODDETAIL_CONSTITUENTACCOUNTID_REQUIRED" Field="CONSTITUENTACCOUNTID" Type="Required" />
+										<c:Constraint Name="CK_REVENUESCHEDULEDIRECTDEBITPAYMENT_CONSTITUENTACCOUNTID_REQUIRED" Field="CONSTITUENTACCOUNTID" Type="Required" />
+										<c:Constraint Name="CK_REVENUESCHEDULE_ENDDATEVALID" Field="REVENUESCHEDULEENDDATE" Type="Format">
+												<c:CustomErrorMsg>The end date cannot be before the start date.</c:CustomErrorMsg>
+										</c:Constraint>
+										<c:Constraint Name="REVENUESCHEDULE.FREQUENCYCODE" Field="FREQUENCYCODE" Type="Required">
+												<c:CustomErrorMsg>The frequency code is not valid for the selected schedule.</c:CustomErrorMsg>
+										</c:Constraint>
+										<c:Constraint Name="CK_REVENUESCHEDULE_NEXTTRANSACTIONDATEVALID" Field="REVENUESCHEDULEENDDATE" Type="Format">
+												<c:CustomErrorMsg>The next transaction date has passed the end date. Please reschedule.</c:CustomErrorMsg>
+										</c:Constraint>
+										<c:Constraint Name="CK_SPONSORSHIP_SOLESPONSORSHIP" Field="ISSOLESPONSORSHIP" Type="Format">
+												<c:CustomErrorMsg>The current opportunity already has sponsorships associated with it, so cannot be a sole sponsorship.</c:CustomErrorMsg>
+										</c:Constraint>
+										<c:Constraint Name="FK_CREDITCARD_CREDITTYPECODEID" Field="CREDITTYPECODEID" Type="ForeignKey" />
+										<c:Constraint Name="CK_SPONSORSHIP_STARTDATEAFTERPLANNEDENDDATE" Field="PLANNEDENDDATE" Type="Format">
+												<c:CustomErrorMsg>The expiration date must be greater than or equal to the start date.</c:CustomErrorMsg>
+										</c:Constraint>
+										<c:Constraint Name="FK_FINANCIALTRANSACTION_CONSTITUENTID" Field="REVENUECONSTITUENTID" Type="ForeignKey" />
+										<c:Constraint Name="FK_SPONSORDATERANGE_CONSTITUENTID" Field="SPONSORSHIPCONSTITUENTID" Type="ForeignKey" />
+										<c:Constraint Name="FK_SPONSORSHIP_SPONSORSHIPPROGRAMID" Field="SPONSORSHIPPROGRAMID" Type="ForeignKey" />
+										<c:Constraint Name="FK_SPONSORSHIP_SPONSORSHIPLOCATIONID" Field="SPONSORSHIPLOCATIONID" Type="ForeignKey" />
+										<c:Constraint Name="FK_SPONSORSHIP_SPONSORSHIPOPPORTUNITYAGERANGEID" Field="SPROPPAGERANGEID" Type="ForeignKey" />
+										<c:Constraint Name="FK_SPONSORSHIP_SPONSORSHIPOPPORTUNITYID" Field="SPONSORSHIPOPPORTUNITYIDCHILD" Type="ForeignKey" />
+										<c:Constraint Name="FK_SPONSORSHIP_SPONSORSHIPOPPORTUNITYID" Field="SPONSORSHIPOPPORTUNITYIDPROJECT" Type="ForeignKey" />
+										<c:Constraint Name="UC_SPONSORSHIPCOMMITMENT_LOOKUPID" Field="SPONSORSHIPCONSTITUENTID" Type="Unique">
+												<c:CustomErrorMsg>The automatically generated commitment lookup ID failed to be created because it conflicts with an existing ID.  Please try to save again.  If the error persists, please contact an administrator.</c:CustomErrorMsg>
+										</c:Constraint>
+								</c:Constraints>
+								<c:CustomExceptions>
+										<c:Exception Field="AMOUNT" SearchText="CK_REVENUESPLIT_VALIDAMOUNT">
+												<c:CustomErrorMsg>One or more designation amounts is invalid.</c:CustomErrorMsg>
+										</c:Exception>
+										<c:Exception Field="SPONSORSHIPOPPORTUNITYIDCHILD" SearchText="BBERR_NOOPPORTUNITYSPECIFIED">
+												<c:CustomErrorMsg>You must choose an opportunity to sponsor.</c:CustomErrorMsg>
+										</c:Exception>
+										<c:Exception Field="SPONSORSHIPOPPORTUNITYIDCHILD" SearchText="BBERR_OPPORTUNITYNOTAVAILABLE">
+												<c:CustomErrorMsg>The selected sponsorship opportunity is no longer available.  Please choose another sponsorship opportunity.</c:CustomErrorMsg>
+										</c:Exception>
+										<c:Exception Field="SPONSORSHIPOPPORTUNITYIDPROJECT" SearchText="BBERR_SPONSORSPEROPPORTUNITYINVALID">
+												<c:CustomErrorMsg>The selected sponsorship opportunity already has the maximum number of sponsors that are allowed by this program.</c:CustomErrorMsg>
+										</c:Exception>
+										<c:Exception Field="SPONSORSHIPOPPORTUNITYIDPROJECT" SearchText="BBERR_NODESIGNATIONFOUND">
+												<c:CustomErrorMsg>A designation could not be found for this sponsorship's opportunity.</c:CustomErrorMsg>
+										</c:Exception>
+										<c:Exception Field="GIFTRECIPIENT" SearchText="BBERR_NOREVENUECONSTITUENTFOUND">
+												<c:CustomErrorMsg>A gift recipient must be chosen if the gift sponsorship checkbox is checked.</c:CustomErrorMsg>
+										</c:Exception>
+										<c:Exception Field="REVENUECONSTITUENTID" SearchText="HOUSEHOLDSCANNOTBEDONORS">
+												<c:CustomErrorMsg>The 'Households can be donors' configuration setting is currently set to prohibit revenue from being applied to households.</c:CustomErrorMsg>
+										</c:Exception>
+										<c:Exception Field="REVENUECONSTITUENTID" SearchText="GROUPCANNOTBEDONOR">
+												<c:CustomErrorMsg>The 'Group can be donor' setting for this type of constituent group is currently set to prohibit revenue from being applied to this group.</c:CustomErrorMsg>
+										</c:Exception>
+										<c:Exception Field="SPONSORSHIPCONSTITUENTID" SearchText="HOUSEHOLDSCANNOTBEDONORS">
+												<c:CustomErrorMsg>The 'Households can be donors' configuration setting is currently set to prohibit revenue from being applied to households.</c:CustomErrorMsg>
+										</c:Exception>
+										<c:Exception Field="SPONSORSHIPCONSTITUENTID" SearchText="GROUPCANNOTBEDONOR">
+												<c:CustomErrorMsg>The 'Group can be donor' setting for this type of constituent group is currently set to prohibit revenue from being applied to this group.</c:CustomErrorMsg>
+										</c:Exception>
+										<c:Exception Field="REVENUECONSTITUENTID" SearchText="BBERR_INVALIDREVENUECONSTITUENTID">
+												<c:CustomErrorMsg>Please enter a valid 'Donor'.</c:CustomErrorMsg>
+										</c:Exception>
+										<c:Exception Field="SPONSORSHIPOPPORTUNITYIDCHILD" SearchText="BBERR_CHILDOPPORTUNITYTOOYOUNG">
+												<c:CustomErrorMsg>The selected child is too young for sponsorship.</c:CustomErrorMsg>
+										</c:Exception>
+										<c:Exception Field="SPONSORSHIPOPPORTUNITYIDCHILD" SearchText="BBERR_CHILDOPPORTUNITYTOOOLD">
+												<c:CustomErrorMsg>The selected child is too old for sponsorship.</c:CustomErrorMsg>
+										</c:Exception>
+								</c:CustomExceptions>
+						</c:ExpectedDBExceptions>
+				</SaveImplementation>
+		</SPDataForm>
+		<c:FormMetaData FixedDialog="true">
+				<c:FormFields>
+						<c:FormField FieldID="FORMTITLE" ReadOnly="true" MaxLength="100" />
+						<c:FormField FieldID="REVENUECONSTITUENTID" DataType="Guid" Required="true" Caption="Financial sponsor" CaptionResourceKey="$$financial_sponsor">
+								<c:SearchList SearchListID="23c5c603-d7d8-4106-aecc-65392b563887" EnableQuickFind="true">
+										<c:FormFieldOverrides>
+												<c:FormFieldOverride FieldID="INCLUDENONCONSTITUENTRECORDS" Hidden="true" DefaultValueText="true" />
+												<c:FormFieldOverride FieldID="FORMHEADER" DefaultValueText="Record Search" />
+										</c:FormFieldOverrides>
+										<c:AddDataForms>
+												<c:AddDataForm ID="6949e415-6cd0-4af5-be9f-acebd318f478" Caption="Individual" CaptionResourceKey="$$individual" />
+												<c:AddDataForm ID="d846a816-46c7-470e-9ad0-973b2730e836" Caption="Household" CaptionResourceKey="$$household" />
+												<c:AddDataForm ID="f0f6426a-fccd-48bb-846b-eb3d1a4a0ed4" Caption="Group" CaptionResourceKey="$$group" />
+												<c:AddDataForm ID="0706d187-af1a-4bd6-8365-8fb7419e5600" Caption="Organization" CaptionResourceKey="$$organization" />
+										</c:AddDataForms>
+								</c:SearchList>
+						</c:FormField>
+						<c:FormField FieldID="GIFTRECIPIENT" DataType="Boolean" Caption="Gift" DefaultValueText="0" CaptionResourceKey="$$gift" />
+						<c:FormField FieldID="SPONSORSHIPCONSTITUENTID" DataType="Guid" Required="true" Caption="Corresponding sponsor" CaptionResourceKey="$$corresponding_sponsor">
+								<c:SearchList SearchListID="23c5c603-d7d8-4106-aecc-65392b563887" EnableQuickFind="true">
+										<c:FormFieldOverrides>
+												<c:FormFieldOverride FieldID="INCLUDENONCONSTITUENTRECORDS" Hidden="true" DefaultValueText="true" />
+												<c:FormFieldOverride FieldID="FORMHEADER" DefaultValueText="Record Search" />
+										</c:FormFieldOverrides>
+										<c:AddDataForms>
+												<c:AddDataForm ID="6949e415-6cd0-4af5-be9f-acebd318f478" Caption="Individual" CaptionResourceKey="$$individual" />
+												<c:AddDataForm ID="d846a816-46c7-470e-9ad0-973b2730e836" Caption="Household" CaptionResourceKey="$$household" />
+												<c:AddDataForm ID="f0f6426a-fccd-48bb-846b-eb3d1a4a0ed4" Caption="Group" CaptionResourceKey="$$group" />
+												<c:AddDataForm ID="0706d187-af1a-4bd6-8365-8fb7419e5600" Caption="Organization" CaptionResourceKey="$$organization" />
+										</c:AddDataForms>
+								</c:SearchList>
+						</c:FormField>
+						<c:FormField FieldID="SPONSORSHIPREASONID" DataType="Guid" ReadOnly="true" Hidden="true" Caption="Reason">
+								<c:SimpleDataList SimpleDataListID="c8d3128e-a2eb-4413-b0b4-1585ad5bf001" />
+						</c:FormField>
+						<c:FormField FieldID="SPONSORSHIPPROGRAMID" DataType="Guid" Required="true" Caption="Program" CaptionResourceKey="$$program">
+								<c:SimpleDataList SimpleDataListID="fca96cc4-1aad-4072-8bca-ba010e9e4e31">
+										<c:Params>
+												<c:Param ID="TYPE">
+														<c:Value>0</c:Value>
+												</c:Param>
+										</c:Params>
+								</c:SimpleDataList>
+						</c:FormField>
+
+          <c:FormField FieldID="CHILDREN" Caption="Children" CaptionResourceKey="$$sites">
+            <c:Collection>
+              <c:Fields>
+                <c:FormField FieldID="ID" DataType="Guid" Hidden="true" />
+                <c:FormField FieldID="NAME" Caption="Child Name" DataType="Guid" Required="true" CaptionResourceKey="$$site">
+                  <!--<c:SearchList SearchListID="ab076868-114a-4696-afe9-8d590677708c" EnableQuickFind="true" >
+                    <c:FormFieldOverrides>
+                      <c:FormFieldOverride FieldID="SPONSORSHIPPROGRAMID" DefaultValueText="Fields!SPONSORSHIPPROGRAMID" />
+                      <c:FormFieldOverride FieldID="ELIGIBILITYCODE"  DefaultValueText="1" />
+                      <c:FormFieldOverride FieldID="AVAILABILITYCODE"  DefaultValueText="0" />
+                      <c:FormFieldOverride FieldID="RESTRICTFORSOLESPONSORSHIP" Caption="Only include unsponsored" DefaultValueText="Fields!ISSOLESPONSORSHIP" />
+                      <c:FormFieldOverride FieldID="SPONSORSHIPOPPORTUNITYGROUPID" ReadOnly="true" />
+                      <c:FormFieldOverride FieldID="RESERVATIONKEYID" ReadOnly="true" />
+                      <c:FormFieldOverride FieldID="CORRESPONDINGSPONSORID" Hidden="true" DefaultValueText="Fields!SPONSORSHIPCONSTITUENTID" />
+                      <c:FormFieldOverride FieldID="FINANCIALSPONSORID" Hidden="true" DefaultValueText="Fields!REVENUECONSTITUENTID" />
+                    </c:FormFieldOverrides>                                        
+                  </c:SearchList>-->
+                  <!--<c:SimpleDataList SimpleDataListID="3eb2bc55-07d8-4b1d-9a48-33883b3fa404">
+                    <c:SearchList SearchListID="ab076868-114a-4696-afe9-8d590677708c" />
+                  </c:SimpleDataList>-->
+                </c:FormField>
+                <c:FormField FieldID="LOOKUPID" Caption="Lookup ID" DataType="String" />
+              </c:Fields>
+            </c:Collection>
+          </c:FormField>
+
+
+          <c:FormField FieldID="PLANNEDENDDATE" DataType="Date" Caption="Expiration date" CaptionResourceKey="$$expiration_date" />
+						<c:FormField FieldID="SPONSORSHIPLOCATIONID" DataType="Guid" Caption="Location" CaptionResourceKey="$$location">
+								<c:SearchList SearchListID="7d7ac450-86f7-42f7-9299-e2458592ad14" EnableQuickFind="true">
+										<c:FormFieldOverrides>
+												<c:FormFieldOverride FieldID="WITHINLOCATION" Hidden="true" />
+												<c:FormFieldOverride FieldID="WITHINLOCATIONDISPLAY" Hidden="true" />
+										</c:FormFieldOverrides>
+								</c:SearchList>
+						</c:FormField>
+						<c:FormField FieldID="SPROPPAGERANGEID" DataType="Guid" Caption="Age range" CaptionResourceKey="$$age_range">
+								<c:SimpleDataList SimpleDataListID="b2b6fb02-19df-49d4-8092-de9611e98b2a" />
+						</c:FormField>
+						<c:FormField FieldID="GENDERCODE" DataType="Integer" Caption="Gender" DefaultValueText="0" CaptionResourceKey="$$gender">
+								<c:ValueList>
+										<c:Items>
+												<c:Item>
+														<c:Value>1</c:Value>
+														<c:Label>Male</c:Label>
+												</c:Item>
+												<c:Item>
+														<c:Value>2</c:Value>
+														<c:Label>Female</c:Label>
+												</c:Item>
+										</c:Items>
+								</c:ValueList>
+						</c:FormField>
+						<c:FormField FieldID="ISHIVPOSITIVECODE" DataType="Integer" Caption="HIV positive" DefaultValueText="0" CaptionResourceKey="$$hiv_positive">
+								<c:ValueList>
+										<c:Items>
+												<c:Item>
+														<c:Value>1</c:Value>
+														<c:Label>Yes</c:Label>
+												</c:Item>
+												<c:Item>
+														<c:Value>2</c:Value>
+														<c:Label>No</c:Label>
+												</c:Item>
+										</c:Items>
+								</c:ValueList>
+						</c:FormField>
+						<c:FormField FieldID="HASCONDITIONCODE" DataType="Integer" Caption="Disability/Illness" DefaultValueText="0" CaptionResourceKey="$$disability/illness">
+								<c:ValueList>
+										<c:Items>
+												<c:Item>
+														<c:Value>1</c:Value>
+														<c:Label>Yes</c:Label>
+												</c:Item>
+												<c:Item>
+														<c:Value>2</c:Value>
+														<c:Label>No</c:Label>
+												</c:Item>
+										</c:Items>
+								</c:ValueList>
+						</c:FormField>
+						<c:FormField FieldID="ISORPHANEDCODE" DataType="Integer" Caption="Orphaned" DefaultValueText="0" CaptionResourceKey="$$orphaned">
+								<c:ValueList>
+										<c:Items>
+												<c:Item>
+														<c:Value>1</c:Value>
+														<c:Label>Yes</c:Label>
+												</c:Item>
+												<c:Item>
+														<c:Value>2</c:Value>
+														<c:Label>No</c:Label>
+												</c:Item>
+										</c:Items>
+								</c:ValueList>
+						</c:FormField>
+						<c:FormField FieldID="SPROPPPROJECTCATEGORYCODEID" DataType="Guid" Caption="Category" CaptionResourceKey="$$category">
+								<c:CodeTable CodeTableName="SPROPPPROJECTCATEGORYCODE" />
+						</c:FormField>
+						<c:FormField FieldID="SPONSORSHIPOPPORTUNITYIDCHILD" DataType="Guid" Caption="Child" CaptionResourceKey="$$child">
+								<c:SearchList SearchListID="f9183b88-9f54-40de-848e-c8fbacf92e79" EnableQuickFind="false">
+										<c:FormFieldOverrides>
+												<c:FormFieldOverride FieldID="SPONSORSHIPPROGRAMID" ReadOnly="false" DefaultValueText="Fields!SPONSORSHIPPROGRAMID" />
+												<c:FormFieldOverride FieldID="ELIGIBILITYCODE" ReadOnly="false" DefaultValueText="1" />
+												<c:FormFieldOverride FieldID="AVAILABILITYCODE" ReadOnly="false" DefaultValueText="1" />
+												<c:FormFieldOverride FieldID="RESTRICTFORSOLESPONSORSHIP" Caption="Only include unsponsored" DefaultValueText="True" />
+												<c:FormFieldOverride FieldID="SPONSORSHIPOPPORTUNITYGROUPID" ReadOnly="false" />
+												<c:FormFieldOverride FieldID="RESERVATIONKEYID" ReadOnly="false" />
+												<c:FormFieldOverride FieldID="CORRESPONDINGSPONSORID" Hidden="true" DefaultValueText="Fields!SPONSORSHIPCONSTITUENTID" />
+												<c:FormFieldOverride FieldID="FINANCIALSPONSORID" Hidden="true" DefaultValueText="Fields!REVENUECONSTITUENTID" />
+										</c:FormFieldOverrides>
+								</c:SearchList>
+						</c:FormField>
+						<c:FormField FieldID="SPONSORSHIPOPPORTUNITYIDPROJECT" DataType="Guid" Caption="Project" CaptionResourceKey="$$project">
+								<c:SearchList SearchListID="b095dc74-4c09-40c9-9c9d-e8ff55b584ce" EnableQuickFind="true">
+										<c:FormFieldOverrides>
+												<c:FormFieldOverride FieldID="SPONSORSHIPPROGRAMID" ReadOnly="true" DefaultValueText="Fields!SPONSORSHIPPROGRAMID" />
+												<c:FormFieldOverride FieldID="ELIGIBILITYCODE" ReadOnly="true" DefaultValueText="1" />
+												<c:FormFieldOverride FieldID="AVAILABILITYCODE" ReadOnly="true" DefaultValueText="0" />
+												<c:FormFieldOverride FieldID="RESTRICTFORSOLESPONSORSHIP" Caption="Only include unsponsored" DefaultValueText="Fields!ISSOLESPONSORSHIP" />
+												<c:FormFieldOverride FieldID="SPONSORSHIPOPPORTUNITYGROUPID" ReadOnly="true" />
+												<c:FormFieldOverride FieldID="CORRESPONDINGSPONSORID" Hidden="true" DefaultValueText="Fields!SPONSORSHIPCONSTITUENTID" />
+												<c:FormFieldOverride FieldID="FINANCIALSPONSORID" Hidden="true" DefaultValueText="Fields!REVENUECONSTITUENTID" />
+										</c:FormFieldOverrides>
+								</c:SearchList>
+						</c:FormField>
+						<c:FormField FieldID="ISSOLESPONSORSHIP" DataType="Boolean" Caption="Sole sponsorship" DefaultValueText="0" CaptionResourceKey="$$sole_sponsorship" />
+						<c:FormField FieldID="STARTDATE" DataType="Date" Required="true" Caption="Start date" CaptionResourceKey="$$start_date" />
+						<c:FormField FieldID="AMOUNT" DataType="Money" Required="true" Caption="Amount" DefaultValueText="0" CaptionResourceKey="$$amount">
+								<c:CurrencyField CurrencyFieldID="TRANSACTIONCURRENCYID" />
+						</c:FormField>
+						<c:FormField FieldID="AUTOPAY" DataType="Boolean" Caption="Pay installments automatically by:" DefaultValueText="1" CaptionResourceKey="$$pay_installments_automatically_by:" />
+						<c:FormField FieldID="PAYMENTMETHODCODE" DataType="TinyInt" Required="true" Caption="Payment method" DefaultValueText="2" CaptionResourceKey="$$payment_method">
+								<c:ValueList>
+										<c:Items>
+												<c:Item>
+														<c:Value>2</c:Value>
+														<c:Label>Credit card</c:Label>
+												</c:Item>
+												<c:Item>
+														<c:Value>3</c:Value>
+														<c:Label>Direct debit</c:Label>
+												</c:Item>
+										</c:Items>
+								</c:ValueList>
+						</c:FormField>
+						<c:FormField FieldID="CONSTITUENTACCOUNTID" DataType="Guid" Caption="Account" CaptionResourceKey="$$account">
+								<c:SimpleDataList SimpleDataListID="0dd77a47-21b4-4953-abac-190e313b2d32">
+										<c:Params>
+												<c:Param ID="CONSTITUENTID">
+														<c:Value>Fields!REVENUECONSTITUENTID</c:Value>
+												</c:Param>
+										</c:Params>
+										<c:AddDataForms>
+												<c:AddDataForm ID="87c4e1ae-2ff3-48e0-9a74-874d39ded3ac" ContextID="Fields!SPONSORSHIPCONSTITUENTID" Caption="Add account" CaptionResourceKey="$$add_account" />
+										</c:AddDataForms>
+								</c:SimpleDataList>
+						</c:FormField>
+						<c:FormField FieldID="REFERENCENUMBER" MaxLength="20" Caption="Reference no." DefaultValueText="" CaptionResourceKey="$$reference_no" />
+						<c:FormField FieldID="REFERENCEDATE" DataType="FuzzyDate" Caption="Reference date" DefaultValueText="00000000" CaptionResourceKey="$$reference_date" />
+						<c:FormField FieldID="FREQUENCYCODE" DataType="TinyInt" Required="true" Caption="Frequency" DefaultValueText="3" CaptionResourceKey="$$frequency">
+								<c:ValueList>
+										<c:Items>
+												<c:Item>
+														<c:Value>0</c:Value>
+														<c:Label>Annually</c:Label>
+												</c:Item>
+												<c:Item>
+														<c:Value>1</c:Value>
+														<c:Label>Semi-annually</c:Label>
+												</c:Item>
+												<c:Item>
+														<c:Value>2</c:Value>
+														<c:Label>Quarterly</c:Label>
+												</c:Item>
+												<c:Item>
+														<c:Value>6</c:Value>
+														<c:Label>Bimonthly</c:Label>
+												</c:Item>
+												<c:Item>
+														<c:Value>3</c:Value>
+														<c:Label>Monthly</c:Label>
+												</c:Item>
+												<c:Item>
+														<c:Value>7</c:Value>
+														<c:Label>Semi-monthly</c:Label>
+												</c:Item>
+												<c:Item>
+														<c:Value>8</c:Value>
+														<c:Label>Biweekly</c:Label>
+												</c:Item>
+												<c:Item>
+														<c:Value>9</c:Value>
+														<c:Label>Weekly</c:Label>
+												</c:Item>
+										</c:Items>
+								</c:ValueList>
+						</c:FormField>
+						<c:FormField FieldID="REVENUESCHEDULESTARTDATE" DataType="Date" Required="true" Caption="Starting on" CaptionResourceKey="$$starting_on" />
+						<c:FormField FieldID="REVENUESCHEDULEENDDATE" DataType="Date" Caption="Ending on" CaptionResourceKey="$$ending_on" />
+						<c:FormField FieldID="CREDITCARDNUMBER" MaxLength="20" Caption="Card number" DefaultValueText="" CaptionResourceKey="$$card_number" />
+						<c:FormField FieldID="CARDHOLDERNAME" MaxLength="255" Caption="Name on card" DefaultValueText="" CaptionResourceKey="$$name_on_card" />
+						<c:FormField FieldID="EXPIRESON" DataType="FuzzyDate" Caption="Expires on" CaptionResourceKey="$$expires_on" />
+						<c:FormField FieldID="CREDITCARDTOKEN" DataType="Guid">
+								<c:CreditCard CardNumberFieldID="CREDITCARDNUMBER" CardHolderFieldID="CARDHOLDERNAME" ExpirationDateFieldID="EXPIRESON" CardTypeFieldID="CREDITTYPECODEID" />
+						</c:FormField>
+						<c:FormField FieldID="CREDITTYPECODEID" DataType="Guid" Caption="Card type" CaptionResourceKey="$$card_type">
+								<c:CodeTable CodeTableName="CREDITTYPECODE" />
+						</c:FormField>
+						<c:FormField FieldID="RESERVEDOPPORTUNITYIDCHILD" DataType="Guid" Caption="Child" CaptionResourceKey="$$child">
+								<c:SearchList SearchListID="ab076868-114a-4696-afe9-8d590677708c" EnableQuickFind="true">
+										<c:FormFieldOverrides>
+												<c:FormFieldOverride FieldID="SPONSORSHIPPROGRAMID" ReadOnly="true" DefaultValueText="Fields!SPONSORSHIPPROGRAMID" />
+												<c:FormFieldOverride FieldID="ELIGIBILITYCODE" ReadOnly="true" DefaultValueText="1" />
+												<c:FormFieldOverride FieldID="AVAILABILITYCODE" ReadOnly="true" DefaultValueText="1" />
+												<c:FormFieldOverride FieldID="RESTRICTFORSOLESPONSORSHIP" Caption="Only include unsponsored" DefaultValueText="Fields!ISSOLESPONSORSHIP" />
+												<c:FormFieldOverride FieldID="SPONSORSHIPOPPORTUNITYGROUPID" ReadOnly="true" />
+												<c:FormFieldOverride FieldID="RESERVATIONKEYID" ReadOnly="true" DefaultValueText="Fields!RESERVATIONKEY" />
+												<c:FormFieldOverride FieldID="CORRESPONDINGSPONSORID" Hidden="true" DefaultValueText="Fields!SPONSORSHIPCONSTITUENTID" />
+												<c:FormFieldOverride FieldID="FINANCIALSPONSORID" Hidden="true" DefaultValueText="Fields!REVENUECONSTITUENTID" />
+										</c:FormFieldOverrides>
+								</c:SearchList>
+						</c:FormField>
+						<c:FormField FieldID="RESERVATIONKEY" DataType="Guid" Caption="Reservation key" CaptionResourceKey="$$reservation_key">
+								<c:SearchList SearchListID="617890dc-3770-4505-b963-b6072cadced7" EnableQuickFind="true">
+										<c:FormFieldOverrides>
+												<c:FormFieldOverride FieldID="INCLUDEINACTIVE" ReadOnly="true" DefaultValueText="0" />
+										</c:FormFieldOverrides>
+								</c:SearchList>
+						</c:FormField>
+						<c:FormField FieldID="MATCHEDOPPORTUNITYID" DataType="Guid" Hidden="true" />
+						<c:FormField FieldID="SENDREMINDER" DataType="Boolean" Caption="Send reminders" DefaultValueText="1" CaptionResourceKey="$$send_reminders" />
+						<c:FormField FieldID="FINDERNUMBER" DataType="Long" Caption="Finder number" CaptionResourceKey="$$finder_number" DoNotApplyFormat="true" />
+						<c:FormField FieldID="SOURCECODE" MaxLength="50" Caption="Source code" CaptionResourceKey="$$source_code" />
+						<c:FormField FieldID="APPEALID" DataType="Guid" Caption="Appeal" CaptionResourceKey="$$appeal">
+								<c:SearchList SearchListID="7d004826-2a51-4938-9f14-4eda9dade2df" EnableQuickFind="true">
+										<c:AddDataForms>
+												<c:AddDataForm ID="2736a8b5-ab2e-4330-ba15-98818321c643" Caption="Add" CaptionResourceKey="$$add" />
+										</c:AddDataForms>
+								</c:SearchList>
+						</c:FormField>
+						<c:FormField FieldID="MAILINGID" DataType="Guid" Caption="Mailing" CaptionResourceKey="$$mailing">
+								<c:SearchList SearchListID="349397cb-e2dd-43e8-a4ca-af5647c91d99" EnableQuickFind="true">
+										<c:FormFieldOverrides>
+												<c:FormFieldOverride FieldID="STATUS" Caption="Status" ReadOnly="true" Hidden="true" DefaultValueText="1" />
+												<c:FormFieldOverride FieldID="INCLUDEAPPEALMAILINGS" Caption="Include appeal mailings" ReadOnly="true" Hidden="true" DefaultValueText="true" />
+										</c:FormFieldOverrides>
+								</c:SearchList>
+						</c:FormField>
+						<c:FormField FieldID="CHANNELCODEID" DataType="Guid" Caption="Inbound channel" CaptionResourceKey="$$inbound_channel">
+								<c:CodeTable CodeTableName="CHANNELCODE" />
+						</c:FormField>
+						<c:FormField FieldID="REFERENCE" MaxLength="255" Caption="Reference" CaptionResourceKey="$$reference" AllowZoom="true" />
+						<c:FormField FieldID="CATEGORYCODEID" DataType="Guid" Caption="Revenue category" CaptionResourceKey="$$revenue_category">
+								<c:SimpleDataList SimpleDataListID="d9dd46ce-6651-4fcc-b9fe-e59162662224" />
+						</c:FormField>
+						<c:FormField FieldID="EXPIRATIONREASONID" DataType="Guid" Caption="Reason" CaptionResourceKey="$$reason">
+								<c:SimpleDataList SimpleDataListID="c8d3128e-a2eb-4413-b0b4-1585ad5bf001">
+										<c:Params>
+												<c:Param ID="TYPE">
+														<c:Value>11</c:Value>
+												</c:Param>
+										</c:Params>
+								</c:SimpleDataList>
+						</c:FormField>
+						<c:FormField FieldID="TRANSACTIONCURRENCYID" DataType="Guid" Caption="Transaction currency" CaptionResourceKey="$$transaction_currency">
+								<c:SimpleDataList SimpleDataListID="40bf0d4a-5e78-46f4-ab50-56d508e35516" />
+								<c:FormFieldHiddenCondition>
+										<c:DoesNotExistCondition Key="Multicurrency" />
+								</c:FormFieldHiddenCondition>
+						</c:FormField>
+						<c:FormField FieldID="BASEEXCHANGERATEID" DataType="Guid" Caption="Exchange rate" CaptionResourceKey="$$exchange_rate">
+								<c:SimpleDataList SimpleDataListID="c254b16d-ba67-4431-9f7e-ab7f75f4f246">
+										<c:Params>
+												<c:Param ID="FROMCURRENCYID">
+														<c:Value>Fields!TRANSACTIONCURRENCYID</c:Value>
+												</c:Param>
+												<c:Param ID="TOCURRENCYID">
+														<c:Value>Fields!BASECURRENCYID</c:Value>
+												</c:Param>
+												<c:Param ID="TYPECODE">
+														<c:Value>1</c:Value>
+												</c:Param>
+												<c:Param ID="ASOFDATE">
+														<c:Value>Fields!DATE</c:Value>
+												</c:Param>
+												<c:Param ID="INCLUDESPOTRATE">
+														<c:Value>1</c:Value>
+												</c:Param>
+												<c:Param ID="CURRENTEXCHANGERATEID">
+														<c:Value>Fields!BASEEXCHANGERATEID</c:Value>
+												</c:Param>
+										</c:Params>
+								</c:SimpleDataList>
+								<c:FormFieldHiddenCondition>
+										<c:DoesNotExistCondition Key="Multicurrency" />
+								</c:FormFieldHiddenCondition>
+						</c:FormField>
+						<c:FormField FieldID="EXCHANGERATE" DataType="Decimal" Caption="Exchange rate" Precision="20" Scale="8" CaptionResourceKey="$$exchange_rate">
+								<c:FormFieldHiddenCondition>
+										<c:DoesNotExistCondition Key="Multicurrency" />
+								</c:FormFieldHiddenCondition>
+						</c:FormField>
+						<c:FormField FieldID="BASECURRENCYID" DataType="Guid" ReadOnly="true" Hidden="true" />
+						<c:FormField FieldID="BASEAMOUNT" DataType="Money" ReadOnly="true" Caption="Base amount" CaptionResourceKey="$$base_amount">
+								<c:CurrencyField CurrencyFieldID="BASECURRENCYID" />
+								<c:FormFieldHiddenCondition>
+										<c:DoesNotExistCondition Key="Multicurrency" />
+								</c:FormFieldHiddenCondition>
+						</c:FormField>
+						<c:FormField FieldID="BASECURRENCYDECIMALDIGITS" DataType="TinyInt" ReadOnly="true" Hidden="true" Caption="Base currency decimal digits" />
+						<c:FormField FieldID="BASECURRENCYROUNDINGTYPECODE" DataType="TinyInt" ReadOnly="true" Hidden="true" Caption="Base currency rounding type code" />
+						<c:FormField FieldID="BATCHNUMBER" Hidden="true" MaxLength="100" DefaultValueText="" />
+						<c:FormField FieldID="REVENUEDEVELOPMENTFUNCTIONCODEID" DataType="Guid" ReadOnly="true" Hidden="true" Caption="Revenue function" CaptionResourceKey="$$revenue_function">
+								<c:CodeTable CodeTableName="REVENUEDEVELOPMENTFUNCTIONCODE" />
+						</c:FormField>
+						<c:FormField FieldID="DONOTACKNOWLEDGE" DataType="Boolean" Caption="Do not acknowledge" DefaultValueText="0" CaptionResourceKey="$$do_not_acknowledge" />
+					
+					<!-- Memphis 8/25 -->
+					<c:FormField FieldID="PFMID" DataType="Guid" Required="false" Caption="PFM" CaptionResourceKey="$$financial_sponsor">
+						<c:SearchList SearchListID="a00235ec-b143-4f50-ad74-4c653d605cdf" EnableQuickFind="true">
+							<!--<c:FormFieldOverrides>
+								<c:FormFieldOverride FieldID="INCLUDENONCONSTITUENTRECORDS" Hidden="true" DefaultValueText="true" />
+								<c:FormFieldOverride FieldID="FORMHEADER" DefaultValueText="Record Search" />
+							</c:FormFieldOverrides>
+							<c:AddDataForms>
+								<c:AddDataForm ID="6949e415-6cd0-4af5-be9f-acebd318f478" Caption="Individual" CaptionResourceKey="$$individual" />
+								<c:AddDataForm ID="d846a816-46c7-470e-9ad0-973b2730e836" Caption="Household" CaptionResourceKey="$$household" />
+								<c:AddDataForm ID="f0f6426a-fccd-48bb-846b-eb3d1a4a0ed4" Caption="Group" CaptionResourceKey="$$group" />
+								<c:AddDataForm ID="0706d187-af1a-4bd6-8365-8fb7419e5600" Caption="Organization" CaptionResourceKey="$$organization" />
+							</c:AddDataForms>-->
+						</c:SearchList>
+					</c:FormField>	
+					
+					<!-- Memphis 9/1/12 -->
+					<c:FormField FieldID="INTERACTIONTYPECODEID" DataType="Guid" Caption="Interaction" Required="true">
+						<c:CodeTable CodeTableName="USR_NEWSPONSORSHIPINTERACTIONTYPECODE" />						
+					</c:FormField>
+				</c:FormFields>
+
+        <c:WebUIComponent>
+            <c:UIModel AssemblyName="MoM.Sponsorship.UIModel.dll" ClassName="MoM.Sponsorship.UIModel.SponsorshipAddFormWrappedUIModel" />
+            <c:WebUI>
+                <c:ExternalResource Url="browser/htmlforms/custom/SponsorshipAddFormWrapped.html" />
+            </c:WebUI>
+        </c:WebUIComponent>
+
+        
+				
+				<c:FieldGroups>
+						<c:FieldGroup ID="GENERALINFORMATION" Caption="General" CaptionResourceKey="$$general">
+								<c:Fields>
+									<c:Field>REVENUECONSTITUENTID</c:Field>
+									<c:Field>FINDERNUMBER</c:Field>
+									<c:Field>GIFTRECIPIENT</c:Field>
+									<c:Field>SPONSORSHIPCONSTITUENTID</c:Field>										
+									<c:Field>STARTDATE</c:Field>
+									<c:Field>SPONSORSHIPREASONID</c:Field>
+									<c:Field>PFMID</c:Field>
+									<c:Field>INTERACTIONTYPECODEID</c:Field>
+								</c:Fields>
+						</c:FieldGroup>
+						<c:FieldGroup ID="SPONSORSHIPOPPORTUNITY" Caption="Sponsorship Opportunity" CaptionResourceKey="$$sponsorship_opportunity">
+								<c:Fields>
+                  <c:Field>CHILDREN</c:Field>
+										<c:Field>SPONSORSHIPOPPORTUNITYIDCHILD</c:Field>
+                  <c:Field>SPONSORSHIPPROGRAMID</c:Field>
+                  <c:Field>SPONSORSHIPOPPORTUNITYIDPROJECT</c:Field>
+										<c:Field>RESERVATIONKEY</c:Field>
+										<c:Field>RESERVEDOPPORTUNITYIDCHILD</c:Field>
+										<c:Field>SPONSORSHIPLOCATIONID</c:Field>
+										<c:Field>GENDERCODE</c:Field>
+										<c:Field>SPROPPAGERANGEID</c:Field>
+										<c:Field>ISORPHANEDCODE</c:Field>
+										<c:Field>ISHIVPOSITIVECODE</c:Field>
+										<c:Field>HASCONDITIONCODE</c:Field>
+										<c:Field>SPROPPPROJECTCATEGORYCODEID</c:Field>
+										<c:Field>ISSOLESPONSORSHIP</c:Field>
+								</c:Fields>
+						</c:FieldGroup>
+						<c:FieldGroup ID="PAYMENTSCHEDULE" Caption="Schedule" CaptionResourceKey="$$schedule">
+								<c:Fields>
+										<c:Field>FREQUENCYCODE</c:Field>
+										<c:Field>REVENUESCHEDULESTARTDATE</c:Field>
+										<c:Field>REVENUESCHEDULEENDDATE</c:Field>
+										<c:Field>RGSCHEDULE</c:Field>
+								</c:Fields>
+						</c:FieldGroup>
+						<c:FieldGroup ID="PAYMENTINFORMATION" Caption="Payment information" CaptionResourceKey="$$payment_information">
+								<c:Fields>
+										<c:Field>AUTOPAY</c:Field>
+										<c:Field>PAYMENTMETHODCODE</c:Field>
+										<c:Field>CREDITTYPECODEID</c:Field>
+										<c:Field>REFERENCENUMBER</c:Field>
+										<c:Field>CONSTITUENTACCOUNTID</c:Field>
+										<c:Field>EXPIRESON</c:Field>
+								</c:Fields>
+						</c:FieldGroup>
+						<c:FieldGroup ID="MATCHEDOPPORTUNITY" Caption="Matched opportunity" CaptionResourceKey="$$matched_opportunity">
+								<c:Fields>
+                  <c:Field>MOPPORTUNITYNAME</c:Field>
+                  <c:Field>MOPPORTUNITYLOCATION</c:Field>
+										<c:Field>MOPPORTUNITYLOOKUPID</c:Field>
+										<c:Field>MOPPORTUNITYGENDER</c:Field>
+										<c:Field>MOPPORTUNITYBIRTHDATE</c:Field>
+								</c:Fields>
+						</c:FieldGroup>
+				</c:FieldGroups>
+				<c:Tabs>
+						<c:Tab ID="TAB_SPONSORSHIP" Caption="Sponsorship" CaptionResourceKey="$$sponsorship" />
+						<c:Tab ID="TAB_PAYMENT" Caption="Payment" CaptionResourceKey="$$payment" />
+						<c:Tab ID="TAB_EXPIRATION" Caption="Expiration" CaptionResourceKey="$$expiration" />
+				</c:Tabs>
+				<c:UIFields>          
+						<c:FormField FieldID="SELECTOPPORTUNITYID" DataType="TinyInt" Caption="Select Opportunity" DefaultValueText="2" CaptionResourceKey="$$select_opportunity">
+								<c:ValueList UseRadioButtons="true">
+										<c:Items>
+												<c:Item>
+														<c:Value>0</c:Value>
+														<c:Label>Choose a specific opportunity</c:Label>
+												</c:Item>
+												<c:Item>
+														<c:Value>1</c:Value>
+														<c:Label>Choose a reserved opportunity</c:Label>
+												</c:Item>
+												<c:Item>
+														<c:Value>2</c:Value>
+														<c:Label>Find a matching opportunity of greatest need</c:Label>
+												</c:Item>
+										</c:Items>
+								</c:ValueList>
+						</c:FormField>
+						<c:FormField FieldID="ISFIXEDTERMSPONSORSHIP" DataType="Boolean" Caption="This is a fixed-term sponsorship" CaptionResourceKey="$$this_is_a_fixed-term_sponsorship" />
+						<c:FormField FieldID="RGSCHEDULE" DataType="XML" />
+						<c:FormField FieldID="MOPPORTUNITYNAME" Caption="Name" CaptionResourceKey="$$name" />
+						<c:FormField FieldID="MOPPORTUNITYLOCATION" Caption="Location" CaptionResourceKey="$$location" />
+						<c:FormField FieldID="MOPPORTUNITYLOOKUPID" Caption="Lookup ID" CaptionResourceKey="$$lookup_id" />
+						<c:FormField FieldID="MOPPORTUNITYGENDER" Caption="Gender" CaptionResourceKey="$$gender" />
+						<c:FormField FieldID="MOPPORTUNITYBIRTHDATE" Caption="Birthdate" CaptionResourceKey="$$birthdate" />
+						<c:FormField FieldID="MOPPORTUNITYIMAGE" Hidden="true" />
+						<c:FormField FieldID="FINDERNUMBERSTRING" Caption="Finder number" CaptionResourceKey="$$finder_number" />
+						<c:FormField FieldID="INVALIDFINDERNUMBERIMAGE" Caption="Invalid finder number" CaptionResourceKey="$$invalid_finder_number" />
+						<c:FormField FieldID="INSTALLMENTS" DataType="XML">
+								<c:Collection>
+										<c:Fields>
+												<c:FormField FieldID="DATE" DataType="Date" Required="true" Caption="Date" CaptionResourceKey="$$date" />
+												<c:FormField FieldID="AMOUNT" DataType="Money" Required="true" Caption="Amount" CaptionResourceKey="$$amount">
+														<c:CurrencyField CurrencyFieldID="TRANSACTIONCURRENCYID" />
+												</c:FormField>
+												<c:FormField FieldID="TRANSACTIONCURRENCYID" DataType="Guid" Hidden="true" Caption="Transaction currency" />
+										</c:Fields>
+								</c:Collection>
+						</c:FormField>
+					
+				</c:UIFields>
+				<c:UIActions>
+						<c:UIAction ActionID="FINDOPPORTUNITY" Caption="Find" CaptionResourceKey="$$find" />
+					<c:UIAction ActionID="CLEARSEARCHACTION" Caption="Clear" CaptionResourceKey="$$find" />
+						<c:UIAction ActionID="SOURCECODELOOKUP" Description="Look up a source code to associate with this gift" DescriptionResourceKey="$$look_up_a_source_code_to_associate_with_this_gift" ImageKey="RES:findsmall">
+								<c:ShowSearch SearchListID="ef764bb7-fdf0-45c2-a50f-294bf460f200" />
+						</c:UIAction>
+						<c:UIAction ActionID="CURRENCYACTION" Description="Edit the currency and exchange rate information for this pledge" DescriptionResourceKey="$$edit_the_currency_and_exchange_rate_information_for_this_pledge" ImageKey="catalog:Blackbaud.AppFx.Currency.Catalog.dll,Blackbaud.AppFx.Currency.Catalog.multicurrency_16.png">
+								<c:ShowCustomForm>
+										<c:ModelComponent AssemblyName="Blackbaud.AppFx.Fundraising.UIModel.dll" ClassName="Blackbaud.AppFx.Fundraising.UIModel.CurrencyFormUIModel" />
+								</c:ShowCustomForm>
+						</c:UIAction>
+				</c:UIActions>
+		</c:FormMetaData>
+</AddDataFormTemplateSpec>

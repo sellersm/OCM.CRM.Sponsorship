@@ -1,0 +1,158 @@
+﻿<SQLFunctionSpec 
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+	xmlns:xsd="http://www.w3.org/2001/XMLSchema" 
+	xmlns="bb_appfx_sqlfunction" 
+	ID="ca2e5f7a-0b81-4b88-b78d-dae48a247e8a" 
+	Name="UFN_SPONSORSHIP_PROGRAMANDOPPORTUNITYCONSISTENT" 
+	Description="Determines whether the specified program and opportunity share the same group." 
+	Author="Blackbaud Product Development" 
+	DBFunctionName="UFN_SPONSORSHIP_PROGRAMANDOPPORTUNITYCONSISTENT" >
+
+	<!-- 
+	Remarks:    Modfied the out of box spec to allow transfer to and from the reserved program.  
+				** THIS IS INTENDED AS A TEMPORARY FIX **
+				No changes were made to the Blackbaud code itself.  It was just wrapped within a cursor to allow for checking multiple programs.
+				The added code is commented with a start and end.  
+				In addition, the full original source is included at the end (commented out)
+				This is also used as a check constraint on the Sponsorship table.
+				
+				The logic is that if the program passed in @SPONSORSHIPPROGRAMID is in the table USR_SPONSORSHIP_PROGRAMANDOPPORTUNITYCONSISTENT_GROUP,
+				then check the child against any of the programs in USR_SPONSORSHIP_PROGRAMANDOPPORTUNITYCONSISTENT_GROUP.
+				Otherwise, just check the program passed in @SPONSORSHIPPROGRAMID.
+				
+	History:
+	Date            Modified By     Comments
+	19-Aug-2012		CMayeda			Initial Version
+
+	-->
+	
+	<CreateFunctionSQL>
+		<![CDATA[
+create function dbo.UFN_SPONSORSHIP_PROGRAMANDOPPORTUNITYCONSISTENT(
+	@SPONSORSHIPPROGRAMID uniqueidentifier,
+	@SPONSORSHIPOPPORTUNITYID uniqueidentifier
+)
+returns bit
+with execute as caller
+as begin
+	declare @VALID bit
+	declare @FILTERLOCATIONCODE tinyint
+	declare @FILTERLOCATIONS xml
+	declare @OPPORTUNITYLOCATIONID uniqueidentifier
+
+-- This is the start of the first added code section
+	declare		@sponsorshipProgramIDParm uniqueidentifier = @SPONSORSHIPPROGRAMID
+	
+	declare @programCheckCursor cursor
+	if exists (select SPONSORSHIPPROGRAMID from USR_SPONSORSHIP_PROGRAMANDOPPORTUNITYCONSISTENT_GROUP where SPONSORSHIPPROGRAMID = @SPONSORSHIPPROGRAMID)
+		set @programCheckCursor = cursor for select SPONSORSHIPPROGRAMID from USR_SPONSORSHIP_PROGRAMANDOPPORTUNITYCONSISTENT_GROUP	
+	else
+		set @programCheckCursor = cursor for select @sponsorshipProgramIDParm
+
+	set @VALID = 0
+	
+	open @programCheckCursor 
+	fetch next from @programCheckCursor
+		into @SPONSORSHIPPROGRAMID
+		
+	while @@FETCH_STATUS = 0 and @VALID = 0
+	begin
+-- This is the end of the first added code section
+		-- This is the standard function code
+		select	@VALID = case when SPONSORSHIPPROGRAM.SPONSORSHIPOPPORTUNITYGROUPID = SPONSORSHIPOPPORTUNITY.SPONSORSHIPOPPORTUNITYGROUPID then 1 else 0 end,
+				@FILTERLOCATIONCODE = SPONSORSHIPPROGRAM.FILTERLOCATIONCODE,
+				@FILTERLOCATIONS = SPONSORSHIPPROGRAM.FILTERLOCATIONS,
+				@OPPORTUNITYLOCATIONID = SPONSORSHIPOPPORTUNITY.SPONSORSHIPLOCATIONID
+		  from	dbo.SPONSORSHIPPROGRAM
+	inner join	dbo.SPONSORSHIPOPPORTUNITY on SPONSORSHIPOPPORTUNITY.ID = @SPONSORSHIPOPPORTUNITYID
+		 where SPONSORSHIPPROGRAM.ID = @SPONSORSHIPPROGRAMID;
+
+		if @VALID = 1 and @FILTERLOCATIONCODE <> 0
+		begin
+			if @FILTERLOCATIONCODE = 1
+			begin
+				if not exists(select 'x'
+								from dbo.UFN_SPONSORSHIPPROGRAM_FILTERLOCATIONS(@FILTERLOCATIONS) X
+						  inner join dbo.SPONSORSHIPLOCATION FILTERLOCATION on FILTERLOCATION.ID = X.SPONSORSHIPLOCATIONID
+					      inner join dbo.SPONSORSHIPLOCATION OPPORTUNITYLOCATION on OPPORTUNITYLOCATION.ID = @OPPORTUNITYLOCATIONID
+						       where OPPORTUNITYLOCATION.HIERARCHYPATH.IsDescendantOf(FILTERLOCATION.HIERARCHYPATH) = 1)
+					set @VALID = 0;
+			end
+			if @FILTERLOCATIONCODE = 2
+			begin
+				if exists(select 'x'
+						    from dbo.UFN_SPONSORSHIPPROGRAM_FILTERLOCATIONS(@FILTERLOCATIONS) X
+					  inner join dbo.SPONSORSHIPLOCATION FILTERLOCATION on FILTERLOCATION.ID = X.SPONSORSHIPLOCATIONID
+					  inner join dbo.SPONSORSHIPLOCATION OPPORTUNITYLOCATION on OPPORTUNITYLOCATION.ID = @OPPORTUNITYLOCATIONID
+						   where OPPORTUNITYLOCATION.HIERARCHYPATH.IsDescendantOf(FILTERLOCATION.HIERARCHYPATH) = 1)
+					set @VALID = 0;
+			end
+		end
+	
+-- This is the start of the second added code section
+		if @VALID = 0
+			fetch next from @programCheckCursor
+				into @SPONSORSHIPPROGRAMID
+	end
+
+-- This is the end of the second added code section	
+	
+	return @VALID
+end
+
+/*
+This is the original function code 
+		
+create function dbo.UFN_SPONSORSHIP_PROGRAMANDOPPORTUNITYCONSISTENT(
+	@SPONSORSHIPPROGRAMID uniqueidentifier,
+	@SPONSORSHIPOPPORTUNITYID uniqueidentifier
+)
+returns bit
+with execute as caller
+as begin
+	declare @VALID bit
+	declare @FILTERLOCATIONCODE tinyint
+	declare @FILTERLOCATIONS xml
+	declare @OPPORTUNITYLOCATIONID uniqueidentifier
+	
+	select @VALID = case when SPONSORSHIPPROGRAM.SPONSORSHIPOPPORTUNITYGROUPID = SPONSORSHIPOPPORTUNITY.SPONSORSHIPOPPORTUNITYGROUPID then 1 else 0 end,
+	       @FILTERLOCATIONCODE = SPONSORSHIPPROGRAM.FILTERLOCATIONCODE,
+		   @FILTERLOCATIONS = SPONSORSHIPPROGRAM.FILTERLOCATIONS,
+		   @OPPORTUNITYLOCATIONID = SPONSORSHIPOPPORTUNITY.SPONSORSHIPLOCATIONID
+	from dbo.SPONSORSHIPPROGRAM
+	inner join dbo.SPONSORSHIPOPPORTUNITY on SPONSORSHIPOPPORTUNITY.ID = @SPONSORSHIPOPPORTUNITYID
+	where SPONSORSHIPPROGRAM.ID = @SPONSORSHIPPROGRAMID;
+	
+	if @VALID = 1 and @FILTERLOCATIONCODE <> 0
+	begin
+		if @FILTERLOCATIONCODE = 1
+		begin
+			if not exists(select 'x'
+				  	      from dbo.UFN_SPONSORSHIPPROGRAM_FILTERLOCATIONS(@FILTERLOCATIONS) X
+	  				      inner join dbo.SPONSORSHIPLOCATION FILTERLOCATION on FILTERLOCATION.ID = X.SPONSORSHIPLOCATIONID
+					      inner join dbo.SPONSORSHIPLOCATION OPPORTUNITYLOCATION on OPPORTUNITYLOCATION.ID = @OPPORTUNITYLOCATIONID
+		  			      where OPPORTUNITYLOCATION.HIERARCHYPATH.IsDescendantOf(FILTERLOCATION.HIERARCHYPATH) = 1)
+				set @VALID = 0;
+		end
+		if @FILTERLOCATIONCODE = 2
+		begin
+			if exists(select 'x'
+			  	      from dbo.UFN_SPONSORSHIPPROGRAM_FILTERLOCATIONS(@FILTERLOCATIONS) X
+	  			      inner join dbo.SPONSORSHIPLOCATION FILTERLOCATION on FILTERLOCATION.ID = X.SPONSORSHIPLOCATIONID
+				      inner join dbo.SPONSORSHIPLOCATION OPPORTUNITYLOCATION on OPPORTUNITYLOCATION.ID = @OPPORTUNITYLOCATIONID
+		  		      where OPPORTUNITYLOCATION.HIERARCHYPATH.IsDescendantOf(FILTERLOCATION.HIERARCHYPATH) = 1)
+				set @VALID = 0;
+		end
+	end
+	
+	return @VALID
+end
+		
+*/
+		
+		
+		
+		
+		]]>
+	</CreateFunctionSQL>
+</SQLFunctionSpec>

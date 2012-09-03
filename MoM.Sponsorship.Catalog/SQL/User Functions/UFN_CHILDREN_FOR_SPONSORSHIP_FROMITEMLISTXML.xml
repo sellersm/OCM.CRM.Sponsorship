@@ -1,0 +1,30 @@
+﻿<SQLFunctionSpec
+	xmlns="bb_appfx_sqlfunction"
+	xmlns:common="bb_appfx_commontypes" 
+	ID="604c4543-c5e2-42a3-9d2c-a6bad428bdd1"
+	Name="Children Selected for Sponsorship Function to get list from XML"
+	Description="Returns the list of children selected for a new Sponsorship, list is in XML"
+	Author="Memphis Sellers"
+	DBFunctionName="UFN_CHILDREN_FOR_SPONSORSHIP_FROMITEMLISTXML"
+	>
+
+	<CreateFunctionSQL>
+		<![CDATA[
+CREATE FUNCTION UFN_CHILDREN_FOR_SPONSORSHIP_FROMITEMLISTXML 
+(
+	-- Add the parameters for the function here
+	@ITEMLISTXML xml 
+)
+RETURNS 
+TABLE 
+AS
+RETURN (
+SELECT
+T.c.value('(ID)[1]','uniqueidentifier') AS 'ID',
+T.c.value('(NAME)[1]','nvarchar(50)') AS 'CHILDID'
+FROM @ITEMLISTXML.nodes('/CHILDREN/ITEM') T(c)
+)
+		]]>
+	</CreateFunctionSQL>
+
+</SQLFunctionSpec>

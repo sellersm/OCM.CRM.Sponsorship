@@ -1,0 +1,20 @@
+﻿<CodeTableSpec 
+	xmlns="bb_appfx_codetable" 
+	xmlns:common="bb_appfx_commontypes"
+	ID="1c0af200-6cb1-48a3-b499-85172e0b1af1" 
+	Name="New Sponsorship Interaction Type Code Table"
+	Description="Interaction Type Code values used when adding a new Sponsorship"
+	Author="Memphis Sellers"
+	DBTablename="USR_NEWSPONSORSHIPINTERACTIONTYPECODE"
+	Category="Sponsorship"
+	SortMethod="Alpha"
+/>
+
+<!-- 
+	Remarks:	This is used by Add a New Sponsorship and Add a Prospect Sponsorship for Interaction Type values.
+
+	History:
+	Date            Modified By     Comments
+	01-Sep-2012		Memphis			Initial Version
+
+	-->

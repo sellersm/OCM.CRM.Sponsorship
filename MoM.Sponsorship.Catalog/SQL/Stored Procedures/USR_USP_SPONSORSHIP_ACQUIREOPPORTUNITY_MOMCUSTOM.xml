@@ -1,0 +1,125 @@
+﻿<SQLStoredProcedureSpec
+	xmlns="bb_appfx_sqlstoredprocedure"
+	xmlns:common="bb_appfx_commontypes" 
+	ID="5af0bc3c-49b5-4d41-9427-1eacbde7e32b"
+	Name="USR_USP_SPONSORSHIP_ACQUIREOPPORTUNITY_MOMCUSTOM"
+	Description="MoM Custom version of sproc to get greatest need child for sponsorship"
+	Author="Memphis Sellers"
+	SPName="USR_USP_SPONSORSHIP_ACQUIREOPPORTUNITY_MOMCUSTOM"
+	>
+
+  <!-- This is used by the custom datalist for MoM customization to allow selecting multiple greatest need children for sponsorshp -->
+  
+	<CreateProcedureSQL>
+		<![CDATA[
+create procedure dbo.USR_USP_SPONSORSHIP_ACQUIREOPPORTUNITY_MOMCUSTOM
+(
+	@SPONSORSHIPOPPORTUNITYID uniqueidentifier = null output,
+	@CHANGEAGENTID uniqueidentifier = null,
+	@MATCHRULE tinyint = 0,
+	@CONSTITUENTID uniqueidentifier = null,
+	@SPONSORSHIPPROGRAMID uniqueidentifier = null,
+	@SPONSORSHIPLOCATIONID uniqueidentifier = null,
+	@GENDERCODE int = 0,
+	@SPROPPAGERANGEID uniqueidentifier = null,
+	@ISHIVPOSITIVECODE int = 0,
+	@HASCONDITIONCODE int = 0,
+	@ISORPHANEDCODE int = 0,
+	@SPROPPPROJECTCATEGORYCODEID uniqueidentifier = null,
+	@ISSOLESPONSORSHIP bit = 0,
+	@EXCLUDEOPPORTUNITYID uniqueidentifier = null,
+	@ORIGINALLOCATIONID uniqueidentifier = null,
+	@REVENUECONSTITUENTID uniqueidentifier = null,
+  @LOCKTYPE tinyint = null
+)
+as
+-- This stored procedure will do the following:
+-- Match an opportunity based on the sponsor's criteria.
+-- Attempt to lock the opportunity, retry matching if necessary.
+-- Throw an error if no opportunity can be matched and locked.
+begin
+
+	set nocount on;
+	
+  declare @CURRENTDATE datetime;
+  set @CURRENTDATE = getdate();
+
+  if @CHANGEAGENTID is null
+    exec dbo.USP_CHANGEAGENT_GETORCREATECHANGEAGENT @CHANGEAGENTID output;
+
+  begin try
+    -- choose opportunity based on greatest need/preferences
+    exec dbo.USR_USP_SPONSORSHIP_MATCHOPPORTUNITY_MOMCUSTOM
+      @SPONSORSHIPOPPORTUNITYID output,
+      @SPONSORSHIPPROGRAMID,
+      @MATCHRULE,
+      @SPONSORSHIPLOCATIONID,
+      @GENDERCODE,
+      @SPROPPAGERANGEID,
+      @ISHIVPOSITIVECODE,
+      @HASCONDITIONCODE,
+      @ISORPHANEDCODE,
+      @SPROPPPROJECTCATEGORYCODEID,
+      @CONSTITUENTID,
+      @ISSOLESPONSORSHIP,
+      @EXCLUDEOPPORTUNITYID,
+      @ORIGINALLOCATIONID,
+      @REVENUECONSTITUENTID
+
+	  if @SPONSORSHIPOPPORTUNITYID is not null
+	  begin
+      begin try
+        if @LOCKTYPE is null
+          set @LOCKTYPE = @ISSOLESPONSORSHIP;
+          
+        exec dbo.USP_SPONSORSHIPOPPORTUNITY_LOCK @SPONSORSHIPOPPORTUNITYID, @LOCKTYPE, @CHANGEAGENTID;
+      end try
+      begin catch
+        if error_message() = 'BBERR_NOLOCK'
+        begin
+          -- Lock could not be acquired, try matching again.
+          set @SPONSORSHIPOPPORTUNITYID = null;
+
+          exec dbo.USP_SPONSORSHIP_ACQUIREOPPORTUNITY
+	          @SPONSORSHIPOPPORTUNITYID output,
+	          @CHANGEAGENTID,
+	          @MATCHRULE,
+	          @CONSTITUENTID,
+	          @SPONSORSHIPPROGRAMID,
+	          @SPONSORSHIPLOCATIONID,
+	          @GENDERCODE,
+	          @SPROPPAGERANGEID,
+	          @ISHIVPOSITIVECODE,
+	          @HASCONDITIONCODE,
+	          @ISORPHANEDCODE,
+	          @SPROPPPROJECTCATEGORYCODEID,
+	          @ISSOLESPONSORSHIP,
+	          @EXCLUDEOPPORTUNITYID,
+	          @ORIGINALLOCATIONID,
+	          @REVENUECONSTITUENTID
+          end
+          else
+          begin
+            exec dbo.USP_RAISE_ERROR
+            return 1;
+          end
+      end catch
+	  end
+	  else
+    begin
+      raiserror('BBERR_NOMATCHINGOPPORTUNITY', 13, 1);
+      return 1;
+    end
+  end try
+  begin catch
+    exec dbo.USP_RAISE_ERROR;
+    return 1;
+  end catch
+
+  return 0;
+end
+
+		]]>
+	</CreateProcedureSQL>
+
+</SQLStoredProcedureSpec>
