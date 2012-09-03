@@ -105,6 +105,16 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="My Project\AssemblyInfo.vb" />
+    <Compile Include="ProspectSponsorshipAddDataFormCHILDRENUIModel.CodeGen.vb">
+      <DependentUpon>ProspectSponsorshipAddDataFormUIModel.vb</DependentUpon>
+    </Compile>
+    <Compile Include="ProspectSponsorshipAddDataFormINSTALLMENTSUIModel.CodeGen.vb">
+      <DependentUpon>ProspectSponsorshipAddDataFormUIModel.vb</DependentUpon>
+    </Compile>
+    <Compile Include="ProspectSponsorshipAddDataFormUIModel.CodeGen.vb">
+      <DependentUpon>ProspectSponsorshipAddDataFormUIModel.vb</DependentUpon>
+    </Compile>
+    <Compile Include="ProspectSponsorshipAddDataFormUIModel.vb" />
     <Compile Include="SponsorshipAddFormWrappedCHILDRENUIModel.CodeGen.vb">
       <DependentUpon>SponsorshipAddFormWrappedUIModel.vb</DependentUpon>
     </Compile>
@@ -132,6 +142,13 @@
     <None Include="postbuild.bat" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="..\MoM.Sponsorship.Catalog\Add Forms\ProspectSponsorship.Add.xml">
+      <Link>LinkedSpecs\ProspectSponsorship.Add.xml</Link>
+    </None>
+    <Content Include="htmlforms\ProspectSponsorship.AddDataForm.html" />
+    <Content Include="ProspectSponsorshipAddDataFormUIModel.xml">
+      <DependentUpon>ProspectSponsorshipAddDataFormUIModel.vb</DependentUpon>
+    </Content>
     <None Include="..\MoM.Sponsorship.Catalog\View Forms\MoM.Sponsorship.UIModelVersion.View.xml">
       <Link>LinkedSpecs\MoM.Sponsorship.UIModelVersion.View.xml</Link>
     </None>

@@ -155,7 +155,10 @@
     <EmbeddedResource Include="Tables\Code Tables\Sponsorship.Add.InteractionType.CodeTable.xml" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="SQL\User Functions\USR_UFN_SPONSORSHIP_GETFINANCIALSPONSOR_BYSPONSORSHIPOPP.xml" />
+    <EmbeddedResource Include="Add Forms\ProspectSponsorship.Add.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Tasks\AddProspectSponsorship.Task.xml" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.VisualBasic.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
