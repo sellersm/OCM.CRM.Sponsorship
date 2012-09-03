@@ -869,7 +869,7 @@ return @r;
 						<c:FormField FieldID="DONOTACKNOWLEDGE" DataType="Boolean" Caption="Do not acknowledge" DefaultValueText="0" CaptionResourceKey="$$do_not_acknowledge" />
 					
 					<!-- Memphis 8/25 -->
-					<c:FormField FieldID="PFMID" DataType="Guid" Required="false" Caption="PFM" CaptionResourceKey="$$financial_sponsor">
+					<c:FormField FieldID="PFMID" DataType="Guid" Required="false" Caption="Partnership for mercy" CaptionResourceKey="$$financial_sponsor">
 						<c:SearchList SearchListID="a00235ec-b143-4f50-ad74-4c653d605cdf" EnableQuickFind="true">
 							<!--<c:FormFieldOverrides>
 								<c:FormFieldOverride FieldID="INCLUDENONCONSTITUENTRECORDS" Hidden="true" DefaultValueText="true" />
