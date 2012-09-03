@@ -1,105 +1,119 @@
 ﻿<style type="text/css">
-    .#MAP#label-width
-    {
-        width: 130px;
-    }
-    .#MAP#label-width2
-    {
-        width: 104px;
-    }
-    .#MAP#label-width3
-    {
-        width: 60px;
-    }
-    .#MAP#label-width4
-    {
-        width: 188px;
-        white-space: nowrap;
-    }
-    .#MAP#tab-content-main
-    {
-        padding: 10px 0px 10px 10px;
-    }
+	.#MAP#label-width
+	{
+		width: 130px;
+	}
+	.#MAP#label-width2
+	{
+		width: 104px;
+	}
+	.#MAP#label-width3
+	{
+		width: 60px;
+	}
+	.#MAP#label-width4
+	{
+		width: 188px;
+		white-space: nowrap;
+	}
+	.#MAP#tab-content-main
+	{
+		padding: 10px 0px 10px 10px;
+	}
+	.finderimage
+	{
+		width:32px
+	}
+	
+	.largespacer
+	{
+		width: 25px;
+	}
 </style>
 <div id="#MAP#SponsorshipAddForm">
-    <h2 id="#MAP#FORMHEADER_value">
-    </h2>
-    <h3 id="#MAP#GENERALINFORMATION_value">
-    </h3>
-    <table>
-        <tr>
-            <td>
-                <table>
-                    <tr id="#MAP#REVENUECONSTITUENTID_container">
-                        <td class="#MAP#label-width">
-                            <label id="#MAP#REVENUECONSTITUENTID_caption" for="#MAP#REVENUECONSTITUENTID_value"></label>
-                        </td>
-                        <td>
-                            <input id="#MAP#REVENUECONSTITUENTID_value" type="text" />
-                        </td>
-						<!--<tr id="#MAP#STARTDATE_container">-->
-                        <td>
-                            <label id="#MAP#STARTDATE_caption" for="#MAP#STARTDATE_value"></label>
-                        </td>
-                        <td>
-                            <input id="#MAP#STARTDATE_value" type="text" />
-                        </td>
-						<td></td>
-						<td></td>
-
-                    <!--</tr>-->
-
-                    </tr>
-                    <tr id="#MAP#FINDERNUMBER_container">
-                        <td>
-                            <label id="#MAP#FINDERNUMBER_caption" for="#MAP#FINDERNUMBERSTRING_value"></label>
-                        </td>
-                        <td colspan="5">
-                            <table style="border-collapse: collapse;">
-                                <tr>
-                                    <td style="padding: 0px;">
-                                        <input id="#MAP#FINDERNUMBERSTRING_value" type="text" style="width: 110px;" />
-                                    </td>
-                                    <td>
-                                        <div style="width: 32px">
-                                            <span id="#MAP#INVALIDFINDERNUMBERIMAGE_value" style="margin-right: 0px;"></span>
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <input id="#MAP#GIFTRECIPIENT_value" type="checkbox" />
-                                        <label for="#MAP#GIFTRECIPIENT_value"></label>
-                                    </td>
-									<td class="#MAP#label-width2">
-										<label id="#MAP#INTERACTIONTYPECODEID_caption" for="#MAP#INTERACTIONTYPECODEID_value"></label>
-									</td>
-									<td>
-										<input id="#MAP#INTERACTIONTYPECODEID_value" type="text" />
-									</td>
-                                </tr>
-                            </table>
-                        </td>
-                    </tr>
-                    <tr id="#MAP#SPONSORSHIPCONSTITUENTID_container">
-                        <td class="#MAP#label-width">
-                            <label id="#MAP#SPONSORSHIPCONSTITUENTID_caption" for="#MAP#SPONSORSHIPCONSTITUENTID_value"></label>
-                        </td>
-                        <td>
-                            <input id="#MAP#SPONSORSHIPCONSTITUENTID_value" type="text" />
-                        </td>
+	<h2 id="#MAP#FORMHEADER_value">
+	</h2>
+	<h3 id="#MAP#GENERALINFORMATION_value">
+	</h3>
+	<table>
+		<tr>
+			<td>
+				<table>
+					<tr id="#MAP#REVENUECONSTITUENTID_container">
 						<td class="#MAP#label-width">
-                            <label id="#MAP#PFMID_caption" for="#MAP#PFMID_value"></label>
-                        </td>
-                        <td>
-                            <input id="#MAP#PFMID_value" type="text" />
-                        </td>
-						<td></td>
-						<td></td>
-                    </tr>
-                </table>
-            </td>
-            <td valign="top">
-                <table style="margin-left: 10px">
-                    <!--                    <tr id="#MAP#SPONSORSHIPPROGRAMID_container">
+							<label id="#MAP#REVENUECONSTITUENTID_caption" for="#MAP#REVENUECONSTITUENTID_value">
+							</label>
+						</td>
+						<td colspan="3">
+							<input id="#MAP#REVENUECONSTITUENTID_value" type="text" />
+						</td>
+						<!--<tr id="#MAP#STARTDATE_container">-->
+						<td class="largespacer" />
+						<td>
+							<label id="#MAP#STARTDATE_caption" for="#MAP#STARTDATE_value">
+							</label>
+						</td>
+						<td>
+							<input id="#MAP#STARTDATE_value" type="text" />
+						</td>
+						<td>
+						</td>
+						<td>
+						</td>
+						<!--</tr>-->
+					</tr>
+					<tr id="#MAP#FINDERNUMBER_container">
+						<td>
+							<label id="#MAP#FINDERNUMBER_caption" for="#MAP#FINDERNUMBERSTRING_value">
+							</label>
+						</td>
+						<td>
+							<input id="#MAP#FINDERNUMBERSTRING_value" type="text" style="width: 110px;" />
+						</td>
+						<td class="finderimage">
+							<!--div style="width: 32px"-->
+							<span id="#MAP#INVALIDFINDERNUMBERIMAGE_value" style="margin-right: 0px;"></span>
+						</td>
+						<td>
+							<input id="#MAP#GIFTRECIPIENT_value" type="checkbox" />
+							<label for="#MAP#GIFTRECIPIENT_value">
+							</label>
+						</td>
+						<td class="largespacer" />
+						<td class="#MAP#label-width2">
+							<label id="#MAP#INTERACTIONTYPECODEID_caption" for="#MAP#INTERACTIONTYPECODEID_value">
+							</label>
+						</td>
+						<td>
+							<input id="#MAP#INTERACTIONTYPECODEID_value" type="text" />
+						</td>
+					</tr>
+					<tr id="#MAP#SPONSORSHIPCONSTITUENTID_container">
+						<td class="#MAP#label-width">
+							<label id="#MAP#SPONSORSHIPCONSTITUENTID_caption" for="#MAP#SPONSORSHIPCONSTITUENTID_value">
+							</label>
+						</td>
+						<td colspan="3">
+							<input id="#MAP#SPONSORSHIPCONSTITUENTID_value" type="text" />
+						</td>
+						<td class="largespacer" />
+						<td class="#MAP#label-width">
+							<label id="#MAP#PFMID_caption" for="#MAP#PFMID_value">
+							</label>
+						</td>
+						<td>
+							<input id="#MAP#PFMID_value" type="text" />
+						</td>
+						<td>
+						</td>
+						<td>
+						</td>
+					</tr>
+				</table>
+			</td>
+			<td valign="top">
+				<table style="margin-left: 10px">
+					<!--                    <tr id="#MAP#SPONSORSHIPPROGRAMID_container">
                         <td>
                             <label id="#MAP#SPONSORSHIPPROGRAMID_caption" for="#MAP#SPONSORSHIPPROGRAMID_value">
                             </label>
@@ -109,7 +123,7 @@
                         </td>
                     </tr>
 -->
-                    <!--<tr id="#MAP#STARTDATE_container">
+					<!--<tr id="#MAP#STARTDATE_container">
                         <td>
                             <label id="#MAP#STARTDATE_caption" for="#MAP#STARTDATE_value"></label>
                         </td>
@@ -117,520 +131,530 @@
                             <input id="#MAP#STARTDATE_value" type="text" />
                         </td>
                     </tr>-->
-                    <tr id="#MAP#SPONSORSHIPREASONID_container">
-                        <td>
-                            <label id="#MAP#SPONSORSHIPREASONID_caption" for="#MAP#SPONSORSHIPREASONID_value"></label>
-                        </td>
-                        <td>
-                            <input id="#MAP#SPONSORSHIPREASONID_value" type="text" />
-                        </td>
-                    </tr>
-                </table>
-            </td>
-        </tr>
-    </table>
-    <div class="bbui-forms-tabs-main">
-        <div id="#MAP#TAB_SPONSORSHIP_caption" style="height: 460px">
-            <h3 id="#MAP#SPONSORSHIPOPPORTUNITY_value">
-            </h3>
-            <table>
-                <tr>
-                    <td>
-                        <table>
-                            <!-- <tr id="#MAP#CHILDREN_container"></tr> -->
-                            <!-- no radio button for childrenlist, only way to select a child -->
-                            <!--<tr>
+					<tr id="#MAP#SPONSORSHIPREASONID_container">
+						<td>
+							<label id="#MAP#SPONSORSHIPREASONID_caption" for="#MAP#SPONSORSHIPREASONID_value">
+							</label>
+						</td>
+						<td>
+							<input id="#MAP#SPONSORSHIPREASONID_value" type="text" />
+						</td>
+					</tr>
+				</table>
+			</td>
+		</tr>
+	</table>
+	<div class="bbui-forms-tabs-main">
+		<div id="#MAP#TAB_SPONSORSHIP_caption" style="height: 460px">
+			<h3 id="#MAP#SPONSORSHIPOPPORTUNITY_value">
+			</h3>
+			<table>
+				<tr>
+					<td>
+						<table>
+							<!-- <tr id="#MAP#CHILDREN_container"></tr> -->
+							<!-- no radio button for childrenlist, only way to select a child -->
+							<!--<tr>
                                 <td class="#MAP#label-width4" colspan="2">
                                     <input id="#MAP#SELECTOPPORTUNITYID_0" name="#MAP#SELECTOPPORTUNITYID" type="radio" value="0" />
                                     <label for="#MAP#SELECTOPPORTUNITYID_0" class="bbui-colon"></label>
                                 </td>
                             </tr>-->
-                            <tr>
-                                <td colspan="2">
-                                <table style="border: solid 1px;">
-                                <tr>
-                                     <td valign="top" align="left">
-                                    <label id="#MAP#CHILDREN_caption" for="#MAP#CHILDREN_value"></label>
-                                   </td>
-                                </tr>
-                                                <tr>
-                    <td align="left">
-                        <input id="#MAP#SPONSORSHIPOPPORTUNITYIDCHILD_value" type="text" />
-                    </td>
-                    <td class="#MAP#ADDSELECTEDCHILD_caption" align="left">
-                        <button id="#MAP#ADDSELECTEDCHILD_action" />
-                    </td>
-                    <td></td>
-                </tr>
-
-                                <tr>
-
-                                <td>
-                                    <div id="#MAP#CHILDREN_value" style="height: 100px; width: 450px;"></div>
-                                </td>
-                                </tr>
-                                <tr>
-                                <td class="#MAP#REMOVESELECTEDCHILD_caption" valign="top">
-                                    <button id="#MAP#REMOVESELECTEDCHILD_action" />
-                                </td>
-                                </tr>
-                               </table>
-                               </td>
-                            </tr>
-                            <tr>
-                                <td colspan="2">
-                                   <!-- disable the radio button, user can select a child via greatest need match at anytime -->
-                                    <!--<div style="padding-bottom: 10px; padding-top: 10px">
+							<tr>
+								<td colspan="2">
+									<table style="border: solid 1px;">
+										<tr>
+											<td valign="top" align="left">
+												<label id="#MAP#CHILDREN_caption" for="#MAP#CHILDREN_value">
+												</label>
+											</td>
+										</tr>
+										<tr>
+											<td align="left">
+												<input id="#MAP#SPONSORSHIPOPPORTUNITYIDCHILD_value" type="text" />
+											</td>
+											<td class="#MAP#ADDSELECTEDCHILD_caption" align="left">
+												<button id="#MAP#ADDSELECTEDCHILD_action" />
+											</td>
+											<td>
+											</td>
+										</tr>
+										<tr>
+											<td>
+												<div id="#MAP#CHILDREN_value" style="height: 100px; width: 450px;">
+												</div>
+											</td>
+										</tr>
+										<tr>
+											<td class="#MAP#REMOVESELECTEDCHILD_caption" valign="top">
+												<button id="#MAP#REMOVESELECTEDCHILD_action" />
+											</td>
+										</tr>
+									</table>
+								</td>
+							</tr>
+							<tr>
+								<td colspan="2">
+									<!-- disable the radio button, user can select a child via greatest need match at anytime -->
+									<!--<div style="padding-bottom: 10px; padding-top: 10px">
                                         <input id="#MAP#SELECTOPPORTUNITYID_2" name="#MAP#SELECTOPPORTUNITYID" type="radio" value="2" />
                                         <label for="#MAP#SELECTOPPORTUNITYID_2" class="bbui-colon"></label>
                                     </div>-->
-                                    <table style="border: solid 1px;">
-                                        <tr>
-                                            <td colspan="2">
-                                                <table>
-                                                    <tr>
-                                                        <td class="#MAP#label-width2">
-                                                            <label id="#MAP#SPONSORSHIPLOCATIONID_caption" for="#MAP#SPONSORSHIPLOCATIONID_value"></label>
-                                                        </td>
-                                                        <td>
-                                                            <input id="#MAP#SPONSORSHIPLOCATIONID_value" type="text" style="width: 509px;" />
-                                                        </td>
-                                                    </tr>
-                                                    <tr id="#MAP#SPONSORSHIPPROGRAMID_container">
-                                                       <td>
-                                                          <label id="#MAP#SPONSORSHIPPROGRAMID_caption" for="#MAP#SPONSORSHIPPROGRAMID_value"></label>
-                                                       </td>
-                                                       <td>
-                                                          <input id="#MAP#SPONSORSHIPPROGRAMID_value" type="text" />
-                                                       </td>
-                                                    </tr>
-                                                </table>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td>
-                                                <table>
-                                                    <tr>
-                                                        <td class="#MAP#label-width2">
-                                                            <label id="#MAP#GENDERCODE_caption" for="#MAP#GENDERCODE_value"></label>
-                                                        </td>
-                                                        <td>
-                                                            <input id="#MAP#GENDERCODE_value" type="text" />
-                                                        </td>
-                                                    </tr>
-                                                    <tr>
-                                                        <td class="#MAP#label-width2">
-                                                            <label id="#MAP#SPROPPAGERANGEID_caption" for="#MAP#SPROPPAGERANGEID_value"></label>
-                                                        </td>
-                                                        <td>
-                                                            <input id="#MAP#SPROPPAGERANGEID_value" type="text" />
-                                                        </td>
-                                                    </tr>
-                                                    <tr>
-                                                        <td class="#MAP#label-width2">
-                                                            <label id="#MAP#ISORPHANEDCODE_caption" for="#MAP#ISORPHANEDCODE_value"></label>
-                                                        </td>
-                                                        <td>
-                                                            <input id="#MAP#ISORPHANEDCODE_value" type="text" />
-                                                        </td>
-                                                    </tr>
-                                                </table>
-                                            </td>
-                                            <td>
-                                                <table>
-                                                    <tr>
-                                                        <td class="#MAP#label-width2">
-                                                            <label id="#MAP#ISHIVPOSITIVECODE_caption" for="#MAP#ISHIVPOSITIVECODE_value"></label>
-                                                        </td>
-                                                        <td>
-                                                            <input id="#MAP#ISHIVPOSITIVECODE_value" type="text" />
-                                                        </td>
-                                                    </tr>
-                                                    <tr>
-                                                        <td class="#MAP#label-width2">
-                                                            <label id="#MAP#HASCONDITIONCODE_caption" for="#MAP#HASCONDITIONCODE_value"></label>
-                                                        </td>
-                                                        <td>
-                                                            <input id="#MAP#HASCONDITIONCODE_value" type="text" />
-                                                        </td>
-                                                    </tr>
-                                                    <tr>
-                                                        <td class="#MAP#label-width2">
-                                                            <label id="#MAP#SPROPPPROJECTCATEGORYCODEID_caption" for="#MAP#SPROPPPROJECTCATEGORYCODEID_value"></label>
-                                                        </td>
-                                                        <td>
-                                                            <input id="#MAP#SPROPPPROJECTCATEGORYCODEID_value" type="text" />
-                                                        </td>
-                                                    </tr>
-                                                </table>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td colspan="2">
-                                                <table style="height: 100px; border-collapse: collapse;">
-                                                    <tr>
+									<table style="border: solid 1px;">
+										<tr>
+											<td colspan="2">
+												<table>
+													<tr>
+														<td class="#MAP#label-width2">
+															<label id="#MAP#SPONSORSHIPLOCATIONID_caption" for="#MAP#SPONSORSHIPLOCATIONID_value">
+															</label>
+														</td>
+														<td>
+															<input id="#MAP#SPONSORSHIPLOCATIONID_value" type="text" style="width: 509px;" />
+														</td>
+													</tr>
+													<tr id="#MAP#SPONSORSHIPPROGRAMID_container">
+														<td>
+															<label id="#MAP#SPONSORSHIPPROGRAMID_caption" for="#MAP#SPONSORSHIPPROGRAMID_value">
+															</label>
+														</td>
+														<td>
+															<input id="#MAP#SPONSORSHIPPROGRAMID_value" type="text" />
+														</td>
+													</tr>
+												</table>
+											</td>
+										</tr>
+										<tr>
+											<td>
+												<table>
+													<tr>
+														<td class="#MAP#label-width2">
+															<label id="#MAP#GENDERCODE_caption" for="#MAP#GENDERCODE_value">
+															</label>
+														</td>
+														<td>
+															<input id="#MAP#GENDERCODE_value" type="text" />
+														</td>
+													</tr>
+													<tr>
+														<td class="#MAP#label-width2">
+															<label id="#MAP#SPROPPAGERANGEID_caption" for="#MAP#SPROPPAGERANGEID_value">
+															</label>
+														</td>
+														<td>
+															<input id="#MAP#SPROPPAGERANGEID_value" type="text" />
+														</td>
+													</tr>
+													<tr>
+														<td class="#MAP#label-width2">
+															<label id="#MAP#ISORPHANEDCODE_caption" for="#MAP#ISORPHANEDCODE_value">
+															</label>
+														</td>
+														<td>
+															<input id="#MAP#ISORPHANEDCODE_value" type="text" />
+														</td>
+													</tr>
+												</table>
+											</td>
+											<td>
+												<table>
+													<tr>
+														<td class="#MAP#label-width2">
+															<label id="#MAP#ISHIVPOSITIVECODE_caption" for="#MAP#ISHIVPOSITIVECODE_value">
+															</label>
+														</td>
+														<td>
+															<input id="#MAP#ISHIVPOSITIVECODE_value" type="text" />
+														</td>
+													</tr>
+													<tr>
+														<td class="#MAP#label-width2">
+															<label id="#MAP#HASCONDITIONCODE_caption" for="#MAP#HASCONDITIONCODE_value">
+															</label>
+														</td>
+														<td>
+															<input id="#MAP#HASCONDITIONCODE_value" type="text" />
+														</td>
+													</tr>
+													<tr>
+														<td class="#MAP#label-width2">
+															<label id="#MAP#SPROPPPROJECTCATEGORYCODEID_caption" for="#MAP#SPROPPPROJECTCATEGORYCODEID_value">
+															</label>
+														</td>
+														<td>
+															<input id="#MAP#SPROPPPROJECTCATEGORYCODEID_value" type="text" />
+														</td>
+													</tr>
+												</table>
+											</td>
+										</tr>
+										<tr>
+											<td colspan="2">
+												<table style="height: 100px; border-collapse: collapse;">
+													<tr>
 														<td class="#MAP#label-width3" valign="top">
 															<button id="#MAP#CLEARSEARCHACTION_action" />
 														</td>
-                                                        <td class="#MAP#label-width3" valign="top">
-                                                            <button id="#MAP#FINDOPPORTUNITY_action" />
-                                                        </td>
-                                                        <td valign="top" colspan="3">
-                                                            <span id="#MAP#MOPPORTUNITYIMAGE_value"></span>
-                                                        </td>
-                                                        <td valign="top">
-                                                            <h3 id="#MAP#MATCHEDOPPORTUNITY_value">
-                                                            </h3>
-                                                            <table style="border-collapse: collapse">
-                                                                <tr id="#MAP#MOPPORTUNITYNAME_container">
-                                                                    <td>
-                                                                        <span id="#MAP#MOPPORTUNITYNAME_caption" class="bbui-forms-captionlight"></span>
-                                                                    </td>
-                                                                    <td colspan="3">
-                                                                        <span id="#MAP#MOPPORTUNITYNAME_value"></span>
-                                                                    </td>
-                                                                </tr>
-                                                                <tr id="#MAP#MOPPORTUNITYLOCATION_container">
-                                                                    <td>
-                                                                        <span id="#MAP#MOPPORTUNITYLOCATION_caption" class="bbui-forms-captionlight"></span>
-                                                                    </td>
-                                                                    <td colspan="3">
-                                                                        <span id="#MAP#MOPPORTUNITYLOCATION_value"></span>
-                                                                    </td>
-                                                                </tr>
-                                                                <tr>
-                                                                    <td>
-                                                                        <span id="#MAP#MOPPORTUNITYLOOKUPID_caption" class="bbui-forms-captionlight"></span>
-                                                                    </td>
-                                                                    <td class="#MAP#label-width2">
-                                                                        <span id="#MAP#MOPPORTUNITYLOOKUPID_value" style="white-space: nowrap"></span>
-                                                                    </td>
-                                                                    <td>
-                                                                        <span id="#MAP#MOPPORTUNITYGENDER_caption" class="bbui-forms-captionlight"></span>
-                                                                    </td>
-                                                                    <td class="#MAP#label-width2">
-                                                                        <span id="#MAP#MOPPORTUNITYGENDER_value" style="white-space: nowrap"></span>
-                                                                    </td>
-                                                                    <td>
-                                                                        <span id="#MAP#MOPPORTUNITYBIRTHDATE_caption" class="bbui-forms-captionlight"></span>
-                                                                    </td>
-                                                                    <td class="#MAP#label-width2">
-                                                                        <span id="#MAP#MOPPORTUNITYBIRTHDATE_value" style="white-space: nowrap"></span>
-                                                                    </td>
-                                                                </tr>
-                                                                <tr id="#MAP#MATCHEDOPPORTUNITYID_container">
-                                                                    <td>
-                                                                        <label id="#MAP#MATCHEDOPPORTUNITYID_caption" for="#MAP#MATCHEDOPPORTUNITYID_value">
-                                                                        </label>
-                                                                    </td>
-                                                                    <td>
-                                                                        <input id="#MAP#MATCHEDOPPORTUNITYID_value" type="text" />
-                                                                    </td>
-                                                                </tr>
-                                                            </table>
-                                                        </td>
-                                                    </tr>
-                                                </table>
-                                            </td>
-                                        </tr>
-                                    </table>
-                                </td>
-                            </tr>
-                        </table>
-                    </td>
-                </tr>
-                <tr id="#MAP#ISSOLESPONSORSHIP_container">
-                    <td>
-                        <input id="#MAP#ISSOLESPONSORSHIP_value" type="checkbox" style="width: auto;" />
-                        <label for="#MAP#ISSOLESPONSORSHIP_value">
-                        </label>
-                    </td>
-                </tr>
-            </table>
-        </div>
-        <div id="#MAP#TAB_PAYMENT_caption">
-            <table>
-                <tr>
-                    <td valign="top">
-                        <table>
-                            <tr id="#MAP#AMOUNT_container">
-                                <td class="#MAP#label-width2">
-                                    <label id="#MAP#AMOUNT_caption" for="#MAP#AMOUNT_value">
-                                    </label>
-                                </td>
-                                <td>
-                                    <input id="#MAP#AMOUNT_value" type="text" style="float: left; width: 162px; margin-top: 0px;
-                                        margin-right: 6px;" />
-                                    <div id="#MAP#CURRENCYACTION_action" title="Currency and exchange rates">
-                                    </div>
-                                </td>
-                            </tr>
-                            <tr id="#MAP#BASEAMOUNT_container">
-                                <td class="#MAP#label-width2">
-                                    <label id="#MAP#BASEAMOUNT_caption" for="#MAP#BASEAMOUNT_value">
-                                    </label>
-                                </td>
-                                <td>
-                                    <span id="#MAP#BASEAMOUNT_value"></span>
-                                </td>
-                            </tr>
-                            <tr id="#MAP#SOURCECODE_container">
-                                <td class="#MAP#label-width2">
-                                    <label id="#MAP#SOURCECODE_caption" for="#MAP#SOURCECODE_value">
-                                    </label>
-                                </td>
-                                <td>
-                                    <input id="#MAP#SOURCECODE_value" type="text" style="float: left; margin-top: 0px;
-                                        margin-right: 6px; width: 162px" />
-                                    <button id="#MAP#SOURCECODELOOKUP_action" />
-                                </td>
-                            </tr>
-                            <tr id="#MAP#APPEALID_container">
-                                <td class="#MAP#label-width2">
-                                    <label id="#MAP#APPEALID_caption" for="#MAP#APPEALID_value">
-                                    </label>
-                                </td>
-                                <td>
-                                    <input id="#MAP#APPEALID_value" type="text" />
-                                </td>
-                            </tr>
-                            <tr id="#MAP#SENDREMINDER_container">
-                                <td>
-                                </td>
-                                <td>
-                                    <input id="#MAP#SENDREMINDER_value" type="checkbox" style="width: auto;" />
-                                    <label for="#MAP#SENDREMINDER_value">
-                                    </label>
-                                </td>
-                            </tr>
-                            <tr id="#MAP#DONOTACKNOWLEDGE_container">
-                                <td>
-                                </td>
-                                <td>
-                                    <input id="#MAP#DONOTACKNOWLEDGE_value" type="checkbox" style="width: auto;" />
-                                    <label for="#MAP#DONOTACKNOWLEDGE_value">
-                                    </label>
-                                </td>
-                            </tr>
-                        </table>
-                    </td>
-                    <td valign="top">
-                        <table>
-                            <tr id="#MAP#CHANNELCODEID_container">
-                                <td class="#MAP#label-width2">
-                                    <label id="#MAP#CHANNELCODEID_caption" for="#MAP#CHANNELCODEID_value">
-                                    </label>
-                                </td>
-                                <td>
-                                    <input id="#MAP#CHANNELCODEID_value" type="text" />
-                                </td>
-                            </tr>
-                            <tr id="#MAP#MAILINGID_container">
-                                <td class="#MAP#label-width2">
-                                    <label id="#MAP#MAILINGID_caption" for="#MAP#MAILINGID_value">
-                                    </label>
-                                </td>
-                                <td>
-                                    <input id="#MAP#MAILINGID_value" type="text" />
-                                </td>
-                            </tr>
-                            <tr id="#MAP#REFERENCE_container">
-                                <td class="#MAP#label-width2">
-                                    <label id="#MAP#REFERENCE_caption" for="#MAP#REFERENCE_value">
-                                    </label>
-                                </td>
-                                <td>
-                                    <input id="#MAP#REFERENCE_value" type="text" />
-                                </td>
-                            </tr>
-                            <tr id="#MAP#CATEGORYCODEID_container">
-                                <td class="#MAP#label-width2">
-                                    <label id="#MAP#CATEGORYCODEID_caption" for="#MAP#CATEGORYCODEID_value">
-                                    </label>
-                                </td>
-                                <td>
-                                    <input id="#MAP#CATEGORYCODEID_value" type="text" />
-                                </td>
-                            </tr>
-                            <tr id="#MAP#REVENUEDEVELOPMENTFUNCTIONCODEID_container">
-                                <td class="#MAP#label-width2" style="padding: 0px;">
-                                    <label id="#MAP#REVENUEDEVELOPMENTFUNCTIONCODEID_caption" for="#MAP#REVENUEDEVELOPMENTFUNCTIONCODEID_value">
-                                    </label>
-                                </td>
-                                <td>
-                                    <input id="#MAP#REVENUEDEVELOPMENTFUNCTIONCODEID_value" type="text" />
-                                </td>
-                            </tr>
-                        </table>
-                    </td>
-                </tr>
-            </table>
-            <h3 id="#MAP#PAYMENTSCHEDULE_value">
-            </h3>
-            <table>
-                <tr>
-                    <td>
-                        <table>
-                            <tr id="#MAP#FREQUENCYCODE_container">
-                                <td class="#MAP#label-width2">
-                                    <label id="#MAP#FREQUENCYCODE_caption" for="#MAP#FREQUENCYCODE_value">
-                                    </label>
-                                </td>
-                                <td>
-                                    <input id="#MAP#FREQUENCYCODE_value" type="text" />
-                                </td>
-                            </tr>
-                            <tr id="#MAP#REVENUESCHEDULESTARTDATE_container">
-                                <td class="#MAP#label-width2">
-                                    <label id="#MAP#REVENUESCHEDULESTARTDATE_caption" for="#MAP#REVENUESCHEDULESTARTDATE_value">
-                                    </label>
-                                </td>
-                                <td>
-                                    <input id="#MAP#REVENUESCHEDULESTARTDATE_value" type="text" class="bbui-forms-xs" />
-                                </td>
-                            </tr>
-                            <tr id="#MAP#REVENUESCHEDULEENDDATE_container">
-                                <td class="#MAP#label-width2">
-                                    <label id="#MAP#REVENUESCHEDULEENDDATE_caption" for="#MAP#REVENUESCHEDULEENDDATE_value">
-                                    </label>
-                                </td>
-                                <td>
-                                    <input id="#MAP#REVENUESCHEDULEENDDATE_value" type="text" class="bbui-forms-xs" />
-                                </td>
-                            </tr>
-                        </table>
-                    </td>
-                    <td>
-                        <table style="border-collapse: collapse;">
-                            <tr id="#MAP#INSTALLMENTS_container">
-                                <td>
-                                    <div id="#MAP#INSTALLMENTS_value" style="height: 92px; width: 311px">
-                                    </div>
-                                </td>
-                            </tr>
-                        </table>
-                    </td>
-                </tr>
-            </table>
-            <h3 id="#MAP#PAYMENTINFORMATION_value">
-            </h3>
-            <table>
-                <tr>
-                    <td>
-                        <table>
-                            <tr>
-                                <td>
-                                    <input id="#MAP#AUTOPAY_value" type="checkbox" style="width: auto;" />
-                                    <label for="#MAP#AUTOPAY_value">
-                                    </label>
-                                </td>
-                                <td>
-                                    <input id="#MAP#PAYMENTMETHODCODE_value" type="text" style="width: 83px;" />
-                                </td>
-                            </tr>
-                        </table>
-                    </td>
-                </tr>
-                <tr>
-                    <td valign="top">
-                        <table>
-                            <tr id="#MAP#CREDITTYPECODEID_container">
-                                <td class="#MAP#label-width2">
-                                    <label id="#MAP#CREDITTYPECODEID_caption" for="#MAP#CREDITTYPECODEID_value">
-                                    </label>
-                                </td>
-                                <td>
-                                    <input id="#MAP#CREDITTYPECODEID_value" type="text" />
-                                </td>
-                            </tr>
-                            <tr id="#MAP#CARDHOLDERNAME_container">
-                                <td style="white-space: nowrap;" class="#MAP#label-width2">
-                                    <label id="#MAP#CARDHOLDERNAME_caption" for="#MAP#CARDHOLDERNAME_value">
-                                    </label>
-                                </td>
-                                <td>
-                                    <input id="#MAP#CARDHOLDERNAME_value" type="text" />
-                                </td>
-                            </tr>
-                            <tr id="#MAP#REFERENCEDATE_container">
-                                <td style="white-space: nowrap;" class="#MAP#label-width2">
-                                    <label id="#MAP#REFERENCEDATE_caption" for="#MAP#REFERENCEDATE_value">
-                                    </label>
-                                </td>
-                                <td>
-                                    <input id="#MAP#REFERENCEDATE_value" type="text" class="bbui-forms-xs" />
-                                </td>
-                            </tr>
-                            <tr id="#MAP#REFERENCENUMBER_container">
-                                <td style="white-space: nowrap;" class="#MAP#label-width2">
-                                    <label id="#MAP#REFERENCENUMBER_caption" for="#MAP#REFERENCENUMBER_value">
-                                    </label>
-                                </td>
-                                <td>
-                                    <input id="#MAP#REFERENCENUMBER_value" type="text" />
-                                </td>
-                            </tr>
-                        </table>
-                    </td>
-                    <td valign="top">
-                        <table>
-                            <tr id="#MAP#CREDITCARDNUMBER_container">
-                                <td style="white-space: nowrap;" class="#MAP#label-width2">
-                                    <label id="#MAP#CREDITCARDNUMBER_caption" for="#MAP#CREDITCARDNUMBER_value">
-                                    </label>
-                                </td>
-                                <td>
-                                    <input id="#MAP#CREDITCARDNUMBER_value" type="text" />
-                                </td>
-                            </tr>
-                            <tr id="#MAP#EXPIRESON_container">
-                                <td class="#MAP#label-width2">
-                                    <label id="#MAP#EXPIRESON_caption" for="#MAP#EXPIRESON_value">
-                                    </label>
-                                </td>
-                                <td>
-                                    <input id="#MAP#EXPIRESON_value" type="text" class="bbui-forms-xs" />
-                                </td>
-                            </tr>
-                            <tr id="#MAP#CONSTITUENTACCOUNTID_container">
-                                <td class="#MAP#label-width2">
-                                    <label id="#MAP#CONSTITUENTACCOUNTID_caption" for="#MAP#CONSTITUENTACCOUNTID_value">
-                                    </label>
-                                </td>
-                                <td>
-                                    <input id="#MAP#CONSTITUENTACCOUNTID_value" type="text" />
-                                </td>
-                            </tr>
-                        </table>
-                    </td>
-                </tr>
-            </table>
-        </div>
-        <div id="#MAP#TAB_EXPIRATION_caption" class="#MAP#tab-content-main">
-            <div>
-                <input id="#MAP#ISFIXEDTERMSPONSORSHIP_value" type="checkbox" style="width: auto;" /><label
-                    for="#MAP#ISFIXEDTERMSPONSORSHIP_value"></label>
-            </div>
-            <table class="#MAP#tab-content-main">
-                <tr id="#MAP#PLANNEDENDDATE_container">
-                    <td>
-                        <label id="#MAP#PLANNEDENDDATE_caption" for="#MAP#PLANNEDENDDATE_value">
-                        </label>
-                    </td>
-                    <td>
-                        <input id="#MAP#PLANNEDENDDATE_value" type="text" />
-                    </td>
-                </tr>
-                <tr id="#MAP#EXPIRATIONREASONID_container">
-                    <td>
-                        <label id="#MAP#EXPIRATIONREASONID_caption" for="#MAP#EXPIRATIONREASONID_value">
-                        </label>
-                    </td>
-                    <td>
-                        <input id="#MAP#EXPIRATIONREASONID_value" type="text" />
-                    </td>
-                </tr>
-            </table>
-        </div>
-    </div>
+														<td class="#MAP#label-width3" valign="top">
+															<button id="#MAP#FINDOPPORTUNITY_action" />
+														</td>
+														<td valign="top" colspan="3">
+															<span id="#MAP#MOPPORTUNITYIMAGE_value"></span>
+														</td>
+														<td valign="top">
+															<h3 id="#MAP#MATCHEDOPPORTUNITY_value">
+															</h3>
+															<table style="border-collapse: collapse">
+																<tr id="#MAP#MOPPORTUNITYNAME_container">
+																	<td>
+																		<span id="#MAP#MOPPORTUNITYNAME_caption" class="bbui-forms-captionlight"></span>
+																	</td>
+																	<td colspan="3">
+																		<span id="#MAP#MOPPORTUNITYNAME_value"></span>
+																	</td>
+																</tr>
+																<tr id="#MAP#MOPPORTUNITYLOCATION_container">
+																	<td>
+																		<span id="#MAP#MOPPORTUNITYLOCATION_caption" class="bbui-forms-captionlight"></span>
+																	</td>
+																	<td colspan="3">
+																		<span id="#MAP#MOPPORTUNITYLOCATION_value"></span>
+																	</td>
+																</tr>
+																<tr>
+																	<td>
+																		<span id="#MAP#MOPPORTUNITYLOOKUPID_caption" class="bbui-forms-captionlight"></span>
+																	</td>
+																	<td class="#MAP#label-width2">
+																		<span id="#MAP#MOPPORTUNITYLOOKUPID_value" style="white-space: nowrap"></span>
+																	</td>
+																	<td>
+																		<span id="#MAP#MOPPORTUNITYGENDER_caption" class="bbui-forms-captionlight"></span>
+																	</td>
+																	<td class="#MAP#label-width2">
+																		<span id="#MAP#MOPPORTUNITYGENDER_value" style="white-space: nowrap"></span>
+																	</td>
+																	<td>
+																		<span id="#MAP#MOPPORTUNITYBIRTHDATE_caption" class="bbui-forms-captionlight"></span>
+																	</td>
+																	<td class="#MAP#label-width2">
+																		<span id="#MAP#MOPPORTUNITYBIRTHDATE_value" style="white-space: nowrap"></span>
+																	</td>
+																</tr>
+																<tr id="#MAP#MATCHEDOPPORTUNITYID_container">
+																	<td>
+																		<label id="#MAP#MATCHEDOPPORTUNITYID_caption" for="#MAP#MATCHEDOPPORTUNITYID_value">
+																		</label>
+																	</td>
+																	<td>
+																		<input id="#MAP#MATCHEDOPPORTUNITYID_value" type="text" />
+																	</td>
+																</tr>
+															</table>
+														</td>
+													</tr>
+												</table>
+											</td>
+										</tr>
+									</table>
+								</td>
+							</tr>
+						</table>
+					</td>
+				</tr>
+				<tr id="#MAP#ISSOLESPONSORSHIP_container">
+					<td>
+						<input id="#MAP#ISSOLESPONSORSHIP_value" type="checkbox" style="width: auto;" />
+						<label for="#MAP#ISSOLESPONSORSHIP_value">
+						</label>
+					</td>
+				</tr>
+			</table>
+		</div>
+		<div id="#MAP#TAB_PAYMENT_caption">
+			<table>
+				<tr>
+					<td valign="top">
+						<table>
+							<tr id="#MAP#AMOUNT_container">
+								<td class="#MAP#label-width2">
+									<label id="#MAP#AMOUNT_caption" for="#MAP#AMOUNT_value">
+									</label>
+								</td>
+								<td>
+									<input id="#MAP#AMOUNT_value" type="text" style="float: left; width: 162px; margin-top: 0px;
+										margin-right: 6px;" />
+									<div id="#MAP#CURRENCYACTION_action" title="Currency and exchange rates">
+									</div>
+								</td>
+							</tr>
+							<tr id="#MAP#BASEAMOUNT_container">
+								<td class="#MAP#label-width2">
+									<label id="#MAP#BASEAMOUNT_caption" for="#MAP#BASEAMOUNT_value">
+									</label>
+								</td>
+								<td>
+									<span id="#MAP#BASEAMOUNT_value"></span>
+								</td>
+							</tr>
+							<tr id="#MAP#SOURCECODE_container">
+								<td class="#MAP#label-width2">
+									<label id="#MAP#SOURCECODE_caption" for="#MAP#SOURCECODE_value">
+									</label>
+								</td>
+								<td>
+									<input id="#MAP#SOURCECODE_value" type="text" style="float: left; margin-top: 0px;
+										margin-right: 6px; width: 162px" />
+									<button id="#MAP#SOURCECODELOOKUP_action" />
+								</td>
+							</tr>
+							<tr id="#MAP#APPEALID_container">
+								<td class="#MAP#label-width2">
+									<label id="#MAP#APPEALID_caption" for="#MAP#APPEALID_value">
+									</label>
+								</td>
+								<td>
+									<input id="#MAP#APPEALID_value" type="text" />
+								</td>
+							</tr>
+							<tr id="#MAP#SENDREMINDER_container">
+								<td>
+								</td>
+								<td>
+									<input id="#MAP#SENDREMINDER_value" type="checkbox" style="width: auto;" />
+									<label for="#MAP#SENDREMINDER_value">
+									</label>
+								</td>
+							</tr>
+							<tr id="#MAP#DONOTACKNOWLEDGE_container">
+								<td>
+								</td>
+								<td>
+									<input id="#MAP#DONOTACKNOWLEDGE_value" type="checkbox" style="width: auto;" />
+									<label for="#MAP#DONOTACKNOWLEDGE_value">
+									</label>
+								</td>
+							</tr>
+						</table>
+					</td>
+					<td valign="top">
+						<table>
+							<tr id="#MAP#CHANNELCODEID_container">
+								<td class="#MAP#label-width2">
+									<label id="#MAP#CHANNELCODEID_caption" for="#MAP#CHANNELCODEID_value">
+									</label>
+								</td>
+								<td>
+									<input id="#MAP#CHANNELCODEID_value" type="text" />
+								</td>
+							</tr>
+							<tr id="#MAP#MAILINGID_container">
+								<td class="#MAP#label-width2">
+									<label id="#MAP#MAILINGID_caption" for="#MAP#MAILINGID_value">
+									</label>
+								</td>
+								<td>
+									<input id="#MAP#MAILINGID_value" type="text" />
+								</td>
+							</tr>
+							<tr id="#MAP#REFERENCE_container">
+								<td class="#MAP#label-width2">
+									<label id="#MAP#REFERENCE_caption" for="#MAP#REFERENCE_value">
+									</label>
+								</td>
+								<td>
+									<input id="#MAP#REFERENCE_value" type="text" />
+								</td>
+							</tr>
+							<tr id="#MAP#CATEGORYCODEID_container">
+								<td class="#MAP#label-width2">
+									<label id="#MAP#CATEGORYCODEID_caption" for="#MAP#CATEGORYCODEID_value">
+									</label>
+								</td>
+								<td>
+									<input id="#MAP#CATEGORYCODEID_value" type="text" />
+								</td>
+							</tr>
+							<tr id="#MAP#REVENUEDEVELOPMENTFUNCTIONCODEID_container">
+								<td class="#MAP#label-width2" style="padding: 0px;">
+									<label id="#MAP#REVENUEDEVELOPMENTFUNCTIONCODEID_caption" for="#MAP#REVENUEDEVELOPMENTFUNCTIONCODEID_value">
+									</label>
+								</td>
+								<td>
+									<input id="#MAP#REVENUEDEVELOPMENTFUNCTIONCODEID_value" type="text" />
+								</td>
+							</tr>
+						</table>
+					</td>
+				</tr>
+			</table>
+			<h3 id="#MAP#PAYMENTSCHEDULE_value">
+			</h3>
+			<table>
+				<tr>
+					<td>
+						<table>
+							<tr id="#MAP#FREQUENCYCODE_container">
+								<td class="#MAP#label-width2">
+									<label id="#MAP#FREQUENCYCODE_caption" for="#MAP#FREQUENCYCODE_value">
+									</label>
+								</td>
+								<td>
+									<input id="#MAP#FREQUENCYCODE_value" type="text" />
+								</td>
+							</tr>
+							<tr id="#MAP#REVENUESCHEDULESTARTDATE_container">
+								<td class="#MAP#label-width2">
+									<label id="#MAP#REVENUESCHEDULESTARTDATE_caption" for="#MAP#REVENUESCHEDULESTARTDATE_value">
+									</label>
+								</td>
+								<td>
+									<input id="#MAP#REVENUESCHEDULESTARTDATE_value" type="text" class="bbui-forms-xs" />
+								</td>
+							</tr>
+							<tr id="#MAP#REVENUESCHEDULEENDDATE_container">
+								<td class="#MAP#label-width2">
+									<label id="#MAP#REVENUESCHEDULEENDDATE_caption" for="#MAP#REVENUESCHEDULEENDDATE_value">
+									</label>
+								</td>
+								<td>
+									<input id="#MAP#REVENUESCHEDULEENDDATE_value" type="text" class="bbui-forms-xs" />
+								</td>
+							</tr>
+						</table>
+					</td>
+					<td>
+						<table style="border-collapse: collapse;">
+							<tr id="#MAP#INSTALLMENTS_container">
+								<td>
+									<div id="#MAP#INSTALLMENTS_value" style="height: 92px; width: 311px">
+									</div>
+								</td>
+							</tr>
+						</table>
+					</td>
+				</tr>
+			</table>
+			<h3 id="#MAP#PAYMENTINFORMATION_value">
+			</h3>
+			<table>
+				<tr>
+					<td>
+						<table>
+							<tr>
+								<td>
+									<input id="#MAP#AUTOPAY_value" type="checkbox" style="width: auto;" />
+									<label for="#MAP#AUTOPAY_value">
+									</label>
+								</td>
+								<td>
+									<input id="#MAP#PAYMENTMETHODCODE_value" type="text" style="width: 83px;" />
+								</td>
+							</tr>
+						</table>
+					</td>
+				</tr>
+				<tr>
+					<td valign="top">
+						<table>
+							<tr id="#MAP#CREDITTYPECODEID_container">
+								<td class="#MAP#label-width2">
+									<label id="#MAP#CREDITTYPECODEID_caption" for="#MAP#CREDITTYPECODEID_value">
+									</label>
+								</td>
+								<td>
+									<input id="#MAP#CREDITTYPECODEID_value" type="text" />
+								</td>
+							</tr>
+							<tr id="#MAP#CARDHOLDERNAME_container">
+								<td style="white-space: nowrap;" class="#MAP#label-width2">
+									<label id="#MAP#CARDHOLDERNAME_caption" for="#MAP#CARDHOLDERNAME_value">
+									</label>
+								</td>
+								<td>
+									<input id="#MAP#CARDHOLDERNAME_value" type="text" />
+								</td>
+							</tr>
+							<tr id="#MAP#REFERENCEDATE_container">
+								<td style="white-space: nowrap;" class="#MAP#label-width2">
+									<label id="#MAP#REFERENCEDATE_caption" for="#MAP#REFERENCEDATE_value">
+									</label>
+								</td>
+								<td>
+									<input id="#MAP#REFERENCEDATE_value" type="text" class="bbui-forms-xs" />
+								</td>
+							</tr>
+							<tr id="#MAP#REFERENCENUMBER_container">
+								<td style="white-space: nowrap;" class="#MAP#label-width2">
+									<label id="#MAP#REFERENCENUMBER_caption" for="#MAP#REFERENCENUMBER_value">
+									</label>
+								</td>
+								<td>
+									<input id="#MAP#REFERENCENUMBER_value" type="text" />
+								</td>
+							</tr>
+						</table>
+					</td>
+					<td valign="top">
+						<table>
+							<tr id="#MAP#CREDITCARDNUMBER_container">
+								<td style="white-space: nowrap;" class="#MAP#label-width2">
+									<label id="#MAP#CREDITCARDNUMBER_caption" for="#MAP#CREDITCARDNUMBER_value">
+									</label>
+								</td>
+								<td>
+									<input id="#MAP#CREDITCARDNUMBER_value" type="text" />
+								</td>
+							</tr>
+							<tr id="#MAP#EXPIRESON_container">
+								<td class="#MAP#label-width2">
+									<label id="#MAP#EXPIRESON_caption" for="#MAP#EXPIRESON_value">
+									</label>
+								</td>
+								<td>
+									<input id="#MAP#EXPIRESON_value" type="text" class="bbui-forms-xs" />
+								</td>
+							</tr>
+							<tr id="#MAP#CONSTITUENTACCOUNTID_container">
+								<td class="#MAP#label-width2">
+									<label id="#MAP#CONSTITUENTACCOUNTID_caption" for="#MAP#CONSTITUENTACCOUNTID_value">
+									</label>
+								</td>
+								<td>
+									<input id="#MAP#CONSTITUENTACCOUNTID_value" type="text" />
+								</td>
+							</tr>
+						</table>
+					</td>
+				</tr>
+			</table>
+		</div>
+		<div id="#MAP#TAB_EXPIRATION_caption" class="#MAP#tab-content-main">
+			<div>
+				<input id="#MAP#ISFIXEDTERMSPONSORSHIP_value" type="checkbox" style="width: auto;" /><label
+					for="#MAP#ISFIXEDTERMSPONSORSHIP_value"></label>
+			</div>
+			<table class="#MAP#tab-content-main">
+				<tr id="#MAP#PLANNEDENDDATE_container">
+					<td>
+						<label id="#MAP#PLANNEDENDDATE_caption" for="#MAP#PLANNEDENDDATE_value">
+						</label>
+					</td>
+					<td>
+						<input id="#MAP#PLANNEDENDDATE_value" type="text" />
+					</td>
+				</tr>
+				<tr id="#MAP#EXPIRATIONREASONID_container">
+					<td>
+						<label id="#MAP#EXPIRATIONREASONID_caption" for="#MAP#EXPIRATIONREASONID_value">
+						</label>
+					</td>
+					<td>
+						<input id="#MAP#EXPIRATIONREASONID_value" type="text" />
+					</td>
+				</tr>
+			</table>
+		</div>
+	</div>
 </div>
