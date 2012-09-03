@@ -182,6 +182,7 @@ Partial Public Class [SponsorshipAddFormWrappedUIModel]
     Private WithEvents _sourcecodelookup As Global.Blackbaud.AppFx.UIModeling.Core.ShowSearchFormUIAction
 	Private WithEvents _currencyaction As Global.Blackbaud.AppFx.UIModeling.Core.ShowCustomFormUIAction
 	Private WithEvents _clearsearchaction As Global.Blackbaud.AppFx.UIModeling.Core.GenericUIAction
+	Private WithEvents _interactiontypecodeid As Global.Blackbaud.AppFx.UIModeling.Core.CodeTableField
 
 
     <System.CodeDom.Compiler.GeneratedCodeAttribute("BBUIModelLibrary", "2.93.2034.0")> _
@@ -271,6 +272,7 @@ Partial Public Class [SponsorshipAddFormWrappedUIModel]
         _sourcecodelookup = New Global.Blackbaud.AppFx.UIModeling.Core.ShowSearchFormUIAction
 		_currencyaction = New Global.Blackbaud.AppFx.UIModeling.Core.ShowCustomFormUIAction
 		_clearsearchaction = New Global.Blackbaud.AppFx.UIModeling.Core.GenericUIAction
+		_interactiontypecodeid = New Global.Blackbaud.AppFx.UIModeling.Core.CodeTableField
 
         MyBase.Mode = Global.Blackbaud.AppFx.UIModeling.Core.DataFormMode.Add
         MyBase.DataFormTemplateId = New Guid("32ce36c3-3881-4b80-b7a9-94eef6a58cb7")
@@ -1002,6 +1004,15 @@ Partial Public Class [SponsorshipAddFormWrappedUIModel]
         _currencyaction.ModelClassName = "Blackbaud.AppFx.Fundraising.UIModel.CurrencyFormUIModel"
         Me.Actions.Add(_currencyaction)
 
+		'
+		'_interactiontypecodeid
+		'
+		_interactiontypecodeid.Name = "INTERACTIONTYPECODEID"
+		_interactiontypecodeid.Caption = "Interaction"
+		_interactiontypecodeid.Required = True
+		_interactiontypecodeid.CodeTableName = "USR_NEWSPONSORSHIPINTERACTIONTYPECODE"
+		Me.Fields.Add(_interactiontypecodeid)
+
         OnCreated()
 
     End Sub
@@ -1478,6 +1489,17 @@ Partial Public Class [SponsorshipAddFormWrappedUIModel]
             Return _channelcodeid
         End Get
     End Property
+
+	''' <summary>
+	''' Interaction
+	''' </summary>
+	<System.ComponentModel.Description("Interaction")> _
+	<System.CodeDom.Compiler.GeneratedCodeAttribute("BBUIModelLibrary", "2.93.2034.0")> _
+	Public ReadOnly Property [INTERACTIONTYPECODEID]() As Global.Blackbaud.AppFx.UIModeling.Core.CodeTableField
+		Get
+			Return _interactiontypecodeid
+		End Get
+	End Property
 
     ''' <summary>
     ''' Reference
