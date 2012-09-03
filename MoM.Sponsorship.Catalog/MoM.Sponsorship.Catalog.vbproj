@@ -154,6 +154,12 @@
   <ItemGroup>
     <EmbeddedResource Include="Tables\Code Tables\Sponsorship.Add.InteractionType.CodeTable.xml" />
   </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Add Forms\ProspectSponsorship.Add.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Tasks\AddProspectSponsorship.Task.xml" />
+  </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.VisualBasic.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
