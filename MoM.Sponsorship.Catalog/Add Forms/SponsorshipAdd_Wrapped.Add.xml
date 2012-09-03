@@ -20,6 +20,7 @@
 	25-Aug-2012		Memphis			added the PFM Search field, using custom search with ID a00235ec-b143-4f50-ad74-4c653d605cdf
 									FogBugz Case #785
 	28-Aug-2012		Memphis			added the code in Save to create the PFM relationship, if user selected one.
+	01-Sep-2012		Memphis			added the INTERACTIONTYPECODEID field, selected from the code table: USR_NEWSPONSORSHIPINTERACTIONTYPECODE
 	-->
 
 	<c:ImpliedSecurityList>
@@ -181,7 +182,8 @@ create procedure dbo.USR_USP_DATAFORMTEMPLATE_ADD_SPONSORSHIP_WRAPPED
 		@BATCHNUMBER nvarchar(100) = '',
 		@DONOTACKNOWLEDGE bit = 0,
 		@CHILDREN xml = null,
-		@PFMID uniqueidentifier = null
+		@PFMID uniqueidentifier = null,
+		@INTERACTIONTYPECODEID uniqueidentifier = null
 )
 
 
@@ -880,7 +882,12 @@ return @r;
 								<c:AddDataForm ID="0706d187-af1a-4bd6-8365-8fb7419e5600" Caption="Organization" CaptionResourceKey="$$organization" />
 							</c:AddDataForms>-->
 						</c:SearchList>
-					</c:FormField>					
+					</c:FormField>	
+					
+					<!-- Memphis 9/1/12 -->
+					<c:FormField FieldID="INTERACTIONTYPECODEID" DataType="Guid" Caption="Interaction" Required="true">
+						<c:CodeTable CodeTableName="USR_NEWSPONSORSHIPINTERACTIONTYPECODE" />						
+					</c:FormField>
 				</c:FormFields>
 
         <c:WebUIComponent>
@@ -902,6 +909,7 @@ return @r;
 									<c:Field>STARTDATE</c:Field>
 									<c:Field>SPONSORSHIPREASONID</c:Field>
 									<c:Field>PFMID</c:Field>
+									<c:Field>INTERACTIONTYPECODEID</c:Field>
 								</c:Fields>
 						</c:FieldGroup>
 						<c:FieldGroup ID="SPONSORSHIPOPPORTUNITY" Caption="Sponsorship Opportunity" CaptionResourceKey="$$sponsorship_opportunity">

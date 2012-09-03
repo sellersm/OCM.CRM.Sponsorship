@@ -1,10 +1,10 @@
 <PackageSpec
-    xmlns="bb_appfx_package"
-    xmlns:common="bb_appfx_commontypes"
-    ID="529f3afb-034f-4e57-a2e1-c3fbe7cd11aa"
-    Name="Sponsorship Customizations Package"
-    Description="MoM Sponsorship Package for all customizations related to Sponsorship"
-    Author="Memphis Sellers" >
+	xmlns="bb_appfx_package"
+	xmlns:common="bb_appfx_commontypes"
+	ID="529f3afb-034f-4e57-a2e1-c3fbe7cd11aa"
+	Name="Sponsorship Customizations Package"
+	Description="MoM Sponsorship Package for all customizations related to Sponsorship"
+	Author="Memphis Sellers" >
 
 	<!-- 
 	Remarks:    This has dependencies on the Constituent Package, so be sure to load that first!
@@ -16,6 +16,7 @@
 									Changed name from MoM.Sponsorship Package to Sponsorship Customizations Package
 	28-Aug-2012		Memphis			Added the USR_USP_CREATE_PARTNERSHIP_RELATIONSHIP_WITH_SPONSOR.xml sproc
 	30-Aug-2012		CMayeda			Added SponsorshipLocationExtension.ReportRecipient.Delete.RecordOperation.xml
+	02-Sep-2012		Memphis			Added SponsorshipLocation.MoM.Custom.Search.xml and Sponsorship.Add.InteractionType.CodeTable.xml
 	-->
 
 	<!-- Note:  the order of the items listed here is important.  For example, you won't be able to load a data form that references 
@@ -63,6 +64,7 @@
 	<common:DependencyList>
 		<!-- Code Tables -->
 		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.Sponsorship.Performance.CodeTable.xml" />
+		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.Sponsorship.Add.InteractionType.CodeTable.xml" />
 
 		<!-- Tables -->
 		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.USR_CHILD_SELECTED_FOR_SPONSORSHIP_LOCK.Table.xml" />
@@ -100,6 +102,7 @@
 		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.SponsorshipLocationExtension.Add.xml" />
 		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.SponsorshipLocationExtension.Edit.xml" />
 		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.SponsorshipLocationHierarchyExtension.Add.xml" />
+		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.SponsorshipLocation.MoM.Custom.Search.xml" />
 
 		<!-- Tasks -->
 		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.SponsorshipAdd_Wrapped.Task.xml" />
