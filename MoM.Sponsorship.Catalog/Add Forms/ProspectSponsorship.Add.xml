@@ -5,6 +5,7 @@
 	Name="Prospect Sponsorship Add Data Form"
 	Description="Adds a new Prospect Sponsorship"
 	Author="Memphis Sellers"
+	FormHeader="Add a Prospect Sponsorship"
 	DataFormInstanceID="54a5433c-2d47-4c21-921b-1edac0478f1f"
 	RecordType="Sponsorship"
 	c:SecurityUIFolder="Sponsorship"
