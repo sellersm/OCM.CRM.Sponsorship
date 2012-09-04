@@ -17,6 +17,9 @@
 	History:
 	Date            Modified By     Comments
 	03-Sep-2012		Memphis			Initial Version.
+	04-Sep-2012		Memphis			Changed the values for autopay so the sprocs that get called will set the paymentmethodcode accordingly:
+										@AUTOPAY=0,  this means 'No'
+										@PAYMENTMETHODCODE=2,  this is 'None'
 	-->
 
 	<c:ImpliedSecurityList>
@@ -155,7 +158,7 @@ create procedure dbo.USR_USP_DATAFORMTEMPLATE_ADD_PROSPECTSPONSORSHIP
 		@FREQUENCYCODE tinyint = 3,
 		@REVENUESCHEDULEENDDATE datetime = null,
 		@REVENUESCHEDULESTARTDATE datetime = null,
-		@AUTOPAY bit = 1,
+		@AUTOPAY bit = 0,
 		@CREDITCARDTOKEN uniqueidentifier = null,
 		@GIFTRECIPIENT bit = 0,
 		@PLANNEDENDDATE date = null,
@@ -244,7 +247,7 @@ begin try
 		@FREQUENCYCODE = @FREQUENCYCODE, 
 		@REVENUESCHEDULEENDDATE = @REVENUESCHEDULEENDDATE, 
 		@REVENUESCHEDULESTARTDATE = @REVENUESCHEDULESTARTDATE, 
-		@AUTOPAY = 1,    -- set to 1 no matter what @AUTOPAY, 
+		@AUTOPAY = 0,    -- set to 0 no matter what @AUTOPAY, 
 		@CREDITCARDTOKEN = @CREDITCARDTOKEN, 
 		@GIFTRECIPIENT = @GIFTRECIPIENT, 
 		@PLANNEDENDDATE = @PLANNEDENDDATE, 
@@ -678,7 +681,7 @@ return @r;
 			<c:FormField FieldID="AMOUNT" DataType="Money" Required="true" Caption="Amount" DefaultValueText="0" CaptionResourceKey="$$amount">
 				<c:CurrencyField CurrencyFieldID="TRANSACTIONCURRENCYID" />
 			</c:FormField>
-			<c:FormField FieldID="AUTOPAY" DataType="Boolean" Caption="Pay installments automatically by:" DefaultValueText="1" CaptionResourceKey="$$pay_installments_automatically_by:" />
+			<c:FormField FieldID="AUTOPAY" DataType="Boolean" Caption="Pay installments automatically by:" DefaultValueText="0" CaptionResourceKey="$$pay_installments_automatically_by:" />
 			<c:FormField FieldID="PAYMENTMETHODCODE" DataType="TinyInt" Required="false" Caption="Payment method" DefaultValueText="0" CaptionResourceKey="$$payment_method">
 				<c:ValueList>
 					<c:Items>
