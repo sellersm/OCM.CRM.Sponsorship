@@ -16,8 +16,10 @@
 									Changed name from MoM.Sponsorship Package to Sponsorship Customizations Package
 	28-Aug-2012		Memphis			Added the USR_USP_CREATE_PARTNERSHIP_RELATIONSHIP_WITH_SPONSOR.xml sproc
 	30-Aug-2012		CMayeda			Added SponsorshipLocationExtension.ReportRecipient.Delete.RecordOperation.xml
+	31-Aug-2012		CMayeda			USR_UFN_SPONSORSHIP_GETFINANCIALSPONSOR_BYSPONSORSHIPOPP
 	02-Sep-2012		Memphis			Added SponsorshipLocation.MoM.Custom.Search.xml and Sponsorship.Add.InteractionType.CodeTable.xml
 	03-Sep-2012		Memphis			Added ProspectSponsorship.Add.xml and associated Task: AddProspectSponsorship.Task.xml
+	
 	-->
 
 	<!-- Note:  the order of the items listed here is important.  For example, you won't be able to load a data form that references 
@@ -85,6 +87,7 @@
 		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.USR_UFN_SPONSORSHIP_GETFINANCIALSPONSOR_BYSPONSORSHIPOPP.xml" />
 		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.USR_UFN_SPONSORSHIP_GETCORRESPONDENT.xml" />
 		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.USR_UFN_SPONSORSHIPLOCATION_GETRECIPIENTS_BYFIELDOFFICEID.xml" />
+		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.USR_UFN_SPONSORSHIP_ISEFT" />
 		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.USR_USP_CREATE_PARTNERSHIP_RELATIONSHIP_WITH_SPONSOR.xml" />
 
 		<!-- Record Operations-->
