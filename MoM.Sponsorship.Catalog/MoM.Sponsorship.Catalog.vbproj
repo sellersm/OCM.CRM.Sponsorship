@@ -161,6 +161,7 @@
     <EmbeddedResource Include="Tasks\AddProspectSponsorship.Task.xml" />
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="SQL\Stored Procedures\USR_USP_SPONSORSHIP_CREATENEWSPONSORSHIPINTERACTIONS.xml" />
     <Content Include="SQL\User Functions\USR_UFN_SPONSORSHIP_GETFINANCIALSPONSOR_BYSPONSORSHIPOPP.xml" />
     <EmbeddedResource Include="SQL\User Functions\USR_UFN_SPONSORSHIP_ISEFT.xml" />
   </ItemGroup>
