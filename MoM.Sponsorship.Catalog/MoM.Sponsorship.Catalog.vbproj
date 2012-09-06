@@ -161,8 +161,11 @@
     <EmbeddedResource Include="Tasks\AddProspectSponsorship.Task.xml" />
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="Tables\SponsorshipOpportunity.ReservationExtension.Table.xml" />
     <EmbeddedResource Include="Tables\Code Tables\ProspectSponsorship.Add.InteractionType.CodeTable.xml" />
     <EmbeddedResource Include="SQL\Stored Procedures\USR_USP_SPONSORSHIP_CREATENEWSPONSORSHIPINTERACTIONS.xml" />
+    <EmbeddedResource Include="Reservation\SponsorshipOpportunityReserveBusinessProcessExtension.Edit.xml" />
+    <EmbeddedResource Include="Reservation\SponsorshipOpportunityReserveBusinessProcessExtension.Add.xml" />
     <Content Include="SQL\User Functions\USR_UFN_SPONSORSHIP_GETFINANCIALSPONSOR_BYSPONSORSHIPOPP.xml" />
     <EmbeddedResource Include="SQL\User Functions\USR_UFN_SPONSORSHIP_ISEFT.xml" />
   </ItemGroup>
