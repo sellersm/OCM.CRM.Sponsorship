@@ -1,16 +1,16 @@
 <AddDataFormTemplateSpec 
-    xmlns:c="bb_appfx_commontypes"
-    ID="32ce36c3-3881-4b80-b7a9-94eef6a58cb7"
-    Name="Sponsorship Add Form (Wrapped)"
-    Description="An Add Form for adding a sponsorship record (Wrapped)"
-    Author="Memphis Sellers"
-    RecordType="Sponsorship"
-    DataFormInstanceID="bd01386b-95f1-47d4-aab5-49822ed9126f"
-    HelpKey="SPAddASponsorshipScr.html"
-    FormHeader="Add a sponsorship"
-    FormHeaderResourceKey="$$add_a_sponsorship"
-    xmlns="bb_appfx_adddataformtemplate"
-    >
+	xmlns:c="bb_appfx_commontypes"
+	ID="32ce36c3-3881-4b80-b7a9-94eef6a58cb7"
+	Name="Sponsorship Add Form (Wrapped)"
+	Description="An Add Form for adding a sponsorship record (Wrapped)"
+	Author="Memphis Sellers"
+	RecordType="Sponsorship"
+	DataFormInstanceID="bd01386b-95f1-47d4-aab5-49822ed9126f"
+	HelpKey="SPAddASponsorshipScr.html"
+	FormHeader="Add a sponsorship"
+	FormHeaderResourceKey="$$add_a_sponsorship"
+	xmlns="bb_appfx_adddataformtemplate"
+	>
 	
 	<!-- 
 	Remarks:    This is a COPY (wrapped) of the OOB Add Sponsorship form with our customizations added.
@@ -21,6 +21,7 @@
 									FogBugz Case #785
 	28-Aug-2012		Memphis			added the code in Save to create the PFM relationship, if user selected one.
 	01-Sep-2012		Memphis			added the INTERACTIONTYPECODEID field, selected from the code table: USR_NEWSPONSORSHIPINTERACTIONTYPECODE
+	05-Sep-2012		Memphis			added the call to Interaction sproc to set the user-selected Interaction
 	-->
 
 	<c:ImpliedSecurityList>
@@ -67,6 +68,7 @@
 <![CDATA[
 create procedure dbo.USR_USP_DATAFORMTEMPLATE_ADD_SPONSORSHIP_LOAD_WRAPPED 
 (
+		@CONTEXTID uniqueidentifier,
 		@FORMTITLE nvarchar(100) = null output,
 		@REVENUECONSTITUENTID uniqueidentifier = null output,
 		@SPONSORSHIPCONSTITUENTID uniqueidentifier = null output,
@@ -75,8 +77,7 @@ create procedure dbo.USR_USP_DATAFORMTEMPLATE_ADD_SPONSORSHIP_LOAD_WRAPPED
 		@TRANSACTIONCURRENCYID uniqueidentifier = null output,
 		@BASECURRENCYID uniqueidentifier = null output,
 		@BASEAMOUNT money = null output,
-		@EXCHANGERATE decimal(20,
-		8) = null output,
+		@EXCHANGERATE decimal(20,8) = null output,
 		@BASECURRENCYDECIMALDIGITS tinyint = null output,
 		@BASECURRENCYROUNDINGTYPECODE tinyint = null output,
 		@REVENUEDEVELOPMENTFUNCTIONCODEID uniqueidentifier = null output
@@ -106,6 +107,17 @@ exec @r = dbo.USP_DATAFORMTEMPLATE_ADD_SPONSORSHIP_LOAD
 
 /* Handle any custom "after-load" logic here */
 
+-- try to get the Constituent if there is one:
+if @CONTEXTID is not null
+begin
+	select @SPONSORSHIPCONSTITUENTID = ID
+	from dbo.CONSTITUENT
+	where ID = @CONTEXTID
+	
+	if @SPONSORSHIPCONSTITUENTID is not null
+		set @REVENUECONSTITUENTID = @SPONSORSHIPCONSTITUENTID
+end
+
 if @@error <> 0 
 	begin
 		if @r <> 0 return @r
@@ -118,20 +130,21 @@ return @r;
 ]]>
 </c:CreateProcedureSQL>
 				</LoadImplementation>
-      
-      <!-- The save procedure:
-            - it needs to create a new sponsorship for each child in the CHILDREN XML parameter, re-using all other values...
-            - build table of all children by calling something like UFN_COLLECTION_TEST_CHILDREN_FROMITEMLISTXML
-            - for each child in that temp table, call the [USP_DATAFORMTEMPLATE_ADD_SPONSORSHIP] sproc to add the new sponsorship
-            - the @SPONSORSHIPOPPORTUNITYIDCHILD parameter needs to have the sponsorshipopportunityid value of the child
-      -->
-      
+	  
+	  <!-- The save procedure:
+			- it needs to create a new sponsorship for each child in the CHILDREN XML parameter, re-using all other values...
+			- build table of all children by calling something like UFN_COLLECTION_TEST_CHILDREN_FROMITEMLISTXML
+			- for each child in that temp table, call the [USP_DATAFORMTEMPLATE_ADD_SPONSORSHIP] sproc to add the new sponsorship
+			- the @SPONSORSHIPOPPORTUNITYIDCHILD parameter needs to have the sponsorshipopportunityid value of the child
+	  -->
+	  
 				<SaveImplementation SPName="USR_USP_DATAFORMTEMPLATE_ADD_SPONSORSHIP_WRAPPED">
 						<c:CreateProcedureSQL>
 <![CDATA[
 create procedure dbo.USR_USP_DATAFORMTEMPLATE_ADD_SPONSORSHIP_WRAPPED 
 (
 		@ID uniqueidentifier = null output,
+		@CONTEXTID uniqueidentifier,
 		@CHANGEAGENTID uniqueidentifier = null,
 		@REVENUECONSTITUENTID uniqueidentifier = null,
 		@SPONSORSHIPCONSTITUENTID uniqueidentifier = null,
@@ -217,80 +230,105 @@ begin try
 
   while @@FETCH_STATUS = 0
   begin
-    -- do the work of adding the sponsorship here:
-      set @ID = newid()
-      exec @r = dbo.USP_DATAFORMTEMPLATE_ADD_SPONSORSHIP 
-	    @ID = @ID output, 
-	    @CHANGEAGENTID = @CHANGEAGENTID, 
-	    @REVENUECONSTITUENTID = @REVENUECONSTITUENTID, 
-	    @SPONSORSHIPCONSTITUENTID = @SPONSORSHIPCONSTITUENTID, 
-	    @SPONSORSHIPPROGRAMID = @SPONSORSHIPPROGRAMID, 
-	    @SPONSORSHIPLOCATIONID = @SPONSORSHIPLOCATIONID, 
-	    @GENDERCODE = @GENDERCODE, 
-	    @SPROPPAGERANGEID = @SPROPPAGERANGEID, 
-	    @ISHIVPOSITIVECODE = @ISHIVPOSITIVECODE, 
-	    @HASCONDITIONCODE = @HASCONDITIONCODE, 
-	    @ISORPHANEDCODE = @ISORPHANEDCODE, 
-	    @SPROPPPROJECTCATEGORYCODEID = @SPROPPPROJECTCATEGORYCODEID, 
-	    @SPONSORSHIPOPPORTUNITYIDCHILD = @SPONSORSHIPOPPORTUNITYIDCHILD, 
-	    @SPONSORSHIPOPPORTUNITYIDPROJECT = @SPONSORSHIPOPPORTUNITYIDPROJECT, 
-	    @ISSOLESPONSORSHIP = @ISSOLESPONSORSHIP, 
-	    @STARTDATE = @STARTDATE, 
-	    @AMOUNT = @AMOUNT, 
-	    @PAYMENTMETHODCODE = @PAYMENTMETHODCODE, 
-	    @REFERENCEDATE = @REFERENCEDATE, 
-	    @REFERENCENUMBER = @REFERENCENUMBER, 
-	    @CARDHOLDERNAME = @CARDHOLDERNAME, 
-	    @CREDITCARDNUMBER = @CREDITCARDNUMBER, 
-	    @CREDITTYPECODEID = @CREDITTYPECODEID, 
-	    @EXPIRESON = @EXPIRESON, 
-	    @CONSTITUENTACCOUNTID = @CONSTITUENTACCOUNTID, 
-	    @FREQUENCYCODE = @FREQUENCYCODE, 
-	    @REVENUESCHEDULEENDDATE = @REVENUESCHEDULEENDDATE, 
-	    @REVENUESCHEDULESTARTDATE = @REVENUESCHEDULESTARTDATE, 
-	    @AUTOPAY = @AUTOPAY, 
-	    @CREDITCARDTOKEN = @CREDITCARDTOKEN, 
-	    @GIFTRECIPIENT = @GIFTRECIPIENT, 
-	    @PLANNEDENDDATE = @PLANNEDENDDATE, 
-	    @RESERVEDOPPORTUNITYIDCHILD = @RESERVEDOPPORTUNITYIDCHILD, 
-	    @RESERVATIONKEY = @RESERVATIONKEY, 
-	    @MATCHEDOPPORTUNITYID = @MATCHEDOPPORTUNITYID, 
-	    @SENDREMINDER = @SENDREMINDER, 
-	    @FINDERNUMBER = @FINDERNUMBER, 
-	    @SOURCECODE = @SOURCECODE, 
-	    @APPEALID = @APPEALID, 
-	    @MAILINGID = @MAILINGID, 
-	    @CHANNELCODEID = @CHANNELCODEID, 
-	    @REFERENCE = @REFERENCE, 
-	    @CATEGORYCODEID = @CATEGORYCODEID, 
-	    @EXPIRATIONREASONID = @EXPIRATIONREASONID, 
-	    @TRANSACTIONCURRENCYID = @TRANSACTIONCURRENCYID, 
-	    @BASEEXCHANGERATEID = @BASEEXCHANGERATEID, 
-	    @EXCHANGERATE = @EXCHANGERATE, 
-	    @CURRENTAPPUSERID = @CURRENTAPPUSERID, 
-	    @BATCHNUMBER = @BATCHNUMBER, 
-	    @DONOTACKNOWLEDGE = @DONOTACKNOWLEDGE
+	-- do the work of adding the sponsorship here:
+	  set @ID = newid()
+	  exec @r = dbo.USP_DATAFORMTEMPLATE_ADD_SPONSORSHIP 
+		@ID = @ID output, 
+		@CHANGEAGENTID = @CHANGEAGENTID, 
+		@REVENUECONSTITUENTID = @REVENUECONSTITUENTID, 
+		@SPONSORSHIPCONSTITUENTID = @SPONSORSHIPCONSTITUENTID, 
+		@SPONSORSHIPPROGRAMID = @SPONSORSHIPPROGRAMID, 
+		@SPONSORSHIPLOCATIONID = @SPONSORSHIPLOCATIONID, 
+		@GENDERCODE = @GENDERCODE, 
+		@SPROPPAGERANGEID = @SPROPPAGERANGEID, 
+		@ISHIVPOSITIVECODE = @ISHIVPOSITIVECODE, 
+		@HASCONDITIONCODE = @HASCONDITIONCODE, 
+		@ISORPHANEDCODE = @ISORPHANEDCODE, 
+		@SPROPPPROJECTCATEGORYCODEID = @SPROPPPROJECTCATEGORYCODEID, 
+		@SPONSORSHIPOPPORTUNITYIDCHILD = @SPONSORSHIPOPPORTUNITYIDCHILD, 
+		@SPONSORSHIPOPPORTUNITYIDPROJECT = @SPONSORSHIPOPPORTUNITYIDPROJECT, 
+		@ISSOLESPONSORSHIP = @ISSOLESPONSORSHIP, 
+		@STARTDATE = @STARTDATE, 
+		@AMOUNT = @AMOUNT, 
+		@PAYMENTMETHODCODE = @PAYMENTMETHODCODE, 
+		@REFERENCEDATE = @REFERENCEDATE, 
+		@REFERENCENUMBER = @REFERENCENUMBER, 
+		@CARDHOLDERNAME = @CARDHOLDERNAME, 
+		@CREDITCARDNUMBER = @CREDITCARDNUMBER, 
+		@CREDITTYPECODEID = @CREDITTYPECODEID, 
+		@EXPIRESON = @EXPIRESON, 
+		@CONSTITUENTACCOUNTID = @CONSTITUENTACCOUNTID, 
+		@FREQUENCYCODE = @FREQUENCYCODE, 
+		@REVENUESCHEDULEENDDATE = @REVENUESCHEDULEENDDATE, 
+		@REVENUESCHEDULESTARTDATE = @REVENUESCHEDULESTARTDATE, 
+		@AUTOPAY = @AUTOPAY, 
+		@CREDITCARDTOKEN = @CREDITCARDTOKEN, 
+		@GIFTRECIPIENT = @GIFTRECIPIENT, 
+		@PLANNEDENDDATE = @PLANNEDENDDATE, 
+		@RESERVEDOPPORTUNITYIDCHILD = @RESERVEDOPPORTUNITYIDCHILD, 
+		@RESERVATIONKEY = @RESERVATIONKEY, 
+		@MATCHEDOPPORTUNITYID = @MATCHEDOPPORTUNITYID, 
+		@SENDREMINDER = @SENDREMINDER, 
+		@FINDERNUMBER = @FINDERNUMBER, 
+		@SOURCECODE = @SOURCECODE, 
+		@APPEALID = @APPEALID, 
+		@MAILINGID = @MAILINGID, 
+		@CHANNELCODEID = @CHANNELCODEID, 
+		@REFERENCE = @REFERENCE, 
+		@CATEGORYCODEID = @CATEGORYCODEID, 
+		@EXPIRATIONREASONID = @EXPIRATIONREASONID, 
+		@TRANSACTIONCURRENCYID = @TRANSACTIONCURRENCYID, 
+		@BASEEXCHANGERATEID = @BASEEXCHANGERATEID, 
+		@EXCHANGERATE = @EXCHANGERATE, 
+		@CURRENTAPPUSERID = @CURRENTAPPUSERID, 
+		@BATCHNUMBER = @BATCHNUMBER, 
+		@DONOTACKNOWLEDGE = @DONOTACKNOWLEDGE
 
-    if @@error = 0 and @r = 0
-    begin
-      -- try to remove the lock on this opportunity
-      exec dbo.USR_DELETE_LOCK_CHILD_FOR_SPONSORSHIP_SELECTION @SPONSORSHIPOPPORTUNITYIDCHILD		
-    end
-    
-    /*   
-    -- what to do with errors?
-    if @@error <> 0 
-	    begin
-		    if @r <> 0 return @r
-		    return 1;
-	    end
-    */
-    --
-    fetch next from chidCursor into @SPONSORSHIPPROGRAMID, @SPONSORSHIPOPPORTUNITYIDCHILD
+	if @@error = 0 and @r = 0
+	begin
+	  -- try to remove the lock on this opportunity
+	  exec dbo.USR_DELETE_LOCK_CHILD_FOR_SPONSORSHIP_SELECTION @SPONSORSHIPOPPORTUNITYIDCHILD		
+	end
+	
+	/*   
+	-- what to do with errors?
+	if @@error <> 0 
+		begin
+			if @r <> 0 return @r
+			return 1;
+		end
+	*/
+	--
+	fetch next from chidCursor into @SPONSORSHIPPROGRAMID, @SPONSORSHIPOPPORTUNITYIDCHILD
   end
 
   close chidCursor 
   deallocate chidCursor 
+  
+	-- 9/5/12 Memphis added the following for the Interaction creation
+	-- set the Interaction for the child[ren]
+	declare @childIDList dbo.USR_UDT_CHILDIDLIST 
+	-- populate the child list with the childid values in the temptable
+	insert @childIDList 
+	select CHILDID
+	from @TempTbl 
+	
+	-- check that there are any children selected:
+	declare @childCount int
+	select @childCount = COUNT(*)
+	from @childIDList
+	
+	if @childCount > 0
+	begin
+		-- call sproc to create the requested interaction type
+		exec dbo.USR_USP_SPONSORSHIP_CREATENEWSPONSORSHIPINTERACTIONS 
+			 @sponsorshipID = @ID,				-- The sponsorship that the interactions will pertain to, which was just created for this Sponsor
+			 @childIDList = @childIDList,		-- The list of children to add to the interactions created
+			 @interactionTypeCodeID = @INTERACTIONTYPECODEID,		-- The ID of the Interaction Type that the user selected (Welcome Packet, Welcome Packet & Profile, ...)
+			 @changeAgentID = @CHANGEAGENTID	-- Used to specify change agent for CHANGEDBYID and ADDEDBYID fields.  USP_CHANGEAGENT_GETORCREATECHANGEAGENT is called if it's null
+	end
+	else
+		RAISERROR 1000000 'There are no Children for which to set Interactions!'
 
 	-- do the Partnership for Mercy setup if the user picked one:
 	if @PFMID is not null
@@ -505,8 +543,13 @@ return @r;
 								</c:CustomExceptions>
 						</c:ExpectedDBExceptions>
 				</SaveImplementation>
+			
+			
 		</SPDataForm>
-		<c:FormMetaData FixedDialog="true">
+	
+	<Context ContextRecordType="Constituent" RecordIDParameter="CONTEXTID"/>
+	
+	<c:FormMetaData FixedDialog="true">
 				<c:FormFields>
 						<c:FormField FieldID="FORMTITLE" ReadOnly="true" MaxLength="100" />
 						<c:FormField FieldID="REVENUECONSTITUENTID" DataType="Guid" Required="true" Caption="Financial sponsor" CaptionResourceKey="$$financial_sponsor">
@@ -551,34 +594,34 @@ return @r;
 								</c:SimpleDataList>
 						</c:FormField>
 
-          <c:FormField FieldID="CHILDREN" Caption="Children" CaptionResourceKey="$$sites">
-            <c:Collection>
-              <c:Fields>
-                <c:FormField FieldID="ID" DataType="Guid" Hidden="true" />
-                <c:FormField FieldID="NAME" Caption="Child Name" DataType="Guid" Required="true" CaptionResourceKey="$$site">
-                  <!--<c:SearchList SearchListID="ab076868-114a-4696-afe9-8d590677708c" EnableQuickFind="true" >
-                    <c:FormFieldOverrides>
-                      <c:FormFieldOverride FieldID="SPONSORSHIPPROGRAMID" DefaultValueText="Fields!SPONSORSHIPPROGRAMID" />
-                      <c:FormFieldOverride FieldID="ELIGIBILITYCODE"  DefaultValueText="1" />
-                      <c:FormFieldOverride FieldID="AVAILABILITYCODE"  DefaultValueText="0" />
-                      <c:FormFieldOverride FieldID="RESTRICTFORSOLESPONSORSHIP" Caption="Only include unsponsored" DefaultValueText="Fields!ISSOLESPONSORSHIP" />
-                      <c:FormFieldOverride FieldID="SPONSORSHIPOPPORTUNITYGROUPID" ReadOnly="true" />
-                      <c:FormFieldOverride FieldID="RESERVATIONKEYID" ReadOnly="true" />
-                      <c:FormFieldOverride FieldID="CORRESPONDINGSPONSORID" Hidden="true" DefaultValueText="Fields!SPONSORSHIPCONSTITUENTID" />
-                      <c:FormFieldOverride FieldID="FINANCIALSPONSORID" Hidden="true" DefaultValueText="Fields!REVENUECONSTITUENTID" />
-                    </c:FormFieldOverrides>                                        
-                  </c:SearchList>-->
-                  <!--<c:SimpleDataList SimpleDataListID="3eb2bc55-07d8-4b1d-9a48-33883b3fa404">
-                    <c:SearchList SearchListID="ab076868-114a-4696-afe9-8d590677708c" />
-                  </c:SimpleDataList>-->
-                </c:FormField>
-                <c:FormField FieldID="LOOKUPID" Caption="Lookup ID" DataType="String" />
-              </c:Fields>
-            </c:Collection>
-          </c:FormField>
+		  <c:FormField FieldID="CHILDREN" Caption="Children" CaptionResourceKey="$$sites">
+			<c:Collection>
+			  <c:Fields>
+				<c:FormField FieldID="ID" DataType="Guid" Hidden="true" />
+				<c:FormField FieldID="NAME" Caption="Child Name" DataType="Guid" Required="true" CaptionResourceKey="$$site">
+				  <!--<c:SearchList SearchListID="ab076868-114a-4696-afe9-8d590677708c" EnableQuickFind="true" >
+					<c:FormFieldOverrides>
+					  <c:FormFieldOverride FieldID="SPONSORSHIPPROGRAMID" DefaultValueText="Fields!SPONSORSHIPPROGRAMID" />
+					  <c:FormFieldOverride FieldID="ELIGIBILITYCODE"  DefaultValueText="1" />
+					  <c:FormFieldOverride FieldID="AVAILABILITYCODE"  DefaultValueText="0" />
+					  <c:FormFieldOverride FieldID="RESTRICTFORSOLESPONSORSHIP" Caption="Only include unsponsored" DefaultValueText="Fields!ISSOLESPONSORSHIP" />
+					  <c:FormFieldOverride FieldID="SPONSORSHIPOPPORTUNITYGROUPID" ReadOnly="true" />
+					  <c:FormFieldOverride FieldID="RESERVATIONKEYID" ReadOnly="true" />
+					  <c:FormFieldOverride FieldID="CORRESPONDINGSPONSORID" Hidden="true" DefaultValueText="Fields!SPONSORSHIPCONSTITUENTID" />
+					  <c:FormFieldOverride FieldID="FINANCIALSPONSORID" Hidden="true" DefaultValueText="Fields!REVENUECONSTITUENTID" />
+					</c:FormFieldOverrides>                                        
+				  </c:SearchList>-->
+				  <!--<c:SimpleDataList SimpleDataListID="3eb2bc55-07d8-4b1d-9a48-33883b3fa404">
+					<c:SearchList SearchListID="ab076868-114a-4696-afe9-8d590677708c" />
+				  </c:SimpleDataList>-->
+				</c:FormField>
+				<c:FormField FieldID="LOOKUPID" Caption="Lookup ID" DataType="String" />
+			  </c:Fields>
+			</c:Collection>
+		  </c:FormField>
 
 
-          <c:FormField FieldID="PLANNEDENDDATE" DataType="Date" Caption="Expiration date" CaptionResourceKey="$$expiration_date" />
+		  <c:FormField FieldID="PLANNEDENDDATE" DataType="Date" Caption="Expiration date" CaptionResourceKey="$$expiration_date" />
 						<c:FormField FieldID="SPONSORSHIPLOCATIONID" DataType="Guid" Caption="Location" CaptionResourceKey="$$location">
 								<c:SearchList SearchListID="7d7ac450-86f7-42f7-9299-e2458592ad14" EnableQuickFind="true">
 										<c:FormFieldOverrides>
@@ -890,14 +933,14 @@ return @r;
 					</c:FormField>
 				</c:FormFields>
 
-        <c:WebUIComponent>
-            <c:UIModel AssemblyName="MoM.Sponsorship.UIModel.dll" ClassName="MoM.Sponsorship.UIModel.SponsorshipAddFormWrappedUIModel" />
-            <c:WebUI>
-                <c:ExternalResource Url="browser/htmlforms/custom/SponsorshipAddFormWrapped.html" />
-            </c:WebUI>
-        </c:WebUIComponent>
+		<c:WebUIComponent>
+			<c:UIModel AssemblyName="MoM.Sponsorship.UIModel.dll" ClassName="MoM.Sponsorship.UIModel.SponsorshipAddFormWrappedUIModel" />
+			<c:WebUI>
+				<c:ExternalResource Url="browser/htmlforms/custom/SponsorshipAddFormWrapped.html" />
+			</c:WebUI>
+		</c:WebUIComponent>
 
-        
+		
 				
 				<c:FieldGroups>
 						<c:FieldGroup ID="GENERALINFORMATION" Caption="General" CaptionResourceKey="$$general">
@@ -914,10 +957,10 @@ return @r;
 						</c:FieldGroup>
 						<c:FieldGroup ID="SPONSORSHIPOPPORTUNITY" Caption="Sponsorship Opportunity" CaptionResourceKey="$$sponsorship_opportunity">
 								<c:Fields>
-                  <c:Field>CHILDREN</c:Field>
+				  <c:Field>CHILDREN</c:Field>
 										<c:Field>SPONSORSHIPOPPORTUNITYIDCHILD</c:Field>
-                  <c:Field>SPONSORSHIPPROGRAMID</c:Field>
-                  <c:Field>SPONSORSHIPOPPORTUNITYIDPROJECT</c:Field>
+				  <c:Field>SPONSORSHIPPROGRAMID</c:Field>
+				  <c:Field>SPONSORSHIPOPPORTUNITYIDPROJECT</c:Field>
 										<c:Field>RESERVATIONKEY</c:Field>
 										<c:Field>RESERVEDOPPORTUNITYIDCHILD</c:Field>
 										<c:Field>SPONSORSHIPLOCATIONID</c:Field>
@@ -950,8 +993,8 @@ return @r;
 						</c:FieldGroup>
 						<c:FieldGroup ID="MATCHEDOPPORTUNITY" Caption="Matched opportunity" CaptionResourceKey="$$matched_opportunity">
 								<c:Fields>
-                  <c:Field>MOPPORTUNITYNAME</c:Field>
-                  <c:Field>MOPPORTUNITYLOCATION</c:Field>
+				  <c:Field>MOPPORTUNITYNAME</c:Field>
+				  <c:Field>MOPPORTUNITYLOCATION</c:Field>
 										<c:Field>MOPPORTUNITYLOOKUPID</c:Field>
 										<c:Field>MOPPORTUNITYGENDER</c:Field>
 										<c:Field>MOPPORTUNITYBIRTHDATE</c:Field>

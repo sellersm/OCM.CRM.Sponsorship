@@ -1,0 +1,11 @@
+﻿<CodeTableSpec 
+	xmlns="bb_appfx_codetable" 
+	xmlns:common="bb_appfx_commontypes"
+	ID="c55f4f6d-e8d4-4110-9ab6-47260b0f6193" 
+	Name="New Prospect Sponsorship Interaction Type Code Table"
+	Description="Interaction Type Code values used when adding a new Prospect Sponsorship"
+	Author="Memphis Sellers"
+	DBTablename="USR_NEWPROSPECTSPONSORSHIPINTERACTIONTYPECODE"
+	Category="Sponsorship"
+	SortMethod="Alpha"
+/>
