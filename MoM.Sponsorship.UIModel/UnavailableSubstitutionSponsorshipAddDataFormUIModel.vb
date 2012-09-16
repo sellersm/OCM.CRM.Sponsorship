@@ -6,7 +6,7 @@ Imports Blackbaud.AppFx.Fundraising.UIModel
 Imports System.Globalization
 Imports Blackbaud.AppFx.Sponsorship.UIModel
 
-Public Class ProspectSponsorshipAddDataFormUIModel
+Public Class UnavailableSubstitutionSponsorshipAddDataFormUIModel
 	Implements IHasOpportunityProgram
 
 	Private Const BUTTONLABEL_MATCH As String = "Find"
@@ -46,8 +46,10 @@ Public Class ProspectSponsorshipAddDataFormUIModel
 	Private _sponsorshipConstituentName As String
 	Private _revenueConstituent As String
 	Private _revenueConstituentName As String
-	Private _lookupid As String
-	Private _programid As String
+	Private _unavailableLookupid As String
+	Private _transferLookupid As String
+	Private _unavailableProgramid As String
+	Private _transferProgramid As String
 
 	Private _programValue As Guid
 	'(case [SPONSORSHIPOPPORTUNITYTYPECODE] when (1) then N'Child' when (2) then N'Project'  end)
@@ -82,14 +84,20 @@ Public Class ProspectSponsorshipAddDataFormUIModel
 	Private _cacheSourceCode As String
 	Private _cacheAppealId As Guid
 	Private _cacheMailingId As Guid
+	Private _transferChildName As String
+	Private _unavailableChildName As String
 
+	'flag to identify a prospect sponsorship
+	Private _prospectSponsorship As Boolean
 	Private _isValidSponsorship As Boolean
+
 	Private _sponsorshipHelper As SponsorshipHelper
 
 #End Region
 
 
 #Region "Helper Interface"
+
 
 	ReadOnly Property hSPONSORSHIPPROGRAMID As UIModeling.Core.SimpleDataListField(Of System.Guid) Implements IHasOpportunityProgram.hSPONSORSHIPPROGRAMID
 		Get
@@ -166,26 +174,61 @@ Public Class ProspectSponsorshipAddDataFormUIModel
 		'Memphis 8/23/12:
 		Me.CLEARSEARCHACTION.Enabled = False
 
+		'9/12/12 Memphis - enable payment fields because by default this is NOT a prospect sponsorship
+		TurnPaymentFieldsOnOff(True)
 
 		'Memphis 9/3/12: don't allow user to select a payment type, we default to Cash in the FormSpec Save:
-		Me.PAYMENTMETHODCODE.Value = PledgeAddFormUIModel.PAYMENTMETHODCODES.StandingOrder
-		Me.PAYMENTMETHODCODE.Enabled = False
-		Me.PAYMENTMETHODCODE.Required = False
-		Me.PAYMENTMETHODCODE.Visible = False
-		Me.CREDITTYPECODEID.Enabled = False
-		Me.CREDITCARDNUMBER.Enabled = False
-		Me.CARDHOLDERNAME.Enabled = False
-		Me.EXPIRESON.Enabled = False
-		Me.REFERENCEDATE.Enabled = False
-		Me.REFERENCENUMBER.Enabled = False
-		Me.CONSTITUENTACCOUNTID.Enabled = False
-		Me.AUTOPAY.Value = False
-		Me.AUTOPAY.Enabled = False
-		Me.AUTOPAY.Visible = False
+		'Me.PAYMENTMETHODCODE.Value = PledgeAddFormUIModel.PAYMENTMETHODCODES.StandingOrder
+		'Me.PAYMENTMETHODCODE.Enabled = False
+		'Me.PAYMENTMETHODCODE.Required = False
+		'Me.PAYMENTMETHODCODE.Visible = False
+		'Me.CREDITTYPECODEID.Enabled = False
+		'Me.CREDITCARDNUMBER.Enabled = False
+		'Me.CARDHOLDERNAME.Enabled = False
+		'Me.EXPIRESON.Enabled = False
+		'Me.REFERENCEDATE.Enabled = False
+		'Me.REFERENCENUMBER.Enabled = False
+		'Me.CONSTITUENTACCOUNTID.Enabled = False
+		'Me.AUTOPAY.Value = False
+		'Me.AUTOPAY.Enabled = False
+		'Me.AUTOPAY.Visible = False
 
-		_programid = String.Empty
+		_unavailableProgramid = String.Empty
+		_transferProgramid = String.Empty
+		_transferChildName = String.Empty
+		_unavailableChildName = String.Empty
+
+		'default this to a regular sponsorship because the checkbox isn't checked when loaded:
+		_prospectSponsorship = False
 		_isValidSponsorship = True
+
 		_sponsorshipHelper = New SponsorshipHelper()
+
+	End Sub
+
+	Private Sub TurnPaymentFieldsOnOff(ByVal turnOnOrOff As Boolean)
+		Me.PAYMENTMETHODCODE.Value = PledgeAddFormUIModel.PAYMENTMETHODCODES.StandingOrder
+		Me.PAYMENTMETHODCODE.Enabled = turnOnOrOff
+		Me.PAYMENTMETHODCODE.Required = turnOnOrOff
+		Me.PAYMENTMETHODCODE.Visible = turnOnOrOff
+		Me.CREDITTYPECODEID.Enabled = turnOnOrOff
+		Me.CREDITCARDNUMBER.Enabled = turnOnOrOff
+		Me.CARDHOLDERNAME.Enabled = turnOnOrOff
+		Me.EXPIRESON.Enabled = turnOnOrOff
+		Me.REFERENCEDATE.Enabled = turnOnOrOff
+		Me.REFERENCENUMBER.Enabled = turnOnOrOff
+		Me.CONSTITUENTACCOUNTID.Enabled = turnOnOrOff
+		Me.AUTOPAY.Value = turnOnOrOff
+		Me.AUTOPAY.Enabled = turnOnOrOff
+		Me.AUTOPAY.Visible = turnOnOrOff
+
+		Me.CREDITTYPECODEID.Visible = turnOnOrOff
+		Me.CREDITCARDNUMBER.Visible = turnOnOrOff
+		Me.CARDHOLDERNAME.Visible = turnOnOrOff
+		Me.EXPIRESON.Visible = turnOnOrOff
+		'Me.REFERENCEDATE.Visible = turnOnOrOff
+		'Me.REFERENCENUMBER.Visible = turnOnOrOff
+		'Me.CONSTITUENTACCOUNTID.Visible = turnOnOrOff
 
 	End Sub
 
@@ -296,7 +339,8 @@ Public Class ProspectSponsorshipAddDataFormUIModel
 
 		'turn off the Add Child button, until user selects a child to sponsor:
 		Me.ADDSELECTEDCHILD.Enabled = False
-		_lookupid = String.Empty
+		_unavailableLookupid = String.Empty
+		_transferLookupid = String.Empty
 
 	End Sub
 
@@ -463,10 +507,10 @@ Public Class ProspectSponsorshipAddDataFormUIModel
 	End Sub
 	Private Function ReadyForOpportunity() As Boolean
 		Return _initialLoadComplete AndAlso _
-			Not String.IsNullOrEmpty(Me.REVENUECONSTITUENTID.SearchDisplayText) AndAlso _
-			Not String.IsNullOrEmpty(Me.SPONSORSHIPCONSTITUENTID.SearchDisplayText) AndAlso _
-			Me.SPONSORSHIPPROGRAMID.Enabled AndAlso _
-			Not Me.SPONSORSHIPPROGRAMID.Value.Equals(Guid.Empty)
+		 Not String.IsNullOrEmpty(Me.REVENUECONSTITUENTID.SearchDisplayText) AndAlso _
+		 Not String.IsNullOrEmpty(Me.SPONSORSHIPCONSTITUENTID.SearchDisplayText) AndAlso _
+		 Me.SPONSORSHIPPROGRAMID.Enabled AndAlso _
+		 Not Me.SPONSORSHIPPROGRAMID.Value.Equals(Guid.Empty)
 	End Function
 
 	Private Sub SaveKeyValues()
@@ -862,7 +906,7 @@ Public Class ProspectSponsorshipAddDataFormUIModel
 		End If
 
 		If Not overwriteValues AndAlso Not Me.SPONSORSHIPOPPORTUNITYIDCHILD.Value.Equals(Guid.Empty) _
-				OrElse Not Me.SPONSORSHIPOPPORTUNITYIDPROJECT.Value.Equals(Guid.Empty) Then
+		  OrElse Not Me.SPONSORSHIPOPPORTUNITYIDPROJECT.Value.Equals(Guid.Empty) Then
 			If Me.SPONSORSHIPPROGRAMID.Enabled Then
 				OpportunitySelectionEnableDisable(True)
 			Else
@@ -903,9 +947,8 @@ Public Class ProspectSponsorshipAddDataFormUIModel
 			If Me.FINDERNUMBER.Value.Equals(0) OrElse Len(Me.FINDERNUMBER.Value.ToString) = 0 OrElse Not _finderNumberHelper.FinderNumberIsValid() Then
 				Me.APPEALID.Enabled = True
 				Me.MAILINGID.Enabled = True
-				'Memphis 9/15/12 added
+				'Memphis 9/12/12 added
 				Me.FUNDRAISERID.Enabled = True
-
 			End If
 			Me.GIFTRECIPIENT.Enabled = Not Transferring()
 		Else
@@ -1046,15 +1089,27 @@ Public Class ProspectSponsorshipAddDataFormUIModel
 			'and clear the matched child so user can match
 			'another
 			'lockHelper.LockOpportunity(Me.MATCHEDOPPORTUNITYID.Value.ToString, _soleSponsorshipOverrides, Me.GetRequestContext)
-			If LockThisChild(Me.MATCHEDOPPORTUNITYID.Value) Then
-				'set the lookupid
-				_lookupid = Me.MOPPORTUNITYLOOKUPID.Value.ToString()
-				'set the programid
-				_programid = Me.SPONSORSHIPPROGRAMID.Value.ToString()
-				AddChildToList()
-			Else
-				DisplayPrompt("Unable to lock this selected child!")
-			End If
+
+			'don't lock it, just populate the transfer child id with the matched child:
+			'If LockThisChild(Me.MATCHEDOPPORTUNITYID.Value) Then
+			'set the lookupid
+			_transferLookupid = Me.MOPPORTUNITYLOOKUPID.Value.ToString()
+			'set the programid
+			_transferProgramid = Me.SPONSORSHIPPROGRAMID.Value.ToString()
+
+			'Memphis 9/7/12 changed to refactor this for unavailable-transfer sponsorship:
+			'AddChildToList()
+			Me.SUBSTITUTECHILDID.Value = Me.MATCHEDOPPORTUNITYID.Value
+			Me.SUBSTITUTECHILDID.UpdateDisplayText()
+			_transferChildName = Me.SUBSTITUTECHILDID.SearchDisplayText
+
+			SetAddSelectedButtonEnabled()
+
+			' 9/7/12
+
+			'Else
+			'DisplayPrompt("Unable to lock this selected child!")
+			'End If
 
 			'Memphis 8/23
 			Me.CLEARSEARCHACTION.Enabled = False
@@ -1242,34 +1297,42 @@ Public Class ProspectSponsorshipAddDataFormUIModel
 		'credit card and direct debit fields are only enabled if auto-paying
 
 		'Memphis 9/3/12 commented out:  user can't change any of the payment method items:
-		'Dim b = Me.AUTOPAY.Value AndAlso (Me.REVENUECONSTITUENTID.Value <> Guid.Empty OrElse _currentForm = CURRENTFORM.REASSIGN) AndAlso Not _isAffiliate
+		' Memphis 9/12/12 disable the payment fields only if this is a prospect sponsorship
+		If _prospectSponsorship = False Then
+			Dim b = Me.AUTOPAY.Value AndAlso (Me.REVENUECONSTITUENTID.Value <> Guid.Empty OrElse _currentForm = CURRENTFORM.REASSIGN) AndAlso Not _isAffiliate
 
-		'If _currentForm = CURRENTFORM.TRANSFER Then
-		'	b = False
-		'End If
+			If _currentForm = CURRENTFORM.TRANSFER Then
+				b = False
+			End If
 
-		'Me.PAYMENTMETHODCODE.Enabled = b
+			Me.PAYMENTMETHODCODE.Enabled = b
 
-		'Me.CREDITTYPECODEID.Enabled = b
-		'Me.CREDITCARDNUMBER.Enabled = b
-		'Me.CARDHOLDERNAME.Enabled = b
-		'Me.EXPIRESON.Enabled = b
+			Me.CREDITTYPECODEID.Enabled = b
+			Me.CREDITCARDNUMBER.Enabled = b
+			Me.CARDHOLDERNAME.Enabled = b
+			Me.EXPIRESON.Enabled = b
 
-		'Me.REFERENCEDATE.Enabled = b
-		'Me.REFERENCENUMBER.Enabled = b
-		'Me.CONSTITUENTACCOUNTID.Enabled = b
-		' ---- END OF COMMENT 9/3/12
+			Me.REFERENCEDATE.Enabled = b
+			Me.REFERENCENUMBER.Enabled = b
+			Me.CONSTITUENTACCOUNTID.Enabled = b
+			' ---- END OF COMMENT 9/3/12
+		End If
+
 
 	End Sub
 
 	Private Sub UpdatePaymentFieldsRequired()
 		'Memphis 9/3/12 commented out:  user can't change any of the payment method items:
-		'Dim b = Me.AUTOPAY.Value
+		' Memphis 9/12/12 disable the payment fields only if this is a prospect sponsorship
+		If _prospectSponsorship = False Then
+			Dim b = Me.AUTOPAY.Value
 
-		''Account is required if auto-paying by direct debit
-		'Me.CONSTITUENTACCOUNTID.Required = (b AndAlso _
-		' (Me.PAYMENTMETHODCODE.Value = PledgeAddFormUIModel.PAYMENTMETHODCODES.DirectDebit))
-		' ---- END OF COMMENT 9/3/12
+			'Account is required if auto-paying by direct debit
+			Me.CONSTITUENTACCOUNTID.Required = (b AndAlso _
+			 (Me.PAYMENTMETHODCODE.Value = PledgeAddFormUIModel.PAYMENTMETHODCODES.DirectDebit))
+			' ---- END OF COMMENT 9/3/12
+		End If
+
 	End Sub
 
 	Private Sub UpdatePaymentFieldsVisible()
@@ -1352,7 +1415,12 @@ Public Class ProspectSponsorshipAddDataFormUIModel
 				'Memphis 9/3/12 commented out cuz we're defaulting this value in the Form Save:
 				'.AUTOPAY.Enabled = hasConstituent
 				'Memphis 9/3/12 added this to ensure we have a value that we want:
-				Me.AUTOPAY.Value = True
+				'9/12/12 Memphis added logic to set this based on prospectsponsorship checkbox
+				If _prospectSponsorship Then
+					.AUTOPAY.Value = False
+				Else
+					.AUTOPAY.Enabled = hasConstituent
+				End If
 			End If
 
 			.FREQUENCYCODE.Enabled = hasConstituent
@@ -1371,6 +1439,7 @@ Public Class ProspectSponsorshipAddDataFormUIModel
 			.DONOTACKNOWLEDGE.Enabled = hasConstituent
 			'9/12/12 Memphis added
 			.FUNDRAISERID.Enabled = hasConstituent
+
 		End With
 
 		UpdatePaymentFieldsEnabled()
@@ -1389,8 +1458,8 @@ Public Class ProspectSponsorshipAddDataFormUIModel
 		Next
 	End Sub
 
-	Private Shared Function CreateInstallment(ByVal scheduleDate As Date, ByVal amount As Decimal) As ProspectSponsorshipAddDataFormINSTALLMENTSUIModel
-		Dim o As New ProspectSponsorshipAddDataFormINSTALLMENTSUIModel
+	Private Shared Function CreateInstallment(ByVal scheduleDate As Date, ByVal amount As Decimal) As UnavailableSubstitutionSponsorshipAddDataFormINSTALLMENTSUIModel
+		Dim o As New UnavailableSubstitutionSponsorshipAddDataFormINSTALLMENTSUIModel
 		o.AMOUNT.Value = amount
 		o.DATE.Value = scheduleDate
 
@@ -1702,23 +1771,24 @@ Public Class ProspectSponsorshipAddDataFormUIModel
 
 	Private Sub DisplayPrompt(ByVal message As String, ByVal buttonStyle As UIPromptButtonStyle)
 		Me.Prompts.Add(New UIPrompt() With { _
-			   .Text = message, _
-			   .ButtonStyle = buttonStyle})
+		 .Text = message, _
+		 .ButtonStyle = buttonStyle})
 	End Sub
 
 	Private Sub DisplayPrompt(ByVal message As String)
 		Me.Prompts.Add(New UIPrompt() With { _
-			   .Text = message, _
-			   .ButtonStyle = UIPromptButtonStyle.Ok})
+		 .Text = message, _
+		 .ButtonStyle = UIPromptButtonStyle.Ok})
 	End Sub
 
 	Private Sub UnlockSelectedChildren()
 		'call the deletelock method for each child in list, if any
-		Dim selectedChildren As List(Of ProspectSponsorshipAddDataFormCHILDRENUIModel) = Me.CHILDREN.Value.ToList()
-		For Each child As ProspectSponsorshipAddDataFormCHILDRENUIModel In selectedChildren
-			If child.NAME.HasValue Then
-				DeleteChildSelectionLock(New Guid(child.NAME.Value.ToString()))
-				lockHelper.UnlockOpportunity(child.NAME.Value.ToString(), Me.GetRequestContext)
+		Dim selectedChildren As List(Of UnavailableSubstitutionSponsorshipAddDataFormCHILDRENUIModel) = Me.CHILDREN.Value.ToList()
+		For Each child As UnavailableSubstitutionSponsorshipAddDataFormCHILDRENUIModel In selectedChildren
+			If child.TRANSFERCHILDID.HasValue Then
+				DeleteChildSelectionLock(child.TRANSFERCHILDID.Value)
+				'lockHelper.UnlockOpportunity(child.NAME.Value.ToString(), Me.GetRequestContext)
+				'lockHelper.UnlockOpportunity(child.TRANSFERCHILDID.Value.ToString(), Me.GetRequestContext)
 			End If
 		Next
 	End Sub
@@ -1785,18 +1855,28 @@ Public Class ProspectSponsorshipAddDataFormUIModel
 
 	Private Sub ChildrenSelected_ChildInserted(ByVal sender As Object, ByVal e As ValueChangedEventArgs)
 		If Not e.NewValue Is Nothing Then
-			Dim newChild As ProspectSponsorshipAddDataFormCHILDRENUIModel = DirectCast(e.NewValue, ProspectSponsorshipAddDataFormCHILDRENUIModel)
+			Dim newChild As UnavailableSubstitutionSponsorshipAddDataFormCHILDRENUIModel = DirectCast(e.NewValue, UnavailableSubstitutionSponsorshipAddDataFormCHILDRENUIModel)
 		End If
 
 	End Sub
 
 	Private Sub _addselectedchild_InvokeAction(ByVal sender As Object, ByVal e As Blackbaud.AppFx.UIModeling.Core.InvokeActionEventArgs) Handles _addselectedchild.InvokeAction
-		'Add the child in the sponsorshipopportunitychild field to the Children list
-		If Me.SPONSORSHIPOPPORTUNITYIDCHILD.HasValue Then
-			LockThisChild(Me.SPONSORSHIPOPPORTUNITYIDCHILD.Value)
-			AddChildToList(Me.SPONSORSHIPOPPORTUNITYIDCHILD.Value())
+		'Add both the unavailable & transfer (sub) children to the Children list
+		If (Me.SPONSORSHIPOPPORTUNITYIDCHILD.HasValue) AndAlso (Me.SUBSTITUTECHILDID.HasValue) Then
+			'LockThisChild(Me.SPONSORSHIPOPPORTUNITYIDCHILD.Value)
+			' Only lock the transfer child:
+			LockThisChild(Me.SUBSTITUTECHILDID.Value)
+			AddChildToList(Me.SPONSORSHIPOPPORTUNITYIDCHILD.Value(), Me.SUBSTITUTECHILDID.Value)
+
+			'clear the child search fields:
 			Me.SPONSORSHIPOPPORTUNITYIDCHILD.Value = Nothing
 			Me.SPONSORSHIPOPPORTUNITYIDCHILD.UpdateDisplayText(String.Empty)
+			Me.SUBSTITUTECHILDID.Value = Nothing
+			Me.SUBSTITUTECHILDID.UpdateDisplayText(String.Empty)
+
+			'turn off the add transfer child button:
+			Me.ADDSELECTEDCHILD.Enabled = False
+
 			'Memphis 8/23
 			'Me.CLEARSEARCHACTION.Enabled = False
 		End If
@@ -1806,7 +1886,7 @@ Public Class ProspectSponsorshipAddDataFormUIModel
 		'try to lock the child first, to ensure that this user can select the child for sponsorshp:
 		If Me.MATCHEDOPPORTUNITYID.HasValue Then
 			AddChildToList(New Guid(MATCHEDOPPORTUNITYID.Value.ToString()))
-			'Dim newChild As New ProspectSponsorshipAddDataFormCHILDRENUIModel()
+			'Dim newChild As New UnavailableSubstitutionSponsorshipAddDataFormCHILDRENUIModel()
 			'newChild.ID = New GuidField("ID") 'Guid.NewGuid()
 			'newChild.NAME = New SimpleDataListField(Of Guid) 'Me.SPONSORSHIPOPPORTUNITYIDCHILD
 			'newChild.NAME.Value =
@@ -1816,34 +1896,52 @@ Public Class ProspectSponsorshipAddDataFormUIModel
 	End Sub
 
 	Private Sub AddChildToList(ByVal childId As Guid)
-		'try to lock the child first, to ensure that this user can select the child for sponsorshp:
-		Dim newChild As New ProspectSponsorshipAddDataFormCHILDRENUIModel()
-		'store the ID of the currently selected programid value
-		newChild.ID.Value = New Guid(_programid)  'New GuidField("ID") 'Guid.NewGuid()
-		newChild.NAME = New SimpleDataListField(Of Guid) 'Me.SPONSORSHIPOPPORTUNITYIDCHILD
-		newChild.LOOKUPID.Value = _lookupid
-		newChild.NAME.Value = childId
-		Me.CHILDREN.Value.Add(newChild)
-		Me.REMOVESELECTEDCHILD.Enabled = True
-		'turn on the payment tab
-		Me.TAB_PAYMENT.Enabled = True
+		'call the overloaded method to add the unavailable child & the transfer child from greatest need search:
+		AddChildToList(Me.SPONSORSHIPOPPORTUNITYIDCHILD.Value, childId)
 
-		'manage the payment fields:
-		UpdatePaymentFieldsEnabled()
-		EnableFieldsForConstituent()
+		' 9/7/12 Memphis commented out:
+		'Dim newChild As New UnavailableSubstitutionSponsorshipAddDataFormCHILDRENUIModel()
+		''store the ID of the currently selected programid value
+		'newChild.ID.Value = New Guid(_programid)  'New GuidField("ID") 'Guid.NewGuid()
+		'newChild.NAME = New SimpleDataListField(Of Guid) 'Me.SPONSORSHIPOPPORTUNITYIDCHILD
+		'newChild.LOOKUPID.Value = _unavailableLookupid
+		'newChild.NAME.Value = childId
+		'Me.CHILDREN.Value.Add(newChild)
+		'Me.REMOVESELECTEDCHILD.Enabled = True
+		''turn on the payment tab
+		'Me.TAB_PAYMENT.Enabled = True
+
+		''manage the payment fields:
+		'UpdatePaymentFieldsEnabled()
+		'EnableFieldsForConstituent()
 
 	End Sub
 
 	Private Sub _sponsorshipopportunityidchild_SearchItemSelected(ByVal sender As Object, ByVal e As Blackbaud.AppFx.UIModeling.Core.SearchItemSelectedEventArgs) Handles _sponsorshipopportunityidchild.SearchItemSelected
 		If Not e.SelectedId = Guid.Empty.ToString() Then
-			'turn on the Add Child button
-			Me.ADDSELECTEDCHILD.Enabled = True
+			'	? e.SelectedRow.Values
+			'{Length=9}
+			'    (0): "f5e89fb1-ad17-4330-947b-4d38115ce1e5"
+			'    (1): "Andrea G. Abbracadabra"
+			'    (2): "8-10000077"
+			'    (3): "Individual Child Sponsorship"
+			'    (4): "Eligible"
+			'    (5): "Available"
+			'    (6): "Female"
+			'    (7): "19991117"
+			'    (8): "TestLocation"
+			'    (9): "ProgramID Guid"
+
 			'set the lookupid of the selected child:
-			_lookupid = e.SelectedRow.Values.ToList().Item(2).ToString()
+			_unavailableLookupid = e.SelectedRow.Values.ToList().Item(2).ToString()
+			' child name:
+			_unavailableChildName = e.SelectedRow.Values.ToList().Item(1).ToString()
 			'set the programid value that the user used for searching for this child:
-			_programid = e.SelectedRow.Values.ToList().Item(9).ToString()
+			_unavailableProgramid = e.SelectedRow.Values.ToList().Item(9).ToString()
+
+			SetAddSelectedButtonEnabled()
 		Else
-			_lookupid = String.Empty
+			_unavailableLookupid = String.Empty
 		End If
 	End Sub
 
@@ -1851,6 +1949,7 @@ Public Class ProspectSponsorshipAddDataFormUIModel
 		If e.NewValue Is Nothing Then
 			Me.ADDSELECTEDCHILD.Enabled = False
 		End If
+		SetAddSelectedButtonEnabled()
 	End Sub
 
 	Private Sub ResetSearchFields()
@@ -1883,9 +1982,96 @@ Public Class ProspectSponsorshipAddDataFormUIModel
 		End If
 	End Sub
 
+	Private Sub AddChildToList(ByVal unavailChildId As Guid, ByVal subChildId As Guid)
+		'try to lock the child first, to ensure that this user can select the child for sponsorshp:
+		Dim newChild As New UnavailableSubstitutionSponsorshipAddDataFormCHILDRENUIModel()
+		'store the ID of the currently selected programid value
+		newChild.ID.Value = New Guid(_transferProgramid)	'unavailChildId 
+		'newChild.NAME = New StringField()	   'New SimpleDataListField(Of Guid)
+		newChild.NAME.Value = _unavailableChildName
+		newChild.LOOKUPID.Value = _unavailableLookupid
 
-	Private Sub _appealid_SearchItemSelected(ByVal sender As Object, ByVal e As Blackbaud.AppFx.UIModeling.Core.SearchItemSelectedEventArgs) Handles _appealid.SearchItemSelected
-		PopulateFundraiserFromAppeal(e.SelectedId)
+		'newChild.TRANSFERCHILDNAME = New StringField()					 'New SimpleDataListField(Of Guid)
+		newChild.TRANSFERCHILDNAME.Value = _transferChildName
+		newChild.TRANSFERCHILDID.Value = subChildId
+		newChild.TRANSFERLOOKUPID.Value = _transferLookupid
+
+		Me.CHILDREN.Value.Add(newChild)
+
+		Me.REMOVESELECTEDCHILD.Enabled = True
+
+		'turn on the payment tab
+		Me.TAB_PAYMENT.Enabled = True
+
+		'manage the payment fields:
+		UpdatePaymentFieldsEnabled()
+		EnableFieldsForConstituent()
+
+
+	End Sub
+
+	Private Sub _substitutechildid_SearchItemSelected(ByVal sender As Object, ByVal e As Blackbaud.AppFx.UIModeling.Core.SearchItemSelectedEventArgs) Handles _substitutechildid.SearchItemSelected
+		If Not e.SelectedId = Guid.Empty.ToString() Then
+			'turn on the Add Child button
+			
+			'	? e.SelectedRow.Values
+			'{Length=9}
+			'    (0): "f5e89fb1-ad17-4330-947b-4d38115ce1e5"
+			'    (1): "Andrea G. Abbracadabra"
+			'    (2): "8-10000077"
+			'    (3): "Individual Child Sponsorship"
+			'    (4): "Eligible"
+			'    (5): "Available"
+			'    (6): "Female"
+			'    (7): "19991117"
+			'    (8): "TestLocation"
+			'    (9): "ProgramID Guid"
+
+			'set the lookupid of the selected child:
+			_transferLookupid = e.SelectedRow.Values.ToList().Item(2).ToString()
+			' child name:
+			_transferChildName = e.SelectedRow.Values.ToList().Item(1).ToString()
+			'set the programid value that the user used for searching for this child:
+			_transferProgramid = e.SelectedRow.Values.ToList().Item(9).ToString()
+
+			SetAddSelectedButtonEnabled()
+		Else
+			_transferLookupid = String.Empty
+		End If
+	End Sub
+
+	Private Sub SetAddSelectedButtonEnabled()
+		Me.ADDSELECTEDCHILD.Enabled = (Me.SUBSTITUTECHILDID.HasValue) AndAlso (Me.SPONSORSHIPOPPORTUNITYIDCHILD.HasValue)
+	End Sub
+
+	Private Sub _isprospectsponsorship_ValueChanged(ByVal sender As Object, ByVal e As Blackbaud.AppFx.UIModeling.Core.ValueChangedEventArgs) Handles _isprospectsponsorship.ValueChanged
+		If CBool(e.NewValue) Then
+			'checked
+			_prospectSponsorship = True
+			'prospect sponsorship uses USR_NEWPROSPECTSPONSORSHIPINTERACTIONTYPECODE
+			Me.INTERACTIONTYPECODEID.CodeTableName = "USR_NEWPROSPECTSPONSORSHIPINTERACTIONTYPECODE"
+			Me.INTERACTIONTYPECODEID.Value = Nothing
+			'turn off payment fields:
+			TurnPaymentFieldsOnOff(False)
+		Else
+			'unchecked
+			_prospectSponsorship = False
+			'regular sponsorship uses USR_NEWSPONSORSHIPINTERACTIONTYPECODE
+			Me.INTERACTIONTYPECODEID.CodeTableName = "USR_NEWSPONSORSHIPINTERACTIONTYPECODE"
+			Me.INTERACTIONTYPECODEID.Value = Nothing
+			'turn on payment fields:
+			TurnPaymentFieldsOnOff(True)
+		End If
+
+		'revalidate the selected sponsor if there is one
+		If e.OldValue <> e.NewValue Then
+			If Me.SPONSORSHIPCONSTITUENTID.HasValue AndAlso (Not Me.SPONSORSHIPCONSTITUENTID.Equals(Guid.Empty)) Then
+				ValidateSponsorConstituency(Me.SPONSORSHIPCONSTITUENTID.Value)
+			End If
+		End If
+
+		'set the Interaction code table dropdown to the correct codetable:
+		Me.INTERACTIONTYPECODEID.ResetDataSource()
 	End Sub
 
 	Private Sub ValidateSponsorConstituency(ByVal constituentId As Guid)
@@ -1897,19 +2083,33 @@ Public Class ProspectSponsorshipAddDataFormUIModel
 		'check this constituent's constituency code based on the prospect sponsorship flag:
 		'if this is a prospect sponsorship, then check for a constituency code of 'Sponsor'
 		'if this is a regular sponsorship, then check for a constituency code of 'Prospect Sponsor'
-		Dim constituencyCode As String = "Sponsor"
+		Dim constituencyCode As String = String.Empty
 		_isValidSponsorship = True
+
+		If _prospectSponsorship Then
+			constituencyCode = "Sponsor"
+		Else
+			constituencyCode = "Prospect Sponsor"
+		End If
 
 		_isValidSponsorship = _sponsorshipHelper.ValidateSponsorConstituency(constituentId, constituencyCode, _securityContext, Me.GetRequestContext())
 
 		If Not _isValidSponsorship Then
 			'inform the user
 			Dim message As String
-			message = "The selected sponsor has a Constituency code of 'Sponsor'! Please select a different Sponsor."
+			If _prospectSponsorship Then
+				message = "The selected sponsor has a Constituency code of 'Sponsor' but you have selected a Prospect Sponsorship! Either uncheck the Prospect Sponsorship or select a different Sponsor."
+			Else
+				message = "The selected sponsor has a Constituency code of 'Prospect Sponsor' but you have not selected a Prospect Sponsorship! Either check the Prospect Sponsorship or select a different Sponsor."
+			End If
 
 			DisplayErrorMessage(message)
 		End If
 
+	End Sub
+
+	Private Sub _appealid_SearchItemSelected(ByVal sender As Object, ByVal e As Blackbaud.AppFx.UIModeling.Core.SearchItemSelectedEventArgs) Handles _appealid.SearchItemSelected
+		PopulateFundraiserFromAppeal(e.SelectedId)
 	End Sub
 
 	Private Sub PopulateFundraiserFromAppeal(ByVal appealId As String)
@@ -1926,5 +2126,7 @@ Public Class ProspectSponsorshipAddDataFormUIModel
 		End If
 
 	End Sub
+
+
 
 End Class

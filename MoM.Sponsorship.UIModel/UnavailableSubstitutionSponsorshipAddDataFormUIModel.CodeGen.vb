@@ -12,18 +12,18 @@ Option Infer On
 ' </auto-generated>
 '------------------------------------------------------------------------------
 ''' <summary>
-''' Represents the UI model for the 'Sponsorship Add Form (Wrapped)' data form
+''' Represents the UI model for the 'Unavailable Substitution Sponsorship Add Data Form' data form
 ''' </summary>
-<Global.Blackbaud.AppFx.UIModeling.Core.DataFormUIModelMetadata(Global.Blackbaud.AppFx.UIModeling.Core.DataFormMode.Add, "32ce36c3-3881-4b80-b7a9-94eef6a58cb7", "bd01386b-95f1-47d4-aab5-49822ed9126f", "Sponsorship", "SPAddASponsorshipScr.html")> _
-Partial Public Class [SponsorshipAddFormWrappedUIModel]
-    Inherits Global.Blackbaud.AppFx.UIModeling.Core.DataFormUIModel
+<Global.Blackbaud.AppFx.UIModeling.Core.DataFormUIModelMetadata(Global.Blackbaud.AppFx.UIModeling.Core.DataFormMode.Add, "0d1fc2df-5be4-47cd-a86c-fb1030eb52d9", "58bb4565-dd08-4e06-a29c-904188103f25", "Sponsorship")> _
+Partial Public Class [UnavailableSubstitutionSponsorshipAddDataFormUIModel]
+	Inherits Global.Blackbaud.AppFx.UIModeling.Core.DataFormUIModel
 
 #Region "Enums"
 
     ''' <summary>
     ''' Enumerated values for use with the GENDERCODE property
     ''' </summary>
-    <System.CodeDom.Compiler.GeneratedCodeAttribute("BBUIModelLibrary", "2.93.2034.0")> _
+	<System.CodeDom.Compiler.GeneratedCodeAttribute("BBUIModelLibrary", "2.93.2034.0")> _
     Public Enum GENDERCODES As Integer
         [Male] = 1
         [Female] = 2
@@ -32,7 +32,7 @@ Partial Public Class [SponsorshipAddFormWrappedUIModel]
     ''' <summary>
     ''' Enumerated values for use with the ISHIVPOSITIVECODE property
     ''' </summary>
-    <System.CodeDom.Compiler.GeneratedCodeAttribute("BBUIModelLibrary", "2.93.2034.0")> _
+	<System.CodeDom.Compiler.GeneratedCodeAttribute("BBUIModelLibrary", "2.93.2034.0")> _
     Public Enum ISHIVPOSITIVECODES As Integer
         [Yes] = 1
         [No] = 2
@@ -41,7 +41,7 @@ Partial Public Class [SponsorshipAddFormWrappedUIModel]
     ''' <summary>
     ''' Enumerated values for use with the HASCONDITIONCODE property
     ''' </summary>
-    <System.CodeDom.Compiler.GeneratedCodeAttribute("BBUIModelLibrary", "2.93.2034.0")> _
+	<System.CodeDom.Compiler.GeneratedCodeAttribute("BBUIModelLibrary", "2.93.2034.0")> _
     Public Enum HASCONDITIONCODES As Integer
         [Yes] = 1
         [No] = 2
@@ -50,7 +50,7 @@ Partial Public Class [SponsorshipAddFormWrappedUIModel]
     ''' <summary>
     ''' Enumerated values for use with the ISORPHANEDCODE property
     ''' </summary>
-    <System.CodeDom.Compiler.GeneratedCodeAttribute("BBUIModelLibrary", "2.93.2034.0")> _
+	<System.CodeDom.Compiler.GeneratedCodeAttribute("BBUIModelLibrary", "2.93.2034.0")> _
     Public Enum ISORPHANEDCODES As Integer
         [Yes] = 1
         [No] = 2
@@ -59,7 +59,7 @@ Partial Public Class [SponsorshipAddFormWrappedUIModel]
     ''' <summary>
     ''' Enumerated values for use with the PAYMENTMETHODCODE property
     ''' </summary>
-    <System.CodeDom.Compiler.GeneratedCodeAttribute("BBUIModelLibrary", "2.93.2034.0")> _
+	<System.CodeDom.Compiler.GeneratedCodeAttribute("BBUIModelLibrary", "2.93.2034.0")> _
     Public Enum PAYMENTMETHODCODES As Integer
         [CreditCard] = 2
         [DirectDebit] = 3
@@ -68,7 +68,7 @@ Partial Public Class [SponsorshipAddFormWrappedUIModel]
     ''' <summary>
     ''' Enumerated values for use with the FREQUENCYCODE property
     ''' </summary>
-    <System.CodeDom.Compiler.GeneratedCodeAttribute("BBUIModelLibrary", "2.93.2034.0")> _
+	<System.CodeDom.Compiler.GeneratedCodeAttribute("BBUIModelLibrary", "2.93.2034.0")> _
     Public Enum FREQUENCYCODES As Integer
         [Annually] = 0
         [SemiAnnually] = 1
@@ -83,7 +83,7 @@ Partial Public Class [SponsorshipAddFormWrappedUIModel]
     ''' <summary>
     ''' Enumerated values for use with the SELECTOPPORTUNITYID property
     ''' </summary>
-    <System.CodeDom.Compiler.GeneratedCodeAttribute("BBUIModelLibrary", "2.93.2034.0")> _
+	<System.CodeDom.Compiler.GeneratedCodeAttribute("BBUIModelLibrary", "2.93.2034.0")> _
     Public Enum SELECTOPPORTUNITYIDS As Integer
         [ChooseASpecificOpportunity] = 0
         [ChooseAReservedOpportunity] = 1
@@ -100,13 +100,12 @@ Partial Public Class [SponsorshipAddFormWrappedUIModel]
 #End Region
 
     Private WithEvents _formtitle As Global.Blackbaud.AppFx.UIModeling.Core.StringField
-	Private WithEvents _revenueconstituentid As Global.Blackbaud.AppFx.UIModeling.Core.SearchListField(Of Guid)
-	Private WithEvents _pfmid As Global.Blackbaud.AppFx.UIModeling.Core.SearchListField(Of Guid)
+    Private WithEvents _revenueconstituentid As Global.Blackbaud.AppFx.UIModeling.Core.SearchListField(Of Guid)
     Private WithEvents _giftrecipient As Global.Blackbaud.AppFx.UIModeling.Core.BooleanField
     Private WithEvents _sponsorshipconstituentid As Global.Blackbaud.AppFx.UIModeling.Core.SearchListField(Of Guid)
     Private WithEvents _sponsorshipreasonid As Global.Blackbaud.AppFx.UIModeling.Core.SimpleDataListField(Of Guid)
     Private WithEvents _sponsorshipprogramid As Global.Blackbaud.AppFx.UIModeling.Core.SimpleDataListField(Of Guid)
-    Private WithEvents _children As Global.Blackbaud.AppFx.UIModeling.Core.CollectionField(Of SponsorshipAddFormWrappedCHILDRENUIModel)
+    Private WithEvents _children As Global.Blackbaud.AppFx.UIModeling.Core.CollectionField(Of UnavailableSubstitutionSponsorshipAddDataFormCHILDRENUIModel)
     Private WithEvents _plannedenddate As Global.Blackbaud.AppFx.UIModeling.Core.DateField
     Private WithEvents _sponsorshiplocationid As Global.Blackbaud.AppFx.UIModeling.Core.SearchListField(Of Guid)
     Private WithEvents _sproppagerangeid As Global.Blackbaud.AppFx.UIModeling.Core.SimpleDataListField(Of Guid)
@@ -115,13 +114,14 @@ Partial Public Class [SponsorshipAddFormWrappedUIModel]
     Private WithEvents _hasconditioncode As Global.Blackbaud.AppFx.UIModeling.Core.ValueListField(Of Nullable(Of HASCONDITIONCODES))
     Private WithEvents _isorphanedcode As Global.Blackbaud.AppFx.UIModeling.Core.ValueListField(Of Nullable(Of ISORPHANEDCODES))
     Private WithEvents _sproppprojectcategorycodeid As Global.Blackbaud.AppFx.UIModeling.Core.CodeTableField
+    Private WithEvents _substitutechildid As Global.Blackbaud.AppFx.UIModeling.Core.SearchListField(Of Guid)
     Private WithEvents _sponsorshipopportunityidchild As Global.Blackbaud.AppFx.UIModeling.Core.SearchListField(Of Guid)
     Private WithEvents _sponsorshipopportunityidproject As Global.Blackbaud.AppFx.UIModeling.Core.SearchListField(Of Guid)
     Private WithEvents _issolesponsorship As Global.Blackbaud.AppFx.UIModeling.Core.BooleanField
     Private WithEvents _startdate As Global.Blackbaud.AppFx.UIModeling.Core.DateField
     Private WithEvents _amount As Global.Blackbaud.AppFx.UIModeling.Core.MoneyField
     Private WithEvents _autopay As Global.Blackbaud.AppFx.UIModeling.Core.BooleanField
-    Private WithEvents _paymentmethodcode As Global.Blackbaud.AppFx.UIModeling.Core.ValueListField(Of PAYMENTMETHODCODES)
+    Private WithEvents _paymentmethodcode As Global.Blackbaud.AppFx.UIModeling.Core.ValueListField(Of Nullable(Of PAYMENTMETHODCODES))
     Private WithEvents _constituentaccountid As Global.Blackbaud.AppFx.UIModeling.Core.SimpleDataListField(Of Guid)
     Private WithEvents _constituentaccountidaddaccountaction As Global.Blackbaud.AppFx.UIModeling.Core.ShowAddFormUIAction
     Private WithEvents _referencenumber As Global.Blackbaud.AppFx.UIModeling.Core.StringField
@@ -156,8 +156,11 @@ Partial Public Class [SponsorshipAddFormWrappedUIModel]
     Private WithEvents _batchnumber As Global.Blackbaud.AppFx.UIModeling.Core.StringField
     Private WithEvents _revenuedevelopmentfunctioncodeid As Global.Blackbaud.AppFx.UIModeling.Core.CodeTableField
     Private WithEvents _donotacknowledge As Global.Blackbaud.AppFx.UIModeling.Core.BooleanField
+    Private WithEvents _pfmid As Global.Blackbaud.AppFx.UIModeling.Core.SearchListField(Of Guid)
+    Private WithEvents _interactiontypecodeid As Global.Blackbaud.AppFx.UIModeling.Core.CodeTableField
     Private WithEvents _selectopportunityid As Global.Blackbaud.AppFx.UIModeling.Core.ValueListField(Of Nullable(Of SELECTOPPORTUNITYIDS))
-    Private WithEvents _isfixedtermsponsorship As Global.Blackbaud.AppFx.UIModeling.Core.BooleanField
+	Private WithEvents _isfixedtermsponsorship As Global.Blackbaud.AppFx.UIModeling.Core.BooleanField
+	Private WithEvents _isprospectsponsorship As Global.Blackbaud.AppFx.UIModeling.Core.BooleanField
     Private WithEvents _rgschedule As Global.Blackbaud.AppFx.UIModeling.Core.XMLField
     Private WithEvents _mopportunityname As Global.Blackbaud.AppFx.UIModeling.Core.StringField
     Private WithEvents _mopportunitylocation As Global.Blackbaud.AppFx.UIModeling.Core.StringField
@@ -167,7 +170,7 @@ Partial Public Class [SponsorshipAddFormWrappedUIModel]
     Private WithEvents _mopportunityimage As Global.Blackbaud.AppFx.UIModeling.Core.StringField
     Private WithEvents _findernumberstring As Global.Blackbaud.AppFx.UIModeling.Core.StringField
     Private WithEvents _invalidfindernumberimage As Global.Blackbaud.AppFx.UIModeling.Core.StringField
-    Private WithEvents _installments As Global.Blackbaud.AppFx.UIModeling.Core.CollectionField(Of SponsorshipAddFormWrappedINSTALLMENTSUIModel)
+    Private WithEvents _installments As Global.Blackbaud.AppFx.UIModeling.Core.CollectionField(Of UnavailableSubstitutionSponsorshipAddDataFormINSTALLMENTSUIModel)
     Private WithEvents _generalinformation As Global.Blackbaud.AppFx.UIModeling.Core.GroupField
     Private WithEvents _sponsorshipopportunity As Global.Blackbaud.AppFx.UIModeling.Core.GroupField
     Private WithEvents _paymentschedule As Global.Blackbaud.AppFx.UIModeling.Core.GroupField
@@ -176,28 +179,25 @@ Partial Public Class [SponsorshipAddFormWrappedUIModel]
     Private WithEvents _tabsponsorship As Global.Blackbaud.AppFx.UIModeling.Core.TabField
     Private WithEvents _tabpayment As Global.Blackbaud.AppFx.UIModeling.Core.TabField
     Private WithEvents _tabexpiration As Global.Blackbaud.AppFx.UIModeling.Core.TabField
-    Private WithEvents _findopportunity As Global.Blackbaud.AppFx.UIModeling.Core.GenericUIAction
-    Private WithEvents _removeselectedchild As Global.Blackbaud.AppFx.UIModeling.Core.GenericUIAction
-    Private WithEvents _addselectedchild As Global.Blackbaud.AppFx.UIModeling.Core.GenericUIAction
+	Private WithEvents _findopportunity As Global.Blackbaud.AppFx.UIModeling.Core.GenericUIAction
+	Private WithEvents _removeselectedchild As Global.Blackbaud.AppFx.UIModeling.Core.GenericUIAction
+	Private WithEvents _addselectedchild As Global.Blackbaud.AppFx.UIModeling.Core.GenericUIAction
+    Private WithEvents _clearsearchaction As Global.Blackbaud.AppFx.UIModeling.Core.GenericUIAction
     Private WithEvents _sourcecodelookup As Global.Blackbaud.AppFx.UIModeling.Core.ShowSearchFormUIAction
 	Private WithEvents _currencyaction As Global.Blackbaud.AppFx.UIModeling.Core.ShowCustomFormUIAction
-	Private WithEvents _clearsearchaction As Global.Blackbaud.AppFx.UIModeling.Core.GenericUIAction
-	Private WithEvents _interactiontypecodeid As Global.Blackbaud.AppFx.UIModeling.Core.CodeTableField
 	Private WithEvents _fundraiserid As Global.Blackbaud.AppFx.UIModeling.Core.SearchListField(Of Guid)
 
-
-    <System.CodeDom.Compiler.GeneratedCodeAttribute("BBUIModelLibrary", "2.93.2034.0")> _
+	<System.CodeDom.Compiler.GeneratedCodeAttribute("BBUIModelLibrary", "2.93.2034.0")> _
     Public Sub New()
         MyBase.New()
 
         _formtitle = New Global.Blackbaud.AppFx.UIModeling.Core.StringField
-		_revenueconstituentid = New Global.Blackbaud.AppFx.UIModeling.Core.SearchListField(Of Guid)
-		_pfmid = New Global.Blackbaud.AppFx.UIModeling.Core.SearchListField(Of Guid)
+        _revenueconstituentid = New Global.Blackbaud.AppFx.UIModeling.Core.SearchListField(Of Guid)
         _giftrecipient = New Global.Blackbaud.AppFx.UIModeling.Core.BooleanField
         _sponsorshipconstituentid = New Global.Blackbaud.AppFx.UIModeling.Core.SearchListField(Of Guid)
         _sponsorshipreasonid = New Global.Blackbaud.AppFx.UIModeling.Core.SimpleDataListField(Of Guid)
         _sponsorshipprogramid = New Global.Blackbaud.AppFx.UIModeling.Core.SimpleDataListField(Of Guid)
-        _children = New Global.Blackbaud.AppFx.UIModeling.Core.CollectionField(Of SponsorshipAddFormWrappedCHILDRENUIModel)
+        _children = New Global.Blackbaud.AppFx.UIModeling.Core.CollectionField(Of UnavailableSubstitutionSponsorshipAddDataFormCHILDRENUIModel)
         _plannedenddate = New Global.Blackbaud.AppFx.UIModeling.Core.DateField
         _sponsorshiplocationid = New Global.Blackbaud.AppFx.UIModeling.Core.SearchListField(Of Guid)
         _sproppagerangeid = New Global.Blackbaud.AppFx.UIModeling.Core.SimpleDataListField(Of Guid)
@@ -206,13 +206,14 @@ Partial Public Class [SponsorshipAddFormWrappedUIModel]
         _hasconditioncode = New Global.Blackbaud.AppFx.UIModeling.Core.ValueListField(Of Nullable(Of HASCONDITIONCODES))
         _isorphanedcode = New Global.Blackbaud.AppFx.UIModeling.Core.ValueListField(Of Nullable(Of ISORPHANEDCODES))
         _sproppprojectcategorycodeid = New Global.Blackbaud.AppFx.UIModeling.Core.CodeTableField
+        _substitutechildid = New Global.Blackbaud.AppFx.UIModeling.Core.SearchListField(Of Guid)
         _sponsorshipopportunityidchild = New Global.Blackbaud.AppFx.UIModeling.Core.SearchListField(Of Guid)
         _sponsorshipopportunityidproject = New Global.Blackbaud.AppFx.UIModeling.Core.SearchListField(Of Guid)
         _issolesponsorship = New Global.Blackbaud.AppFx.UIModeling.Core.BooleanField
         _startdate = New Global.Blackbaud.AppFx.UIModeling.Core.DateField
         _amount = New Global.Blackbaud.AppFx.UIModeling.Core.MoneyField
         _autopay = New Global.Blackbaud.AppFx.UIModeling.Core.BooleanField
-        _paymentmethodcode = New Global.Blackbaud.AppFx.UIModeling.Core.ValueListField(Of PAYMENTMETHODCODES)
+        _paymentmethodcode = New Global.Blackbaud.AppFx.UIModeling.Core.ValueListField(Of Nullable(Of PAYMENTMETHODCODES))
         _constituentaccountid = New Global.Blackbaud.AppFx.UIModeling.Core.SimpleDataListField(Of Guid)
         _constituentaccountidaddaccountaction = New Global.Blackbaud.AppFx.UIModeling.Core.ShowAddFormUIAction
         _referencenumber = New Global.Blackbaud.AppFx.UIModeling.Core.StringField
@@ -247,8 +248,11 @@ Partial Public Class [SponsorshipAddFormWrappedUIModel]
         _batchnumber = New Global.Blackbaud.AppFx.UIModeling.Core.StringField
         _revenuedevelopmentfunctioncodeid = New Global.Blackbaud.AppFx.UIModeling.Core.CodeTableField
         _donotacknowledge = New Global.Blackbaud.AppFx.UIModeling.Core.BooleanField
+        _pfmid = New Global.Blackbaud.AppFx.UIModeling.Core.SearchListField(Of Guid)
+        _interactiontypecodeid = New Global.Blackbaud.AppFx.UIModeling.Core.CodeTableField
         _selectopportunityid = New Global.Blackbaud.AppFx.UIModeling.Core.ValueListField(Of Nullable(Of SELECTOPPORTUNITYIDS))
-        _isfixedtermsponsorship = New Global.Blackbaud.AppFx.UIModeling.Core.BooleanField
+		_isfixedtermsponsorship = New Global.Blackbaud.AppFx.UIModeling.Core.BooleanField
+		_isprospectsponsorship = New Global.Blackbaud.AppFx.UIModeling.Core.BooleanField
         _rgschedule = New Global.Blackbaud.AppFx.UIModeling.Core.XMLField
         _mopportunityname = New Global.Blackbaud.AppFx.UIModeling.Core.StringField
         _mopportunitylocation = New Global.Blackbaud.AppFx.UIModeling.Core.StringField
@@ -258,7 +262,7 @@ Partial Public Class [SponsorshipAddFormWrappedUIModel]
         _mopportunityimage = New Global.Blackbaud.AppFx.UIModeling.Core.StringField
         _findernumberstring = New Global.Blackbaud.AppFx.UIModeling.Core.StringField
         _invalidfindernumberimage = New Global.Blackbaud.AppFx.UIModeling.Core.StringField
-        _installments = New Global.Blackbaud.AppFx.UIModeling.Core.CollectionField(Of SponsorshipAddFormWrappedINSTALLMENTSUIModel)
+        _installments = New Global.Blackbaud.AppFx.UIModeling.Core.CollectionField(Of UnavailableSubstitutionSponsorshipAddDataFormINSTALLMENTSUIModel)
         _generalinformation = New Global.Blackbaud.AppFx.UIModeling.Core.GroupField
         _sponsorshipopportunity = New Global.Blackbaud.AppFx.UIModeling.Core.GroupField
         _paymentschedule = New Global.Blackbaud.AppFx.UIModeling.Core.GroupField
@@ -267,23 +271,20 @@ Partial Public Class [SponsorshipAddFormWrappedUIModel]
         _tabsponsorship = New Global.Blackbaud.AppFx.UIModeling.Core.TabField
         _tabpayment = New Global.Blackbaud.AppFx.UIModeling.Core.TabField
         _tabexpiration = New Global.Blackbaud.AppFx.UIModeling.Core.TabField
-        _findopportunity = New Global.Blackbaud.AppFx.UIModeling.Core.GenericUIAction
-        _removeselectedchild = New Global.Blackbaud.AppFx.UIModeling.Core.GenericUIAction
-        _addselectedchild = New Global.Blackbaud.AppFx.UIModeling.Core.GenericUIAction
+		_findopportunity = New Global.Blackbaud.AppFx.UIModeling.Core.GenericUIAction
+		_clearsearchaction = New Global.Blackbaud.AppFx.UIModeling.Core.GenericUIAction
+		_removeselectedchild = New Global.Blackbaud.AppFx.UIModeling.Core.GenericUIAction
+		_addselectedchild = New Global.Blackbaud.AppFx.UIModeling.Core.GenericUIAction
         _sourcecodelookup = New Global.Blackbaud.AppFx.UIModeling.Core.ShowSearchFormUIAction
 		_currencyaction = New Global.Blackbaud.AppFx.UIModeling.Core.ShowCustomFormUIAction
-		_clearsearchaction = New Global.Blackbaud.AppFx.UIModeling.Core.GenericUIAction
-		_interactiontypecodeid = New Global.Blackbaud.AppFx.UIModeling.Core.CodeTableField
 		_fundraiserid = New Global.Blackbaud.AppFx.UIModeling.Core.SearchListField(Of Guid)
 
         MyBase.Mode = Global.Blackbaud.AppFx.UIModeling.Core.DataFormMode.Add
-        MyBase.DataFormTemplateId = New Guid("32ce36c3-3881-4b80-b7a9-94eef6a58cb7")
-        MyBase.DataFormInstanceId = New Guid("bd01386b-95f1-47d4-aab5-49822ed9126f")
+        MyBase.DataFormTemplateId = New Guid("0d1fc2df-5be4-47cd-a86c-fb1030eb52d9")
+        MyBase.DataFormInstanceId = New Guid("58bb4565-dd08-4e06-a29c-904188103f25")
         MyBase.RecordType = "Sponsorship"
-        MyBase.HelpKey = "SPAddASponsorshipScr.html"
         MyBase.FixedDialog = True
-        MyBase.FORMHEADER.Value = "Add a sponsorship"
-        MyBase.UserInterfaceUrl = "browser/htmlforms/custom/SponsorshipAddFormWrapped.html"
+		MyBase.UserInterfaceUrl = "browser/htmlforms/custom/UnavailableSubstitutionSponsorship.AddDataForm.html"
 
         '
         '_formtitle
@@ -307,39 +308,7 @@ Partial Public Class [SponsorshipAddFormWrappedUIModel]
         _revenueconstituentid.SearchListAddForms.Add(New Global.Blackbaud.AppFx.UIModeling.Core.SearchListAddForm(New Guid("0706d187-af1a-4bd6-8365-8fb7419e5600"), "Organization"))
         _revenueconstituentid.SearchFieldOverrides.Add(New Global.Blackbaud.AppFx.UIModeling.Core.FieldOverride() With {.FieldId = "INCLUDENONCONSTITUENTRECORDS", .Hidden = True, .DefaultValueText = "true"})
         _revenueconstituentid.SearchFieldOverrides.Add(New Global.Blackbaud.AppFx.UIModeling.Core.FieldOverride() With {.FieldId = "FORMHEADER", .DefaultValueText = "Record Search"})
-		Me.Fields.Add(_revenueconstituentid)
-		'
-		'_pfmid
-		'
-		_pfmid.Name = "PFMID"
-		_pfmid.Caption = "PFM"
-		_pfmid.Required = False
-		_pfmid.SearchListId = New Guid("a00235ec-b143-4f50-ad74-4c653d605cdf")
-		_pfmid.EnableQuickFind = True
-		'_pfmid.SearchListAddForms.Add(New Global.Blackbaud.AppFx.UIModeling.Core.SearchListAddForm(New Guid("6949e415-6cd0-4af5-be9f-acebd318f478"), "Individual"))
-		'_pfmid.SearchListAddForms.Add(New Global.Blackbaud.AppFx.UIModeling.Core.SearchListAddForm(New Guid("d846a816-46c7-470e-9ad0-973b2730e836"), "Household"))
-		'_pfmid.SearchListAddForms.Add(New Global.Blackbaud.AppFx.UIModeling.Core.SearchListAddForm(New Guid("f0f6426a-fccd-48bb-846b-eb3d1a4a0ed4"), "Group"))
-		'_pfmid.SearchListAddForms.Add(New Global.Blackbaud.AppFx.UIModeling.Core.SearchListAddForm(New Guid("0706d187-af1a-4bd6-8365-8fb7419e5600"), "Organization"))
-		'_pfmid.SearchFieldOverrides.Add(New Global.Blackbaud.AppFx.UIModeling.Core.FieldOverride() With {.FieldId = "INCLUDENONCONSTITUENTRECORDS", .Hidden = True, .DefaultValueText = "true"})
-		_pfmid.SearchFieldOverrides.Add(New Global.Blackbaud.AppFx.UIModeling.Core.FieldOverride() With {.FieldId = "FORMHEADER", .DefaultValueText = "Partnership For Mercy Record Search"})
-		Me.Fields.Add(_pfmid)
-		'
-		'_fundraiserid
-		'
-		_fundraiserid.Name = "FUNDRAISERID"
-		_fundraiserid.Caption = "Fundraiser"
-		_fundraiserid.SearchListId = New Guid("c588bc58-68de-4a57-ba4e-cfa45c601b71")
-		_fundraiserid.SearchFieldOverrides.Add(New Global.Blackbaud.AppFx.UIModeling.Core.FieldOverride() With {.FieldId = "FORMHEADER", .DefaultValueText = "Fundraiser Search"})
-		'_fundraiserid.SearchFieldOverrides.Add(New Global.Blackbaud.AppFx.UIModeling.Core.FieldOverride() With {.FieldId = "SPONSORSHIPPROGRAMID", .DefaultValueText = "Fields!SPONSORSHIPPROGRAMID"})
-		'_fundraiserid.SearchFieldOverrides.Add(New Global.Blackbaud.AppFx.UIModeling.Core.FieldOverride() With {.FieldId = "ELIGIBILITYCODE", .DefaultValueText = "1"})
-		'_fundraiserid.SearchFieldOverrides.Add(New Global.Blackbaud.AppFx.UIModeling.Core.FieldOverride() With {.FieldId = "AVAILABILITYCODE", .DefaultValueText = "1"})
-		'_fundraiserid.SearchFieldOverrides.Add(New Global.Blackbaud.AppFx.UIModeling.Core.FieldOverride() With {.FieldId = "RESTRICTFORSOLESPONSORSHIP", .Caption = "Only include unsponsored", .DefaultValueText = "True"})
-		'_fundraiserid.SearchFieldOverrides.Add(New Global.Blackbaud.AppFx.UIModeling.Core.FieldOverride() With {.FieldId = "SPONSORSHIPOPPORTUNITYGROUPID"})
-		'_fundraiserid.SearchFieldOverrides.Add(New Global.Blackbaud.AppFx.UIModeling.Core.FieldOverride() With {.FieldId = "RESERVATIONKEYID"})
-		'_fundraiserid.SearchFieldOverrides.Add(New Global.Blackbaud.AppFx.UIModeling.Core.FieldOverride() With {.FieldId = "CORRESPONDINGSPONSORID", .Hidden = True, .DefaultValueText = "Fields!SPONSORSHIPCONSTITUENTID"})
-		'_fundraiserid.SearchFieldOverrides.Add(New Global.Blackbaud.AppFx.UIModeling.Core.FieldOverride() With {.FieldId = "FINANCIALSPONSORID", .Hidden = True, .DefaultValueText = "Fields!REVENUECONSTITUENTID"})
-		Me.Fields.Add(_fundraiserid)
-
+        Me.Fields.Add(_revenueconstituentid)
         '
         '_giftrecipient
         '
@@ -382,8 +351,10 @@ Partial Public Class [SponsorshipAddFormWrappedUIModel]
         '
         '_children
         '
-        _children.Name = "CHILDREN"
-        _children.Caption = "Children"
+		_children.Name = "CHILDREN"
+		_children.AllowAdd = True
+		_children.AllowDelete = True
+		_children.Caption = "Unavailable and Transfer Children"
         Me.Fields.Add(_children)
         '
         '_plannedenddate
@@ -448,28 +419,35 @@ Partial Public Class [SponsorshipAddFormWrappedUIModel]
         _sproppprojectcategorycodeid.CodeTableName = "SPROPPPROJECTCATEGORYCODE"
         Me.Fields.Add(_sproppprojectcategorycodeid)
         '
+        '_substitutechildid
+        '
+        _substitutechildid.Name = "SUBSTITUTECHILDID"
+		_substitutechildid.Caption = "Transfer Child"
+        _substitutechildid.SearchListID = New Guid("f9183b88-9f54-40de-848e-c8fbacf92e79")
+        _substitutechildid.SearchFieldOverrides.Add(New Global.Blackbaud.AppFx.UIModeling.Core.FieldOverride() With {.FieldId = "SPONSORSHIPPROGRAMID", .DefaultValueText = "Fields!SPONSORSHIPPROGRAMID"})
+        _substitutechildid.SearchFieldOverrides.Add(New Global.Blackbaud.AppFx.UIModeling.Core.FieldOverride() With {.FieldId = "ELIGIBILITYCODE", .DefaultValueText = "1"})
+        _substitutechildid.SearchFieldOverrides.Add(New Global.Blackbaud.AppFx.UIModeling.Core.FieldOverride() With {.FieldId = "AVAILABILITYCODE", .DefaultValueText = "1"})
+        _substitutechildid.SearchFieldOverrides.Add(New Global.Blackbaud.AppFx.UIModeling.Core.FieldOverride() With {.FieldId = "RESTRICTFORSOLESPONSORSHIP", .Caption = "Only include unsponsored", .DefaultValueText = "True"})
+        _substitutechildid.SearchFieldOverrides.Add(New Global.Blackbaud.AppFx.UIModeling.Core.FieldOverride() With {.FieldId = "SPONSORSHIPOPPORTUNITYGROUPID"})
+        _substitutechildid.SearchFieldOverrides.Add(New Global.Blackbaud.AppFx.UIModeling.Core.FieldOverride() With {.FieldId = "RESERVATIONKEYID"})
+        _substitutechildid.SearchFieldOverrides.Add(New Global.Blackbaud.AppFx.UIModeling.Core.FieldOverride() With {.FieldId = "CORRESPONDINGSPONSORID", .Hidden = True, .DefaultValueText = "Fields!SPONSORSHIPCONSTITUENTID"})
+        _substitutechildid.SearchFieldOverrides.Add(New Global.Blackbaud.AppFx.UIModeling.Core.FieldOverride() With {.FieldId = "FINANCIALSPONSORID", .Hidden = True, .DefaultValueText = "Fields!REVENUECONSTITUENTID"})
+        Me.Fields.Add(_substitutechildid)
+        '
         '_sponsorshipopportunityidchild
         '
         _sponsorshipopportunityidchild.Name = "SPONSORSHIPOPPORTUNITYIDCHILD"
-        _sponsorshipopportunityidchild.Caption = "Child"
-        'we're now calling our own custom child search form with ID=f9183b88-9f54-40de-848e-c8fbacf92e79
-        _sponsorshipopportunityidchild.SearchListId = New Guid("f9183b88-9f54-40de-848e-c8fbacf92e79") ' New Guid("ab076868-114a-4696-afe9-8d590677708c") -- this is the OOB Search form
-        _sponsorshipopportunityidchild.EnableQuickFind = False ' True - changed by Memphis to test
-        _sponsorshipopportunityidchild.SearchFieldOverrides.Add(New Global.Blackbaud.AppFx.UIModeling.Core.FieldOverride() With {.FieldId = "SPONSORSHIPPROGRAMID", .ReadOnly = False, .DefaultValueText = "Fields!SPONSORSHIPPROGRAMID"})
-        _sponsorshipopportunityidchild.SearchFieldOverrides.Add(New Global.Blackbaud.AppFx.UIModeling.Core.FieldOverride() With {.FieldId = "ELIGIBILITYCODE", .ReadOnly = False, .DefaultValueText = "1"})
-        _sponsorshipopportunityidchild.SearchFieldOverrides.Add(New Global.Blackbaud.AppFx.UIModeling.Core.FieldOverride() With {.FieldId = "AVAILABILITYCODE", .ReadOnly = False, .DefaultValueText = "1"})
-        _sponsorshipopportunityidchild.SearchFieldOverrides.Add(New Global.Blackbaud.AppFx.UIModeling.Core.FieldOverride() With {.FieldId = "RESTRICTFORSOLESPONSORSHIP", .Caption = "Only include unsponsored", .DefaultValueText = "True"}) '.DefaultValueText = "Fields!ISSOLESPONSORSHIP"
-        _sponsorshipopportunityidchild.SearchFieldOverrides.Add(New Global.Blackbaud.AppFx.UIModeling.Core.FieldOverride() With {.FieldId = "SPONSORSHIPOPPORTUNITYGROUPID", .ReadOnly = False})
-        _sponsorshipopportunityidchild.SearchFieldOverrides.Add(New Global.Blackbaud.AppFx.UIModeling.Core.FieldOverride() With {.FieldId = "RESERVATIONKEYID", .ReadOnly = False})
+        _sponsorshipopportunityidchild.Caption = "Unavailable Child"
+        _sponsorshipopportunityidchild.SearchListID = New Guid("f9183b88-9f54-40de-848e-c8fbacf92e79")
+        _sponsorshipopportunityidchild.SearchFieldOverrides.Add(New Global.Blackbaud.AppFx.UIModeling.Core.FieldOverride() With {.FieldId = "SPONSORSHIPPROGRAMID", .DefaultValueText = "Fields!SPONSORSHIPPROGRAMID"})
+        _sponsorshipopportunityidchild.SearchFieldOverrides.Add(New Global.Blackbaud.AppFx.UIModeling.Core.FieldOverride() With {.FieldId = "ELIGIBILITYCODE", .DefaultValueText = "1"})
+        _sponsorshipopportunityidchild.SearchFieldOverrides.Add(New Global.Blackbaud.AppFx.UIModeling.Core.FieldOverride() With {.FieldId = "AVAILABILITYCODE", .DefaultValueText = "1"})
+        _sponsorshipopportunityidchild.SearchFieldOverrides.Add(New Global.Blackbaud.AppFx.UIModeling.Core.FieldOverride() With {.FieldId = "RESTRICTFORSOLESPONSORSHIP", .Caption = "Only include unsponsored", .DefaultValueText = "True"})
+        _sponsorshipopportunityidchild.SearchFieldOverrides.Add(New Global.Blackbaud.AppFx.UIModeling.Core.FieldOverride() With {.FieldId = "SPONSORSHIPOPPORTUNITYGROUPID"})
+        _sponsorshipopportunityidchild.SearchFieldOverrides.Add(New Global.Blackbaud.AppFx.UIModeling.Core.FieldOverride() With {.FieldId = "RESERVATIONKEYID"})
         _sponsorshipopportunityidchild.SearchFieldOverrides.Add(New Global.Blackbaud.AppFx.UIModeling.Core.FieldOverride() With {.FieldId = "CORRESPONDINGSPONSORID", .Hidden = True, .DefaultValueText = "Fields!SPONSORSHIPCONSTITUENTID"})
         _sponsorshipopportunityidchild.SearchFieldOverrides.Add(New Global.Blackbaud.AppFx.UIModeling.Core.FieldOverride() With {.FieldId = "FINANCIALSPONSORID", .Hidden = True, .DefaultValueText = "Fields!REVENUECONSTITUENTID"})
         Me.Fields.Add(_sponsorshipopportunityidchild)
-
-        'added by memphis to test:
-        AddHandler _sponsorshipopportunityidchild.Search, AddressOf SearchingForChild
-
-
-
         '
         '_sponsorshipopportunityidproject
         '
@@ -484,7 +462,23 @@ Partial Public Class [SponsorshipAddFormWrappedUIModel]
         _sponsorshipopportunityidproject.SearchFieldOverrides.Add(New Global.Blackbaud.AppFx.UIModeling.Core.FieldOverride() With {.FieldId = "SPONSORSHIPOPPORTUNITYGROUPID", .ReadOnly = True})
         _sponsorshipopportunityidproject.SearchFieldOverrides.Add(New Global.Blackbaud.AppFx.UIModeling.Core.FieldOverride() With {.FieldId = "CORRESPONDINGSPONSORID", .Hidden = True, .DefaultValueText = "Fields!SPONSORSHIPCONSTITUENTID"})
         _sponsorshipopportunityidproject.SearchFieldOverrides.Add(New Global.Blackbaud.AppFx.UIModeling.Core.FieldOverride() With {.FieldId = "FINANCIALSPONSORID", .Hidden = True, .DefaultValueText = "Fields!REVENUECONSTITUENTID"})
-        Me.Fields.Add(_sponsorshipopportunityidproject)
+		Me.Fields.Add(_sponsorshipopportunityidproject)
+		'
+		'_fundraiserid
+		'
+		_fundraiserid.Name = "FUNDRAISERID"
+		_fundraiserid.Caption = "Fundraiser"
+		_fundraiserid.SearchListId = New Guid("c588bc58-68de-4a57-ba4e-cfa45c601b71")
+		_fundraiserid.SearchFieldOverrides.Add(New Global.Blackbaud.AppFx.UIModeling.Core.FieldOverride() With {.FieldId = "FORMHEADER", .DefaultValueText = "Fundraiser Search"})
+		'_fundraiserid.SearchFieldOverrides.Add(New Global.Blackbaud.AppFx.UIModeling.Core.FieldOverride() With {.FieldId = "SPONSORSHIPPROGRAMID", .DefaultValueText = "Fields!SPONSORSHIPPROGRAMID"})
+		'_fundraiserid.SearchFieldOverrides.Add(New Global.Blackbaud.AppFx.UIModeling.Core.FieldOverride() With {.FieldId = "ELIGIBILITYCODE", .DefaultValueText = "1"})
+		'_fundraiserid.SearchFieldOverrides.Add(New Global.Blackbaud.AppFx.UIModeling.Core.FieldOverride() With {.FieldId = "AVAILABILITYCODE", .DefaultValueText = "1"})
+		'_fundraiserid.SearchFieldOverrides.Add(New Global.Blackbaud.AppFx.UIModeling.Core.FieldOverride() With {.FieldId = "RESTRICTFORSOLESPONSORSHIP", .Caption = "Only include unsponsored", .DefaultValueText = "True"})
+		'_fundraiserid.SearchFieldOverrides.Add(New Global.Blackbaud.AppFx.UIModeling.Core.FieldOverride() With {.FieldId = "SPONSORSHIPOPPORTUNITYGROUPID"})
+		'_fundraiserid.SearchFieldOverrides.Add(New Global.Blackbaud.AppFx.UIModeling.Core.FieldOverride() With {.FieldId = "RESERVATIONKEYID"})
+		'_fundraiserid.SearchFieldOverrides.Add(New Global.Blackbaud.AppFx.UIModeling.Core.FieldOverride() With {.FieldId = "CORRESPONDINGSPONSORID", .Hidden = True, .DefaultValueText = "Fields!SPONSORSHIPCONSTITUENTID"})
+		'_fundraiserid.SearchFieldOverrides.Add(New Global.Blackbaud.AppFx.UIModeling.Core.FieldOverride() With {.FieldId = "FINANCIALSPONSORID", .Hidden = True, .DefaultValueText = "Fields!REVENUECONSTITUENTID"})
+		Me.Fields.Add(_fundraiserid)
 
         '
         '_issolesponsorship
@@ -512,17 +506,14 @@ Partial Public Class [SponsorshipAddFormWrappedUIModel]
         '
         _autopay.Name = "AUTOPAY"
         _autopay.Caption = "Pay installments automatically by:"
-        _autopay.Value = True
         Me.Fields.Add(_autopay)
         '
         '_paymentmethodcode
         '
         _paymentmethodcode.Name = "PAYMENTMETHODCODE"
         _paymentmethodcode.Caption = "Payment method"
-        _paymentmethodcode.Required = True
-        _paymentmethodcode.DataSource.Add(New Global.Blackbaud.AppFx.UIModeling.Core.ValueListItem(Of PAYMENTMETHODCODES) With {.Value = PAYMENTMETHODCODES.[CreditCard], .Translation = "Credit card"})
-        _paymentmethodcode.DataSource.Add(New Global.Blackbaud.AppFx.UIModeling.Core.ValueListItem(Of PAYMENTMETHODCODES) With {.Value = PAYMENTMETHODCODES.[DirectDebit], .Translation = "Direct debit"})
-        _paymentmethodcode.Value = PAYMENTMETHODCODES.[CreditCard]
+        _paymentmethodcode.DataSource.Add(New Global.Blackbaud.AppFx.UIModeling.Core.ValueListItem(Of Nullable(Of PAYMENTMETHODCODES)) With {.Value = PAYMENTMETHODCODES.[CreditCard], .Translation = "Credit card"})
+        _paymentmethodcode.DataSource.Add(New Global.Blackbaud.AppFx.UIModeling.Core.ValueListItem(Of Nullable(Of PAYMENTMETHODCODES)) With {.Value = PAYMENTMETHODCODES.[DirectDebit], .Translation = "Direct debit"})
         Me.Fields.Add(_paymentmethodcode)
         '
         '_constituentaccountid
@@ -806,6 +797,22 @@ Partial Public Class [SponsorshipAddFormWrappedUIModel]
         _donotacknowledge.Caption = "Do not acknowledge"
         Me.Fields.Add(_donotacknowledge)
         '
+        '_pfmid
+        '
+        _pfmid.Name = "PFMID"
+        _pfmid.Caption = "PFM"
+        _pfmid.SearchListID = New Guid("a00235ec-b143-4f50-ad74-4c653d605cdf")
+        _pfmid.EnableQuickFind = True
+        Me.Fields.Add(_pfmid)
+        '
+        '_interactiontypecodeid
+        '
+        _interactiontypecodeid.Name = "INTERACTIONTYPECODEID"
+        _interactiontypecodeid.Caption = "Interaction"
+        _interactiontypecodeid.Required = True
+		_interactiontypecodeid.CodeTableName = "USR_NEWSPONSORSHIPINTERACTIONTYPECODE"
+        Me.Fields.Add(_interactiontypecodeid)
+        '
         '_selectopportunityid
         '
         _selectopportunityid.Name = "SELECTOPPORTUNITYID"
@@ -822,7 +829,16 @@ Partial Public Class [SponsorshipAddFormWrappedUIModel]
         _isfixedtermsponsorship.Name = "ISFIXEDTERMSPONSORSHIP"
         _isfixedtermsponsorship.Caption = "This is a fixed-term sponsorship"
         _isfixedtermsponsorship.DBReadOnly = True
-        Me.Fields.Add(_isfixedtermsponsorship)
+		Me.Fields.Add(_isfixedtermsponsorship)
+
+		'
+		'_isprospectsponsorship
+		'
+		_isprospectsponsorship.Name = "ISPROSPECTSPONSORSHIP"
+		_isprospectsponsorship.Caption = "This is a prospect sponsorship"
+		_isprospectsponsorship.DBReadOnly = True
+		Me.Fields.Add(_isprospectsponsorship)
+
         '
         '_rgschedule
         '
@@ -903,9 +919,10 @@ Partial Public Class [SponsorshipAddFormWrappedUIModel]
         _generalinformation.Fields.Add("FINDERNUMBER")
         _generalinformation.Fields.Add("GIFTRECIPIENT")
         _generalinformation.Fields.Add("SPONSORSHIPCONSTITUENTID")
-        _generalinformation.Fields.Add("SPONSORSHIPPROGRAMID")
         _generalinformation.Fields.Add("STARTDATE")
         _generalinformation.Fields.Add("SPONSORSHIPREASONID")
+        _generalinformation.Fields.Add("PFMID")
+        _generalinformation.Fields.Add("INTERACTIONTYPECODEID")
         Me.Fields.Add(_generalinformation)
         '
         '_sponsorshipopportunity
@@ -914,6 +931,8 @@ Partial Public Class [SponsorshipAddFormWrappedUIModel]
         _sponsorshipopportunity.Caption = "Sponsorship Opportunity"
         _sponsorshipopportunity.Fields.Add("CHILDREN")
         _sponsorshipopportunity.Fields.Add("SPONSORSHIPOPPORTUNITYIDCHILD")
+        _sponsorshipopportunity.Fields.Add("SUBSTITUTECHILDID")
+        _sponsorshipopportunity.Fields.Add("SPONSORSHIPPROGRAMID")
         _sponsorshipopportunity.Fields.Add("SPONSORSHIPOPPORTUNITYIDPROJECT")
         _sponsorshipopportunity.Fields.Add("RESERVATIONKEY")
         _sponsorshipopportunity.Fields.Add("RESERVEDOPPORTUNITYIDCHILD")
@@ -984,23 +1003,23 @@ Partial Public Class [SponsorshipAddFormWrappedUIModel]
         _findopportunity.Caption = "Find"
 		Me.Actions.Add(_findopportunity)
 		'
-		'_clearsearchaction
+		'_removeselectedchild
 		'
-		_clearsearchaction.Name = "CLEARSEARCHACTION"
-		_clearsearchaction.Caption = "Clear"
-		Me.Actions.Add(_clearsearchaction)
+		_removeselectedchild.Name = "REMOVESELECTEDCHILD"
+		_removeselectedchild.Caption = "Remove"
+		Me.Actions.Add(_removeselectedchild)
+		'
+		' _addselectedchild 
+		'
+		_addselectedchild.Name = "ADDSELECTEDCHILD"
+		_addselectedchild.Caption = "Add Transfer Child"
+		Me.Actions.Add(_addselectedchild)
         '
-        '_removeselectedchild
+        '_clearsearchaction
         '
-        _removeselectedchild.Name = "REMOVESELECTEDCHILD"
-        _removeselectedchild.Caption = "Remove"
-        Me.Actions.Add(_removeselectedchild)
-        '
-        ' _addselectedchild 
-        '
-        _addselectedchild.Name = "ADDSELECTEDCHILD"
-        _addselectedchild.Caption = "Add Child"
-        Me.Actions.Add(_addselectedchild)
+        _clearsearchaction.Name = "CLEARSEARCHACTION"
+        _clearsearchaction.Caption = "Clear"
+        Me.Actions.Add(_clearsearchaction)
         '
         '_sourcecodelookup
         '
@@ -1021,26 +1040,17 @@ Partial Public Class [SponsorshipAddFormWrappedUIModel]
         _currencyaction.ModelClassName = "Blackbaud.AppFx.Fundraising.UIModel.CurrencyFormUIModel"
         Me.Actions.Add(_currencyaction)
 
-		'
-		'_interactiontypecodeid
-		'
-		_interactiontypecodeid.Name = "INTERACTIONTYPECODEID"
-		_interactiontypecodeid.Caption = "Interaction"
-		_interactiontypecodeid.Required = True
-		_interactiontypecodeid.CodeTableName = "USR_NEWSPONSORSHIPINTERACTIONTYPECODE"
-		Me.Fields.Add(_interactiontypecodeid)
-
-        OnCreated()
+		OnCreated()
 
     End Sub
-
+    
     <System.CodeDom.Compiler.GeneratedCodeAttribute("BBUIModelLibrary", "2.93.2034.0")> _
     Public ReadOnly Property [FORMTITLE]() As Global.Blackbaud.AppFx.UIModeling.Core.StringField
         Get
             Return _formtitle
         End Get
     End Property
-
+    
     ''' <summary>
     ''' Financial sponsor
     ''' </summary>
@@ -1050,20 +1060,8 @@ Partial Public Class [SponsorshipAddFormWrappedUIModel]
         Get
             Return _revenueconstituentid
         End Get
-	End Property
-
-	''' <summary>
-	''' PFM
-	''' </summary>
-	<System.ComponentModel.Description("PFM")> _
-	<System.CodeDom.Compiler.GeneratedCodeAttribute("BBUIModelLibrary", "2.93.2034.0")> _
-	Public ReadOnly Property [PFM]() As Global.Blackbaud.AppFx.UIModeling.Core.SearchListField(Of Guid)
-		Get
-			Return _pfmid
-		End Get
-	End Property
-
-
+    End Property
+    
     ''' <summary>
     ''' Gift
     ''' </summary>
@@ -1074,7 +1072,7 @@ Partial Public Class [SponsorshipAddFormWrappedUIModel]
             Return _giftrecipient
         End Get
     End Property
-
+    
     ''' <summary>
     ''' Corresponding sponsor
     ''' </summary>
@@ -1085,7 +1083,7 @@ Partial Public Class [SponsorshipAddFormWrappedUIModel]
             Return _sponsorshipconstituentid
         End Get
     End Property
-
+    
     ''' <summary>
     ''' Reason
     ''' </summary>
@@ -1096,7 +1094,7 @@ Partial Public Class [SponsorshipAddFormWrappedUIModel]
             Return _sponsorshipreasonid
         End Get
     End Property
-
+    
     ''' <summary>
     ''' Program
     ''' </summary>
@@ -1107,18 +1105,18 @@ Partial Public Class [SponsorshipAddFormWrappedUIModel]
             Return _sponsorshipprogramid
         End Get
     End Property
-
+    
     ''' <summary>
     ''' Children
     ''' </summary>
     <System.ComponentModel.Description("Children")> _
     <System.CodeDom.Compiler.GeneratedCodeAttribute("BBUIModelLibrary", "2.93.2034.0")> _
-    Public ReadOnly Property [CHILDREN]() As Global.Blackbaud.AppFx.UIModeling.Core.CollectionField(Of SponsorshipAddFormWrappedCHILDRENUIModel)
+    Public ReadOnly Property [CHILDREN]() As Global.Blackbaud.AppFx.UIModeling.Core.CollectionField(Of UnavailableSubstitutionSponsorshipAddDataFormCHILDRENUIModel)
         Get
             Return _children
         End Get
     End Property
-
+    
     ''' <summary>
     ''' Expiration date
     ''' </summary>
@@ -1129,7 +1127,7 @@ Partial Public Class [SponsorshipAddFormWrappedUIModel]
             Return _plannedenddate
         End Get
     End Property
-
+    
     ''' <summary>
     ''' Location
     ''' </summary>
@@ -1140,7 +1138,7 @@ Partial Public Class [SponsorshipAddFormWrappedUIModel]
             Return _sponsorshiplocationid
         End Get
     End Property
-
+    
     ''' <summary>
     ''' Age range
     ''' </summary>
@@ -1151,7 +1149,7 @@ Partial Public Class [SponsorshipAddFormWrappedUIModel]
             Return _sproppagerangeid
         End Get
     End Property
-
+    
     ''' <summary>
     ''' Gender
     ''' </summary>
@@ -1162,7 +1160,7 @@ Partial Public Class [SponsorshipAddFormWrappedUIModel]
             Return _gendercode
         End Get
     End Property
-
+    
     ''' <summary>
     ''' HIV positive
     ''' </summary>
@@ -1173,7 +1171,7 @@ Partial Public Class [SponsorshipAddFormWrappedUIModel]
             Return _ishivpositivecode
         End Get
     End Property
-
+    
     ''' <summary>
     ''' Disability/Illness
     ''' </summary>
@@ -1184,7 +1182,7 @@ Partial Public Class [SponsorshipAddFormWrappedUIModel]
             Return _hasconditioncode
         End Get
     End Property
-
+    
     ''' <summary>
     ''' Orphaned
     ''' </summary>
@@ -1195,7 +1193,7 @@ Partial Public Class [SponsorshipAddFormWrappedUIModel]
             Return _isorphanedcode
         End Get
     End Property
-
+    
     ''' <summary>
     ''' Category
     ''' </summary>
@@ -1206,727 +1204,28 @@ Partial Public Class [SponsorshipAddFormWrappedUIModel]
             Return _sproppprojectcategorycodeid
         End Get
     End Property
-
+    
     ''' <summary>
-    ''' Child
+    ''' Substituion Child
     ''' </summary>
-    <System.ComponentModel.Description("Child")> _
+    <System.ComponentModel.Description("Substituion Child")> _
+    <System.CodeDom.Compiler.GeneratedCodeAttribute("BBUIModelLibrary", "2.93.2034.0")> _
+    Public ReadOnly Property [SUBSTITUTECHILDID]() As Global.Blackbaud.AppFx.UIModeling.Core.SearchListField(Of Guid)
+        Get
+            Return _substitutechildid
+        End Get
+    End Property
+    
+    ''' <summary>
+    ''' Unavailable Child
+    ''' </summary>
+    <System.ComponentModel.Description("Unavailable Child")> _
     <System.CodeDom.Compiler.GeneratedCodeAttribute("BBUIModelLibrary", "2.93.2034.0")> _
     Public ReadOnly Property [SPONSORSHIPOPPORTUNITYIDCHILD]() As Global.Blackbaud.AppFx.UIModeling.Core.SearchListField(Of Guid)
         Get
             Return _sponsorshipopportunityidchild
         End Get
     End Property
-
-    ''' <summary>
-    ''' Project
-    ''' </summary>
-    <System.ComponentModel.Description("Project")> _
-    <System.CodeDom.Compiler.GeneratedCodeAttribute("BBUIModelLibrary", "2.93.2034.0")> _
-    Public ReadOnly Property [SPONSORSHIPOPPORTUNITYIDPROJECT]() As Global.Blackbaud.AppFx.UIModeling.Core.SearchListField(Of Guid)
-        Get
-            Return _sponsorshipopportunityidproject
-        End Get
-    End Property
-
-    ''' <summary>
-    ''' Sole sponsorship
-    ''' </summary>
-    <System.ComponentModel.Description("Sole sponsorship")> _
-    <System.CodeDom.Compiler.GeneratedCodeAttribute("BBUIModelLibrary", "2.93.2034.0")> _
-    Public ReadOnly Property [ISSOLESPONSORSHIP]() As Global.Blackbaud.AppFx.UIModeling.Core.BooleanField
-        Get
-            Return _issolesponsorship
-        End Get
-    End Property
-
-    ''' <summary>
-    ''' Start date
-    ''' </summary>
-    <System.ComponentModel.Description("Start date")> _
-    <System.CodeDom.Compiler.GeneratedCodeAttribute("BBUIModelLibrary", "2.93.2034.0")> _
-    Public ReadOnly Property [STARTDATE]() As Global.Blackbaud.AppFx.UIModeling.Core.DateField
-        Get
-            Return _startdate
-        End Get
-    End Property
-
-    ''' <summary>
-    ''' Amount
-    ''' </summary>
-    <System.ComponentModel.Description("Amount")> _
-    <System.CodeDom.Compiler.GeneratedCodeAttribute("BBUIModelLibrary", "2.93.2034.0")> _
-    Public ReadOnly Property [AMOUNT]() As Global.Blackbaud.AppFx.UIModeling.Core.MoneyField
-        Get
-            Return _amount
-        End Get
-    End Property
-
-    ''' <summary>
-    ''' Pay installments automatically by
-    ''' </summary>
-    <System.ComponentModel.Description("Pay installments automatically by")> _
-    <System.CodeDom.Compiler.GeneratedCodeAttribute("BBUIModelLibrary", "2.93.2034.0")> _
-    Public ReadOnly Property [AUTOPAY]() As Global.Blackbaud.AppFx.UIModeling.Core.BooleanField
-        Get
-            Return _autopay
-        End Get
-    End Property
-
-    ''' <summary>
-    ''' Payment method
-    ''' </summary>
-    <System.ComponentModel.Description("Payment method")> _
-    <System.CodeDom.Compiler.GeneratedCodeAttribute("BBUIModelLibrary", "2.93.2034.0")> _
-    Public ReadOnly Property [PAYMENTMETHODCODE]() As Global.Blackbaud.AppFx.UIModeling.Core.ValueListField(Of PAYMENTMETHODCODES)
-        Get
-            Return _paymentmethodcode
-        End Get
-    End Property
-
-    ''' <summary>
-    ''' Account
-    ''' </summary>
-    <System.ComponentModel.Description("Account")> _
-    <System.CodeDom.Compiler.GeneratedCodeAttribute("BBUIModelLibrary", "2.93.2034.0")> _
-    Public ReadOnly Property [CONSTITUENTACCOUNTID]() As Global.Blackbaud.AppFx.UIModeling.Core.SimpleDataListField(Of Guid)
-        Get
-            Return _constituentaccountid
-        End Get
-    End Property
-
-    ''' <summary>
-    ''' Add account
-    ''' </summary>
-    <System.ComponentModel.Description("Add account")> _
-    <System.CodeDom.Compiler.GeneratedCodeAttribute("BBUIModelLibrary", "2.93.2034.0")> _
-    Public ReadOnly Property [CONSTITUENTACCOUNTIDADDACCOUNTACTION]() As Global.Blackbaud.AppFx.UIModeling.Core.ShowAddFormUIAction
-        Get
-            Return _constituentaccountidaddaccountaction
-        End Get
-    End Property
-
-    ''' <summary>
-    ''' Reference no.
-    ''' </summary>
-    <System.ComponentModel.Description("Reference no.")> _
-    <System.CodeDom.Compiler.GeneratedCodeAttribute("BBUIModelLibrary", "2.93.2034.0")> _
-    Public ReadOnly Property [REFERENCENUMBER]() As Global.Blackbaud.AppFx.UIModeling.Core.StringField
-        Get
-            Return _referencenumber
-        End Get
-    End Property
-
-    ''' <summary>
-    ''' Reference date
-    ''' </summary>
-    <System.ComponentModel.Description("Reference date")> _
-    <System.CodeDom.Compiler.GeneratedCodeAttribute("BBUIModelLibrary", "2.93.2034.0")> _
-    Public ReadOnly Property [REFERENCEDATE]() As Global.Blackbaud.AppFx.UIModeling.Core.FuzzyDateField
-        Get
-            Return _referencedate
-        End Get
-    End Property
-
-    ''' <summary>
-    ''' Frequency
-    ''' </summary>
-    <System.ComponentModel.Description("Frequency")> _
-    <System.CodeDom.Compiler.GeneratedCodeAttribute("BBUIModelLibrary", "2.93.2034.0")> _
-    Public ReadOnly Property [FREQUENCYCODE]() As Global.Blackbaud.AppFx.UIModeling.Core.ValueListField(Of FREQUENCYCODES)
-        Get
-            Return _frequencycode
-        End Get
-    End Property
-
-    ''' <summary>
-    ''' Starting on
-    ''' </summary>
-    <System.ComponentModel.Description("Starting on")> _
-    <System.CodeDom.Compiler.GeneratedCodeAttribute("BBUIModelLibrary", "2.93.2034.0")> _
-    Public ReadOnly Property [REVENUESCHEDULESTARTDATE]() As Global.Blackbaud.AppFx.UIModeling.Core.DateField
-        Get
-            Return _revenueschedulestartdate
-        End Get
-    End Property
-
-    ''' <summary>
-    ''' Ending on
-    ''' </summary>
-    <System.ComponentModel.Description("Ending on")> _
-    <System.CodeDom.Compiler.GeneratedCodeAttribute("BBUIModelLibrary", "2.93.2034.0")> _
-    Public ReadOnly Property [REVENUESCHEDULEENDDATE]() As Global.Blackbaud.AppFx.UIModeling.Core.DateField
-        Get
-            Return _revenuescheduleenddate
-        End Get
-    End Property
-
-    ''' <summary>
-    ''' Card number
-    ''' </summary>
-    <System.ComponentModel.Description("Card number")> _
-    <System.CodeDom.Compiler.GeneratedCodeAttribute("BBUIModelLibrary", "2.93.2034.0")> _
-    Public ReadOnly Property [CREDITCARDNUMBER]() As Global.Blackbaud.AppFx.UIModeling.Core.StringField
-        Get
-            Return _creditcardnumber
-        End Get
-    End Property
-
-    ''' <summary>
-    ''' Name on card
-    ''' </summary>
-    <System.ComponentModel.Description("Name on card")> _
-    <System.CodeDom.Compiler.GeneratedCodeAttribute("BBUIModelLibrary", "2.93.2034.0")> _
-    Public ReadOnly Property [CARDHOLDERNAME]() As Global.Blackbaud.AppFx.UIModeling.Core.StringField
-        Get
-            Return _cardholdername
-        End Get
-    End Property
-
-    ''' <summary>
-    ''' Expires on
-    ''' </summary>
-    <System.ComponentModel.Description("Expires on")> _
-    <System.CodeDom.Compiler.GeneratedCodeAttribute("BBUIModelLibrary", "2.93.2034.0")> _
-    Public ReadOnly Property [EXPIRESON]() As Global.Blackbaud.AppFx.UIModeling.Core.FuzzyDateField
-        Get
-            Return _expireson
-        End Get
-    End Property
-
-    <System.CodeDom.Compiler.GeneratedCodeAttribute("BBUIModelLibrary", "2.93.2034.0")> _
-    Public ReadOnly Property [CREDITCARDTOKEN]() As Global.Blackbaud.AppFx.UIModeling.Core.CreditCardTokenField
-        Get
-            Return _creditcardtoken
-        End Get
-    End Property
-
-    ''' <summary>
-    ''' Card type
-    ''' </summary>
-    <System.ComponentModel.Description("Card type")> _
-    <System.CodeDom.Compiler.GeneratedCodeAttribute("BBUIModelLibrary", "2.93.2034.0")> _
-    Public ReadOnly Property [CREDITTYPECODEID]() As Global.Blackbaud.AppFx.UIModeling.Core.CodeTableField
-        Get
-            Return _credittypecodeid
-        End Get
-    End Property
-
-    ''' <summary>
-    ''' Child
-    ''' </summary>
-    <System.ComponentModel.Description("Child")> _
-    <System.CodeDom.Compiler.GeneratedCodeAttribute("BBUIModelLibrary", "2.93.2034.0")> _
-    Public ReadOnly Property [RESERVEDOPPORTUNITYIDCHILD]() As Global.Blackbaud.AppFx.UIModeling.Core.SearchListField(Of Guid)
-        Get
-            Return _reservedopportunityidchild
-        End Get
-    End Property
-
-    ''' <summary>
-    ''' Reservation key
-    ''' </summary>
-    <System.ComponentModel.Description("Reservation key")> _
-    <System.CodeDom.Compiler.GeneratedCodeAttribute("BBUIModelLibrary", "2.93.2034.0")> _
-    Public ReadOnly Property [RESERVATIONKEY]() As Global.Blackbaud.AppFx.UIModeling.Core.SearchListField(Of Guid)
-        Get
-            Return _reservationkey
-        End Get
-    End Property
-
-    <System.CodeDom.Compiler.GeneratedCodeAttribute("BBUIModelLibrary", "2.93.2034.0")> _
-    Public ReadOnly Property [MATCHEDOPPORTUNITYID]() As Global.Blackbaud.AppFx.UIModeling.Core.GuidField
-        Get
-            Return _matchedopportunityid
-        End Get
-    End Property
-
-    ''' <summary>
-    ''' Send reminders
-    ''' </summary>
-    <System.ComponentModel.Description("Send reminders")> _
-    <System.CodeDom.Compiler.GeneratedCodeAttribute("BBUIModelLibrary", "2.93.2034.0")> _
-    Public ReadOnly Property [SENDREMINDER]() As Global.Blackbaud.AppFx.UIModeling.Core.BooleanField
-        Get
-            Return _sendreminder
-        End Get
-    End Property
-
-    ''' <summary>
-    ''' Finder number
-    ''' </summary>
-    <System.ComponentModel.Description("Finder number")> _
-    <System.CodeDom.Compiler.GeneratedCodeAttribute("BBUIModelLibrary", "2.93.2034.0")> _
-    Public ReadOnly Property [FINDERNUMBER]() As Global.Blackbaud.AppFx.UIModeling.Core.LongField
-        Get
-            Return _findernumber
-        End Get
-    End Property
-
-    ''' <summary>
-    ''' Source code
-    ''' </summary>
-    <System.ComponentModel.Description("Source code")> _
-    <System.CodeDom.Compiler.GeneratedCodeAttribute("BBUIModelLibrary", "2.93.2034.0")> _
-    Public ReadOnly Property [SOURCECODE]() As Global.Blackbaud.AppFx.UIModeling.Core.StringField
-        Get
-            Return _sourcecode
-        End Get
-    End Property
-
-    ''' <summary>
-    ''' Appeal
-    ''' </summary>
-    <System.ComponentModel.Description("Appeal")> _
-    <System.CodeDom.Compiler.GeneratedCodeAttribute("BBUIModelLibrary", "2.93.2034.0")> _
-    Public ReadOnly Property [APPEALID]() As Global.Blackbaud.AppFx.UIModeling.Core.SearchListField(Of Guid)
-        Get
-            Return _appealid
-        End Get
-    End Property
-
-    ''' <summary>
-    ''' Mailing
-    ''' </summary>
-    <System.ComponentModel.Description("Mailing")> _
-    <System.CodeDom.Compiler.GeneratedCodeAttribute("BBUIModelLibrary", "2.93.2034.0")> _
-    Public ReadOnly Property [MAILINGID]() As Global.Blackbaud.AppFx.UIModeling.Core.SearchListField(Of Guid)
-        Get
-            Return _mailingid
-        End Get
-    End Property
-
-    ''' <summary>
-    ''' Inbound channel
-    ''' </summary>
-    <System.ComponentModel.Description("Inbound channel")> _
-    <System.CodeDom.Compiler.GeneratedCodeAttribute("BBUIModelLibrary", "2.93.2034.0")> _
-    Public ReadOnly Property [CHANNELCODEID]() As Global.Blackbaud.AppFx.UIModeling.Core.CodeTableField
-        Get
-            Return _channelcodeid
-        End Get
-    End Property
-
-	''' <summary>
-	''' Interaction
-	''' </summary>
-	<System.ComponentModel.Description("Interaction")> _
-	<System.CodeDom.Compiler.GeneratedCodeAttribute("BBUIModelLibrary", "2.93.2034.0")> _
-	Public ReadOnly Property [INTERACTIONTYPECODEID]() As Global.Blackbaud.AppFx.UIModeling.Core.CodeTableField
-		Get
-			Return _interactiontypecodeid
-		End Get
-	End Property
-
-    ''' <summary>
-    ''' Reference
-    ''' </summary>
-    <System.ComponentModel.Description("Reference")> _
-    <System.CodeDom.Compiler.GeneratedCodeAttribute("BBUIModelLibrary", "2.93.2034.0")> _
-    Public ReadOnly Property [REFERENCE]() As Global.Blackbaud.AppFx.UIModeling.Core.StringField
-        Get
-            Return _reference
-        End Get
-    End Property
-
-    ''' <summary>
-    ''' Revenue category
-    ''' </summary>
-    <System.ComponentModel.Description("Revenue category")> _
-    <System.CodeDom.Compiler.GeneratedCodeAttribute("BBUIModelLibrary", "2.93.2034.0")> _
-    Public ReadOnly Property [CATEGORYCODEID]() As Global.Blackbaud.AppFx.UIModeling.Core.SimpleDataListField(Of Guid)
-        Get
-            Return _categorycodeid
-        End Get
-    End Property
-
-    ''' <summary>
-    ''' Reason
-    ''' </summary>
-    <System.ComponentModel.Description("Reason")> _
-    <System.CodeDom.Compiler.GeneratedCodeAttribute("BBUIModelLibrary", "2.93.2034.0")> _
-    Public ReadOnly Property [EXPIRATIONREASONID]() As Global.Blackbaud.AppFx.UIModeling.Core.SimpleDataListField(Of Guid)
-        Get
-            Return _expirationreasonid
-        End Get
-    End Property
-
-    ''' <summary>
-    ''' Transaction currency
-    ''' </summary>
-    <System.ComponentModel.Description("Transaction currency")> _
-    <System.CodeDom.Compiler.GeneratedCodeAttribute("BBUIModelLibrary", "2.93.2034.0")> _
-    Public ReadOnly Property [TRANSACTIONCURRENCYID]() As Global.Blackbaud.AppFx.UIModeling.Core.SimpleDataListField(Of Guid)
-        Get
-            Return _transactioncurrencyid
-        End Get
-    End Property
-
-    ''' <summary>
-    ''' Exchange rate
-    ''' </summary>
-    <System.ComponentModel.Description("Exchange rate")> _
-    <System.CodeDom.Compiler.GeneratedCodeAttribute("BBUIModelLibrary", "2.93.2034.0")> _
-    Public ReadOnly Property [BASEEXCHANGERATEID]() As Global.Blackbaud.AppFx.UIModeling.Core.SimpleDataListField(Of Guid)
-        Get
-            Return _baseexchangerateid
-        End Get
-    End Property
-
-    ''' <summary>
-    ''' Exchange rate
-    ''' </summary>
-    <System.ComponentModel.Description("Exchange rate")> _
-    <System.CodeDom.Compiler.GeneratedCodeAttribute("BBUIModelLibrary", "2.93.2034.0")> _
-    Public ReadOnly Property [EXCHANGERATE]() As Global.Blackbaud.AppFx.UIModeling.Core.DecimalField
-        Get
-            Return _exchangerate
-        End Get
-    End Property
-
-    <System.CodeDom.Compiler.GeneratedCodeAttribute("BBUIModelLibrary", "2.93.2034.0")> _
-    Public ReadOnly Property [BASECURRENCYID]() As Global.Blackbaud.AppFx.UIModeling.Core.GuidField
-        Get
-            Return _basecurrencyid
-        End Get
-    End Property
-
-    ''' <summary>
-    ''' Base amount
-    ''' </summary>
-    <System.ComponentModel.Description("Base amount")> _
-    <System.CodeDom.Compiler.GeneratedCodeAttribute("BBUIModelLibrary", "2.93.2034.0")> _
-    Public ReadOnly Property [BASEAMOUNT]() As Global.Blackbaud.AppFx.UIModeling.Core.MoneyField
-        Get
-            Return _baseamount
-        End Get
-    End Property
-
-    ''' <summary>
-    ''' Base currency decimal digits
-    ''' </summary>
-    <System.ComponentModel.Description("Base currency decimal digits")> _
-    <System.CodeDom.Compiler.GeneratedCodeAttribute("BBUIModelLibrary", "2.93.2034.0")> _
-    Public ReadOnly Property [BASECURRENCYDECIMALDIGITS]() As Global.Blackbaud.AppFx.UIModeling.Core.TinyIntField
-        Get
-            Return _basecurrencydecimaldigits
-        End Get
-    End Property
-
-    ''' <summary>
-    ''' Base currency rounding type code
-    ''' </summary>
-    <System.ComponentModel.Description("Base currency rounding type code")> _
-    <System.CodeDom.Compiler.GeneratedCodeAttribute("BBUIModelLibrary", "2.93.2034.0")> _
-    Public ReadOnly Property [BASECURRENCYROUNDINGTYPECODE]() As Global.Blackbaud.AppFx.UIModeling.Core.TinyIntField
-        Get
-            Return _basecurrencyroundingtypecode
-        End Get
-    End Property
-
-    <System.CodeDom.Compiler.GeneratedCodeAttribute("BBUIModelLibrary", "2.93.2034.0")> _
-    Public ReadOnly Property [BATCHNUMBER]() As Global.Blackbaud.AppFx.UIModeling.Core.StringField
-        Get
-            Return _batchnumber
-        End Get
-    End Property
-
-    ''' <summary>
-    ''' Revenue function
-    ''' </summary>
-    <System.ComponentModel.Description("Revenue function")> _
-    <System.CodeDom.Compiler.GeneratedCodeAttribute("BBUIModelLibrary", "2.93.2034.0")> _
-    Public ReadOnly Property [REVENUEDEVELOPMENTFUNCTIONCODEID]() As Global.Blackbaud.AppFx.UIModeling.Core.CodeTableField
-        Get
-            Return _revenuedevelopmentfunctioncodeid
-        End Get
-    End Property
-
-    ''' <summary>
-    ''' Do not acknowledge
-    ''' </summary>
-    <System.ComponentModel.Description("Do not acknowledge")> _
-    <System.CodeDom.Compiler.GeneratedCodeAttribute("BBUIModelLibrary", "2.93.2034.0")> _
-    Public ReadOnly Property [DONOTACKNOWLEDGE]() As Global.Blackbaud.AppFx.UIModeling.Core.BooleanField
-        Get
-            Return _donotacknowledge
-        End Get
-    End Property
-
-    ''' <summary>
-    ''' Select Opportunity
-    ''' </summary>
-    <System.ComponentModel.Description("Select Opportunity")> _
-    <System.CodeDom.Compiler.GeneratedCodeAttribute("BBUIModelLibrary", "2.93.2034.0")> _
-    Public ReadOnly Property [SELECTOPPORTUNITYID]() As Global.Blackbaud.AppFx.UIModeling.Core.ValueListField(Of Nullable(Of SELECTOPPORTUNITYIDS))
-        Get
-            Return _selectopportunityid
-        End Get
-    End Property
-
-    ''' <summary>
-    ''' This is a fixed-term sponsorship
-    ''' </summary>
-    <System.ComponentModel.Description("This is a fixed-term sponsorship")> _
-    <System.CodeDom.Compiler.GeneratedCodeAttribute("BBUIModelLibrary", "2.93.2034.0")> _
-    Public ReadOnly Property [ISFIXEDTERMSPONSORSHIP]() As Global.Blackbaud.AppFx.UIModeling.Core.BooleanField
-        Get
-            Return _isfixedtermsponsorship
-        End Get
-    End Property
-
-    <System.CodeDom.Compiler.GeneratedCodeAttribute("BBUIModelLibrary", "2.93.2034.0")> _
-    Public ReadOnly Property [RGSCHEDULE]() As Global.Blackbaud.AppFx.UIModeling.Core.XMLField
-        Get
-            Return _rgschedule
-        End Get
-    End Property
-
-    ''' <summary>
-    ''' Name
-    ''' </summary>
-    <System.ComponentModel.Description("Name")> _
-    <System.CodeDom.Compiler.GeneratedCodeAttribute("BBUIModelLibrary", "2.93.2034.0")> _
-    Public ReadOnly Property [MOPPORTUNITYNAME]() As Global.Blackbaud.AppFx.UIModeling.Core.StringField
-        Get
-            Return _mopportunityname
-        End Get
-    End Property
-
-    ''' <summary>
-    ''' Location
-    ''' </summary>
-    <System.ComponentModel.Description("Location")> _
-    <System.CodeDom.Compiler.GeneratedCodeAttribute("BBUIModelLibrary", "2.93.2034.0")> _
-    Public ReadOnly Property [MOPPORTUNITYLOCATION]() As Global.Blackbaud.AppFx.UIModeling.Core.StringField
-        Get
-            Return _mopportunitylocation
-        End Get
-    End Property
-
-    ''' <summary>
-    ''' Lookup ID
-    ''' </summary>
-    <System.ComponentModel.Description("Lookup ID")> _
-    <System.CodeDom.Compiler.GeneratedCodeAttribute("BBUIModelLibrary", "2.93.2034.0")> _
-    Public ReadOnly Property [MOPPORTUNITYLOOKUPID]() As Global.Blackbaud.AppFx.UIModeling.Core.StringField
-        Get
-            Return _mopportunitylookupid
-        End Get
-    End Property
-
-    ''' <summary>
-    ''' Gender
-    ''' </summary>
-    <System.ComponentModel.Description("Gender")> _
-    <System.CodeDom.Compiler.GeneratedCodeAttribute("BBUIModelLibrary", "2.93.2034.0")> _
-    Public ReadOnly Property [MOPPORTUNITYGENDER]() As Global.Blackbaud.AppFx.UIModeling.Core.StringField
-        Get
-            Return _mopportunitygender
-        End Get
-    End Property
-
-    ''' <summary>
-    ''' Birthdate
-    ''' </summary>
-    <System.ComponentModel.Description("Birthdate")> _
-    <System.CodeDom.Compiler.GeneratedCodeAttribute("BBUIModelLibrary", "2.93.2034.0")> _
-    Public ReadOnly Property [MOPPORTUNITYBIRTHDATE]() As Global.Blackbaud.AppFx.UIModeling.Core.StringField
-        Get
-            Return _mopportunitybirthdate
-        End Get
-    End Property
-
-    <System.CodeDom.Compiler.GeneratedCodeAttribute("BBUIModelLibrary", "2.93.2034.0")> _
-    Public ReadOnly Property [MOPPORTUNITYIMAGE]() As Global.Blackbaud.AppFx.UIModeling.Core.StringField
-        Get
-            Return _mopportunityimage
-        End Get
-    End Property
-
-    ''' <summary>
-    ''' Finder number
-    ''' </summary>
-    <System.ComponentModel.Description("Finder number")> _
-    <System.CodeDom.Compiler.GeneratedCodeAttribute("BBUIModelLibrary", "2.93.2034.0")> _
-    Public ReadOnly Property [FINDERNUMBERSTRING]() As Global.Blackbaud.AppFx.UIModeling.Core.StringField
-        Get
-            Return _findernumberstring
-        End Get
-    End Property
-
-    ''' <summary>
-    ''' Invalid finder number
-    ''' </summary>
-    <System.ComponentModel.Description("Invalid finder number")> _
-    <System.CodeDom.Compiler.GeneratedCodeAttribute("BBUIModelLibrary", "2.93.2034.0")> _
-    Public ReadOnly Property [INVALIDFINDERNUMBERIMAGE]() As Global.Blackbaud.AppFx.UIModeling.Core.StringField
-        Get
-            Return _invalidfindernumberimage
-        End Get
-    End Property
-
-    <System.CodeDom.Compiler.GeneratedCodeAttribute("BBUIModelLibrary", "2.93.2034.0")> _
-    Public ReadOnly Property [INSTALLMENTS]() As Global.Blackbaud.AppFx.UIModeling.Core.CollectionField(Of SponsorshipAddFormWrappedINSTALLMENTSUIModel)
-        Get
-            Return _installments
-        End Get
-    End Property
-
-    ''' <summary>
-    ''' General
-    ''' </summary>
-    <System.ComponentModel.Description("General")> _
-    <System.CodeDom.Compiler.GeneratedCodeAttribute("BBUIModelLibrary", "2.93.2034.0")> _
-    Public ReadOnly Property [GENERALINFORMATION]() As Global.Blackbaud.AppFx.UIModeling.Core.GroupField
-        Get
-            Return _generalinformation
-        End Get
-    End Property
-
-    ''' <summary>
-    ''' Sponsorship Opportunity
-    ''' </summary>
-    <System.ComponentModel.Description("Sponsorship Opportunity")> _
-    <System.CodeDom.Compiler.GeneratedCodeAttribute("BBUIModelLibrary", "2.93.2034.0")> _
-    Public ReadOnly Property [SPONSORSHIPOPPORTUNITY]() As Global.Blackbaud.AppFx.UIModeling.Core.GroupField
-        Get
-            Return _sponsorshipopportunity
-        End Get
-    End Property
-
-    ''' <summary>
-    ''' Schedule
-    ''' </summary>
-    <System.ComponentModel.Description("Schedule")> _
-    <System.CodeDom.Compiler.GeneratedCodeAttribute("BBUIModelLibrary", "2.93.2034.0")> _
-    Public ReadOnly Property [PAYMENTSCHEDULE]() As Global.Blackbaud.AppFx.UIModeling.Core.GroupField
-        Get
-            Return _paymentschedule
-        End Get
-    End Property
-
-    ''' <summary>
-    ''' Payment information
-    ''' </summary>
-    <System.ComponentModel.Description("Payment information")> _
-    <System.CodeDom.Compiler.GeneratedCodeAttribute("BBUIModelLibrary", "2.93.2034.0")> _
-    Public ReadOnly Property [PAYMENTINFORMATION]() As Global.Blackbaud.AppFx.UIModeling.Core.GroupField
-        Get
-            Return _paymentinformation
-        End Get
-    End Property
-
-    ''' <summary>
-    ''' Matched opportunity
-    ''' </summary>
-    <System.ComponentModel.Description("Matched opportunity")> _
-    <System.CodeDom.Compiler.GeneratedCodeAttribute("BBUIModelLibrary", "2.93.2034.0")> _
-    Public ReadOnly Property [MATCHEDOPPORTUNITY]() As Global.Blackbaud.AppFx.UIModeling.Core.GroupField
-        Get
-            Return _matchedopportunity
-        End Get
-    End Property
-
-    ''' <summary>
-    ''' Sponsorship
-    ''' </summary>
-    <System.ComponentModel.Description("Sponsorship")> _
-    <System.CodeDom.Compiler.GeneratedCodeAttribute("BBUIModelLibrary", "2.93.2034.0")> _
-    Public ReadOnly Property [TAB_SPONSORSHIP]() As Global.Blackbaud.AppFx.UIModeling.Core.TabField
-        Get
-            Return _tabsponsorship
-        End Get
-    End Property
-
-    ''' <summary>
-    ''' Payment
-    ''' </summary>
-    <System.ComponentModel.Description("Payment")> _
-    <System.CodeDom.Compiler.GeneratedCodeAttribute("BBUIModelLibrary", "2.93.2034.0")> _
-    Public ReadOnly Property [TAB_PAYMENT]() As Global.Blackbaud.AppFx.UIModeling.Core.TabField
-        Get
-            Return _tabpayment
-        End Get
-    End Property
-
-    ''' <summary>
-    ''' Expiration
-    ''' </summary>
-    <System.ComponentModel.Description("Expiration")> _
-    <System.CodeDom.Compiler.GeneratedCodeAttribute("BBUIModelLibrary", "2.93.2034.0")> _
-    Public ReadOnly Property [TAB_EXPIRATION]() As Global.Blackbaud.AppFx.UIModeling.Core.TabField
-        Get
-            Return _tabexpiration
-        End Get
-    End Property
-
-    ''' <summary>
-    ''' Find
-    ''' </summary>
-    <System.ComponentModel.Description("Find")> _
-    <System.CodeDom.Compiler.GeneratedCodeAttribute("BBUIModelLibrary", "2.93.2034.0")> _
-    Public ReadOnly Property [FINDOPPORTUNITY]() As Global.Blackbaud.AppFx.UIModeling.Core.GenericUIAction
-        Get
-            Return _findopportunity
-        End Get
-	End Property
-
-
-	''' <summary>
-	''' Clear
-	''' </summary>
-	<System.ComponentModel.Description("Clear")> _
- <System.CodeDom.Compiler.GeneratedCodeAttribute("BBUIModelLibrary", "2.93.2034.0")> _
- Public ReadOnly Property [CLEARSEARCHACTION]() As Global.Blackbaud.AppFx.UIModeling.Core.GenericUIAction
-		Get
-			Return _clearsearchaction
-		End Get
-	End Property
-
-
-    ''' <summary>
-    ''' Remove
-    ''' </summary>
-    <System.ComponentModel.Description("Remove")> _
-    <System.CodeDom.Compiler.GeneratedCodeAttribute("BBUIModelLibrary", "2.93.2034.0")> _
-    Public ReadOnly Property [REMOVESELECTEDCHILD]() As Global.Blackbaud.AppFx.UIModeling.Core.GenericUIAction
-        Get
-            Return _removeselectedchild
-        End Get
-    End Property
-    ''' <summary>
-    ''' Add Child
-    ''' </summary>
-    <System.ComponentModel.Description("Add Child")> _
-    <System.CodeDom.Compiler.GeneratedCodeAttribute("BBUIModelLibrary", "2.93.2034.0")> _
-    Public ReadOnly Property [ADDSELECTEDCHILD]() As Global.Blackbaud.AppFx.UIModeling.Core.GenericUIAction
-        Get
-            Return _addselectedchild
-        End Get
-    End Property
-
-    ''' <summary>
-    ''' Look up a source code to associate with this gift
-    ''' </summary>
-    <System.ComponentModel.Description("Look up a source code to associate with this gift")> _
-    <System.CodeDom.Compiler.GeneratedCodeAttribute("BBUIModelLibrary", "2.93.2034.0")> _
-    Public ReadOnly Property [SOURCECODELOOKUP]() As Global.Blackbaud.AppFx.UIModeling.Core.ShowSearchFormUIAction
-        Get
-            Return _sourcecodelookup
-        End Get
-    End Property
-
-    ''' <summary>
-    ''' Edit the currency and exchange rate information for this pledge
-    ''' </summary>
-    <System.ComponentModel.Description("Edit the currency and exchange rate information for this pledge")> _
-    <System.CodeDom.Compiler.GeneratedCodeAttribute("BBUIModelLibrary", "2.93.2034.0")> _
-    Public ReadOnly Property [CURRENCYACTION]() As Global.Blackbaud.AppFx.UIModeling.Core.ShowCustomFormUIAction
-        Get
-            Return _currencyaction
-        End Get
-	End Property
 
 	''' <summary>
 	''' Fundraiser
@@ -1940,10 +1239,733 @@ Partial Public Class [SponsorshipAddFormWrappedUIModel]
 	End Property
 
 
-    Private Sub SearchingForChild(ByVal sender As Object, ByVal e As SearchEventArgs)
-        If True Then
+    ''' <summary>
+    ''' Project
+    ''' </summary>
+    <System.ComponentModel.Description("Project")> _
+    <System.CodeDom.Compiler.GeneratedCodeAttribute("BBUIModelLibrary", "2.93.2034.0")> _
+    Public ReadOnly Property [SPONSORSHIPOPPORTUNITYIDPROJECT]() As Global.Blackbaud.AppFx.UIModeling.Core.SearchListField(Of Guid)
+        Get
+            Return _sponsorshipopportunityidproject
+        End Get
+    End Property
+    
+    ''' <summary>
+    ''' Sole sponsorship
+    ''' </summary>
+    <System.ComponentModel.Description("Sole sponsorship")> _
+    <System.CodeDom.Compiler.GeneratedCodeAttribute("BBUIModelLibrary", "2.93.2034.0")> _
+    Public ReadOnly Property [ISSOLESPONSORSHIP]() As Global.Blackbaud.AppFx.UIModeling.Core.BooleanField
+        Get
+            Return _issolesponsorship
+        End Get
+    End Property
+    
+    ''' <summary>
+    ''' Start date
+    ''' </summary>
+    <System.ComponentModel.Description("Start date")> _
+    <System.CodeDom.Compiler.GeneratedCodeAttribute("BBUIModelLibrary", "2.93.2034.0")> _
+    Public ReadOnly Property [STARTDATE]() As Global.Blackbaud.AppFx.UIModeling.Core.DateField
+        Get
+            Return _startdate
+        End Get
+    End Property
+    
+    ''' <summary>
+    ''' Amount
+    ''' </summary>
+    <System.ComponentModel.Description("Amount")> _
+    <System.CodeDom.Compiler.GeneratedCodeAttribute("BBUIModelLibrary", "2.93.2034.0")> _
+    Public ReadOnly Property [AMOUNT]() As Global.Blackbaud.AppFx.UIModeling.Core.MoneyField
+        Get
+            Return _amount
+        End Get
+    End Property
+    
+    ''' <summary>
+    ''' Pay installments automatically by
+    ''' </summary>
+    <System.ComponentModel.Description("Pay installments automatically by")> _
+    <System.CodeDom.Compiler.GeneratedCodeAttribute("BBUIModelLibrary", "2.93.2034.0")> _
+    Public ReadOnly Property [AUTOPAY]() As Global.Blackbaud.AppFx.UIModeling.Core.BooleanField
+        Get
+            Return _autopay
+        End Get
+    End Property
+    
+    ''' <summary>
+    ''' Payment method
+    ''' </summary>
+    <System.ComponentModel.Description("Payment method")> _
+    <System.CodeDom.Compiler.GeneratedCodeAttribute("BBUIModelLibrary", "2.93.2034.0")> _
+    Public ReadOnly Property [PAYMENTMETHODCODE]() As Global.Blackbaud.AppFx.UIModeling.Core.ValueListField(Of Nullable(Of PAYMENTMETHODCODES))
+        Get
+            Return _paymentmethodcode
+        End Get
+    End Property
+    
+    ''' <summary>
+    ''' Account
+    ''' </summary>
+    <System.ComponentModel.Description("Account")> _
+    <System.CodeDom.Compiler.GeneratedCodeAttribute("BBUIModelLibrary", "2.93.2034.0")> _
+    Public ReadOnly Property [CONSTITUENTACCOUNTID]() As Global.Blackbaud.AppFx.UIModeling.Core.SimpleDataListField(Of Guid)
+        Get
+            Return _constituentaccountid
+        End Get
+    End Property
+    
+    ''' <summary>
+    ''' Add account
+    ''' </summary>
+    <System.ComponentModel.Description("Add account")> _
+    <System.CodeDom.Compiler.GeneratedCodeAttribute("BBUIModelLibrary", "2.93.2034.0")> _
+    Public ReadOnly Property [CONSTITUENTACCOUNTIDADDACCOUNTACTION]() As Global.Blackbaud.AppFx.UIModeling.Core.ShowAddFormUIAction
+        Get
+            Return _constituentaccountidaddaccountaction
+        End Get
+    End Property
+    
+    ''' <summary>
+    ''' Reference no.
+    ''' </summary>
+    <System.ComponentModel.Description("Reference no.")> _
+    <System.CodeDom.Compiler.GeneratedCodeAttribute("BBUIModelLibrary", "2.93.2034.0")> _
+    Public ReadOnly Property [REFERENCENUMBER]() As Global.Blackbaud.AppFx.UIModeling.Core.StringField
+        Get
+            Return _referencenumber
+        End Get
+    End Property
+    
+    ''' <summary>
+    ''' Reference date
+    ''' </summary>
+    <System.ComponentModel.Description("Reference date")> _
+    <System.CodeDom.Compiler.GeneratedCodeAttribute("BBUIModelLibrary", "2.93.2034.0")> _
+    Public ReadOnly Property [REFERENCEDATE]() As Global.Blackbaud.AppFx.UIModeling.Core.FuzzyDateField
+        Get
+            Return _referencedate
+        End Get
+    End Property
+    
+    ''' <summary>
+    ''' Frequency
+    ''' </summary>
+    <System.ComponentModel.Description("Frequency")> _
+    <System.CodeDom.Compiler.GeneratedCodeAttribute("BBUIModelLibrary", "2.93.2034.0")> _
+    Public ReadOnly Property [FREQUENCYCODE]() As Global.Blackbaud.AppFx.UIModeling.Core.ValueListField(Of FREQUENCYCODES)
+        Get
+            Return _frequencycode
+        End Get
+    End Property
+    
+    ''' <summary>
+    ''' Starting on
+    ''' </summary>
+    <System.ComponentModel.Description("Starting on")> _
+    <System.CodeDom.Compiler.GeneratedCodeAttribute("BBUIModelLibrary", "2.93.2034.0")> _
+    Public ReadOnly Property [REVENUESCHEDULESTARTDATE]() As Global.Blackbaud.AppFx.UIModeling.Core.DateField
+        Get
+            Return _revenueschedulestartdate
+        End Get
+    End Property
+    
+    ''' <summary>
+    ''' Ending on
+    ''' </summary>
+    <System.ComponentModel.Description("Ending on")> _
+    <System.CodeDom.Compiler.GeneratedCodeAttribute("BBUIModelLibrary", "2.93.2034.0")> _
+    Public ReadOnly Property [REVENUESCHEDULEENDDATE]() As Global.Blackbaud.AppFx.UIModeling.Core.DateField
+        Get
+            Return _revenuescheduleenddate
+        End Get
+    End Property
+    
+    ''' <summary>
+    ''' Card number
+    ''' </summary>
+    <System.ComponentModel.Description("Card number")> _
+    <System.CodeDom.Compiler.GeneratedCodeAttribute("BBUIModelLibrary", "2.93.2034.0")> _
+    Public ReadOnly Property [CREDITCARDNUMBER]() As Global.Blackbaud.AppFx.UIModeling.Core.StringField
+        Get
+            Return _creditcardnumber
+        End Get
+    End Property
+    
+    ''' <summary>
+    ''' Name on card
+    ''' </summary>
+    <System.ComponentModel.Description("Name on card")> _
+    <System.CodeDom.Compiler.GeneratedCodeAttribute("BBUIModelLibrary", "2.93.2034.0")> _
+    Public ReadOnly Property [CARDHOLDERNAME]() As Global.Blackbaud.AppFx.UIModeling.Core.StringField
+        Get
+            Return _cardholdername
+        End Get
+    End Property
+    
+    ''' <summary>
+    ''' Expires on
+    ''' </summary>
+    <System.ComponentModel.Description("Expires on")> _
+    <System.CodeDom.Compiler.GeneratedCodeAttribute("BBUIModelLibrary", "2.93.2034.0")> _
+    Public ReadOnly Property [EXPIRESON]() As Global.Blackbaud.AppFx.UIModeling.Core.FuzzyDateField
+        Get
+            Return _expireson
+        End Get
+    End Property
+    
+    <System.CodeDom.Compiler.GeneratedCodeAttribute("BBUIModelLibrary", "2.93.2034.0")> _
+    Public ReadOnly Property [CREDITCARDTOKEN]() As Global.Blackbaud.AppFx.UIModeling.Core.CreditCardTokenField
+        Get
+            Return _creditcardtoken
+        End Get
+    End Property
+    
+    ''' <summary>
+    ''' Card type
+    ''' </summary>
+    <System.ComponentModel.Description("Card type")> _
+    <System.CodeDom.Compiler.GeneratedCodeAttribute("BBUIModelLibrary", "2.93.2034.0")> _
+    Public ReadOnly Property [CREDITTYPECODEID]() As Global.Blackbaud.AppFx.UIModeling.Core.CodeTableField
+        Get
+            Return _credittypecodeid
+        End Get
+    End Property
+    
+    ''' <summary>
+    ''' Child
+    ''' </summary>
+    <System.ComponentModel.Description("Child")> _
+    <System.CodeDom.Compiler.GeneratedCodeAttribute("BBUIModelLibrary", "2.93.2034.0")> _
+    Public ReadOnly Property [RESERVEDOPPORTUNITYIDCHILD]() As Global.Blackbaud.AppFx.UIModeling.Core.SearchListField(Of Guid)
+        Get
+            Return _reservedopportunityidchild
+        End Get
+    End Property
+    
+    ''' <summary>
+    ''' Reservation key
+    ''' </summary>
+    <System.ComponentModel.Description("Reservation key")> _
+    <System.CodeDom.Compiler.GeneratedCodeAttribute("BBUIModelLibrary", "2.93.2034.0")> _
+    Public ReadOnly Property [RESERVATIONKEY]() As Global.Blackbaud.AppFx.UIModeling.Core.SearchListField(Of Guid)
+        Get
+            Return _reservationkey
+        End Get
+    End Property
+    
+    <System.CodeDom.Compiler.GeneratedCodeAttribute("BBUIModelLibrary", "2.93.2034.0")> _
+    Public ReadOnly Property [MATCHEDOPPORTUNITYID]() As Global.Blackbaud.AppFx.UIModeling.Core.GuidField
+        Get
+            Return _matchedopportunityid
+        End Get
+    End Property
+    
+    ''' <summary>
+    ''' Send reminders
+    ''' </summary>
+    <System.ComponentModel.Description("Send reminders")> _
+    <System.CodeDom.Compiler.GeneratedCodeAttribute("BBUIModelLibrary", "2.93.2034.0")> _
+    Public ReadOnly Property [SENDREMINDER]() As Global.Blackbaud.AppFx.UIModeling.Core.BooleanField
+        Get
+            Return _sendreminder
+        End Get
+    End Property
+    
+    ''' <summary>
+    ''' Finder number
+    ''' </summary>
+    <System.ComponentModel.Description("Finder number")> _
+    <System.CodeDom.Compiler.GeneratedCodeAttribute("BBUIModelLibrary", "2.93.2034.0")> _
+    Public ReadOnly Property [FINDERNUMBER]() As Global.Blackbaud.AppFx.UIModeling.Core.LongField
+        Get
+            Return _findernumber
+        End Get
+    End Property
+    
+    ''' <summary>
+    ''' Source code
+    ''' </summary>
+    <System.ComponentModel.Description("Source code")> _
+    <System.CodeDom.Compiler.GeneratedCodeAttribute("BBUIModelLibrary", "2.93.2034.0")> _
+    Public ReadOnly Property [SOURCECODE]() As Global.Blackbaud.AppFx.UIModeling.Core.StringField
+        Get
+            Return _sourcecode
+        End Get
+    End Property
+    
+    ''' <summary>
+    ''' Appeal
+    ''' </summary>
+    <System.ComponentModel.Description("Appeal")> _
+    <System.CodeDom.Compiler.GeneratedCodeAttribute("BBUIModelLibrary", "2.93.2034.0")> _
+    Public ReadOnly Property [APPEALID]() As Global.Blackbaud.AppFx.UIModeling.Core.SearchListField(Of Guid)
+        Get
+            Return _appealid
+        End Get
+    End Property
+    
+    ''' <summary>
+    ''' Mailing
+    ''' </summary>
+    <System.ComponentModel.Description("Mailing")> _
+    <System.CodeDom.Compiler.GeneratedCodeAttribute("BBUIModelLibrary", "2.93.2034.0")> _
+    Public ReadOnly Property [MAILINGID]() As Global.Blackbaud.AppFx.UIModeling.Core.SearchListField(Of Guid)
+        Get
+            Return _mailingid
+        End Get
+    End Property
+    
+    ''' <summary>
+    ''' Inbound channel
+    ''' </summary>
+    <System.ComponentModel.Description("Inbound channel")> _
+    <System.CodeDom.Compiler.GeneratedCodeAttribute("BBUIModelLibrary", "2.93.2034.0")> _
+    Public ReadOnly Property [CHANNELCODEID]() As Global.Blackbaud.AppFx.UIModeling.Core.CodeTableField
+        Get
+            Return _channelcodeid
+        End Get
+    End Property
+    
+    ''' <summary>
+    ''' Reference
+    ''' </summary>
+    <System.ComponentModel.Description("Reference")> _
+    <System.CodeDom.Compiler.GeneratedCodeAttribute("BBUIModelLibrary", "2.93.2034.0")> _
+    Public ReadOnly Property [REFERENCE]() As Global.Blackbaud.AppFx.UIModeling.Core.StringField
+        Get
+            Return _reference
+        End Get
+    End Property
+    
+    ''' <summary>
+    ''' Revenue category
+    ''' </summary>
+    <System.ComponentModel.Description("Revenue category")> _
+    <System.CodeDom.Compiler.GeneratedCodeAttribute("BBUIModelLibrary", "2.93.2034.0")> _
+    Public ReadOnly Property [CATEGORYCODEID]() As Global.Blackbaud.AppFx.UIModeling.Core.SimpleDataListField(Of Guid)
+        Get
+            Return _categorycodeid
+        End Get
+    End Property
+    
+    ''' <summary>
+    ''' Reason
+    ''' </summary>
+    <System.ComponentModel.Description("Reason")> _
+    <System.CodeDom.Compiler.GeneratedCodeAttribute("BBUIModelLibrary", "2.93.2034.0")> _
+    Public ReadOnly Property [EXPIRATIONREASONID]() As Global.Blackbaud.AppFx.UIModeling.Core.SimpleDataListField(Of Guid)
+        Get
+            Return _expirationreasonid
+        End Get
+    End Property
+    
+    ''' <summary>
+    ''' Transaction currency
+    ''' </summary>
+    <System.ComponentModel.Description("Transaction currency")> _
+    <System.CodeDom.Compiler.GeneratedCodeAttribute("BBUIModelLibrary", "2.93.2034.0")> _
+    Public ReadOnly Property [TRANSACTIONCURRENCYID]() As Global.Blackbaud.AppFx.UIModeling.Core.SimpleDataListField(Of Guid)
+        Get
+            Return _transactioncurrencyid
+        End Get
+    End Property
+    
+    ''' <summary>
+    ''' Exchange rate
+    ''' </summary>
+    <System.ComponentModel.Description("Exchange rate")> _
+    <System.CodeDom.Compiler.GeneratedCodeAttribute("BBUIModelLibrary", "2.93.2034.0")> _
+    Public ReadOnly Property [BASEEXCHANGERATEID]() As Global.Blackbaud.AppFx.UIModeling.Core.SimpleDataListField(Of Guid)
+        Get
+            Return _baseexchangerateid
+        End Get
+    End Property
+    
+    ''' <summary>
+    ''' Exchange rate
+    ''' </summary>
+    <System.ComponentModel.Description("Exchange rate")> _
+    <System.CodeDom.Compiler.GeneratedCodeAttribute("BBUIModelLibrary", "2.93.2034.0")> _
+    Public ReadOnly Property [EXCHANGERATE]() As Global.Blackbaud.AppFx.UIModeling.Core.DecimalField
+        Get
+            Return _exchangerate
+        End Get
+    End Property
+    
+    <System.CodeDom.Compiler.GeneratedCodeAttribute("BBUIModelLibrary", "2.93.2034.0")> _
+    Public ReadOnly Property [BASECURRENCYID]() As Global.Blackbaud.AppFx.UIModeling.Core.GuidField
+        Get
+            Return _basecurrencyid
+        End Get
+    End Property
+    
+    ''' <summary>
+    ''' Base amount
+    ''' </summary>
+    <System.ComponentModel.Description("Base amount")> _
+    <System.CodeDom.Compiler.GeneratedCodeAttribute("BBUIModelLibrary", "2.93.2034.0")> _
+    Public ReadOnly Property [BASEAMOUNT]() As Global.Blackbaud.AppFx.UIModeling.Core.MoneyField
+        Get
+            Return _baseamount
+        End Get
+    End Property
+    
+    ''' <summary>
+    ''' Base currency decimal digits
+    ''' </summary>
+    <System.ComponentModel.Description("Base currency decimal digits")> _
+    <System.CodeDom.Compiler.GeneratedCodeAttribute("BBUIModelLibrary", "2.93.2034.0")> _
+    Public ReadOnly Property [BASECURRENCYDECIMALDIGITS]() As Global.Blackbaud.AppFx.UIModeling.Core.TinyIntField
+        Get
+            Return _basecurrencydecimaldigits
+        End Get
+    End Property
+    
+    ''' <summary>
+    ''' Base currency rounding type code
+    ''' </summary>
+    <System.ComponentModel.Description("Base currency rounding type code")> _
+    <System.CodeDom.Compiler.GeneratedCodeAttribute("BBUIModelLibrary", "2.93.2034.0")> _
+    Public ReadOnly Property [BASECURRENCYROUNDINGTYPECODE]() As Global.Blackbaud.AppFx.UIModeling.Core.TinyIntField
+        Get
+            Return _basecurrencyroundingtypecode
+        End Get
+    End Property
+    
+    <System.CodeDom.Compiler.GeneratedCodeAttribute("BBUIModelLibrary", "2.93.2034.0")> _
+    Public ReadOnly Property [BATCHNUMBER]() As Global.Blackbaud.AppFx.UIModeling.Core.StringField
+        Get
+            Return _batchnumber
+        End Get
+    End Property
+    
+    ''' <summary>
+    ''' Revenue function
+    ''' </summary>
+    <System.ComponentModel.Description("Revenue function")> _
+    <System.CodeDom.Compiler.GeneratedCodeAttribute("BBUIModelLibrary", "2.93.2034.0")> _
+    Public ReadOnly Property [REVENUEDEVELOPMENTFUNCTIONCODEID]() As Global.Blackbaud.AppFx.UIModeling.Core.CodeTableField
+        Get
+            Return _revenuedevelopmentfunctioncodeid
+        End Get
+    End Property
+    
+    ''' <summary>
+    ''' Do not acknowledge
+    ''' </summary>
+    <System.ComponentModel.Description("Do not acknowledge")> _
+    <System.CodeDom.Compiler.GeneratedCodeAttribute("BBUIModelLibrary", "2.93.2034.0")> _
+    Public ReadOnly Property [DONOTACKNOWLEDGE]() As Global.Blackbaud.AppFx.UIModeling.Core.BooleanField
+        Get
+            Return _donotacknowledge
+        End Get
+    End Property
+    
+    ''' <summary>
+    ''' PFM
+    ''' </summary>
+    <System.ComponentModel.Description("PFM")> _
+    <System.CodeDom.Compiler.GeneratedCodeAttribute("BBUIModelLibrary", "2.93.2034.0")> _
+    Public ReadOnly Property [PFMID]() As Global.Blackbaud.AppFx.UIModeling.Core.SearchListField(Of Guid)
+        Get
+            Return _pfmid
+        End Get
+    End Property
+    
+    ''' <summary>
+    ''' Interaction
+    ''' </summary>
+    <System.ComponentModel.Description("Interaction")> _
+    <System.CodeDom.Compiler.GeneratedCodeAttribute("BBUIModelLibrary", "2.93.2034.0")> _
+    Public ReadOnly Property [INTERACTIONTYPECODEID]() As Global.Blackbaud.AppFx.UIModeling.Core.CodeTableField
+        Get
+            Return _interactiontypecodeid
+        End Get
+    End Property
+    
+    ''' <summary>
+    ''' Select Opportunity
+    ''' </summary>
+    <System.ComponentModel.Description("Select Opportunity")> _
+    <System.CodeDom.Compiler.GeneratedCodeAttribute("BBUIModelLibrary", "2.93.2034.0")> _
+    Public ReadOnly Property [SELECTOPPORTUNITYID]() As Global.Blackbaud.AppFx.UIModeling.Core.ValueListField(Of Nullable(Of SELECTOPPORTUNITYIDS))
+        Get
+            Return _selectopportunityid
+        End Get
+    End Property
+    
+    ''' <summary>
+    ''' This is a fixed-term sponsorship
+    ''' </summary>
+    <System.ComponentModel.Description("This is a fixed-term sponsorship")> _
+    <System.CodeDom.Compiler.GeneratedCodeAttribute("BBUIModelLibrary", "2.93.2034.0")> _
+    Public ReadOnly Property [ISFIXEDTERMSPONSORSHIP]() As Global.Blackbaud.AppFx.UIModeling.Core.BooleanField
+        Get
+            Return _isfixedtermsponsorship
+        End Get
+    End Property
 
-        End If
-    End Sub
+	''' <summary>
+	''' This is a prospect sponsorship
+	''' </summary>
+	<System.ComponentModel.Description("This is a prospect sponsorship")> _
+	<System.CodeDom.Compiler.GeneratedCodeAttribute("BBUIModelLibrary", "2.93.2034.0")> _
+	Public ReadOnly Property [ISPROSPECTSPONSORSHIP]() As Global.Blackbaud.AppFx.UIModeling.Core.BooleanField
+		Get
+			Return _isprospectsponsorship
+		End Get
+	End Property
 
+    <System.CodeDom.Compiler.GeneratedCodeAttribute("BBUIModelLibrary", "2.93.2034.0")> _
+    Public ReadOnly Property [RGSCHEDULE]() As Global.Blackbaud.AppFx.UIModeling.Core.XMLField
+        Get
+            Return _rgschedule
+        End Get
+    End Property
+    
+    ''' <summary>
+    ''' Name
+    ''' </summary>
+    <System.ComponentModel.Description("Name")> _
+    <System.CodeDom.Compiler.GeneratedCodeAttribute("BBUIModelLibrary", "2.93.2034.0")> _
+    Public ReadOnly Property [MOPPORTUNITYNAME]() As Global.Blackbaud.AppFx.UIModeling.Core.StringField
+        Get
+            Return _mopportunityname
+        End Get
+    End Property
+    
+    ''' <summary>
+    ''' Location
+    ''' </summary>
+    <System.ComponentModel.Description("Location")> _
+    <System.CodeDom.Compiler.GeneratedCodeAttribute("BBUIModelLibrary", "2.93.2034.0")> _
+    Public ReadOnly Property [MOPPORTUNITYLOCATION]() As Global.Blackbaud.AppFx.UIModeling.Core.StringField
+        Get
+            Return _mopportunitylocation
+        End Get
+    End Property
+    
+    ''' <summary>
+    ''' Lookup ID
+    ''' </summary>
+    <System.ComponentModel.Description("Lookup ID")> _
+    <System.CodeDom.Compiler.GeneratedCodeAttribute("BBUIModelLibrary", "2.93.2034.0")> _
+    Public ReadOnly Property [MOPPORTUNITYLOOKUPID]() As Global.Blackbaud.AppFx.UIModeling.Core.StringField
+        Get
+            Return _mopportunitylookupid
+        End Get
+    End Property
+    
+    ''' <summary>
+    ''' Gender
+    ''' </summary>
+    <System.ComponentModel.Description("Gender")> _
+    <System.CodeDom.Compiler.GeneratedCodeAttribute("BBUIModelLibrary", "2.93.2034.0")> _
+    Public ReadOnly Property [MOPPORTUNITYGENDER]() As Global.Blackbaud.AppFx.UIModeling.Core.StringField
+        Get
+            Return _mopportunitygender
+        End Get
+    End Property
+    
+    ''' <summary>
+    ''' Birthdate
+    ''' </summary>
+    <System.ComponentModel.Description("Birthdate")> _
+    <System.CodeDom.Compiler.GeneratedCodeAttribute("BBUIModelLibrary", "2.93.2034.0")> _
+    Public ReadOnly Property [MOPPORTUNITYBIRTHDATE]() As Global.Blackbaud.AppFx.UIModeling.Core.StringField
+        Get
+            Return _mopportunitybirthdate
+        End Get
+    End Property
+    
+    <System.CodeDom.Compiler.GeneratedCodeAttribute("BBUIModelLibrary", "2.93.2034.0")> _
+    Public ReadOnly Property [MOPPORTUNITYIMAGE]() As Global.Blackbaud.AppFx.UIModeling.Core.StringField
+        Get
+            Return _mopportunityimage
+        End Get
+    End Property
+    
+    ''' <summary>
+    ''' Finder number
+    ''' </summary>
+    <System.ComponentModel.Description("Finder number")> _
+    <System.CodeDom.Compiler.GeneratedCodeAttribute("BBUIModelLibrary", "2.93.2034.0")> _
+    Public ReadOnly Property [FINDERNUMBERSTRING]() As Global.Blackbaud.AppFx.UIModeling.Core.StringField
+        Get
+            Return _findernumberstring
+        End Get
+    End Property
+    
+    ''' <summary>
+    ''' Invalid finder number
+    ''' </summary>
+    <System.ComponentModel.Description("Invalid finder number")> _
+    <System.CodeDom.Compiler.GeneratedCodeAttribute("BBUIModelLibrary", "2.93.2034.0")> _
+    Public ReadOnly Property [INVALIDFINDERNUMBERIMAGE]() As Global.Blackbaud.AppFx.UIModeling.Core.StringField
+        Get
+            Return _invalidfindernumberimage
+        End Get
+    End Property
+    
+    <System.CodeDom.Compiler.GeneratedCodeAttribute("BBUIModelLibrary", "2.93.2034.0")> _
+    Public ReadOnly Property [INSTALLMENTS]() As Global.Blackbaud.AppFx.UIModeling.Core.CollectionField(Of UnavailableSubstitutionSponsorshipAddDataFormINSTALLMENTSUIModel)
+        Get
+            Return _installments
+        End Get
+    End Property
+    
+    ''' <summary>
+    ''' General
+    ''' </summary>
+    <System.ComponentModel.Description("General")> _
+    <System.CodeDom.Compiler.GeneratedCodeAttribute("BBUIModelLibrary", "2.93.2034.0")> _
+    Public ReadOnly Property [GENERALINFORMATION]() As Global.Blackbaud.AppFx.UIModeling.Core.GroupField
+        Get
+            Return _generalinformation
+        End Get
+    End Property
+    
+    ''' <summary>
+    ''' Sponsorship Opportunity
+    ''' </summary>
+    <System.ComponentModel.Description("Sponsorship Opportunity")> _
+    <System.CodeDom.Compiler.GeneratedCodeAttribute("BBUIModelLibrary", "2.93.2034.0")> _
+    Public ReadOnly Property [SPONSORSHIPOPPORTUNITY]() As Global.Blackbaud.AppFx.UIModeling.Core.GroupField
+        Get
+            Return _sponsorshipopportunity
+        End Get
+    End Property
+    
+    ''' <summary>
+    ''' Schedule
+    ''' </summary>
+    <System.ComponentModel.Description("Schedule")> _
+    <System.CodeDom.Compiler.GeneratedCodeAttribute("BBUIModelLibrary", "2.93.2034.0")> _
+    Public ReadOnly Property [PAYMENTSCHEDULE]() As Global.Blackbaud.AppFx.UIModeling.Core.GroupField
+        Get
+            Return _paymentschedule
+        End Get
+    End Property
+    
+    ''' <summary>
+    ''' Payment information
+    ''' </summary>
+    <System.ComponentModel.Description("Payment information")> _
+    <System.CodeDom.Compiler.GeneratedCodeAttribute("BBUIModelLibrary", "2.93.2034.0")> _
+    Public ReadOnly Property [PAYMENTINFORMATION]() As Global.Blackbaud.AppFx.UIModeling.Core.GroupField
+        Get
+            Return _paymentinformation
+        End Get
+    End Property
+    
+    ''' <summary>
+    ''' Matched opportunity
+    ''' </summary>
+    <System.ComponentModel.Description("Matched opportunity")> _
+    <System.CodeDom.Compiler.GeneratedCodeAttribute("BBUIModelLibrary", "2.93.2034.0")> _
+    Public ReadOnly Property [MATCHEDOPPORTUNITY]() As Global.Blackbaud.AppFx.UIModeling.Core.GroupField
+        Get
+            Return _matchedopportunity
+        End Get
+    End Property
+    
+    ''' <summary>
+    ''' Sponsorship
+    ''' </summary>
+    <System.ComponentModel.Description("Sponsorship")> _
+    <System.CodeDom.Compiler.GeneratedCodeAttribute("BBUIModelLibrary", "2.93.2034.0")> _
+    Public ReadOnly Property [TAB_SPONSORSHIP]() As Global.Blackbaud.AppFx.UIModeling.Core.TabField
+        Get
+            Return _tabsponsorship
+        End Get
+    End Property
+    
+    ''' <summary>
+    ''' Payment
+    ''' </summary>
+    <System.ComponentModel.Description("Payment")> _
+    <System.CodeDom.Compiler.GeneratedCodeAttribute("BBUIModelLibrary", "2.93.2034.0")> _
+    Public ReadOnly Property [TAB_PAYMENT]() As Global.Blackbaud.AppFx.UIModeling.Core.TabField
+        Get
+            Return _tabpayment
+        End Get
+    End Property
+    
+    ''' <summary>
+    ''' Expiration
+    ''' </summary>
+    <System.ComponentModel.Description("Expiration")> _
+    <System.CodeDom.Compiler.GeneratedCodeAttribute("BBUIModelLibrary", "2.93.2034.0")> _
+    Public ReadOnly Property [TAB_EXPIRATION]() As Global.Blackbaud.AppFx.UIModeling.Core.TabField
+        Get
+            Return _tabexpiration
+        End Get
+    End Property
+    
+    ''' <summary>
+    ''' Find
+    ''' </summary>
+    <System.ComponentModel.Description("Find")> _
+    <System.CodeDom.Compiler.GeneratedCodeAttribute("BBUIModelLibrary", "2.93.2034.0")> _
+    Public ReadOnly Property [FINDOPPORTUNITY]() As Global.Blackbaud.AppFx.UIModeling.Core.GenericUIAction
+        Get
+            Return _findopportunity
+        End Get
+    End Property
+	''' <summary>
+	''' Remove
+	''' </summary>
+	<System.ComponentModel.Description("Remove")> _
+	<System.CodeDom.Compiler.GeneratedCodeAttribute("BBUIModelLibrary", "2.93.2034.0")> _
+	Public ReadOnly Property [REMOVESELECTEDCHILD]() As Global.Blackbaud.AppFx.UIModeling.Core.GenericUIAction
+		Get
+			Return _removeselectedchild
+		End Get
+	End Property
+	''' <summary>
+	''' Add Child
+	''' </summary>
+	<System.ComponentModel.Description("Add Child")> _
+	<System.CodeDom.Compiler.GeneratedCodeAttribute("BBUIModelLibrary", "2.93.2034.0")> _
+	Public ReadOnly Property [ADDSELECTEDCHILD]() As Global.Blackbaud.AppFx.UIModeling.Core.GenericUIAction
+		Get
+			Return _addselectedchild
+		End Get
+	End Property
+
+    ''' <summary>
+    ''' Clear
+    ''' </summary>
+    <System.ComponentModel.Description("Clear")> _
+    <System.CodeDom.Compiler.GeneratedCodeAttribute("BBUIModelLibrary", "2.93.2034.0")> _
+    Public ReadOnly Property [CLEARSEARCHACTION]() As Global.Blackbaud.AppFx.UIModeling.Core.GenericUIAction
+        Get
+            Return _clearsearchaction
+        End Get
+    End Property
+    
+    ''' <summary>
+    ''' Look up a source code to associate with this gift
+    ''' </summary>
+    <System.ComponentModel.Description("Look up a source code to associate with this gift")> _
+    <System.CodeDom.Compiler.GeneratedCodeAttribute("BBUIModelLibrary", "2.93.2034.0")> _
+    Public ReadOnly Property [SOURCECODELOOKUP]() As Global.Blackbaud.AppFx.UIModeling.Core.ShowSearchFormUIAction
+        Get
+            Return _sourcecodelookup
+        End Get
+    End Property
+    
+    ''' <summary>
+    ''' Edit the currency and exchange rate information for this pledge
+    ''' </summary>
+    <System.ComponentModel.Description("Edit the currency and exchange rate information for this pledge")> _
+    <System.CodeDom.Compiler.GeneratedCodeAttribute("BBUIModelLibrary", "2.93.2034.0")> _
+    Public ReadOnly Property [CURRENCYACTION]() As Global.Blackbaud.AppFx.UIModeling.Core.ShowCustomFormUIAction
+        Get
+            Return _currencyaction
+        End Get
+    End Property
+    
 End Class

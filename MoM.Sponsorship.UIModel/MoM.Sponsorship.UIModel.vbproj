@@ -104,6 +104,7 @@
     <Import Include="System.Linq" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Helpers\SponsorshipHelper.vb" />
     <Compile Include="My Project\AssemblyInfo.vb" />
     <Compile Include="ProspectSponsorshipAddDataFormCHILDRENUIModel.CodeGen.vb">
       <DependentUpon>ProspectSponsorshipAddDataFormUIModel.vb</DependentUpon>
@@ -133,6 +134,16 @@
       <DependentUpon>SponsorshipUIModelVersionUIModel.vb</DependentUpon>
     </Compile>
     <Compile Include="SponsorshipUIModelVersionUIModel.vb" />
+    <Compile Include="UnavailableSubstitutionSponsorshipAddDataFormCHILDRENUIModel.CodeGen.vb">
+      <DependentUpon>UnavailableSubstitutionSponsorshipAddDataFormUIModel.vb</DependentUpon>
+    </Compile>
+    <Compile Include="UnavailableSubstitutionSponsorshipAddDataFormINSTALLMENTSUIModel.CodeGen.vb">
+      <DependentUpon>UnavailableSubstitutionSponsorshipAddDataFormUIModel.vb</DependentUpon>
+    </Compile>
+    <Compile Include="UnavailableSubstitutionSponsorshipAddDataFormUIModel.CodeGen.vb">
+      <DependentUpon>UnavailableSubstitutionSponsorshipAddDataFormUIModel.vb</DependentUpon>
+    </Compile>
+    <Compile Include="UnavailableSubstitutionSponsorshipAddDataFormUIModel.vb" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="htmlforms\mom.sponsorship\" />
@@ -142,6 +153,13 @@
     <None Include="postbuild.bat" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="..\MoM.Sponsorship.Catalog\Add Forms\UnavailableSubstitutionSponsorship.Add.xml">
+      <Link>LinkedSpecs\UnavailableSubstitutionSponsorship.Add.xml</Link>
+    </None>
+    <Content Include="htmlforms\UnavailableSubstitutionSponsorship.AddDataForm.html" />
+    <Content Include="UnavailableSubstitutionSponsorshipAddDataFormUIModel.xml">
+      <DependentUpon>UnavailableSubstitutionSponsorshipAddDataFormUIModel.vb</DependentUpon>
+    </Content>
     <None Include="..\MoM.Sponsorship.Catalog\Add Forms\ProspectSponsorship.Add.xml">
       <Link>LinkedSpecs\ProspectSponsorship.Add.xml</Link>
     </None>

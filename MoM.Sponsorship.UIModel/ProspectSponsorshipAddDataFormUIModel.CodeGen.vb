@@ -182,7 +182,8 @@ Partial Public Class [ProspectSponsorshipAddDataFormUIModel]
 	Private WithEvents _addselectedchild As Global.Blackbaud.AppFx.UIModeling.Core.GenericUIAction
     Private WithEvents _clearsearchaction As Global.Blackbaud.AppFx.UIModeling.Core.GenericUIAction
     Private WithEvents _sourcecodelookup As Global.Blackbaud.AppFx.UIModeling.Core.ShowSearchFormUIAction
-    Private WithEvents _currencyaction As Global.Blackbaud.AppFx.UIModeling.Core.ShowCustomFormUIAction
+	Private WithEvents _currencyaction As Global.Blackbaud.AppFx.UIModeling.Core.ShowCustomFormUIAction
+	Private WithEvents _fundraiserid As Global.Blackbaud.AppFx.UIModeling.Core.SearchListField(Of Guid)
 
 	<System.CodeDom.Compiler.GeneratedCodeAttribute("BBUIModelLibrary", "2.93.2034.0")> _
     Public Sub New()
@@ -271,7 +272,8 @@ Partial Public Class [ProspectSponsorshipAddDataFormUIModel]
 		_addselectedchild = New Global.Blackbaud.AppFx.UIModeling.Core.GenericUIAction
         _clearsearchaction = New Global.Blackbaud.AppFx.UIModeling.Core.GenericUIAction
         _sourcecodelookup = New Global.Blackbaud.AppFx.UIModeling.Core.ShowSearchFormUIAction
-        _currencyaction = New Global.Blackbaud.AppFx.UIModeling.Core.ShowCustomFormUIAction
+		_currencyaction = New Global.Blackbaud.AppFx.UIModeling.Core.ShowCustomFormUIAction
+		_fundraiserid = New Global.Blackbaud.AppFx.UIModeling.Core.SearchListField(Of Guid)
 
         MyBase.Mode = Global.Blackbaud.AppFx.UIModeling.Core.DataFormMode.Add
         MyBase.DataFormTemplateId = New Guid("d143aadd-e76f-472e-9cb1-6465490977e7")
@@ -775,7 +777,7 @@ Partial Public Class [ProspectSponsorshipAddDataFormUIModel]
         _interactiontypecodeid.Name = "INTERACTIONTYPECODEID"
         _interactiontypecodeid.Caption = "Interaction"
         _interactiontypecodeid.Required = True
-        _interactiontypecodeid.CodeTableName = "USR_NEWSPONSORSHIPINTERACTIONTYPECODE"
+		_interactiontypecodeid.CodeTableName = "USR_NEWPROSPECTSPONSORSHIPINTERACTIONTYPECODE"
         Me.Fields.Add(_interactiontypecodeid)
         '
         '_selectopportunityid
@@ -994,6 +996,24 @@ Partial Public Class [ProspectSponsorshipAddDataFormUIModel]
         _currencyaction.ModelAssemblyName = "Blackbaud.AppFx.Fundraising.UIModel.dll"
         _currencyaction.ModelClassName = "Blackbaud.AppFx.Fundraising.UIModel.CurrencyFormUIModel"
         Me.Actions.Add(_currencyaction)
+
+		'
+		'_fundraiserid
+		'
+		_fundraiserid.Name = "FUNDRAISERID"
+		_fundraiserid.Caption = "Fundraiser"
+		_fundraiserid.SearchListId = New Guid("c588bc58-68de-4a57-ba4e-cfa45c601b71")
+		_fundraiserid.SearchFieldOverrides.Add(New Global.Blackbaud.AppFx.UIModeling.Core.FieldOverride() With {.FieldId = "FORMHEADER", .DefaultValueText = "Fundraiser Search"})
+		'_fundraiserid.SearchFieldOverrides.Add(New Global.Blackbaud.AppFx.UIModeling.Core.FieldOverride() With {.FieldId = "SPONSORSHIPPROGRAMID", .DefaultValueText = "Fields!SPONSORSHIPPROGRAMID"})
+		'_fundraiserid.SearchFieldOverrides.Add(New Global.Blackbaud.AppFx.UIModeling.Core.FieldOverride() With {.FieldId = "ELIGIBILITYCODE", .DefaultValueText = "1"})
+		'_fundraiserid.SearchFieldOverrides.Add(New Global.Blackbaud.AppFx.UIModeling.Core.FieldOverride() With {.FieldId = "AVAILABILITYCODE", .DefaultValueText = "1"})
+		'_fundraiserid.SearchFieldOverrides.Add(New Global.Blackbaud.AppFx.UIModeling.Core.FieldOverride() With {.FieldId = "RESTRICTFORSOLESPONSORSHIP", .Caption = "Only include unsponsored", .DefaultValueText = "True"})
+		'_fundraiserid.SearchFieldOverrides.Add(New Global.Blackbaud.AppFx.UIModeling.Core.FieldOverride() With {.FieldId = "SPONSORSHIPOPPORTUNITYGROUPID"})
+		'_fundraiserid.SearchFieldOverrides.Add(New Global.Blackbaud.AppFx.UIModeling.Core.FieldOverride() With {.FieldId = "RESERVATIONKEYID"})
+		'_fundraiserid.SearchFieldOverrides.Add(New Global.Blackbaud.AppFx.UIModeling.Core.FieldOverride() With {.FieldId = "CORRESPONDINGSPONSORID", .Hidden = True, .DefaultValueText = "Fields!SPONSORSHIPCONSTITUENTID"})
+		'_fundraiserid.SearchFieldOverrides.Add(New Global.Blackbaud.AppFx.UIModeling.Core.FieldOverride() With {.FieldId = "FINANCIALSPONSORID", .Hidden = True, .DefaultValueText = "Fields!REVENUECONSTITUENTID"})
+		Me.Fields.Add(_fundraiserid)
+
 
 		OnCreated()
 
@@ -1889,5 +1909,16 @@ Partial Public Class [ProspectSponsorshipAddDataFormUIModel]
             Return _currencyaction
         End Get
     End Property
-    
+
+	''' <summary>
+	''' Fundraiser
+	''' </summary>
+	<System.ComponentModel.Description("Fundraiser")> _
+	<System.CodeDom.Compiler.GeneratedCodeAttribute("BBUIModelLibrary", "2.93.2034.0")> _
+	Public ReadOnly Property [FUNDRAISERID]() As Global.Blackbaud.AppFx.UIModeling.Core.SearchListField(Of Guid)
+		Get
+			Return _fundraiserid
+		End Get
+	End Property
+
 End Class

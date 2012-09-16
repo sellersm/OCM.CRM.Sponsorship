@@ -22,16 +22,26 @@
     }
 </style>
 
-<div id="#MAP#ProspectSponsorshipAddDataForm">
-    <h2 id="#MAP#FORMHEADER_value">
+<div id="#MAP#UnavailableSubstitutionSponsorshipAddDataForm">
+<h2 id="#MAP#FORMHEADER_value">
 	</h2>
 	<h3 id="#MAP#GENERALINFORMATION_value">
 	</h3>
 	<table>
 		<tr>
 			<td>
+				<div>
+					<input id="#MAP#ISPROSPECTSPONSORSHIP_value" type="checkbox" style="width: auto;" />
+					<label for="#MAP#ISPROSPECTSPONSORSHIP_value"></label>
+				</div>
 				<table>
-					<tr id="#MAP#REVENUECONSTITUENTID_container">
+<!--				<tr>
+					<td>
+						<input id="#MAP#ISPROSPECTSPONSORSHIP_value" type="checkbox" style="width: auto;" />
+						<label for="#MAP#ISPROSPECTSPONSORSHIP_value"></label>
+					</td>
+				</tr>
+-->					<tr id="#MAP#REVENUECONSTITUENTID_container">
 						<td class="#MAP#label-width">
 							<label id="#MAP#REVENUECONSTITUENTID_caption" for="#MAP#REVENUECONSTITUENTID_value">
 							</label>
@@ -148,24 +158,32 @@
 								<td colspan="2">
 									<table style="border: solid 1px;">
 										<tr>
-											<td valign="top" align="left">
-												<label id="#MAP#CHILDREN_caption" for="#MAP#CHILDREN_value">
-												</label>
-											</td>
-										</tr>
-										<tr>
-											<td align="left">
+<!--										<td class="largespacer" />  -->						
+										<td class="#MAP#label-width">
+											<label id="#MAP#SPONSORSHIPOPPORTUNITYIDCHILD_caption" for="#MAP#SPONSORSHIPOPPORTUNITYIDCHILD_value"></label>
+										</td>
+											<td>
 												<input id="#MAP#SPONSORSHIPOPPORTUNITYIDCHILD_value" type="text" />
+											</td>	
+											<td class="largespacer" />
+											<td class="#MAP#label-width">
+												<label id="#MAP#SUBSTITUTECHILDID_caption" for="#MAP#SUBSTITUTECHILDID_value"></label>
+											</td>
+											<td>
+												<input id="#MAP#SUBSTITUTECHILDID_value" type="text" />
 											</td>
 											<td class="#MAP#ADDSELECTEDCHILD_caption" align="left">
 												<button id="#MAP#ADDSELECTEDCHILD_action" />
 											</td>
-											<td>
+										</tr>
+										<tr>
+											<td valign="top" align="left" colspan="5">
+												<label id="#MAP#CHILDREN_caption" for="#MAP#CHILDREN_value"></label>
 											</td>
 										</tr>
 										<tr>
-											<td>
-												<div id="#MAP#CHILDREN_value" style="height: 100px; width: 450px;">
+											<td colspan="5">
+												<div id="#MAP#CHILDREN_value" style="height: 100px; width: 650px;">
 												</div>
 											</td>
 										</tr>

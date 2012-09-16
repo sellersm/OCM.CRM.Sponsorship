@@ -82,6 +82,12 @@ Public Class SponsorshipAddFormWrappedUIModel
 	Private _cacheSourceCode As String
 	Private _cacheAppealId As Guid
 	Private _cacheMailingId As Guid
+
+	' 9/15/12 Memphis added to manage the validation of sponsor and constituency codes:
+	Private _isValidSponsorship As Boolean
+	Private _sponsorshipHelper As SponsorshipHelper
+
+
 #End Region
 
 
@@ -163,6 +169,10 @@ Public Class SponsorshipAddFormWrappedUIModel
 		Me.CLEARSEARCHACTION.Enabled = False
 
 		_programid = String.Empty
+
+		_isValidSponsorship = True
+		_sponsorshipHelper = New SponsorshipHelper()
+
 
 	End Sub
 
@@ -362,6 +372,10 @@ Public Class SponsorshipAddFormWrappedUIModel
 				HandleChangeCorrespondingSponsor()
 			End If
 			_changeEventFired = False
+		End If
+		If _initialLoadComplete Then
+			'check if this sponsor is valid based on the constituency code rules and whether or not this is a prospect sponsorship:
+			ValidateSponsorConstituency(Me.SPONSORSHIPCONSTITUENTID.Value)
 		End If
 	End Sub
 
@@ -876,6 +890,8 @@ Public Class SponsorshipAddFormWrappedUIModel
 			If Me.FINDERNUMBER.Value.Equals(0) OrElse Len(Me.FINDERNUMBER.Value.ToString) = 0 OrElse Not _finderNumberHelper.FinderNumberIsValid() Then
 				Me.APPEALID.Enabled = True
 				Me.MAILINGID.Enabled = True
+				'Memphis 9/15/12 added
+				Me.FUNDRAISERID.Enabled = True
 			End If
 			Me.GIFTRECIPIENT.Enabled = Not Transferring()
 		Else
@@ -1134,6 +1150,21 @@ Public Class SponsorshipAddFormWrappedUIModel
 			e.Valid = False
 			e.InvalidReason = "Please enter a location."
 		End If
+		If _isValidSponsorship = False Then
+			e.Valid = False
+			e.InvalidReason = "Sponsor has wrong Constituency Code for this type of Sponsorship!"
+		End If
+		'FundraiserId is required if there's an Appeal
+		If (Me.APPEALID.HasValue) AndAlso (Not Me.APPEALID.Value.Equals(Guid.Empty)) Then
+			'check for a fundraiserId
+			If (Me.FUNDRAISERID.HasValue) AndAlso (Not Me.FUNDRAISERID.Value.Equals(Guid.Empty)) Then
+				'ok
+			Else
+				e.Valid = False
+				e.InvalidFieldName = "FUNDRAISER"
+				e.InvalidReason = "You must select a Fundraiser if you have selected an Appeal."
+			End If
+		End If
 	End Sub
 
 	Private Sub _sponsorshiplocationid_ValueChanged(ByVal sender As Object, ByVal e As UIModeling.Core.ValueChangedEventArgs) Handles _sponsorshiplocationid.ValueChanged
@@ -1316,6 +1347,8 @@ Public Class SponsorshipAddFormWrappedUIModel
 			.CURRENCYACTION.Enabled = hasConstituent
 			.BASEAMOUNT.Enabled = hasConstituent
 			.DONOTACKNOWLEDGE.Enabled = hasConstituent
+			'9/12/12 Memphis added
+			.FUNDRAISERID.Enabled = hasConstituent
 		End With
 
 		UpdatePaymentFieldsEnabled()
@@ -1827,4 +1860,49 @@ Public Class SponsorshipAddFormWrappedUIModel
 			'_changeEventFired = False
 		End If
 	End Sub
+
+	Private Sub _appealid_SearchItemSelected(ByVal sender As Object, ByVal e As Blackbaud.AppFx.UIModeling.Core.SearchItemSelectedEventArgs) Handles _appealid.SearchItemSelected
+		PopulateFundraiserFromAppeal(e.SelectedId)
+	End Sub
+
+	Private Sub ValidateSponsorConstituency(ByVal constituentId As Guid)
+		' call the helper method to validate this sponsor's constituency:
+		If _sponsorshipHelper Is Nothing Then
+			_sponsorshipHelper = New SponsorshipHelper
+		End If
+
+		'check this constituent's constituency code based on the prospect sponsorship flag:
+		'if this is a prospect sponsorship, then check for a constituency code of 'Sponsor'
+		'if this is a regular sponsorship, then check for a constituency code of 'Prospect Sponsor'
+		Dim constituencyCode As String = "Prospect Sponsor"
+		_isValidSponsorship = True
+
+		_isValidSponsorship = _sponsorshipHelper.ValidateSponsorConstituency(constituentId, constituencyCode, _securityContext, Me.GetRequestContext())
+
+		If Not _isValidSponsorship Then
+			'inform the user
+			Dim message As String
+			message = "The selected sponsor has a Constituency code of 'Prospect Sponsor'! Please select a different Sponsor."
+
+			DisplayErrorMessage(message)
+		End If
+
+	End Sub
+
+	Private Sub PopulateFundraiserFromAppeal(ByVal appealId As String)
+		' 9/13/12 Memphis moved the implementation to the SponsorshipHelper class:
+		If _sponsorshipHelper Is Nothing Then
+			_sponsorshipHelper = New SponsorshipHelper
+		End If
+
+		'this is where we'll try to find the Fundraiser constituentID for this Appeal:
+		Dim constituentId As Guid = _sponsorshipHelper.GetFundraiserForAppealId(New Guid(appealId), _securityContext, Me.GetRequestContext())
+		If Not constituentId.Equals(Guid.Empty) Then
+			Me.FUNDRAISERID.Value = constituentId
+			Me.FUNDRAISERID.UpdateDisplayText()
+		End If
+
+	End Sub
+
+
 End Class

@@ -1,27 +1,25 @@
 ﻿<AddDataFormTemplateSpec 
-	xmlns="bb_appfx_adddataformtemplate"
-	xmlns:c="bb_appfx_commontypes"
-	ID="d143aadd-e76f-472e-9cb1-6465490977e7"
-	Name="Prospect Sponsorship Add Data Form"
-	Description="Adds a new Prospect Sponsorship"
-	Author="Memphis Sellers"
-	FormHeader="Add a Prospect Sponsorship"
-	DataFormInstanceID="54a5433c-2d47-4c21-921b-1edac0478f1f"
-	RecordType="Sponsorship"
-	c:SecurityUIFolder="Sponsorship"
-	>
+    xmlns="bb_appfx_adddataformtemplate"
+    xmlns:c="bb_appfx_commontypes"
+    ID="0d1fc2df-5be4-47cd-a86c-fb1030eb52d9"
+    Name="Unavailable Substitution Sponsorship Add Data Form"
+    Description="Unavailable Substitution Sponsorship Add Data Form"
+    Author="Memphis Sellers"
+	FormHeader="Add Unavailable Transfer Child Sponsorship"
+    DataFormInstanceID="58bb4565-dd08-4e06-a29c-904188103f25"
+    RecordType="Sponsorship"
+    c:SecurityUIFolder="Sponsorship"
+    >
 
 	<!-- 
-	Remarks:    This started as a copy of the wrapped, custom Add Sponsorship form.  It's used to add a new Prospect Sponsorship
+	Remarks:    This is used for unavailable substitution child Sponsorship.
 				
 	History:
 	Date            Modified By     Comments
-	03-Sep-2012		Memphis			Initial Version.
-	04-Sep-2012		Memphis			Changed the values for autopay so the sprocs that get called will set the paymentmethodcode accordingly:
-										@AUTOPAY=0,  this means 'No'
-										@PAYMENTMETHODCODE=2,  this is 'None'
-	15-Sep-2012		Memphis			added FUNDRAISERID field, call to set the solicitor if there's an Appeal
+	06-Sep-2012		Memphis			Initial Version.
+	15-Sep-2012		Memphis			Added call to add solicitor if there's an Appeal.
 	-->
+
 
 	<c:ImpliedSecurityList>
 		<c:ImpliedSecurity Type="Datalist" ID="26c9edcb-a40f-4cf3-9cd4-fb01f773a777" />
@@ -62,10 +60,10 @@
 	</c:InstalledProductList>
 	<ResourceFile AssemblyName="Blackbaud.AppFx.Sponsorship.Catalog.dll" ClassName="Blackbaud.AppFx.Sponsorship.Catalog.Sponsorship.Add" />
 	<SPDataForm>
-		<LoadImplementation SPName="USR_USP_DATAFORMTEMPLATE_ADD_PROSPECTSPONSORSHIP_LOAD">
+		<LoadImplementation SPName="USR_USP_DATAFORMTEMPLATE_ADD_UNAVAILABLESPONSORSHIP_PRELOAD">
 			<c:CreateProcedureSQL>
 				<![CDATA[
-create procedure dbo.USR_USP_DATAFORMTEMPLATE_ADD_PROSPECTSPONSORSHIP_LOAD 
+create procedure dbo.USR_USP_DATAFORMTEMPLATE_ADD_UNAVAILABLESPONSORSHIP_PRELOAD 
 (
 		@FORMTITLE nvarchar(100) = null output,
 		@REVENUECONSTITUENTID uniqueidentifier = null output,
@@ -126,10 +124,10 @@ return @r;
 			- the @SPONSORSHIPOPPORTUNITYIDCHILD parameter needs to have the sponsorshipopportunityid value of the child
 	  -->
 
-		<SaveImplementation SPName="USR_USP_DATAFORMTEMPLATE_ADD_PROSPECTSPONSORSHIP">
+		<SaveImplementation SPName="USR_USP_DATAFORMTEMPLATE_ADD_UNAVAILABLESPONSORSHIP">
 			<c:CreateProcedureSQL>
 				<![CDATA[
-create procedure dbo.USR_USP_DATAFORMTEMPLATE_ADD_PROSPECTSPONSORSHIP 
+create procedure dbo.USR_USP_DATAFORMTEMPLATE_ADD_UNAVAILABLESPONSORSHIP 
 (
 		@ID uniqueidentifier = null output,
 		@CHANGEAGENTID uniqueidentifier = null,
@@ -184,7 +182,8 @@ create procedure dbo.USR_USP_DATAFORMTEMPLATE_ADD_PROSPECTSPONSORSHIP
 		@CHILDREN xml = null,
 		@PFMID uniqueidentifier = null,
 		@INTERACTIONTYPECODEID uniqueidentifier = null,
-		@FUNDRAISERID uniqueidentifier = null		
+		@SUBSTITUTECHILDID uniqueidentifier = null,
+		@FUNDRAISERID uniqueidentifier = null
 )
 
 
@@ -199,25 +198,46 @@ begin try
   -- for each child in that temp table, call the [USP_DATAFORMTEMPLATE_ADD_SPONSORSHIP] sproc to add the new sponsorship
   -- the @SPONSORSHIPOPPORTUNITYIDCHILD parameter needs to have the sponsorshipopportunityid value of the child
   declare @TempTbl table (
-	   [ID] uniqueidentifier,
-	   [CHILDID] nvarchar(50))
+	   [PROGRAMID] uniqueidentifier,
+	   [UNAVAILABLECHILDNAME] nvarchar(100),
+	   [UNAVAILABLELOOKUPID] nvarchar(50),
+	   [TRANSFERCHILDNAME] nvarchar(100),
+	   [TRANSFERLOOKUPID] nvarchar(50),
+	   [TRANSFERCHILDID] uniqueidentifier
+	   )
 
 	insert into @TempTbl select 
-		[ID],
-		[CHILDID] 
-	from dbo.UFN_CHILDREN_FOR_SPONSORSHIP_FROMITEMLISTXML(@CHILDREN)
+	   [PROGRAMID],
+	   [UNAVAILABLECHILDNAME],
+	   [UNAVAILABLELOOKUPID],
+	   [TRANSFERCHILDNAME],
+	   [TRANSFERLOOKUPID],
+	   [TRANSFERCHILDID]
+	from dbo.USR_UFN_UNAVAILABLECHILDREN_FOR_TRANSFERSPONSORSHIP_FROMITEMLISTXML(@CHILDREN)
 
-  declare @r int
+	declare @r int
+	declare @UNAVAILABLECHILDNAME nvarchar(100)
+	declare @UNAVAILABLELOOKUPID nvarchar(50)
+	declare @TRANSFERCHILDNAME nvarchar(100)
+	declare @TRANSFERLOOKUPID nvarchar(50)
+	declare @TRANSFERCHILDID uniqueidentifier
+
   declare chidCursor cursor fast_forward for 
-  select ID, CHILDID
+  select [PROGRAMID],
+	   [UNAVAILABLECHILDNAME],
+	   [UNAVAILABLELOOKUPID],
+	   [TRANSFERCHILDNAME],
+	   [TRANSFERLOOKUPID],
+	   [TRANSFERCHILDID]
   from @TempTbl 
 
   open chidCursor 
 
-  fetch next from chidCursor into @SPONSORSHIPPROGRAMID, @SPONSORSHIPOPPORTUNITYIDCHILD
+  fetch next from chidCursor into @SPONSORSHIPPROGRAMID, @UNAVAILABLECHILDNAME, @UNAVAILABLELOOKUPID, @TRANSFERCHILDNAME, @TRANSFERLOOKUPID, @TRANSFERCHILDID 
 
   while @@FETCH_STATUS = 0
   begin
+	set @SPONSORSHIPOPPORTUNITYIDCHILD = @TRANSFERCHILDID;
 	-- do the work of adding the sponsorship here:
 	  set @ID = newid()
 	  exec @r = dbo.USP_DATAFORMTEMPLATE_ADD_SPONSORSHIP 
@@ -238,7 +258,7 @@ begin try
 		@ISSOLESPONSORSHIP = @ISSOLESPONSORSHIP, 
 		@STARTDATE = @STARTDATE, 
 		@AMOUNT = @AMOUNT, 
-		@PAYMENTMETHODCODE = 0,  -- set this to CASH, no matter what @PAYMENTMETHODCODE, 
+		@PAYMENTMETHODCODE = @PAYMENTMETHODCODE, 
 		@REFERENCEDATE = @REFERENCEDATE, 
 		@REFERENCENUMBER = @REFERENCENUMBER, 
 		@CARDHOLDERNAME = @CARDHOLDERNAME, 
@@ -249,7 +269,7 @@ begin try
 		@FREQUENCYCODE = @FREQUENCYCODE, 
 		@REVENUESCHEDULEENDDATE = @REVENUESCHEDULEENDDATE, 
 		@REVENUESCHEDULESTARTDATE = @REVENUESCHEDULESTARTDATE, 
-		@AUTOPAY = 0,    -- set to 0 no matter what @AUTOPAY, 
+		@AUTOPAY = @AUTOPAY, 
 		@CREDITCARDTOKEN = @CREDITCARDTOKEN, 
 		@GIFTRECIPIENT = @GIFTRECIPIENT, 
 		@PLANNEDENDDATE = @PLANNEDENDDATE, 
@@ -271,20 +291,25 @@ begin try
 		@CURRENTAPPUSERID = @CURRENTAPPUSERID, 
 		@BATCHNUMBER = @BATCHNUMBER, 
 		@DONOTACKNOWLEDGE = @DONOTACKNOWLEDGE
-
+		
+		
+		
 		-- add the fundraiser/solicitor to the recurring gift if user selected an Appeal
 		if (@APPEALID is not null) and (@FUNDRAISERID is not null)
 			exec dbo.USR_USP_ADD_SOLICITOR_TO_RECURRING_GIFT_CHILDSPONSORSHIP
 				@SPONSORSHIPID = @ID, 
 				@CONSTITUENTID = @FUNDRAISERID,
 				@CHANGEAGENTID = @CHANGEAGENTID
-				
-				
+		
+		
+
 	if @@error = 0 and @r = 0
 	begin
 	  -- try to remove the lock on this opportunity
 	  exec dbo.USR_DELETE_LOCK_CHILD_FOR_SPONSORSHIP_SELECTION @SPONSORSHIPOPPORTUNITYIDCHILD		
 	end
+	
+	-- ** THIS IS WHERE THE INTERACTION CALLS WILL BE PLACED! **
 	
 	/*   
 	-- what to do with errors?
@@ -295,7 +320,7 @@ begin try
 		end
 	*/
 	--
-	fetch next from chidCursor into @SPONSORSHIPPROGRAMID, @SPONSORSHIPOPPORTUNITYIDCHILD
+	fetch next from chidCursor into @SPONSORSHIPPROGRAMID, @UNAVAILABLECHILDNAME, @UNAVAILABLELOOKUPID, @TRANSFERCHILDNAME, @TRANSFERLOOKUPID, @TRANSFERCHILDID 
   end
 
   close chidCursor 
@@ -514,9 +539,15 @@ return @r;
 				</c:CustomExceptions>
 			</c:ExpectedDBExceptions>
 		</SaveImplementation>
-		
+
 	</SPDataForm>
-	<c:FormMetaData FixedDialog="true">
+
+	<!-- describe the context ID for this form (if applicable), which corresponds to a parameter in the SP. -->
+	<!--<Context ContextRecordType="REPLACE_WITH_RECORDTYPE" RecordIDParameter="CONTEXTID"/>-->
+
+	<!-- describe fields on the form, which correspond to parameters on the SP.  Note that system parameters 
+	like the context @ID, @CONTEXTID, and @CURRENTAPPUSERID need not be listed. -->
+	<c:FormMetaData FixedDialog="false">
 		<c:FormFields>
 			<c:FormField FieldID="FORMTITLE" ReadOnly="true" MaxLength="100" />
 			<c:FormField FieldID="REVENUECONSTITUENTID" DataType="Guid" Required="true" Caption="Financial sponsor" CaptionResourceKey="$$financial_sponsor">
@@ -561,32 +592,18 @@ return @r;
 				</c:SimpleDataList>
 			</c:FormField>
 
-			<c:FormField FieldID="CHILDREN" Caption="Children" CaptionResourceKey="$$sites">
+			<c:FormField FieldID="CHILDREN" Caption="Unavailable and Transfer Children" CaptionResourceKey="$$sites">
 				<c:Collection>
 					<c:Fields>
 						<c:FormField FieldID="ID" DataType="Guid" Hidden="true" />
-						<c:FormField FieldID="NAME" Caption="Child Name" DataType="Guid" Required="true" CaptionResourceKey="$$site">
-							<!--<c:SearchList SearchListID="ab076868-114a-4696-afe9-8d590677708c" EnableQuickFind="true" >
-					<c:FormFieldOverrides>
-					  <c:FormFieldOverride FieldID="SPONSORSHIPPROGRAMID" DefaultValueText="Fields!SPONSORSHIPPROGRAMID" />
-					  <c:FormFieldOverride FieldID="ELIGIBILITYCODE"  DefaultValueText="1" />
-					  <c:FormFieldOverride FieldID="AVAILABILITYCODE"  DefaultValueText="0" />
-					  <c:FormFieldOverride FieldID="RESTRICTFORSOLESPONSORSHIP" Caption="Only include unsponsored" DefaultValueText="Fields!ISSOLESPONSORSHIP" />
-					  <c:FormFieldOverride FieldID="SPONSORSHIPOPPORTUNITYGROUPID" ReadOnly="true" />
-					  <c:FormFieldOverride FieldID="RESERVATIONKEYID" ReadOnly="true" />
-					  <c:FormFieldOverride FieldID="CORRESPONDINGSPONSORID" Hidden="true" DefaultValueText="Fields!SPONSORSHIPCONSTITUENTID" />
-					  <c:FormFieldOverride FieldID="FINANCIALSPONSORID" Hidden="true" DefaultValueText="Fields!REVENUECONSTITUENTID" />
-					</c:FormFieldOverrides>                                        
-				  </c:SearchList>-->
-							<!--<c:SimpleDataList SimpleDataListID="3eb2bc55-07d8-4b1d-9a48-33883b3fa404">
-					<c:SearchList SearchListID="ab076868-114a-4696-afe9-8d590677708c" />
-				  </c:SimpleDataList>-->
-						</c:FormField>
+						<c:FormField FieldID="NAME" Caption="Unavail. Child" DataType="String" Required="true" CaptionResourceKey="$$site" />
 						<c:FormField FieldID="LOOKUPID" Caption="Lookup ID" DataType="String" />
+						<c:FormField FieldID="TRANSFERCHILDNAME" Caption="Transfer Child" DataType="String" />
+						<c:FormField FieldID="TRANSFERLOOKUPID" Caption="Transfer Lookup ID" DataType="String" />
+						<c:FormField FieldID="TRANSFERCHILDID" DataType="Guid" Hidden="true"/>
 					</c:Fields>
 				</c:Collection>
 			</c:FormField>
-
 
 			<c:FormField FieldID="PLANNEDENDDATE" DataType="Date" Caption="Expiration date" CaptionResourceKey="$$expiration_date" />
 			<c:FormField FieldID="SPONSORSHIPLOCATIONID" DataType="Guid" Caption="Location" CaptionResourceKey="$$location">
@@ -659,7 +676,9 @@ return @r;
 			<c:FormField FieldID="SPROPPPROJECTCATEGORYCODEID" DataType="Guid" Caption="Category" CaptionResourceKey="$$category">
 				<c:CodeTable CodeTableName="SPROPPPROJECTCATEGORYCODE" />
 			</c:FormField>
-			<c:FormField FieldID="SPONSORSHIPOPPORTUNITYIDCHILD" DataType="Guid" Caption="Child" CaptionResourceKey="$$child">
+
+			<!-- 9/6/12 Memphis -->
+			<c:FormField FieldID="SUBSTITUTECHILDID" DataType="Guid" Caption="Transfer Child" CaptionResourceKey="$$child">
 				<c:SearchList SearchListID="f9183b88-9f54-40de-848e-c8fbacf92e79" EnableQuickFind="false">
 					<c:FormFieldOverrides>
 						<c:FormFieldOverride FieldID="SPONSORSHIPPROGRAMID" ReadOnly="false" DefaultValueText="Fields!SPONSORSHIPPROGRAMID" />
@@ -673,6 +692,24 @@ return @r;
 					</c:FormFieldOverrides>
 				</c:SearchList>
 			</c:FormField>
+			
+
+			<c:FormField FieldID="SPONSORSHIPOPPORTUNITYIDCHILD" DataType="Guid" Caption="Unavailable Child" CaptionResourceKey="$$child">
+				<c:SearchList SearchListID="f9183b88-9f54-40de-848e-c8fbacf92e79" EnableQuickFind="false">
+					<c:FormFieldOverrides>
+						<c:FormFieldOverride FieldID="SPONSORSHIPPROGRAMID" ReadOnly="false" DefaultValueText="Fields!SPONSORSHIPPROGRAMID" />
+						<c:FormFieldOverride FieldID="ELIGIBILITYCODE" ReadOnly="false" DefaultValueText="1" />
+						<c:FormFieldOverride FieldID="AVAILABILITYCODE" ReadOnly="false" DefaultValueText="1" />
+						<c:FormFieldOverride FieldID="RESTRICTFORSOLESPONSORSHIP" Caption="Only include unsponsored" DefaultValueText="True" />
+						<c:FormFieldOverride FieldID="SPONSORSHIPOPPORTUNITYGROUPID" ReadOnly="false" />
+						<c:FormFieldOverride FieldID="RESERVATIONKEYID" ReadOnly="false" />
+						<c:FormFieldOverride FieldID="CORRESPONDINGSPONSORID" Hidden="true" DefaultValueText="Fields!SPONSORSHIPCONSTITUENTID" />
+						<c:FormFieldOverride FieldID="FINANCIALSPONSORID" Hidden="true" DefaultValueText="Fields!REVENUECONSTITUENTID" />
+					</c:FormFieldOverrides>
+				</c:SearchList>
+			</c:FormField>
+
+
 			<c:FormField FieldID="SPONSORSHIPOPPORTUNITYIDPROJECT" DataType="Guid" Caption="Project" CaptionResourceKey="$$project">
 				<c:SearchList SearchListID="b095dc74-4c09-40c9-9c9d-e8ff55b584ce" EnableQuickFind="true">
 					<c:FormFieldOverrides>
@@ -896,25 +933,21 @@ return @r;
 
 			<!-- Memphis 9/1/12 -->
 			<c:FormField FieldID="INTERACTIONTYPECODEID" DataType="Guid" Caption="Interaction" Required="true">
-				<c:CodeTable CodeTableName="USR_NEWPROSPECTSPONSORSHIPINTERACTIONTYPECODE" />
+				<c:CodeTable CodeTableName="USR_NEWSPONSORSHIPINTERACTIONTYPECODE" />
 			</c:FormField>
-			<!-- Memphis 9/15/15-->
+			
+			<!-- 9/11/12 Fundraiser lookup -->
 			<c:FormField FieldID="FUNDRAISERID" DataType="Guid" Required="false" Caption="Fundraiser" >
 				<c:SearchList SearchListID="c588bc58-68de-4a57-ba4e-cfa45c601b71" EnableQuickFind="true" />
 			</c:FormField>
-
 		</c:FormFields>
 
-		<c:WebUIComponent>
-			<c:UIModel AssemblyName="MoM.Sponsorship.UIModel.dll" ClassName="MoM.Sponsorship.UIModel.ProspectSponsorshipAddDataFormUIModel" />
-			<c:WebUI>
-				<c:ExternalResource Url="browser/htmlforms/custom/ProspectSponsorship.AddDataForm.html" />
-			</c:WebUI>
-		</c:WebUIComponent>
-
-		
-
-
+        <c:WebUIComponent>
+            <c:UIModel AssemblyName="MoM.Sponsorship.UIModel.dll" ClassName="MoM.Sponsorship.UIModel.UnavailableSubstitutionSponsorshipAddDataFormUIModel" />
+            <c:WebUI>
+                <c:ExternalResource Url="browser/htmlforms/custom/UnavailableSubstitutionSponsorship.AddDataForm.html" />
+            </c:WebUI>
+        </c:WebUIComponent>
 
 		<c:FieldGroups>
 			<c:FieldGroup ID="GENERALINFORMATION" Caption="General" CaptionResourceKey="$$general">
@@ -933,6 +966,7 @@ return @r;
 				<c:Fields>
 					<c:Field>CHILDREN</c:Field>
 					<c:Field>SPONSORSHIPOPPORTUNITYIDCHILD</c:Field>
+					<c:Field>SUBSTITUTECHILDID</c:Field>
 					<c:Field>SPONSORSHIPPROGRAMID</c:Field>
 					<c:Field>SPONSORSHIPOPPORTUNITYIDPROJECT</c:Field>
 					<c:Field>RESERVATIONKEY</c:Field>
@@ -1009,6 +1043,8 @@ return @r;
 			<c:FormField FieldID="MOPPORTUNITYIMAGE" Hidden="true" />
 			<c:FormField FieldID="FINDERNUMBERSTRING" Caption="Finder number" CaptionResourceKey="$$finder_number" />
 			<c:FormField FieldID="INVALIDFINDERNUMBERIMAGE" Caption="Invalid finder number" CaptionResourceKey="$$invalid_finder_number" />
+			<!-- 9/10 Memphis added to let user indicate what type of Sponsorship this is -->
+			<c:FormField FieldID="ISPROSPECTSPONSORSHIP" DataType="Boolean" Caption="This is a prospect sponsorship" />
 			<c:FormField FieldID="INSTALLMENTS" DataType="XML">
 				<c:Collection>
 					<c:Fields>

@@ -22,6 +22,7 @@
 	28-Aug-2012		Memphis			added the code in Save to create the PFM relationship, if user selected one.
 	01-Sep-2012		Memphis			added the INTERACTIONTYPECODEID field, selected from the code table: USR_NEWSPONSORSHIPINTERACTIONTYPECODE
 	05-Sep-2012		Memphis			added the call to Interaction sproc to set the user-selected Interaction
+	15-Sep-2012		Memphis			added FUNDRAISERID field, call to set the solicitor if there's an Appeal
 	-->
 
 	<c:ImpliedSecurityList>
@@ -116,6 +117,7 @@ begin
 	
 	if @SPONSORSHIPCONSTITUENTID is not null
 		set @REVENUECONSTITUENTID = @SPONSORSHIPCONSTITUENTID
+
 end
 
 if @@error <> 0 
@@ -196,7 +198,8 @@ create procedure dbo.USR_USP_DATAFORMTEMPLATE_ADD_SPONSORSHIP_WRAPPED
 		@DONOTACKNOWLEDGE bit = 0,
 		@CHILDREN xml = null,
 		@PFMID uniqueidentifier = null,
-		@INTERACTIONTYPECODEID uniqueidentifier = null
+		@INTERACTIONTYPECODEID uniqueidentifier = null,
+		@FUNDRAISERID uniqueidentifier = null
 )
 
 
@@ -284,6 +287,14 @@ begin try
 		@BATCHNUMBER = @BATCHNUMBER, 
 		@DONOTACKNOWLEDGE = @DONOTACKNOWLEDGE
 
+		-- add the fundraiser/solicitor to the recurring gift if user selected an Appeal
+		if (@APPEALID is not null) and (@FUNDRAISERID is not null)
+			exec dbo.USR_USP_ADD_SOLICITOR_TO_RECURRING_GIFT_CHILDSPONSORSHIP
+				@SPONSORSHIPID = @ID, 
+				@CONSTITUENTID = @FUNDRAISERID,
+				@CHANGEAGENTID = @CHANGEAGENTID
+		
+	
 	if @@error = 0 and @r = 0
 	begin
 	  -- try to remove the lock on this opportunity
@@ -415,7 +426,7 @@ begin try
 		-- get the constituency code id for Partnership for mercy
 		select @CONSTITUENCYCODEID = ID
 		from dbo.CONSTITUENCYCODE
-		where DESCRIPTION = 'Partnership for Mercy'
+		where lower([DESCRIPTION]) = lower('Partnership for Mercy')
 
 		if @CONSTITUENCYCODEID is null
 			RAISERROR 1000000 'Could not find the "Partnership for mercy" constituency code!'
@@ -930,6 +941,10 @@ return @r;
 					<!-- Memphis 9/1/12 -->
 					<c:FormField FieldID="INTERACTIONTYPECODEID" DataType="Guid" Caption="Interaction" Required="true">
 						<c:CodeTable CodeTableName="USR_NEWSPONSORSHIPINTERACTIONTYPECODE" />						
+					</c:FormField>
+					<!-- Memphis 9/15/15-->
+					<c:FormField FieldID="FUNDRAISERID" DataType="Guid" Required="false" Caption="Fundraiser" >
+						<c:SearchList SearchListID="c588bc58-68de-4a57-ba4e-cfa45c601b71" EnableQuickFind="true" />
 					</c:FormField>
 				</c:FormFields>
 
