@@ -1,24 +1,23 @@
 ﻿<SQLStoredProcedureSpec
 	xmlns="bb_appfx_sqlstoredprocedure"
 	xmlns:common="bb_appfx_commontypes" 
-	ID="8bf74ea1-32a2-4cb7-b377-bf6b9bea08d6"
-	Name="USR_USP_SPONSORSHIP_CREATENEWSPONSORSHIPINTERACTIONS"
-	Description="Creates the interactions pertaining to a new sponsorship"
+	ID="65ed0473-7b8c-4006-a3c1-a7279b5b9eb4"
+	Name="USR_USP_SPONSORSHIP_CREATENEWPROSPECTSPONSORSHIPINTERACTIONS"
+	Description="Creates the interactions pertaining to a new prospect sponsorship"
 	Author="Cary Mayeda"
-	SPName="USR_USP_SPONSORSHIP_CREATENEWSPONSORSHIPINTERACTIONS" >
+	SPName="USR_USP_SPONSORSHIP_CREATENEWPROSPECTSPONSORSHIPINTERACTIONS" >
 
 	<!-- 
-	Remarks:    This sproc is used by the Add a sponsorship-ocm form to create the appropriate interactions on the financial and corresponding sponsors.
+	Remarks:    This sproc is used by the Add a prospect sponsorship form to create the appropriate interactions on the financial and corresponding sponsors.
 
 	History:
 	Date            Modified By     Comments
-	04-Sep-2012		CMayeda			Initial Version
-	10-Sep-2012		CMayeda			Completed Welcome Letter based on corrections to the flowchart
+	10-Sep-2012		CMayeda			Initial Version
 	-->
 
 	<CreateProcedureSQL>
 		<![CDATA[
-create procedure dbo.USR_USP_SPONSORSHIP_CREATENEWSPONSORSHIPINTERACTIONS (
+create procedure dbo.USR_USP_SPONSORSHIP_CREATENEWPROSPECTSPONSORSHIPINTERACTIONS (
 	@sponsorshipID uniqueidentifier = null,				-- The sponsorship that the interactions will pertain to.  
 														-- This is used to pull the financial sponsor and correspondent, and to determine if the recurring gift is on EFT
 														-- However, it is not used for the child information
