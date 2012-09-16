@@ -1,0 +1,34 @@
+﻿<TaskSpec
+	xmlns="bb_appfx_task"
+	xmlns:common="bb_appfx_commontypes" 
+	ID="65a30928-8b20-45f0-97d9-36925d3f5093"
+	Name="Add Prospect Sponsorship"
+	Description="Custom task to add a prospect sponsorship"
+	Author="Memphis Sellers"
+	FunctionalAreaID="9ea48d9c-7e2d-42e6-91cc-210792618017"
+	Sequence="6"
+	ImageKey="catalog:Blackbaud.AppFx.Sponsorship.Catalog.dll,Blackbaud.AppFx.Sponsorship.Catalog.sponsor_new_32.png"
+	>
+	<DependencyList xmlns="bb_appfx_commontypes">
+		<Dependency CatalogAssembly="Blackbaud.AppFx.Sponsorship.Catalog.dll" CatalogItem="Blackbaud.AppFx.Sponsorship.Catalog.Sponsorship.Add.xml" />
+		<Dependency CatalogAssembly="Blackbaud.AppFx.Sponsorship.Catalog.dll" CatalogItem="Blackbaud.AppFx.Sponsorship.Catalog.Sponsorship.FunctionalArea.xml" />
+	</DependencyList>
+	<InstalledProductList xmlns="bb_appfx_commontypes">
+		<InstalledProduct ID="3117d2c8-7f46-42f2-abeb-b654f2f63046" />
+	</InstalledProductList>
+	
+	<!-- indicate what this task should do (navigate to a page, show a form, etc. -->
+	<ResourceFile AssemblyName="Blackbaud.AppFx.Sponsorship.Catalog.dll" ClassName="Blackbaud.AppFx.Sponsorship.Catalog.SponsorshipAdd.Task" />
+	<ShowAddDataForm DataFormID="54a5433c-2d47-4c21-921b-1edac0478f1f" xmlns="bb_appfx_commontypes">
+		<ActionContext>
+			<Expression>00000000-0000-0000-0000-000000000000</Expression>
+		</ActionContext>
+		<PostActionEvent>
+			<GoToPage>
+				<SpecificPage PageID="428f040a-eb45-4171-8c52-a030b9992d65" TabID="00000000-0000-0000-0000-000000000000" />
+			</GoToPage>
+		</PostActionEvent>
+	</ShowAddDataForm>
+	<HelpKey>SPSponsorshipAddASponsorship.html</HelpKey>
+
+</TaskSpec>

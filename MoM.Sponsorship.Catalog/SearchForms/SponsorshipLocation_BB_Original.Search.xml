@@ -1,0 +1,111 @@
+﻿<srch:SearchListSpec
+xmlns:c="bb_appfx_commontypes"
+xmlns:srch="bb_appfx_searchlist"
+ID="7d7ac450-86f7-42f7-9299-e2458592ad14"
+Name="Sponsorship Location Search"
+Description="Search for sponsorship locations."
+Author="Blackbaud Product Development"
+RecordType="Sponsorship Location"
+TranslationFunctionID="2a1b83f6-95e8-403b-96f7-837dd51206c6"
+QuickFindCriteriaFieldID="NAME"
+NameResourceKey="$$sponsorship_location_search"
+c:SecurityUIFolder="Sponsorship\Configuration\Locations"
+DetailViewFormInstanceId="00000000-0000-0000-0000-000000000000">
+	<c:DependencyList>
+		<c:Dependency CatalogAssembly="Blackbaud.AppFx.Sponsorship.Catalog.dll" CatalogItem="Blackbaud.AppFx.Sponsorship.Catalog.UFN_SPONSORSHIPLOCATION_GETFULLNAME.xml" />
+		<c:Dependency CatalogAssembly="Blackbaud.AppFx.Sponsorship.Catalog.dll" CatalogItem="Blackbaud.AppFx.Sponsorship.Catalog.UFN_SPONSORSHIPLOCATION_FULLSTRING.xml" />
+	</c:DependencyList>
+	<c:InstalledProductList>
+		<c:InstalledProduct ID="3117d2c8-7f46-42f2-abeb-b654f2f63046" />
+	</c:InstalledProductList>
+	<srch:ResourceFile AssemblyName="Blackbaud.AppFx.Sponsorship.Catalog.dll" ClassName="Blackbaud.AppFx.Sponsorship.Catalog.SponsorshipLocation.Search" />
+	<srch:SPSearchList SPName="USP_SEARCHLIST_SPONSORSHIPLOCATION">
+		<c:CreateProcedureSQL>
+
+			create procedure dbo.USP_SEARCHLIST_SPONSORSHIPLOCATION
+			(
+			@NAME nvarchar(100) = null,
+			@TYPE uniqueidentifier = null,
+			@LOOKUPID nvarchar(100) = null,
+			@INCLUDEINACTIVE bit = 0,
+			@INCLUDECLOSED bit = 0,
+			@INCLUDECHILDNODES bit = 0,
+			@WITHINLOCATION uniqueidentifier = null,
+			-- not used, for UI only
+			@WITHINLOCATIONDISPLAY nvarchar(max) = null,
+			@EXCLUDELOCATION uniqueidentifier = null,
+			@MAXROWS smallint = 500
+			)
+			as
+			set @NAME = replace(coalesce(@NAME,''),' \ ','\')+'%';
+
+			select distinct top(@MAXROWS)
+			SPONSORSHIPLOCATION.ID,
+			dbo.UFN_SPONSORSHIPLOCATION_GETFULLNAME(SPONSORSHIPLOCATION.ID) FULLSTRING,
+			SPONSORSHIPLOCATIONTYPECODE.DESCRIPTION TYPE,
+			SPONSORSHIPLOCATION.STATUS
+			from dbo.SPONSORSHIPLOCATION
+			inner join
+			dbo.SPONSORSHIPLOCATIONTYPECODE on SPONSORSHIPLOCATIONTYPECODE.ID = SPONSORSHIPLOCATION.SPONSORSHIPLOCATIONTYPECODEID
+			inner join
+			(
+			select SPONSORSHIPLOCATION.ID,
+			SPONSORSHIPLOCATION.HIERARCHYPATH
+			from
+			dbo.SPONSORSHIPLOCATION
+			inner join
+			dbo.SPONSORSHIPLOCATIONTYPECODE on SPONSORSHIPLOCATIONTYPECODE.ID = SPONSORSHIPLOCATION.SPONSORSHIPLOCATIONTYPECODEID
+			where (SPONSORSHIPLOCATION.NAME like @NAME or
+			-- allow name searches like 'Africa\Mali'
+			(@NAME like '%\%' and
+			'\'+dbo.UFN_SPONSORSHIPLOCATION_FULLSTRING(SPONSORSHIPLOCATION.ID,'\',0,0) like '%\'+@NAME and
+			SPONSORSHIPLOCATION.NAME like substring(@NAME,len(@NAME)-charindex('\',reverse(@NAME))+2,len(@NAME))))
+			and (@TYPE is null or SPONSORSHIPLOCATION.SPONSORSHIPLOCATIONTYPECODEID = @TYPE)
+			and (@LOOKUPID is null or SPONSORSHIPLOCATION.LOOKUPID like '%'+ @LOOKUPID + '%')
+			and (SPONSORSHIPLOCATION.STATUSCODE = 0 or
+			(@INCLUDEINACTIVE = 1 and SPONSORSHIPLOCATION.STATUSCODE = 1) or
+			(@INCLUDECLOSED = 1 and SPONSORSHIPLOCATION.STATUSCODE = 2))
+			and (@WITHINLOCATION is null or SPONSORSHIPLOCATION.HIERARCHYPATH.IsDescendantOf((select HIERARCHYPATH from dbo.SPONSORSHIPLOCATION where ID=@WITHINLOCATION)) = 1)
+			and (@EXCLUDELOCATION is null or SPONSORSHIPLOCATION.HIERARCHYPATH.IsDescendantOf((select HIERARCHYPATH from dbo.SPONSORSHIPLOCATION where ID=@EXCLUDELOCATION)) = 0)
+			) MATCHES on 1=1
+			where (SPONSORSHIPLOCATION.ID = MATCHES.ID or
+			(@INCLUDECHILDNODES = 1 and SPONSORSHIPLOCATION.HIERARCHYPATH.IsDescendantOf(MATCHES.HIERARCHYPATH) = 1))
+			and (SPONSORSHIPLOCATION.STATUSCODE = 0 or
+			(@INCLUDEINACTIVE = 1 and SPONSORSHIPLOCATION.STATUSCODE = 1) or
+			(@INCLUDECLOSED = 1 and SPONSORSHIPLOCATION.STATUSCODE = 2))
+			and (@EXCLUDELOCATION is null or SPONSORSHIPLOCATION.HIERARCHYPATH.IsDescendantOf((select HIERARCHYPATH from dbo.SPONSORSHIPLOCATION where ID=@EXCLUDELOCATION)) = 0)
+			order by
+			FULLSTRING
+
+		</c:CreateProcedureSQL>
+	</srch:SPSearchList>
+	<c:FormMetaData>
+		<c:FormFields>
+			<c:FormField FieldID="NAME" MaxLength="100" Caption="Name" CaptionResourceKey="$$name" />
+			<c:FormField FieldID="TYPE" DataType="Guid" Caption="Type" CaptionResourceKey="$$type">
+				<c:CodeTable CodeTableName="SPONSORSHIPLOCATIONTYPECODE" IncludeInactive="true" />
+			</c:FormField>
+			<c:FormField FieldID="LOOKUPID" MaxLength="100" Caption="Lookup ID" CaptionResourceKey="$$lookup_id" />
+			<c:FormField FieldID="INCLUDEINACTIVE" DataType="Boolean" Caption="Include inactive" CaptionResourceKey="$$include_inactive" />
+			<c:FormField FieldID="INCLUDECLOSED" DataType="Boolean" Caption="Include closed" CaptionResourceKey="$$include_closed" />
+			<c:FormField FieldID="INCLUDECHILDNODES" DataType="Boolean" Caption="Include sublocations of matches" CaptionResourceKey="$$include_sublocations_of_matches" />
+			<c:FormField FieldID="WITHINLOCATION" DataType="Guid" Hidden="true" Caption="WITHINLOCATION" />
+			<c:FormField FieldID="WITHINLOCATIONDISPLAY" ReadOnly="true" Hidden="true" Caption="Within" />
+			<c:FormField FieldID="EXCLUDELOCATION" DataType="Guid" Hidden="true" Caption="EXCLUDELOCATION" />
+		</c:FormFields>
+		<c:WebUIComponent>
+			<c:UIModel AssemblyName="Blackbaud.AppFx.Sponsorship.UIModel.dll" ClassName="Blackbaud.AppFx.Sponsorship.UIModel.sponsorship.SponsorshipLocationSearchUIModel" />
+			<c:WebUI>
+				<c:ExternalResource Url="browser/htmlforms/sponsorship/SponsorshipLocationSearch.html" />
+			</c:WebUI>
+		</c:WebUIComponent>
+	</c:FormMetaData>
+	<srch:Output>
+		<srch:OutputFields>
+			<srch:OutputField FieldID="ID" Caption="ID" IsHidden="true" DataType="Guid" CaptionResourceKey="$$id" />
+			<srch:OutputField FieldID="FULLSTRING" Caption="Location" DataType="String" CaptionResourceKey="$$location" />
+			<srch:OutputField FieldID="TYPE" Caption="Type" DataType="String" CaptionResourceKey="$$type" />
+			<srch:OutputField FieldID="STATUS" Caption="Status" DataType="String" CaptionResourceKey="$$status" />
+		</srch:OutputFields>
+	</srch:Output>
+</srch:SearchListSpec>
