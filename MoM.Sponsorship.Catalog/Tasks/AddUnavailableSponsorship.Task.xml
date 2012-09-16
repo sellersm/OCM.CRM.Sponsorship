@@ -1,13 +1,13 @@
 ﻿<TaskSpec xmlns:xsd="http://www.w3.org/2001/XMLSchema" 
 		  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
-		  ID="32fa9e42-2ad0-443a-8fd8-fb07853c0976" 
-		  Name="Add a sponsorship-ocm" 
-		  Description="Add a new OCM sponsorship" 
+		  ID="a918ba38-9419-41da-8475-0198d3297d5f" 
+		  Name="Unavailable sponsorship" 
+		  Description="Add unavailable sponsorship" 
 		  Author="Memphis Sellers" 
 		  ImageKey="catalog:Blackbaud.AppFx.Sponsorship.Catalog.dll,Blackbaud.AppFx.Sponsorship.Catalog.sponsor_new_32.png" 
 		  FunctionalAreaID="9ea48d9c-7e2d-42e6-91cc-210792618017" 
 		  TaskGroup="Sponsor" 
-		  Sequence="6" 
+		  Sequence="7" 
 		  xmlns="bb_appfx_task">
 	<DependencyList xmlns="bb_appfx_commontypes">
 		<Dependency CatalogAssembly="Blackbaud.AppFx.Sponsorship.Catalog.dll" CatalogItem="Blackbaud.AppFx.Sponsorship.Catalog.Sponsorship.Add.xml" />
@@ -17,7 +17,7 @@
 		<InstalledProduct ID="3117d2c8-7f46-42f2-abeb-b654f2f63046" />
 	</InstalledProductList>
 	<ResourceFile AssemblyName="Blackbaud.AppFx.Sponsorship.Catalog.dll" ClassName="Blackbaud.AppFx.Sponsorship.Catalog.SponsorshipAdd.Task" />
-	<ShowAddDataForm DataFormID="bd01386b-95f1-47d4-aab5-49822ed9126f" xmlns="bb_appfx_commontypes">
+	<ShowAddDataForm DataFormID="58bb4565-dd08-4e06-a29c-904188103f25" xmlns="bb_appfx_commontypes">
 		<ActionContext>
 			<Expression>00000000-0000-0000-0000-000000000000</Expression>
 		</ActionContext>

@@ -1,0 +1,11 @@
+﻿<CodeTableSpec 
+	xmlns="bb_appfx_codetable" 
+	xmlns:common="bb_appfx_commontypes"
+	ID="83b53d7c-d706-467b-bb6b-44ebe6381905" 
+	Name="Unavailable Child Substitution Sponsorship Contact codes"
+	Description="Unavailable Child Substitution Sponsorship Contact codes"
+	Author="Memphis Sellers"
+	DBTablename="USR_UNAVAILABLE_SPONSORSHIP_CONTACTCODE"
+	Category="Sponsorship"
+	SortMethod="Alpha"
+/>

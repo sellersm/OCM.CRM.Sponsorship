@@ -1,0 +1,26 @@
+﻿<SimpleDataListSpec
+	xmlns="bb_appfx_simpledatalist"
+	xmlns:common="bb_appfx_commontypes"
+	ID="222d43ba-82c4-4f76-9c0e-0f33eb952a1c"
+	Name="Transfer Children To Sponsor Simple Data List"
+	Description="List of transfer children available for sponsorship"
+	Author="Memphis Sellers"
+	TranslationFunctionID="285061cd-3180-4816-ba91-5578007d47c4"
+	>
+
+	<SPSimpleList SPName="USP_SIMPLEDATALIST_TRANSFERCHILDREN_TO_SPONSOR">
+		<common:CreateProcedureSQL >
+			<![CDATA[
+create procedure dbo.USP_SIMPLEDATALIST_TRANSFERCHILDREN_TO_SPONSOR as
+	select 
+		soc.ID as VALUE, 
+		soc.NAME as LABEL
+	from dbo.SPONSORSHIPOPPORTUNITYCHILD soc
+	inner join dbo.SPONSORSHIPOPPORTUNITY so on so.ID = soc.ID
+	where so.AVAILABILITYCODE IN (0,1)
+	order by NAME
+			]]>
+		</common:CreateProcedureSQL>
+	</SPSimpleList>
+
+</SimpleDataListSpec>
