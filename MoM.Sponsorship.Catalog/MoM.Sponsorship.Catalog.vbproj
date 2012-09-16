@@ -115,7 +115,7 @@
     <EmbeddedResource Include="SQL\Stored Procedures\USR_USP_INSERT_LOCK_CHILD_FOR_SPONSORSHIP_SELECTION.xml" />
     <EmbeddedResource Include="SQL\Stored Procedures\USR_USP_SPONSORSHIP_ACQUIREOPPORTUNITY_MOMCUSTOM.xml" />
     <EmbeddedResource Include="SQL\Stored Procedures\USR_USP_SPONSORSHIP_MATCHOPPORTUNITY_MOMCUSTOM.xml" />
-    <EmbeddedResource Include="SQL\User Functions\UFN_CHILDREN_FOR_SPONSORSHIP_FROMITEMLISTXML.xml" />
+    <EmbeddedResource Include="SQL\User Functions\USR_UFN_CHILDREN_FOR_SPONSORSHIP_FROMITEMLISTXML.xml" />
     <EmbeddedResource Include="SQL\User Functions\USR_UFN_IS_SELECTED_CHILD_LOCKED_FOR_SPONSORSHIP_SELECTION.xml" />
     <EmbeddedResource Include="SQL\User Functions\USR_UFN_SPONSORSHIP_MATCHEDOPPORTUNITY_CHILDSPONSORSHIP.xml" />
     <EmbeddedResource Include="Tables\USR_CHILD_SELECTED_FOR_SPONSORSHIP_LOCK.Table.xml" />
@@ -161,11 +161,20 @@
     <EmbeddedResource Include="Tasks\AddProspectSponsorship.Task.xml" />
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="SQL\User Functions\USR_UFN_UNAVAILABLECHILDREN_FOR_TRANSFERSPONSORSHIP_FROMITEMLISTXML.xml" />
+    <EmbeddedResource Include="Tasks\AddUnavailableSponsorship.Task.xml" />
+    <EmbeddedResource Include="Tables\Code Tables\UnavailableContact.CodeTable.xml" />
     <EmbeddedResource Include="Tables\SponsorshipOpportunity.ReservationExtension.Table.xml" />
     <EmbeddedResource Include="Tables\Code Tables\ProspectSponsorship.Add.InteractionType.CodeTable.xml" />
     <EmbeddedResource Include="SQL\Stored Procedures\USR_USP_SPONSORSHIP_CREATENEWSPONSORSHIPINTERACTIONS.xml" />
     <EmbeddedResource Include="Reservation\SponsorshipOpportunityReserveBusinessProcessExtension.Edit.xml" />
     <EmbeddedResource Include="Reservation\SponsorshipOpportunityReserveBusinessProcessExtension.Add.xml" />
+    <EmbeddedResource Include="Add Forms\UnavailableSubstitutionSponsorship.Add.xml" />
+    <EmbeddedResource Include="DataLists\TransferChildrenToSponsor.SimpleList.xml" />
+    <EmbeddedResource Include="DataLists\DoesSponsorHaveConstituencyCode.DataList.xml" />
+    <EmbeddedResource Include="DataLists\GetConstituencyCodeId.DataList.xml" />
+    <EmbeddedResource Include="DataLists\GetFundraiserForAppealId.DataList.xml" />
+    <EmbeddedResource Include="SQL\Stored Procedures\USR_USP_ADD_SOLICITOR_TO_RECURRING_GIFT_CHILDSPONSORSHIP.xml" />
     <Content Include="SQL\User Functions\USR_UFN_SPONSORSHIP_GETFINANCIALSPONSOR_BYSPONSORSHIPOPP.xml" />
     <EmbeddedResource Include="SQL\User Functions\USR_UFN_SPONSORSHIP_ISEFT.xml" />
   </ItemGroup>
