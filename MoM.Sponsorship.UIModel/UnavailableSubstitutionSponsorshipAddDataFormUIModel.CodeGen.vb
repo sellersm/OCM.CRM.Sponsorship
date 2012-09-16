@@ -186,6 +186,7 @@ Partial Public Class [UnavailableSubstitutionSponsorshipAddDataFormUIModel]
     Private WithEvents _sourcecodelookup As Global.Blackbaud.AppFx.UIModeling.Core.ShowSearchFormUIAction
 	Private WithEvents _currencyaction As Global.Blackbaud.AppFx.UIModeling.Core.ShowCustomFormUIAction
 	Private WithEvents _fundraiserid As Global.Blackbaud.AppFx.UIModeling.Core.SearchListField(Of Guid)
+	Private WithEvents _donorcontactcodeid As Global.Blackbaud.AppFx.UIModeling.Core.CodeTableField
 
 	<System.CodeDom.Compiler.GeneratedCodeAttribute("BBUIModelLibrary", "2.93.2034.0")> _
     Public Sub New()
@@ -278,6 +279,7 @@ Partial Public Class [UnavailableSubstitutionSponsorshipAddDataFormUIModel]
         _sourcecodelookup = New Global.Blackbaud.AppFx.UIModeling.Core.ShowSearchFormUIAction
 		_currencyaction = New Global.Blackbaud.AppFx.UIModeling.Core.ShowCustomFormUIAction
 		_fundraiserid = New Global.Blackbaud.AppFx.UIModeling.Core.SearchListField(Of Guid)
+		_donorcontactcodeid = New Global.Blackbaud.AppFx.UIModeling.Core.CodeTableField
 
         MyBase.Mode = Global.Blackbaud.AppFx.UIModeling.Core.DataFormMode.Add
         MyBase.DataFormTemplateId = New Guid("0d1fc2df-5be4-47cd-a86c-fb1030eb52d9")
@@ -1038,7 +1040,16 @@ Partial Public Class [UnavailableSubstitutionSponsorshipAddDataFormUIModel]
         _currencyaction.ImageKey = "catalog:Blackbaud.AppFx.Currency.Catalog.dll,Blackbaud.AppFx.Currency.Catalog.multicurrency_16.png"
         _currencyaction.ModelAssemblyName = "Blackbaud.AppFx.Fundraising.UIModel.dll"
         _currencyaction.ModelClassName = "Blackbaud.AppFx.Fundraising.UIModel.CurrencyFormUIModel"
-        Me.Actions.Add(_currencyaction)
+		Me.Actions.Add(_currencyaction)
+
+		'
+		'_donorcontactcodeid
+		'
+		_donorcontactcodeid.Name = "DONORCONTACTCODEID"
+		_donorcontactcodeid.Caption = "Donor Contact"
+		_donorcontactcodeid.Required = True
+		_donorcontactcodeid.CodeTableName = "USR_UNAVAILABLE_SPONSORSHIP_CONTACTCODE"
+		Me.Fields.Add(_donorcontactcodeid)
 
 		OnCreated()
 
@@ -1966,6 +1977,18 @@ Partial Public Class [UnavailableSubstitutionSponsorshipAddDataFormUIModel]
         Get
             Return _currencyaction
         End Get
-    End Property
+	End Property
+
+	''' <summary>
+	''' Donor Contact
+	''' </summary>
+	<System.ComponentModel.Description("Donor Contact")> _
+	<System.CodeDom.Compiler.GeneratedCodeAttribute("BBUIModelLibrary", "2.93.2034.0")> _
+	Public ReadOnly Property [DONORCONTACTCODEID]() As Global.Blackbaud.AppFx.UIModeling.Core.CodeTableField
+		Get
+			Return _donorcontactcodeid
+		End Get
+	End Property
+
     
 End Class

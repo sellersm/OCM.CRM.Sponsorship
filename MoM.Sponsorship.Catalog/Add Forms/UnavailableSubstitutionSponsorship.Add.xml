@@ -183,7 +183,8 @@ create procedure dbo.USR_USP_DATAFORMTEMPLATE_ADD_UNAVAILABLESPONSORSHIP
 		@PFMID uniqueidentifier = null,
 		@INTERACTIONTYPECODEID uniqueidentifier = null,
 		@SUBSTITUTECHILDID uniqueidentifier = null,
-		@FUNDRAISERID uniqueidentifier = null
+		@FUNDRAISERID uniqueidentifier = null,
+		@DONORCONTACTCODEID uniqueidentifier = null  -- new donor contact code field
 )
 
 
@@ -940,6 +941,12 @@ return @r;
 			<c:FormField FieldID="FUNDRAISERID" DataType="Guid" Required="false" Caption="Fundraiser" >
 				<c:SearchList SearchListID="c588bc58-68de-4a57-ba4e-cfa45c601b71" EnableQuickFind="true" />
 			</c:FormField>
+			
+			<!-- 9/15/12 Donor Contact-->
+			<c:FormField FieldID="DONORCONTACTCODEID" DataType="Guid" Caption="Donor Contact" Required="false">
+				<c:CodeTable CodeTableName="USR_UNAVAILABLE_SPONSORSHIP_CONTACTCODE" />
+			</c:FormField>
+			
 		</c:FormFields>
 
         <c:WebUIComponent>
