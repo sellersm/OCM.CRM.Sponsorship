@@ -1,0 +1,42 @@
+﻿<SQLFunctionSpec
+	xmlns="bb_appfx_sqlfunction"
+	xmlns:common="bb_appfx_commontypes"
+	ID="0e7a57e3-16df-4b04-a289-1fa4abd02fc5"
+	Name="USR_UFN_SPONSORSHIP_GETSPONSORSHIPID"
+	Description="Get the active Sponsorship ID for a Sponsorship Opportunity"
+	Author="Cary Mayeda"
+	DBFunctionName="USR_UFN_SPONSORSHIP_GETSPONSORSHIPID" >
+
+	<!-- 
+	Remarks:    Returns the Sponsorship ID of the active sponsorship for a sponsorship opportunity.
+				Returns null if no active sponsorship exists for the sponsorship opportunity
+				
+	History:
+	Date            Modified By     Comments
+	10-Sep-2012		CMayeda			Initial Version
+	-->
+
+	<CreateFunctionSQL>
+		<![CDATA[
+create function dbo.USR_UFN_SPONSORSHIP_GETSPONSORSHIPID (
+	@sponsorshipOpportunityID uniqueidentifier = null
+)
+returns uniqueidentifier
+with execute as caller
+as begin
+	
+	declare @sponsorshipID uniqueidentifier = null
+	declare @statusCode_Active tinyint = 1
+
+	if @sponsorshipOpportunityID is not null
+		 select	@sponsorshipID = ID 
+		   from	dbo.SPONSORSHIP
+		  where	SPONSORSHIPOPPORTUNITYID = @sponsorshipOpportunityID 						
+		    and	STATUSCODE = @statusCode_Active
+		 
+	return @sponsorshipID 
+end
+		]]>
+	</CreateFunctionSQL>
+
+</SQLFunctionSpec>
