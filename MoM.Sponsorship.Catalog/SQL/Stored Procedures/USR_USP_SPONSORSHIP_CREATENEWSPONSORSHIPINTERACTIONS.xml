@@ -16,6 +16,7 @@
 	10-Sep-2012		CMayeda			Completed Welcome Letter based on corrections to the flowchart
 	16-Sep-2012		CMayeda			Set @eftBrochureCode = 0 for Correspondent interaction
 									Added comments
+									Changed case of @interactionSummary 
 	-->
 
 	<CreateProcedureSQL>
@@ -38,7 +39,7 @@ begin
 	
 	declare @welcomeGreetingPhoneCallDelay tinyint = 25
 
-	declare @interactionSummary nvarchar(100) = 'New Sponsorship Complete'
+	declare @interactionSummary nvarchar(100) = 'New sponsorship complete'
 
 	declare @interactionCategoryDesc_SponsorWelcome nvarchar(100) = 'Sponsor Welcome'
 
