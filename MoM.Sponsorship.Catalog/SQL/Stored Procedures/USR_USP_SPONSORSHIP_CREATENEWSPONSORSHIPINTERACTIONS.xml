@@ -14,6 +14,8 @@
 	Date            Modified By     Comments
 	04-Sep-2012		CMayeda			Initial Version
 	10-Sep-2012		CMayeda			Completed Welcome Letter based on corrections to the flowchart
+	16-Sep-2012		CMayeda			Set @eftBrochureCode = 0 for Correspondent interaction
+									Added comments
 	-->
 
 	<CreateProcedureSQL>
@@ -205,6 +207,8 @@ begin
 
 
 
+	-- Create interaction on Financial Sponsor based on user interaction type selection 
+	
 	if @interactionTypeCodeID = @interactionTypeCodeID_WelcomeLetter 
 		if dbo.USR_UFN_CONSTITUENT_GETVALIDPRIMARYEMAILADDRESS(@financialSponsorID) <> ''
 			set @welcomeMailContactMethodDesc = @contactMethodDesc_Email
@@ -243,7 +247,8 @@ begin
 			@changeAgentID = null
 
 
-	-- If this is the sponsors does not already sponsor a child, then add a welcome greeting interaction
+	-- If the sponsor does not already sponsor a child, then add a welcome greeting interaction
+	
 	if @interactionTypeCodeID not in (@interactionTypeCodeID_AdditionalChildLetter, @interactionTypeCodeID_AdditionalChildLetterAndProfile)	
 	begin
 		declare @expectedDate date = dateadd(d, @welcomeGreetingPhoneCallDelay, @currentDate)
@@ -309,6 +314,7 @@ begin
 		end
 	end
 
+
 	if @financialSponsorInteractionOnly = 0
 	begin
 		-- Add the Correspondent Interaction
@@ -334,7 +340,7 @@ begin
 			@comment = '',						
 			@letterTypeDesc = '',
 			@fulfillmentStatusDesc = @welcomeMailFulfillmentStatus, 
-			@eftBrochureCode = @eftBrochureCode,
+			@eftBrochureCode = 0,
 			@resendCode = 0,
 			@changeAgentID = @changeAgentID				
 
