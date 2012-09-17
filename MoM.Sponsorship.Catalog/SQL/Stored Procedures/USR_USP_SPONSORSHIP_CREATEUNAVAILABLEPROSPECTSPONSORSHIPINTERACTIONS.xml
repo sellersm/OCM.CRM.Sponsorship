@@ -1,0 +1,318 @@
+﻿<SQLStoredProcedureSpec
+	xmlns="bb_appfx_sqlstoredprocedure"
+	xmlns:common="bb_appfx_commontypes"
+	ID="d8cac6c9-0b1f-4d3e-9f5d-812b40fd2d9a"
+	Name="USR_USP_SPONSORSHIP_CREATEUNAVAILABLEPROSPECTSPONSORSHIPINTERACTIONS"
+	Description="Creates the interactions pertaining to an unavailable prospect sponsorship"
+	Author="Cary Mayeda"
+	SPName="USR_USP_SPONSORSHIP_CREATEUNAVAILABLEPROSPECTSPONSORSHIPINTERACTIONS" >
+
+	<!-- 
+	Remarks:    This sproc is used by the Unavilable sponsorship form to create the appropriate interactions on the financial and corresponding sponsors for a prospect sponsorship.
+
+	History:
+	Date            Modified By     Comments
+	16-Sep-2012		CMayeda			Initial Version
+	-->
+
+	<CreateProcedureSQL>
+		<![CDATA[
+create procedure dbo.USR_USP_SPONSORSHIP_CREATEUNAVAILABLEPROSPECTSPONSORSHIPINTERACTIONS (
+	@sponsorshipID uniqueidentifier = null,				-- The sponsorship that the interactions will pertain to.  
+														-- This is used to pull the financial sponsor and correspondent, and to determine if the recurring gift is on EFT
+														-- However, it is not used for the child information
+	@childIDList dbo.USR_UDT_CHILDIDLIST readonly,		-- The list of children to add to the interactions created
+	@interactionTypeCodeID uniqueidentifier = null,		-- The ID of the Interaction Type that the user selected (Prospect Welcome Packet, Prospect Welcome Packet & Profile, ...)
+	@changeAgentID uniqueidentifier = null				-- Used to specify change agent for CHANGEDBYID and ADDEDBYID fields.  USP_CHANGEAGENT_GETORCREATECHANGEAGENT is called if it's null
+)
+as
+begin
+	if @changeAgentID is null  
+		exec dbo.USP_CHANGEAGENT_GETORCREATECHANGEAGENT @changeAgentID output
+
+	-- Constants
+	declare @callCenterManagerConstituentID uniqueidentifier = 'B25168DC-4DD4-46ED-B4DD-C5A26A965667'
+	
+	declare @welcomeGreetingPhoneCallDelay tinyint = 25
+
+	declare @interactionSummary nvarchar(100) = 'New Sponsorship Complete' -- ** Question to Pamela **
+
+	declare @interactionCategoryDesc_ProspectWelcome nvarchar(100) = 'Prospect Welcome'
+
+	declare @contactMethodDesc_Mail nvarchar (100) = 'Mail'
+	declare @contactMethodDesc_Email nvarchar (100) = 'Email'
+	declare @contactMethodDesc_Phone nvarchar (100) = 'Phone'
+
+	declare @interactionResponseCategory_DonorContact nvarchar(100) = 'Donor Contact'
+	declare @interactionResponseCategory_LeftMessage nvarchar(100) = 'Left Message'
+	declare @interactionResponseCategory_MessageType nvarchar(100) = 'Message Type'
+	declare @interactionResponseCategory_PacketReceived nvarchar(100) = 'Packet Received'
+	declare @interactionResponseCategory_EFTReceived nvarchar(100) = 'EFT Received'
+
+	declare @interactionResponse_No nvarchar(100) = 'No'
+	declare @interactionResponse_None nvarchar(100) = 'None'
+	declare @interactionResponse_Unknown nvarchar(100) = 'Unknown'
+	
+	-- These are the descriptions used in creating the interactions
+	declare @interactionSubcategoryDesc_ProspectWelcomePacket nvarchar(100) = 'Prospect Welcome Packet'
+	declare @interactionSubcategoryDesc_ProspectWelcomePacketAndProfile nvarchar(100) = 'Prospect Welcome Packet & Profile'
+	declare @interactionSubcategoryDesc_ProspectWelcomeLetter nvarchar(100) = 'Prospect Welcome Letter'
+	declare @interactionSubcategoryDesc_ProspectThankYou nvarchar(100) = 'Prospect Thank You'
+
+	declare @interactionSubcategoryDesc_ProspectWelcomePacketFinancialSponsor nvarchar(100) = 'Prospect Welcome Packet - Financial Sponsor'
+	declare @interactionSubcategoryDesc_ProspectWelcomePacketAndProfileFinancialSponsor nvarchar(100) = 'Prospect Welcome Packet & Profile - Financial Sponsor'
+	declare @interactionSubcategoryDesc_ProspectWelcomeLetterFinancialSponsor nvarchar(100) = 'Prospect Welcome Letter - Financial Sponsor'
+
+	declare @interactionSubcategoryDesc_WelcomePacketCorrespondingSponsor nvarchar(100) = 'Welcome Packet - Corresponding Sponsor'
+	declare @interactionSubcategoryDesc_WelcomePacketAndProfileCorrespondingSponsor nvarchar(100) = 'Welcome Packet & Profile - Corresponding Sponsor'
+
+
+
+	-- These are used to lookup the interactionTypeCodeIDs from USR_NEWSPONSORSHIPINTERACTIONTYPECODE
+	declare @interactionTypeCodeDesc_ProspectWelcomePacket nvarchar(100) = 'Prospect Welcome Packet'
+	declare @interactionTypeCodeDesc_ProspectWelcomePacketAndProfile nvarchar(100) = 'Prospect Welcome Packet & Profile'
+	declare @interactionTypeCodeDesc_ProspectWelcomeLetter nvarchar(100) = 'Prospect Welcome Letter'
+
+
+	-- This are used to determine what interaction type the user selected
+	declare @interactionTypeCodeID_ProspectWelcomePacket uniqueidentifier = null
+	declare @interactionTypeCodeID_ProspectWelcomePacketAndProfile uniqueidentifier = null
+	declare @interactionTypeCodeID_ProspectWelcomeLetter uniqueidentifier = null
+
+	-- Error messages if the interaction type code couldn't be found
+	declare @interactionTypeCodeErrorMsg_ProspectWelcomePacket  nvarchar(255) = 'Could not find ' + @interactionTypeCodeDesc_ProspectWelcomePacket + ' in code table USR_NEWSPONSORSHIPINTERACTIONTYPECODE'
+	declare @interactionTypeCodeErrorMsg_ProspectWelcomePacketAndProfile  nvarchar(255) = 'Could not find ' + @interactionTypeCodeDesc_ProspectWelcomePacketAndProfile + ' in code table USR_NEWSPONSORSHIPINTERACTIONTYPECODE'
+	declare @interactionTypeCodeErrorMsg_ProspectWelcomeLetter  nvarchar(255) = 'Could not find ' + @interactionTypeCodeDesc_ProspectWelcomeLetter + ' in code table USR_NEWSPONSORSHIPINTERACTIONTYPECODE'
+
+
+	begin try
+		select @interactionTypeCodeID_ProspectWelcomePacket = ID from dbo.USR_NEWPROSPECTSPONSORSHIPINTERACTIONTYPECODE where lower (DESCRIPTION) = lower (@interactionTypeCodeDesc_ProspectWelcomePacket)
+		if @interactionTypeCodeID_ProspectWelcomePacket is null
+			raiserror 10000 @interactionTypeCodeErrorMsg_ProspectWelcomePacket
+		
+		select @interactionTypeCodeID_ProspectWelcomePacketAndProfile = ID from dbo.USR_NEWPROSPECTSPONSORSHIPINTERACTIONTYPECODE where lower (DESCRIPTION) = lower (@interactionTypeCodeDesc_ProspectWelcomePacketAndProfile)
+		if @interactionTypeCodeID_ProspectWelcomePacketAndProfile is null
+			raiserror 100000 @interactionTypeCodeErrorMsg_ProspectWelcomePacketAndProfile
+			
+		select @interactionTypeCodeID_ProspectWelcomeLetter = ID from dbo.USR_NEWPROSPECTSPONSORSHIPINTERACTIONTYPECODE where lower (DESCRIPTION) = lower (@interactionTypeCodeDesc_ProspectWelcomeLetter)
+		if @interactionTypeCodeID_ProspectWelcomeLetter is null
+			raiserror 100000 @interactionTypeCodeErrorMsg_ProspectWelcomeLetter
+	
+	end try
+	begin catch
+		exec dbo.USP_RAISE_ERROR
+		return 1	
+	end catch
+
+
+	declare @financialSponsorID uniqueidentifier = null
+	declare @correspondentID uniqueidentifier = null
+
+	declare @financialSponsorInteractionOnly bit = 1
+
+	declare @financialSponsorAddress nvarchar (150) = ''
+	declare @correspondentAddress nvarchar (150) = ''
+	declare @financialSponsorStateID uniqueidentifier = null
+	declare @correspondentStateID uniqueidentifier = null
+
+	set @correspondentID = dbo.USR_UFN_SPONSORSHIP_GETCORRESPONDENT (@sponsorshipID)
+	set @financialSponsorID = dbo.USR_UFN_SPONSORSHIP_GETFINANCIALSPONSOR (@sponsorshipID)
+
+
+	-- Determine who should get the interaction (Child Correspondent or Financial Sponsor)
+
+	if @correspondentID is null
+		set @financialSponsorInteractionOnly = 1
+	else
+	begin
+		-- If there is a Child Correspondent, determine if they live at the same address as the Financial Sponsor
+		-- If both have the same address, then the interaction goes to the Financial Sponsor
+		-- If they have different addresses, then the interaction goes to the Child Correspondent
+	
+		-- Comparison is of the Address Block and State
+		-- Blackbaud's OOB UFN_ADDRESS_ADDRESSBLOCK_NORMALIZE_LOWERCASE is used to make the comparison more accuate
+		-- It standardizes the addresses by applying standard abbreviations, removing white space, and converting to lower case
+	
+		declare @SUBSTITUTIONS dbo.UDT_STRINGPAIR_100 -- This is required by the user defined function, but we do not have any additional standardizations to apply
+	
+		select	@financialSponsorAddress = ADDRESSBLOCK,
+				@financialSponsorStateID = STATEID
+		  from	dbo.ADDRESS
+		 where	CONSTITUENTID = @financialSponsorID
+	 
+		select	@correspondentAddress = ADDRESSBLOCK,
+				@correspondentStateID = STATEID
+		  from	dbo.ADDRESS
+		 where	CONSTITUENTID = @correspondentID
+
+	
+		if (dbo.UFN_ADDRESS_ADDRESSBLOCK_NORMALIZE_LOWERCASE(@financialSponsorAddress, @SUBSTITUTIONS)= dbo.UFN_ADDRESS_ADDRESSBLOCK_NORMALIZE_LOWERCASE(@correspondentAddress, @SUBSTITUTIONS))
+			and ((@financialSponsorStateID is null and @correspondentStateID is null) or (@financialSponsorStateID = @correspondentStateID))
+	    	    
+			set @financialSponsorInteractionOnly = 1
+		else
+			set @financialSponsorInteractionOnly = 0
+	end
+
+
+	declare @prospectContactMethodDesc nvarchar(100) = ''
+	declare @prospectWelcomeMailSubCatorgoryDesc nvarchar (100) = ''
+	declare @prospectWelcomeMailFulfillmentStatus nvarchar (100) = ''
+	--declare @welcomePhoneSubCatorgoryDesc nvarchar (100) = ''
+
+	declare @interactionID uniqueidentifier = null
+	declare @currentDate date = getdate()
+
+	if @financialSponsorInteractionOnly = 1
+		set @prospectWelcomeMailSubCatorgoryDesc = 	case 
+												when @interactionTypeCodeID = @interactionTypeCodeID_ProspectWelcomePacket  then @interactionSubcategoryDesc_ProspectWelcomePacket
+												when @interactionTypeCodeID = @interactionTypeCodeID_ProspectWelcomePacketAndProfile  then @interactionSubcategoryDesc_ProspectWelcomePacketAndProfile
+												when @interactionTypeCodeID = @interactionTypeCodeID_ProspectWelcomeLetter then @interactionSubcategoryDesc_ProspectWelcomeLetter
+												else ''
+											end
+	else
+		set @prospectWelcomeMailSubCatorgoryDesc = 	case 
+												when @interactionTypeCodeID = @interactionTypeCodeID_ProspectWelcomePacket  then @interactionSubcategoryDesc_ProspectWelcomePacketFinancialSponsor
+												when @interactionTypeCodeID = @interactionTypeCodeID_ProspectWelcomePacketAndProfile  then @interactionSubcategoryDesc_ProspectWelcomePacketAndProfileFinancialSponsor
+												when @interactionTypeCodeID = @interactionTypeCodeID_ProspectWelcomeLetter then @interactionSubcategoryDesc_ProspectWelcomeLetterFinancialSponsor
+												else ''
+											end
+
+
+
+	-- Create interaction on Financial Sponsor based on user interaction type selection 
+		
+	if @interactionTypeCodeID = @interactionTypeCodeID_ProspectWelcomePacketAndProfile
+		set @prospectWelcomeMailFulfillmentStatus = 'Pending'
+	else
+		set @prospectWelcomeMailFulfillmentStatus = ''
+		
+
+	exec dbo.USR_USP_INTERACTION_SPONSOR_ADD_PENDING 
+		@id = @interactionID output,
+		@constituentID = @financialSponsorID,
+		@summary = @interactionSummary,
+		@categoryName = @interactionCategoryDesc_ProspectWelcome,
+		@subcategoryName = @prospectWelcomeMailSubCatorgoryDesc,
+		@expectedDate = @currentDate,
+		@owner = null,						
+		@contactMethodDesc = @contactMethodDesc_Mail,
+		@comment = '',						
+		@letterTypeDesc = '',
+		@fulfillmentStatusDesc = @prospectWelcomeMailFulfillmentStatus, 
+		@eftBrochureCode = 1,
+		@resendCode = 0,
+		@changeAgentID = @changeAgentID				
+
+	if @interactionID is not null
+		exec dbo.USR_USP_INTERACTION_SPONSOR_ADDCHILDREN 
+			@interactionID = @interactionID,
+			@childIDList = @childIDList,
+			@changeAgentID = null
+
+
+	-- Create Prospect Thank You call/email
+	
+	if dbo.USR_UFN_CONSTITUENT_GETVALIDPRIMARYEMAILADDRESS(@financialSponsorID) <> ''
+		set @prospectContactMethodDesc = @contactMethodDesc_Email
+	else
+		set @prospectContactMethodDesc = @contactMethodDesc_Phone
+	
+
+	--declare @expectedDate date = dateadd(d, @welcomeGreetingPhoneCallDelay, @currentDate)
+	
+	exec dbo.USR_USP_INTERACTION_SPONSOR_ADD_PENDING 
+		@id = @interactionID output,
+		@constituentID = @financialSponsorID,
+		@summary = @interactionSummary,
+		@categoryName = @interactionCategoryDesc_ProspectWelcome,
+		@subcategoryName = @interactionSubcategoryDesc_ProspectThankYou,
+		@expectedDate = @currentDate,
+		@owner = @callCenterManagerConstituentID,						
+		@contactMethodDesc = @prospectContactMethodDesc,
+		@comment = '',						
+		@letterTypeDesc = '',
+		@fulfillmentStatusDesc = '',
+		@eftBrochureCode = 0,
+		@resendCode = 0,
+		@changeAgentID = @changeAgentID				
+
+	if @interactionID is not null
+	begin
+		exec dbo.USR_USP_INTERACTION_SPONSOR_ADDCHILDREN 
+			@interactionID = @interactionID,
+			@childIDList = @childIDList,
+			@changeAgentID = null	
+
+		exec dbo.USR_USP_INTERACTION_ADDRESPONSE 
+			@interactionID = @interactionID,
+			@responseCategoryName = @interactionResponseCategory_DonorContact,
+			@response = @interactionResponse_No,
+			@responseDate = null,		
+			@changeAgentID = @changeAgentID
+
+		exec dbo.USR_USP_INTERACTION_ADDRESPONSE 
+			@interactionID = @interactionID,
+			@responseCategoryName = @interactionResponseCategory_EFTReceived,
+			@response = @interactionResponse_No,
+			@responseDate = null,		
+			@changeAgentID = @changeAgentID
+
+		exec dbo.USR_USP_INTERACTION_ADDRESPONSE 
+			@interactionID = @interactionID,
+			@responseCategoryName = @interactionResponseCategory_LeftMessage,
+			@response = @interactionResponse_No,
+			@responseDate = null,		
+			@changeAgentID = @changeAgentID
+
+		exec dbo.USR_USP_INTERACTION_ADDRESPONSE 
+			@interactionID = @interactionID,
+			@responseCategoryName = @interactionResponseCategory_MessageType,
+			@response = @interactionResponse_None,
+			@responseDate = null,		
+			@changeAgentID = @changeAgentID
+		
+	end
+
+	if @financialSponsorInteractionOnly = 0
+	begin
+		-- Add the Correspondent Interaction
+	
+		set @prospectWelcomeMailSubCatorgoryDesc = 	case 
+												when @INTERACTIONTYPECODEID in (@interactionTypeCodeID_ProspectWelcomePacket, @interactionTypeCodeID_ProspectWelcomeLetter) then
+													@interactionSubcategoryDesc_WelcomePacketCorrespondingSponsor
+												when @INTERACTIONTYPECODEID = @interactionTypeCodeID_ProspectWelcomePacketAndProfile  then
+													@interactionSubcategoryDesc_WelcomePacketAndProfileCorrespondingSponsor											
+												else ''
+											end
+
+		exec dbo.USR_USP_INTERACTION_SPONSOR_ADD_PENDING 
+			@id = @interactionID output,
+			@constituentID = @correspondentID,
+			@summary = @interactionSummary,
+			@categoryName = @interactionCategoryDesc_ProspectWelcome,
+			@subcategoryName = @prospectWelcomeMailSubCatorgoryDesc,
+			@expectedDate = @currentDate,
+			@owner = null,						
+			@contactMethodDesc = @contactMethodDesc_Mail,
+			@comment = '',						
+			@letterTypeDesc = '',
+			@fulfillmentStatusDesc = @prospectWelcomeMailFulfillmentStatus, 
+			@eftBrochureCode = 0,
+			@resendCode = 0,
+			@changeAgentID = @changeAgentID				
+
+		if @interactionID is not null
+			exec dbo.USR_USP_INTERACTION_SPONSOR_ADDCHILDREN 
+				@interactionID = @interactionID,
+				@childIDList = @childIDList,
+				@changeAgentID = null
+	end
+
+
+	return 0
+end
+		]]>
+	</CreateProcedureSQL>
+
+</SQLStoredProcedureSpec>
