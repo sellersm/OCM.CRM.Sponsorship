@@ -162,6 +162,8 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="SQL\Stored Procedures\USR_USP_SPONSORSHIP_CREATENEWPROSPECTSPONSORSHIPINTERACTIONS.xml" />
+    <EmbeddedResource Include="SQL\Stored Procedures\USR_USP_SPONSORSHIP_CREATEUNAVAILABLEPROSPECTSPONSORSHIPINTERACTIONS.xml" />
+    <EmbeddedResource Include="SQL\Stored Procedures\USR_USP_SPONSORSHIP_CREATEUNAVAILABLESPONSORSHIPINTERACTIONS.xml" />
     <Content Include="SQL\User Functions\USR_UFN_SPONSORSHIP_GETSPONSORSHIPID.xml" />
     <EmbeddedResource Include="SQL\User Functions\USR_UFN_UNAVAILABLECHILDREN_FOR_TRANSFERSPONSORSHIP_FROMITEMLISTXML.xml" />
     <EmbeddedResource Include="Tasks\AddUnavailableSponsorship.Task.xml" />
