@@ -194,113 +194,7 @@ set nocount on;
 
 
 begin try
-	-- Handle any custom "before-save" logic here
-  -- build table of all children by calling something like UFN_COLLECTION_TEST_CHILDREN_FROMITEMLISTXML
-  -- for each child in that temp table, call the [USP_DATAFORMTEMPLATE_ADD_SPONSORSHIP] sproc to add the new sponsorship
-  -- the @SPONSORSHIPOPPORTUNITYIDCHILD parameter needs to have the sponsorshipopportunityid value of the child
-  declare @TempTbl table (
-	   [ID] uniqueidentifier,
-	   [CHILDID] nvarchar(50))
-
-	insert into @TempTbl select 
-		[ID],
-		[CHILDID] 
-	from dbo.UFN_CHILDREN_FOR_SPONSORSHIP_FROMITEMLISTXML(@CHILDREN)
-
-  declare @r int
-  declare chidCursor cursor fast_forward for 
-  select ID, CHILDID
-  from @TempTbl 
-
-  open chidCursor 
-
-  fetch next from chidCursor into @SPONSORSHIPPROGRAMID, @SPONSORSHIPOPPORTUNITYIDCHILD
-
-  while @@FETCH_STATUS = 0
-  begin
-	-- do the work of adding the sponsorship here:
-	  set @ID = newid()
-	  exec @r = dbo.USP_DATAFORMTEMPLATE_ADD_SPONSORSHIP 
-		@ID = @ID output, 
-		@CHANGEAGENTID = @CHANGEAGENTID, 
-		@REVENUECONSTITUENTID = @REVENUECONSTITUENTID, 
-		@SPONSORSHIPCONSTITUENTID = @SPONSORSHIPCONSTITUENTID, 
-		@SPONSORSHIPPROGRAMID = @SPONSORSHIPPROGRAMID, 
-		@SPONSORSHIPLOCATIONID = @SPONSORSHIPLOCATIONID, 
-		@GENDERCODE = @GENDERCODE, 
-		@SPROPPAGERANGEID = @SPROPPAGERANGEID, 
-		@ISHIVPOSITIVECODE = @ISHIVPOSITIVECODE, 
-		@HASCONDITIONCODE = @HASCONDITIONCODE, 
-		@ISORPHANEDCODE = @ISORPHANEDCODE, 
-		@SPROPPPROJECTCATEGORYCODEID = @SPROPPPROJECTCATEGORYCODEID, 
-		@SPONSORSHIPOPPORTUNITYIDCHILD = @SPONSORSHIPOPPORTUNITYIDCHILD, 
-		@SPONSORSHIPOPPORTUNITYIDPROJECT = @SPONSORSHIPOPPORTUNITYIDPROJECT, 
-		@ISSOLESPONSORSHIP = @ISSOLESPONSORSHIP, 
-		@STARTDATE = @STARTDATE, 
-		@AMOUNT = @AMOUNT, 
-		@PAYMENTMETHODCODE = 0,  -- set this to CASH, no matter what @PAYMENTMETHODCODE, 
-		@REFERENCEDATE = @REFERENCEDATE, 
-		@REFERENCENUMBER = @REFERENCENUMBER, 
-		@CARDHOLDERNAME = @CARDHOLDERNAME, 
-		@CREDITCARDNUMBER = @CREDITCARDNUMBER, 
-		@CREDITTYPECODEID = @CREDITTYPECODEID, 
-		@EXPIRESON = @EXPIRESON, 
-		@CONSTITUENTACCOUNTID = @CONSTITUENTACCOUNTID, 
-		@FREQUENCYCODE = @FREQUENCYCODE, 
-		@REVENUESCHEDULEENDDATE = @REVENUESCHEDULEENDDATE, 
-		@REVENUESCHEDULESTARTDATE = @REVENUESCHEDULESTARTDATE, 
-		@AUTOPAY = 0,    -- set to 0 no matter what @AUTOPAY, 
-		@CREDITCARDTOKEN = @CREDITCARDTOKEN, 
-		@GIFTRECIPIENT = @GIFTRECIPIENT, 
-		@PLANNEDENDDATE = @PLANNEDENDDATE, 
-		@RESERVEDOPPORTUNITYIDCHILD = @RESERVEDOPPORTUNITYIDCHILD, 
-		@RESERVATIONKEY = @RESERVATIONKEY, 
-		@MATCHEDOPPORTUNITYID = @MATCHEDOPPORTUNITYID, 
-		@SENDREMINDER = @SENDREMINDER, 
-		@FINDERNUMBER = @FINDERNUMBER, 
-		@SOURCECODE = @SOURCECODE, 
-		@APPEALID = @APPEALID, 
-		@MAILINGID = @MAILINGID, 
-		@CHANNELCODEID = @CHANNELCODEID, 
-		@REFERENCE = @REFERENCE, 
-		@CATEGORYCODEID = @CATEGORYCODEID, 
-		@EXPIRATIONREASONID = @EXPIRATIONREASONID, 
-		@TRANSACTIONCURRENCYID = @TRANSACTIONCURRENCYID, 
-		@BASEEXCHANGERATEID = @BASEEXCHANGERATEID, 
-		@EXCHANGERATE = @EXCHANGERATE, 
-		@CURRENTAPPUSERID = @CURRENTAPPUSERID, 
-		@BATCHNUMBER = @BATCHNUMBER, 
-		@DONOTACKNOWLEDGE = @DONOTACKNOWLEDGE
-
-		-- add the fundraiser/solicitor to the recurring gift if user selected an Appeal
-		if (@APPEALID is not null) and (@FUNDRAISERID is not null)
-			exec dbo.USR_USP_ADD_SOLICITOR_TO_RECURRING_GIFT_CHILDSPONSORSHIP
-				@SPONSORSHIPID = @ID, 
-				@CONSTITUENTID = @FUNDRAISERID,
-				@CHANGEAGENTID = @CHANGEAGENTID
-				
-				
-	if @@error = 0 and @r = 0
-	begin
-	  -- try to remove the lock on this opportunity
-	  exec dbo.USR_DELETE_LOCK_CHILD_FOR_SPONSORSHIP_SELECTION @SPONSORSHIPOPPORTUNITYIDCHILD		
-	end
 	
-	/*   
-	-- what to do with errors?
-	if @@error <> 0 
-		begin
-			if @r <> 0 return @r
-			return 1;
-		end
-	*/
-	--
-	fetch next from chidCursor into @SPONSORSHIPPROGRAMID, @SPONSORSHIPOPPORTUNITYIDCHILD
-  end
-
-  close chidCursor 
-  deallocate chidCursor 
-
 	-- do the Partnership for Mercy setup if the user picked one:
 	if @PFMID is not null
 	begin
@@ -412,25 +306,145 @@ begin try
 		
 	end  -- @PFMID is not null
 
+	
+  -- build table of all children by calling something like UFN_COLLECTION_TEST_CHILDREN_FROMITEMLISTXML
+  -- for each child in that temp table, call the [USP_DATAFORMTEMPLATE_ADD_SPONSORSHIP] sproc to add the new sponsorship
+  -- the @SPONSORSHIPOPPORTUNITYIDCHILD parameter needs to have the sponsorshipopportunityid value of the child
+  declare @TempTbl table (
+	   [ID] uniqueidentifier,
+	   [CHILDID] nvarchar(50))
+
+	insert into @TempTbl select 
+		[ID],
+		[CHILDID] 
+	from dbo.UFN_CHILDREN_FOR_SPONSORSHIP_FROMITEMLISTXML(@CHILDREN)
+
+  declare @r int
+  declare chidCursor cursor fast_forward for 
+  select ID, CHILDID
+  from @TempTbl 
+
+  open chidCursor 
+
+  fetch next from chidCursor into @SPONSORSHIPPROGRAMID, @SPONSORSHIPOPPORTUNITYIDCHILD
+
+  while @@FETCH_STATUS = 0
+  begin
+	-- do the work of adding the sponsorship here:
+	  set @ID = newid()
+	  exec @r = dbo.USP_DATAFORMTEMPLATE_ADD_SPONSORSHIP 
+		@ID = @ID output, 
+		@CHANGEAGENTID = @CHANGEAGENTID, 
+		@REVENUECONSTITUENTID = @REVENUECONSTITUENTID, 
+		@SPONSORSHIPCONSTITUENTID = @SPONSORSHIPCONSTITUENTID, 
+		@SPONSORSHIPPROGRAMID = @SPONSORSHIPPROGRAMID, 
+		@SPONSORSHIPLOCATIONID = @SPONSORSHIPLOCATIONID, 
+		@GENDERCODE = @GENDERCODE, 
+		@SPROPPAGERANGEID = @SPROPPAGERANGEID, 
+		@ISHIVPOSITIVECODE = @ISHIVPOSITIVECODE, 
+		@HASCONDITIONCODE = @HASCONDITIONCODE, 
+		@ISORPHANEDCODE = @ISORPHANEDCODE, 
+		@SPROPPPROJECTCATEGORYCODEID = @SPROPPPROJECTCATEGORYCODEID, 
+		@SPONSORSHIPOPPORTUNITYIDCHILD = @SPONSORSHIPOPPORTUNITYIDCHILD, 
+		@SPONSORSHIPOPPORTUNITYIDPROJECT = @SPONSORSHIPOPPORTUNITYIDPROJECT, 
+		@ISSOLESPONSORSHIP = @ISSOLESPONSORSHIP, 
+		@STARTDATE = @STARTDATE, 
+		@AMOUNT = @AMOUNT, 
+		@PAYMENTMETHODCODE = 0,  -- set this to CASH, no matter what @PAYMENTMETHODCODE, 
+		@REFERENCEDATE = @REFERENCEDATE, 
+		@REFERENCENUMBER = @REFERENCENUMBER, 
+		@CARDHOLDERNAME = @CARDHOLDERNAME, 
+		@CREDITCARDNUMBER = @CREDITCARDNUMBER, 
+		@CREDITTYPECODEID = @CREDITTYPECODEID, 
+		@EXPIRESON = @EXPIRESON, 
+		@CONSTITUENTACCOUNTID = @CONSTITUENTACCOUNTID, 
+		@FREQUENCYCODE = @FREQUENCYCODE, 
+		@REVENUESCHEDULEENDDATE = @REVENUESCHEDULEENDDATE, 
+		@REVENUESCHEDULESTARTDATE = @REVENUESCHEDULESTARTDATE, 
+		@AUTOPAY = 0,    -- set to 0 no matter what @AUTOPAY, 
+		@CREDITCARDTOKEN = @CREDITCARDTOKEN, 
+		@GIFTRECIPIENT = @GIFTRECIPIENT, 
+		@PLANNEDENDDATE = @PLANNEDENDDATE, 
+		@RESERVEDOPPORTUNITYIDCHILD = @RESERVEDOPPORTUNITYIDCHILD, 
+		@RESERVATIONKEY = @RESERVATIONKEY, 
+		@MATCHEDOPPORTUNITYID = @MATCHEDOPPORTUNITYID, 
+		@SENDREMINDER = @SENDREMINDER, 
+		@FINDERNUMBER = @FINDERNUMBER, 
+		@SOURCECODE = @SOURCECODE, 
+		@APPEALID = @APPEALID, 
+		@MAILINGID = @MAILINGID, 
+		@CHANNELCODEID = @CHANNELCODEID, 
+		@REFERENCE = @REFERENCE, 
+		@CATEGORYCODEID = @CATEGORYCODEID, 
+		@EXPIRATIONREASONID = @EXPIRATIONREASONID, 
+		@TRANSACTIONCURRENCYID = @TRANSACTIONCURRENCYID, 
+		@BASEEXCHANGERATEID = @BASEEXCHANGERATEID, 
+		@EXCHANGERATE = @EXCHANGERATE, 
+		@CURRENTAPPUSERID = @CURRENTAPPUSERID, 
+		@BATCHNUMBER = @BATCHNUMBER, 
+		@DONOTACKNOWLEDGE = @DONOTACKNOWLEDGE
+
+		-- add the fundraiser/solicitor to the recurring gift if user selected an Appeal
+		if (@APPEALID is not null) and (@FUNDRAISERID is not null)
+			exec dbo.USR_USP_ADD_SOLICITOR_TO_RECURRING_GIFT_CHILDSPONSORSHIP
+				@SPONSORSHIPID = @ID, 
+				@CONSTITUENTID = @FUNDRAISERID,
+				@CHANGEAGENTID = @CHANGEAGENTID
+				
+				
+	if @@error = 0 and @r = 0
+	begin
+	  -- try to remove the lock on this opportunity
+	  exec dbo.USR_DELETE_LOCK_CHILD_FOR_SPONSORSHIP_SELECTION @SPONSORSHIPOPPORTUNITYIDCHILD		
+	end
+	
+	/*   
+	-- what to do with errors?
+	if @@error <> 0 
+		begin
+			if @r <> 0 return @r
+			return 1;
+		end
+	*/
+	--
+	fetch next from chidCursor into @SPONSORSHIPPROGRAMID, @SPONSORSHIPOPPORTUNITYIDCHILD
+  end
+
+  close chidCursor 
+  deallocate chidCursor 
+  
+    -- 9/17/12 Memphis added the following for the Interaction creation
+	-- set the Interaction for the child[ren]
+	declare @childIDList dbo.USR_UDT_CHILDIDLIST 
+	-- populate the child list with the childid values in the temptable
+	insert @childIDList 
+	select CHILDID
+	from @TempTbl 
+	
+	-- check that there are any children selected:
+	declare @childCount int
+	select @childCount = COUNT(*)
+	from @childIDList
+	
+	if @childCount > 0
+	begin
+		-- call sproc to create the requested interaction type
+		exec dbo.USR_USP_SPONSORSHIP_CREATENEWPROSPECTSPONSORSHIPINTERACTIONS 
+			 @sponsorshipID = @ID,				-- The sponsorship that the interactions will pertain to, which was just created for this Sponsor
+			 @childIDList = @childIDList,		-- The list of children to add to the interactions created
+			 @interactionTypeCodeID = @INTERACTIONTYPECODEID,		-- The ID of the Interaction Type that the user selected (Welcome Packet, Welcome Packet & Profile, ...)
+			 @changeAgentID = @CHANGEAGENTID	-- Used to specify change agent for CHANGEDBYID and ADDEDBYID fields.  USP_CHANGEAGENT_GETORCREATECHANGEAGENT is called if it's null
+	end
+	else
+		RAISERROR 1000000 'There are no Children for which to set Interactions!'
+
+
 end try
 begin catch
 	exec dbo.USP_RAISE_ERROR;
 	return 1;
 end catch
 
-
-/* invoke the default implementation */
-
-
-/*
-begin try
-	-- Handle any custom "after-save" logic here 
-end try
-begin catch
-	exec dbo.USP_RAISE_ERROR;
-	return 1;
-end catch
-*/
 
 return @r;
 

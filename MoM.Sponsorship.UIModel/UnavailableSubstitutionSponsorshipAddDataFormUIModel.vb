@@ -2053,6 +2053,7 @@ Public Class UnavailableSubstitutionSponsorshipAddDataFormUIModel
 			Me.INTERACTIONTYPECODEID.Value = Nothing
 			'turn off payment fields:
 			TurnPaymentFieldsOnOff(False)
+			Me.ISPROSPECT.Value = True
 		Else
 			'unchecked
 			_prospectSponsorship = False
@@ -2061,6 +2062,7 @@ Public Class UnavailableSubstitutionSponsorshipAddDataFormUIModel
 			Me.INTERACTIONTYPECODEID.Value = Nothing
 			'turn on payment fields:
 			TurnPaymentFieldsOnOff(True)
+			Me.ISPROSPECT.Value = False
 		End If
 
 		'revalidate the selected sponsor if there is one

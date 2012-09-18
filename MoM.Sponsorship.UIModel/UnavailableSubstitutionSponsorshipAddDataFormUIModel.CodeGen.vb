@@ -187,6 +187,7 @@ Partial Public Class [UnavailableSubstitutionSponsorshipAddDataFormUIModel]
 	Private WithEvents _currencyaction As Global.Blackbaud.AppFx.UIModeling.Core.ShowCustomFormUIAction
 	Private WithEvents _fundraiserid As Global.Blackbaud.AppFx.UIModeling.Core.SearchListField(Of Guid)
 	Private WithEvents _donorcontactcodeid As Global.Blackbaud.AppFx.UIModeling.Core.CodeTableField
+	Private WithEvents _isprospect As Global.Blackbaud.AppFx.UIModeling.Core.BooleanField
 
 	<System.CodeDom.Compiler.GeneratedCodeAttribute("BBUIModelLibrary", "2.93.2034.0")> _
     Public Sub New()
@@ -280,6 +281,7 @@ Partial Public Class [UnavailableSubstitutionSponsorshipAddDataFormUIModel]
 		_currencyaction = New Global.Blackbaud.AppFx.UIModeling.Core.ShowCustomFormUIAction
 		_fundraiserid = New Global.Blackbaud.AppFx.UIModeling.Core.SearchListField(Of Guid)
 		_donorcontactcodeid = New Global.Blackbaud.AppFx.UIModeling.Core.CodeTableField
+		_isprospect = New Global.Blackbaud.AppFx.UIModeling.Core.BooleanField
 
         MyBase.Mode = Global.Blackbaud.AppFx.UIModeling.Core.DataFormMode.Add
         MyBase.DataFormTemplateId = New Guid("0d1fc2df-5be4-47cd-a86c-fb1030eb52d9")
@@ -317,7 +319,16 @@ Partial Public Class [UnavailableSubstitutionSponsorshipAddDataFormUIModel]
         _giftrecipient.Name = "GIFTRECIPIENT"
         _giftrecipient.Caption = "Gift"
         Me.Fields.Add(_giftrecipient)
-        '
+
+		'
+		'_isprospect
+		'
+		_isprospect.Name = "ISPROSPECT"
+		_isprospect.Caption = "Is Prospect"
+		_isprospect.Visible = False
+		Me.Fields.Add(_isprospect)
+
+		'
         '_sponsorshipconstituentid
         '
         _sponsorshipconstituentid.Name = "SPONSORSHIPCONSTITUENTID"
@@ -1083,7 +1094,19 @@ Partial Public Class [UnavailableSubstitutionSponsorshipAddDataFormUIModel]
             Return _giftrecipient
         End Get
     End Property
-    
+
+	''' <summary>
+	''' Is Prospect
+	''' </summary>
+	<System.ComponentModel.Description("Is Prospect")> _
+	<System.CodeDom.Compiler.GeneratedCodeAttribute("BBUIModelLibrary", "2.93.2034.0")> _
+	Public ReadOnly Property [ISPROSPECT]() As Global.Blackbaud.AppFx.UIModeling.Core.BooleanField
+		Get
+			Return _isprospect
+		End Get
+	End Property
+
+
     ''' <summary>
     ''' Corresponding sponsor
     ''' </summary>
