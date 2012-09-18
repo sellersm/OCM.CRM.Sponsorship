@@ -184,7 +184,8 @@ create procedure dbo.USR_USP_DATAFORMTEMPLATE_ADD_UNAVAILABLESPONSORSHIP
 		@INTERACTIONTYPECODEID uniqueidentifier = null,
 		@SUBSTITUTECHILDID uniqueidentifier = null,
 		@FUNDRAISERID uniqueidentifier = null,
-		@DONORCONTACTCODEID uniqueidentifier = null  -- new donor contact code field
+		@DONORCONTACTCODEID uniqueidentifier = null,  -- new donor contact code field
+		@ISPROSPECT bit = 0   -- set to the value of isprospectsponsorship checkbox
 )
 
 
@@ -194,7 +195,118 @@ set nocount on;
 
 
 begin try
-	-- Handle any custom "before-save" logic here
+
+-- do the Partnership for Mercy setup if the user picked one:
+	if @PFMID is not null
+	begin
+		declare  @CONSTITUENTID uniqueidentifier
+		declare  @RELATIONSHIPSTARTDATE datetime
+		declare  @COMMENTS nvarchar(256) = ''
+		declare  @PRIMARYSOFTCREDITRELATIONSHIPEXISTS bit = 0
+		declare  @PRIMARYSOFTCREDITMATCHFACTOR decimal(5,2) = 100
+		declare  @RECIPROCALSOFTCREDITRELATIONSHIPEXISTS bit = 0
+		declare  @RECIPROCALSOFTCREDITMATCHFACTOR decimal(5,2) = 100
+		declare  @PRIMARYRECOGNITIONTYPECODEID uniqueidentifier = null
+		declare  @RECIPROCALRECOGNITIONTYPECODEID uniqueidentifier = null
+		declare  @CURRENTDATE datetime = getdate()
+		declare  @ISCONTACT bit = 0
+		declare  @ISPRIMARYCONTACT bit = 0
+		declare  @CONTACTTYPECODEID uniqueidentifier = null
+		declare  @RELATIONSHIPENDDATE datetime = null
+		declare	 @ISPRIMARYBUSINESS bit = 0
+		declare  @ISMATCHINGGIFTRELATIONSHIP bit = 0
+		declare  @RECIPROCALCONSTITUENTID uniqueidentifier = null
+		declare  @RECIPROCALTYPECODEID uniqueidentifier = null
+		declare  @RELATIONSHIPTYPECODEID uniqueidentifier = null
+	
+		-- set the values & call the create relationship sproc
+		set @RECIPROCALCONSTITUENTID = @PFMID				-- this is the PFM ID the user selected: Testing Partnership for Mercy ORG
+		-- this is the code of the 'CHURCH' relationship type, which describes the reciprocal/PFM org: 
+		set @RECIPROCALTYPECODEID = (select ID
+									from dbo.RELATIONSHIPTYPECODE
+									where lower(DESCRIPTION) = LOWER('church')
+									and ACTIVE = 1)     
+		-- this is the code of the 'Church Member' relationship type, which describes the constituent relationship
+		set @RELATIONSHIPTYPECODEID = (select ID
+										from dbo.RELATIONSHIPTYPECODE
+										where lower(DESCRIPTION) = LOWER('Church Member')
+										and ACTIVE = 1)
+			
+		-- make sure we have the ID values or we can't continue
+		if (@RECIPROCALTYPECODEID is null) or (@RELATIONSHIPTYPECODEID is null)
+			RAISERROR 1000000 'Could not find either the "Church" or "Church Member" Relationship Type code!'
+		else
+		begin								
+			set @RELATIONSHIPSTARTDATE = getdate()   -- date the relationship started
+			set @COMMENTS = N'created by adding a new sponsorship'
+			set @PRIMARYSOFTCREDITRELATIONSHIPEXISTS = 1
+			set @PRIMARYSOFTCREDITMATCHFACTOR = 100
+			set @RECIPROCALSOFTCREDITRELATIONSHIPEXISTS = 0
+			set @RECIPROCALSOFTCREDITMATCHFACTOR = 0
+			--set @PRIMARYRECOGNITIONTYPECODEID = '78E81015-8AB8-424B-9E56-67BBADB1D891'
+			set @RECIPROCALRECOGNITIONTYPECODEID = NULL
+			if @CHANGEAGENTID is null  
+				exec dbo.USP_CHANGEAGENT_GETORCREATECHANGEAGENT @CHANGEAGENTID output
+			--set @CHANGEAGENTID = '1EBCC2A6-4FDA-4A7E-90B1-8AFEC457A564'
+			set @CONSTITUENTID = @SPONSORSHIPCONSTITUENTID      -- this is the con/sponsor	
+			
+			exec dbo.USR_USP_CREATE_PARTNERSHIP_RELATIONSHIP_WITH_SPONSOR
+				@ID OUTPUT
+				,@CHANGEAGENTID
+				,@CONSTITUENTID
+				,@RECIPROCALCONSTITUENTID
+				,@RECIPROCALTYPECODEID
+				,@RELATIONSHIPTYPECODEID
+				,@RELATIONSHIPSTARTDATE
+				,@COMMENTS
+				,@PRIMARYSOFTCREDITRELATIONSHIPEXISTS
+				,@PRIMARYSOFTCREDITMATCHFACTOR
+				,@RECIPROCALSOFTCREDITRELATIONSHIPEXISTS
+				,@RECIPROCALSOFTCREDITMATCHFACTOR				  
+				,@RECIPROCALRECOGNITIONTYPECODEID
+				,@CURRENTDATE
+				,@ISCONTACT
+				,@ISPRIMARYCONTACT
+				,@CONTACTTYPECODEID
+				,@RELATIONSHIPENDDATE
+				,@ISPRIMARYBUSINESS
+				,@ISMATCHINGGIFTRELATIONSHIP
+		end   -- @RECIPROCALTYPECODEID is not null
+		
+		-- now add the constituency code of 'Partnership for mercy' to sponsor if not there:
+		declare @CONSTITUENCYCODEID uniqueidentifier
+		declare @DATEFROM datetime
+		declare @DATETO datetime
+		
+		-- get the constituency code id for Partnership for mercy
+		select @CONSTITUENCYCODEID = ID
+		from dbo.CONSTITUENCYCODE
+		where lower([DESCRIPTION]) = lower('Partnership for Mercy')
+
+		if @CONSTITUENCYCODEID is null
+			RAISERROR 1000000 'Could not find the "Partnership for mercy" constituency code!'
+			
+		-- check now for the given constituency code for the given constituent
+		declare @ISPARTNER bit = 0;
+		
+		select @ISPARTNER = dbo.USR_UFN_CONSTITUENT_HAS_CONSTITUENCYCODE (@CONSTITUENTID, @CONSTITUENCYCODEID)
+		
+		-- 0 means it isn't present, 1 means it was found:
+		if @ISPARTNER = 0
+		begin
+			set @DATEFROM = getdate()
+			-- finally add the code
+			exec dbo.USR_USP_ADD_CONSTITUENT_CONSTITUENCYCODE
+				   @ID OUTPUT
+				  ,@CHANGEAGENTID
+				  ,@CONSTITUENTID
+				  ,@CONSTITUENCYCODEID
+				  ,@DATEFROM
+				  ,@DATETO			  
+		end
+		
+	end  -- @PFMID is not null
+
   -- build table of all children by calling something like UFN_COLLECTION_TEST_CHILDREN_FROMITEMLISTXML
   -- for each child in that temp table, call the [USP_DATAFORMTEMPLATE_ADD_SPONSORSHIP] sproc to add the new sponsorship
   -- the @SPONSORSHIPOPPORTUNITYIDCHILD parameter needs to have the sponsorshipopportunityid value of the child
@@ -311,6 +423,48 @@ begin try
 	end
 	
 	-- ** THIS IS WHERE THE INTERACTION CALLS WILL BE PLACED! **
+	-- create the necessary interactions for this new sponsorship, based on whether it's a Prospect or non-prospect sponsorship:	
+	/*   
+	*          **** THIS DOESN"T WORK, NEED THE NEW INTERACTION SPROCS FROM CARY THAT WILL TAKE THE XML PARAMETER *****
+	-- set the Interaction for the child[ren]
+	declare @childIDList dbo.USR_UDT_CHILDIDLIST 
+	-- populate the child list with the childid values in the temptable
+	insert @childIDList 
+	select CHILDID
+	from @TempTbl 
+	
+	-- check that there are any children selected:
+	declare @childCount int
+	select @childCount = COUNT(*)
+	from @childIDList
+	
+	if @childCount > 0
+	begin
+		if @ISPROSPECT = 0
+		-- call the regular sponsorship interactions
+		begin		
+			exec dbo.USR_USP_SPONSORSHIP_CREATENEWSPONSORSHIPINTERACTIONS 
+				@sponsorshipID = @ID,				-- The sponsorship that the interactions will pertain to, which was just created for this Sponsor
+				@childIDList = @childIDList,		-- The list of children to add to the interactions created
+				@interactionTypeCodeID = @INTERACTIONTYPECODEID,		-- The ID of the Interaction Type that the user selected (Welcome Packet, Welcome Packet & Profile, ...)
+				@changeAgentID = @CHANGEAGENTID		-- Used to specify change agent for CHANGEDBYID and ADDEDBYID fields.  USP_CHANGEAGENT_GETORCREATECHANGEAGENT is called if it's null
+
+		end
+		else
+		-- call the prospect sponsorship interactions
+		begin
+			exec dbo.USR_USP_SPONSORSHIP_CREATENEWPROSPECTSPONSORSHIPINTERACTIONS
+				@sponsorshipID = @ID,				-- The sponsorship that the interactions will pertain to.  
+				@childIDList = @childIDList,		-- The list of children to add to the interactions created
+				@interactionTypeCodeID = @INTERACTIONTYPECODEID,		-- The ID of the Interaction Type that the user selected (Prospect Welcome Packet, Prospect Welcome Packet & Profile, ...)
+				@changeAgentID = @CHANGEAGENTID
+		end
+	end
+	else
+		RAISERROR 1000000 'There are no Children for which to set Interactions!'	
+	*/
+	
+	
 	
 	/*   
 	-- what to do with errors?
@@ -327,116 +481,6 @@ begin try
   close chidCursor 
   deallocate chidCursor 
 
-	-- do the Partnership for Mercy setup if the user picked one:
-	if @PFMID is not null
-	begin
-		declare  @CONSTITUENTID uniqueidentifier
-		declare  @RELATIONSHIPSTARTDATE datetime
-		declare  @COMMENTS nvarchar(256) = ''
-		declare  @PRIMARYSOFTCREDITRELATIONSHIPEXISTS bit = 0
-		declare  @PRIMARYSOFTCREDITMATCHFACTOR decimal(5,2) = 100
-		declare  @RECIPROCALSOFTCREDITRELATIONSHIPEXISTS bit = 0
-		declare  @RECIPROCALSOFTCREDITMATCHFACTOR decimal(5,2) = 100
-		declare  @PRIMARYRECOGNITIONTYPECODEID uniqueidentifier = null
-		declare  @RECIPROCALRECOGNITIONTYPECODEID uniqueidentifier = null
-		declare  @CURRENTDATE datetime = getdate()
-		declare  @ISCONTACT bit = 0
-		declare  @ISPRIMARYCONTACT bit = 0
-		declare  @CONTACTTYPECODEID uniqueidentifier = null
-		declare  @RELATIONSHIPENDDATE datetime = null
-		declare	 @ISPRIMARYBUSINESS bit = 0
-		declare  @ISMATCHINGGIFTRELATIONSHIP bit = 0
-		declare  @RECIPROCALCONSTITUENTID uniqueidentifier = null
-		declare  @RECIPROCALTYPECODEID uniqueidentifier = null
-		declare  @RELATIONSHIPTYPECODEID uniqueidentifier = null
-	
-		-- set the values & call the create relationship sproc
-		set @RECIPROCALCONSTITUENTID = @PFMID				-- this is the PFM ID the user selected: Testing Partnership for Mercy ORG
-		-- this is the code of the 'CHURCH' relationship type, which describes the reciprocal/PFM org: 
-		set @RECIPROCALTYPECODEID = (select ID
-									from dbo.RELATIONSHIPTYPECODE
-									where lower(DESCRIPTION) = LOWER('church')
-									and ACTIVE = 1)     
-		-- this is the code of the 'Church Member' relationship type, which describes the constituent relationship
-		set @RELATIONSHIPTYPECODEID = (select ID
-										from dbo.RELATIONSHIPTYPECODE
-										where lower(DESCRIPTION) = LOWER('Church Member')
-										and ACTIVE = 1)
-			
-		-- make sure we have the ID values or we can't continue
-		if (@RECIPROCALTYPECODEID is null) or (@RELATIONSHIPTYPECODEID is null)
-			RAISERROR 1000000 'Could not find either the "Church" or "Church Member" Relationship Type code!'
-		else
-		begin								
-			set @RELATIONSHIPSTARTDATE = getdate()   -- date the relationship started
-			set @COMMENTS = N'created by adding a new sponsorship'
-			set @PRIMARYSOFTCREDITRELATIONSHIPEXISTS = 1
-			set @PRIMARYSOFTCREDITMATCHFACTOR = 100
-			set @RECIPROCALSOFTCREDITRELATIONSHIPEXISTS = 0
-			set @RECIPROCALSOFTCREDITMATCHFACTOR = 0
-			--set @PRIMARYRECOGNITIONTYPECODEID = '78E81015-8AB8-424B-9E56-67BBADB1D891'
-			set @RECIPROCALRECOGNITIONTYPECODEID = NULL
-			if @CHANGEAGENTID is null  
-				exec dbo.USP_CHANGEAGENT_GETORCREATECHANGEAGENT @CHANGEAGENTID output
-			--set @CHANGEAGENTID = '1EBCC2A6-4FDA-4A7E-90B1-8AFEC457A564'
-			set @CONSTITUENTID = @SPONSORSHIPCONSTITUENTID      -- this is the con/sponsor	
-			
-			exec dbo.USR_USP_CREATE_PARTNERSHIP_RELATIONSHIP_WITH_SPONSOR
-				@ID OUTPUT
-				,@CHANGEAGENTID
-				,@CONSTITUENTID
-				,@RECIPROCALCONSTITUENTID
-				,@RECIPROCALTYPECODEID
-				,@RELATIONSHIPTYPECODEID
-				,@RELATIONSHIPSTARTDATE
-				,@COMMENTS
-				,@PRIMARYSOFTCREDITRELATIONSHIPEXISTS
-				,@PRIMARYSOFTCREDITMATCHFACTOR
-				,@RECIPROCALSOFTCREDITRELATIONSHIPEXISTS
-				,@RECIPROCALSOFTCREDITMATCHFACTOR				  
-				,@RECIPROCALRECOGNITIONTYPECODEID
-				,@CURRENTDATE
-				,@ISCONTACT
-				,@ISPRIMARYCONTACT
-				,@CONTACTTYPECODEID
-				,@RELATIONSHIPENDDATE
-				,@ISPRIMARYBUSINESS
-				,@ISMATCHINGGIFTRELATIONSHIP
-		end   -- @RECIPROCALTYPECODEID is not null
-		
-		-- now add the constituency code of 'Partnership for mercy' to sponsor if not there:
-		declare @CONSTITUENCYCODEID uniqueidentifier
-		declare @DATEFROM datetime
-		declare @DATETO datetime
-		
-		-- get the constituency code id for Partnership for mercy
-		select @CONSTITUENCYCODEID = ID
-		from dbo.CONSTITUENCYCODE
-		where lower([DESCRIPTION]) = lower('Partnership for Mercy')
-
-		if @CONSTITUENCYCODEID is null
-			RAISERROR 1000000 'Could not find the "Partnership for mercy" constituency code!'
-			
-		-- check now for the given constituency code for the given constituent
-		declare @ISPARTNER bit = 0;
-		
-		select @ISPARTNER = dbo.USR_UFN_CONSTITUENT_HAS_CONSTITUENCYCODE (@CONSTITUENTID, @CONSTITUENCYCODEID)
-		
-		-- 0 means it isn't present, 1 means it was found:
-		if @ISPARTNER = 0
-		begin
-			set @DATEFROM = getdate()
-			-- finally add the code
-			exec dbo.USR_USP_ADD_CONSTITUENT_CONSTITUENCYCODE
-				   @ID OUTPUT
-				  ,@CHANGEAGENTID
-				  ,@CONSTITUENTID
-				  ,@CONSTITUENCYCODEID
-				  ,@DATEFROM
-				  ,@DATETO			  
-		end
-		
-	end  -- @PFMID is not null
 
 end try
 begin catch
@@ -444,19 +488,6 @@ begin catch
 	return 1;
 end catch
 
-
-/* invoke the default implementation */
-
-
-/*
-begin try
-	-- Handle any custom "after-save" logic here 
-end try
-begin catch
-	exec dbo.USP_RAISE_ERROR;
-	return 1;
-end catch
-*/
 
 return @r;
 
@@ -946,7 +977,10 @@ return @r;
 			<c:FormField FieldID="DONORCONTACTCODEID" DataType="Guid" Caption="Donor Contact" Required="false">
 				<c:CodeTable CodeTableName="USR_UNAVAILABLE_SPONSORSHIP_CONTACTCODE" />
 			</c:FormField>
-			
+
+			<!-- 9/17/12 Memphis added to indicate to the save procedure what value the user checked -->
+			<c:FormField FieldID="ISPROSPECT" DataType="Boolean" Caption="Is Prospect" Required="true" Hidden="true" />
+
 		</c:FormFields>
 
         <c:WebUIComponent>
