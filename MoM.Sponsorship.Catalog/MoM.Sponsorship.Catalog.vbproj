@@ -161,9 +161,12 @@
     <EmbeddedResource Include="Tasks\AddProspectSponsorship.Task.xml" />
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="Tables\Code Tables\SponsorshipCancellationInteractionType.CodeTable.xml" />
+    <EmbeddedResource Include="Edit Forms\ActiveSponsorshipCancellationWrapped.Edit.xml" />
     <Content Include="SQL\Stored Procedures\USR_USP_SPONSORSHIP_CREATENEWPROSPECTSPONSORSHIPINTERACTIONS.xml" />
     <EmbeddedResource Include="SQL\Stored Procedures\USR_USP_SPONSORSHIP_CREATEUNAVAILABLEPROSPECTSPONSORSHIPINTERACTIONS.xml" />
     <EmbeddedResource Include="SQL\Stored Procedures\USR_USP_SPONSORSHIP_CREATEUNAVAILABLESPONSORSHIPINTERACTIONS.xml" />
+    <EmbeddedResource Include="SQL\User Functions\USR_UFN_GETSPONSORSHIPREASON_FOROPPORTUNITY.xml" />
     <Content Include="SQL\User Functions\USR_UFN_SPONSORSHIP_GETSPONSORSHIPID.xml" />
     <EmbeddedResource Include="SQL\User Functions\USR_UFN_UNAVAILABLECHILDREN_FOR_TRANSFERSPONSORSHIP_FROMITEMLISTXML.xml" />
     <EmbeddedResource Include="Tasks\AddUnavailableSponsorship.Task.xml" />

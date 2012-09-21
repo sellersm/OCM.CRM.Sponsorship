@@ -1,0 +1,31 @@
+﻿<SQLFunctionSpec
+	xmlns="bb_appfx_sqlfunction"
+	xmlns:common="bb_appfx_commontypes" 
+	ID="3811c07d-3584-4c2b-a629-f648e0c491b1"
+	Name="Get Sponsorship Reason for opportunity"
+	Description="Gets the sponsorship reason for the given opportunity"
+	Author="Memphis Sellers"
+	DBFunctionName="USR_UFN_GETSPONSORSHIPREASON_FOROPPORTUNITY"
+	>
+
+	<CreateFunctionSQL>
+		<![CDATA[
+create function dbo.USR_UFN_GETSPONSORSHIPREASON_FOROPPORTUNITY(
+	@OPPORTUNITYID uniqueidentifier
+)
+returns nvarchar(50)
+with execute as caller
+as begin
+	declare @REASON nvarchar(50) = null;
+	select @REASON = sr.REASON
+	from dbo.SPONSORSHIPOPPORTUNITY so
+	join dbo.SPONSORSHIPREASON sr on sr.ID = so.SPONSORSHIPREASONID
+	where so.ID = @OPPORTUNITYID
+	
+	return @REASON;
+
+end
+		]]>
+	</CreateFunctionSQL>
+
+</SQLFunctionSpec>
