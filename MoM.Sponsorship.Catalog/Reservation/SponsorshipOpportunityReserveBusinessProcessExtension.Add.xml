@@ -1,14 +1,23 @@
-﻿<AddDataFormTemplateSpec 
+﻿<AddDataFormTemplateSpec
 	xmlns="bb_appfx_adddataformtemplate"
-	xmlns:common="bb_appfx_commontypes" 
-	ID="fec4e85f-c5f3-4a49-9545-1b5286b8c3b4" 
+	xmlns:common="bb_appfx_commontypes"
+	ID="fec4e85f-c5f3-4a49-9545-1b5286b8c3b4"
 	Name="Sponsorship Opportunity Reserve Business Process Extension  Add Data Form"
 	Description="This is used to extend the Sponsorship Opportunity Reserve Business Process Add Form to include Solicitor"
 	Author="Cary Mayeda"
 	DataFormInstanceID="22bee79e-b3e6-49d9-92d0-47c357f9bb0e"
 	RecordType="Sponsorship Opportunity Reserve Process"
-	common:SecurityUIFolder="Sponsorship\Business Process\Reserve Opportunities"
-	>
+	common:SecurityUIFolder="Sponsorship\Business Process\Reserve Opportunities" >
+
+	<!-- 
+	Remarks:    
+
+	History:
+	Date            Modified By     Comments
+	04-Sep-2012		CMayeda			Initial Version
+	19-Sep-2012		CMayeda			Renamed Solicitor Tab and Field Caption to Fundraiser - Fogbugz Case 831
+	-->
+
 	<SPDataForm>
 		<!-- describe the save SP -->
 		<SaveImplementation SPName="USR_USP_DATAFORMTEMPLATE_ADD_SPONSORSHIPOPPORTUNITYRESERVEBUSINESSEXTENSION">
@@ -60,7 +69,7 @@ return 0
 	like the context @ID, @CONTEXTID, and @CURRENTAPPUSERID need not be listed. -->
 	<common:FormMetaData FixedDialog="true">
 		<common:FormFields>
-			<common:FormField FieldID="SOLICITORID" Caption="Solicitor" DataType="Guid" >
+			<common:FormField FieldID="SOLICITORID" Caption="Fundraiser" DataType="Guid" >
 				<common:SearchList SearchListID="35fa0186-b669-436f-913a-5e9fd5e59982" />
 			</common:FormField>
 		</common:FormFields>
@@ -72,5 +81,5 @@ return 0
 			</common:WebUI>
 		</common:WebUIComponent>
 	</common:FormMetaData>
-	<common:DataFormExtension DataFormInstanceID="826d2419-f6d8-4422-acda-d1e430f4bc23" RenderStyle="Tab" TabCaption="Solicitor" />
+	<common:DataFormExtension DataFormInstanceID="826d2419-f6d8-4422-acda-d1e430f4bc23" RenderStyle="Tab" TabCaption="Fundraiser" />
 </AddDataFormTemplateSpec>
