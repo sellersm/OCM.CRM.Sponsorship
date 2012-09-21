@@ -111,7 +111,7 @@ begin try
 	No, validation to leave interaction blank for administrative reason code (just in case they need to create an interaction)
 	*/
 	-- get the sponsorship reason for the child
-	
+	declare @nothing int
 end try
 begin catch
 	exec dbo.USP_RAISE_ERROR;
