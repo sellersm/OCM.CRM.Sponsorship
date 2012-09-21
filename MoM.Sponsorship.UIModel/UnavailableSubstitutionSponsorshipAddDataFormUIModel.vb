@@ -204,6 +204,10 @@ Public Class UnavailableSubstitutionSponsorshipAddDataFormUIModel
 
 		_sponsorshipHelper = New SponsorshipHelper()
 
+		'9/21/12 Memphis added to set the default value for paymentmethod to Credit Card, because the 
+		'form is loaded as a regular sponsorship, not a prospect:
+		Me.PAYMENTMETHODCODE.Value = PledgeAddFormUIModel.PAYMENTMETHODCODES.CreditCard
+
 	End Sub
 
 	Private Sub TurnPaymentFieldsOnOff(ByVal turnOnOrOff As Boolean)
@@ -1223,17 +1227,18 @@ Public Class UnavailableSubstitutionSponsorshipAddDataFormUIModel
 			e.Valid = False
 			e.InvalidReason = "Sponsor has wrong Constituency Code for this type of Sponsorship!"
 		End If
+		' Memphis 9/21/12 removed this per requirements from Pamela
 		'FundraiserId is required if there's an Appeal
-		If (Me.APPEALID.HasValue) AndAlso (Not Me.APPEALID.Value.Equals(Guid.Empty)) Then
-			'check for a fundraiserId
-			If (Me.FUNDRAISERID.HasValue) AndAlso (Not Me.FUNDRAISERID.Value.Equals(Guid.Empty)) Then
-				'ok
-			Else
-				e.Valid = False
-				e.InvalidFieldName = "FUNDRAISER"
-				e.InvalidReason = "You must select a Fundraiser if you have selected an Appeal."
-			End If
-		End If
+		'If (Me.APPEALID.HasValue) AndAlso (Not Me.APPEALID.Value.Equals(Guid.Empty)) Then
+		'	'check for a fundraiserId
+		'	If (Me.FUNDRAISERID.HasValue) AndAlso (Not Me.FUNDRAISERID.Value.Equals(Guid.Empty)) Then
+		'		'ok
+		'	Else
+		'		e.Valid = False
+		'		e.InvalidFieldName = "FUNDRAISER"
+		'		e.InvalidReason = "You must select a Fundraiser if you have selected an Appeal."
+		'	End If
+		'End If
 	End Sub
 
 	Private Sub _sponsorshiplocationid_ValueChanged(ByVal sender As Object, ByVal e As UIModeling.Core.ValueChangedEventArgs) Handles _sponsorshiplocationid.ValueChanged
