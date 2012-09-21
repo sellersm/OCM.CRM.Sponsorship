@@ -7,8 +7,16 @@
 	Author="Cary Mayeda"
 	DataFormInstanceID="da737293-55ed-4d6e-9988-50a3a10f9062"
 	RecordType="Sponsorship Opportunity Reserve Process"
-	common:SecurityUIFolder="Sponsorship\Business Process\Reserve Opportunities"
-	>
+	common:SecurityUIFolder="Sponsorship\Business Process\Reserve Opportunities" >
+
+	<!-- 
+	Remarks:    
+
+	History:
+	Date            Modified By     Comments
+	04-Sep-2012		CMayeda			Initial Version
+	19-Sep-2012		CMayeda			Renamed Solicitor Tab and Field Caption to Fundraiser - Fogbugz Case 831
+	-->
 
 	<SPDataForm>
 
@@ -89,7 +97,7 @@ return 0;
 	like the record ID, DATALOADED, TSLONG, and CURRENTAPPUSERID need not be listed. -->
 	<common:FormMetaData FixedDialog="true">
 		<common:FormFields>
-			<common:FormField FieldID="SOLICITORID" Caption="Solicitor" DataType="Guid" >
+			<common:FormField FieldID="SOLICITORID" Caption="Fundraiser" DataType="Guid" >
 				<common:SearchList SearchListID="35fa0186-b669-436f-913a-5e9fd5e59982" />
 			</common:FormField>
 		</common:FormFields>
@@ -102,6 +110,6 @@ return 0;
 		</common:WebUIComponent>
 		
 	</common:FormMetaData>
-	<common:DataFormExtension DataFormInstanceID="3edf0c35-a48c-424d-b52e-3e0d73124a2f" RenderStyle="Tab" TabCaption="Solicitor" />
+	<common:DataFormExtension DataFormInstanceID="3edf0c35-a48c-424d-b52e-3e0d73124a2f" RenderStyle="Tab" TabCaption="Fundraiser" />
 
 </EditDataFormTemplateSpec>
