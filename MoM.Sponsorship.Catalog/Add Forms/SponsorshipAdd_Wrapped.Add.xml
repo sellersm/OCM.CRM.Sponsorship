@@ -215,13 +215,15 @@ begin try
 	-- first, create the relationship if necessary:
 
 	declare @CONSTITUENCYCODEID uniqueidentifier
-	declare @DATEFROM datetime
+	declare @DATEFROM datetime = getdate()
 	declare @DATETO datetime
-		
+	declare  @CONSTITUENTID uniqueidentifier
+	
+	set @CONSTITUENTID = @SPONSORSHIPCONSTITUENTID      -- this is the con/sponsor	
+			
 	-- do the Partnership for Mercy setup if the user picked one:
 	if @PFMID is not null
-	begin
-		declare  @CONSTITUENTID uniqueidentifier
+	begin		
 		declare  @RELATIONSHIPSTARTDATE datetime
 		declare  @COMMENTS nvarchar(256) = ''
 		declare  @PRIMARYSOFTCREDITRELATIONSHIPEXISTS bit = 0
@@ -270,7 +272,7 @@ begin try
 			if @CHANGEAGENTID is null  
 				exec dbo.USP_CHANGEAGENT_GETORCREATECHANGEAGENT @CHANGEAGENTID output
 			--set @CHANGEAGENTID = '1EBCC2A6-4FDA-4A7E-90B1-8AFEC457A564'
-			set @CONSTITUENTID = @SPONSORSHIPCONSTITUENTID      -- this is the con/sponsor	
+
 			
 			exec dbo.USR_USP_CREATE_PARTNERSHIP_RELATIONSHIP_WITH_SPONSOR
 				@ID OUTPUT
@@ -472,14 +474,16 @@ begin try
 	declare @ISSPONSOR bit = 0;
 		
 	select @ISSPONSOR = dbo.USR_UFN_CONSTITUENT_HAS_CONSTITUENCYCODE (@CONSTITUENTID, @CONSTITUENCYCODEID)
-		
-	exec dbo.USR_USP_ADD_CONSTITUENT_CONSTITUENCYCODE
-					@ID OUTPUT
-					,@CHANGEAGENTID
-					,@CONSTITUENTID
-					,@CONSTITUENCYCODEID
-					,@DATEFROM
-					,@DATETO
+
+	-- 0 means they don't have the code, so add it:
+	if @ISSPONSOR = 0
+		exec dbo.USR_USP_ADD_CONSTITUENT_CONSTITUENCYCODE
+						@ID OUTPUT
+						,@CHANGEAGENTID
+						,@CONSTITUENTID
+						,@CONSTITUENCYCODEID
+						,@DATEFROM
+						,@DATETO
 	
 	
 

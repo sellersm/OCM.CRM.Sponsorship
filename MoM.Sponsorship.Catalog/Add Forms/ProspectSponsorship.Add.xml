@@ -194,11 +194,19 @@ set nocount on;
 
 
 begin try
+
+
+	declare @CONSTITUENCYCODEID uniqueidentifier
+	declare @DATEFROM datetime = getdate()
+	declare @DATETO datetime
+	declare  @CONSTITUENTID uniqueidentifier
+	
+	set @CONSTITUENTID = @SPONSORSHIPCONSTITUENTID      -- this is the con/sponsor	
 	
 	-- do the Partnership for Mercy setup if the user picked one:
 	if @PFMID is not null
 	begin
-		declare  @CONSTITUENTID uniqueidentifier
+		--declare  @CONSTITUENTID uniqueidentifier
 		declare  @RELATIONSHIPSTARTDATE datetime
 		declare  @COMMENTS nvarchar(256) = ''
 		declare  @PRIMARYSOFTCREDITRELATIONSHIPEXISTS bit = 0
@@ -247,7 +255,7 @@ begin try
 			if @CHANGEAGENTID is null  
 				exec dbo.USP_CHANGEAGENT_GETORCREATECHANGEAGENT @CHANGEAGENTID output
 			--set @CHANGEAGENTID = '1EBCC2A6-4FDA-4A7E-90B1-8AFEC457A564'
-			set @CONSTITUENTID = @SPONSORSHIPCONSTITUENTID      -- this is the con/sponsor	
+
 			
 			exec dbo.USR_USP_CREATE_PARTNERSHIP_RELATIONSHIP_WITH_SPONSOR
 				@ID OUTPUT
@@ -272,11 +280,7 @@ begin try
 				,@ISMATCHINGGIFTRELATIONSHIP
 		end   -- @RECIPROCALTYPECODEID is not null
 		
-		-- now add the constituency code of 'Partnership for mercy' to sponsor if not there:
-		declare @CONSTITUENCYCODEID uniqueidentifier
-		declare @DATEFROM datetime
-		declare @DATETO datetime
-		
+		-- now add the constituency code of 'Partnership for mercy' to sponsor if not there:	
 		-- get the constituency code id for Partnership for mercy
 		select @CONSTITUENCYCODEID = ID
 		from dbo.CONSTITUENCYCODE
@@ -438,6 +442,30 @@ begin try
 	else
 		RAISERROR 1000000 'There are no Children for which to set Interactions!'
 
+	-- add the 'Prospect Sponsor' constituency code if not already there:
+	-- get the constituencycodeid of 'Prospect Sponsor'
+	
+	select @CONSTITUENCYCODEID = ID
+	from dbo.CONSTITUENCYCODE
+	where lower([DESCRIPTION]) = lower('Prospect Sponsor')
+
+	if @CONSTITUENCYCODEID is null
+		RAISERROR 1000000 'Could not find the "Prospect Sponsor" constituency code!'
+
+	-- check now for the given constituency code for the given constituent
+	declare @ISPROSPECTSPONSOR bit = 0;
+		
+	select @ISPROSPECTSPONSOR = dbo.USR_UFN_CONSTITUENT_HAS_CONSTITUENCYCODE (@CONSTITUENTID, @CONSTITUENCYCODEID)
+	
+	if @ISPROSPECTSPONSOR = 0
+		exec dbo.USR_USP_ADD_CONSTITUENT_CONSTITUENCYCODE
+						@ID OUTPUT
+						,@CHANGEAGENTID
+						,@CONSTITUENTID
+						,@CONSTITUENCYCODEID
+						,@DATEFROM
+						,@DATETO
+	
 
 end try
 begin catch

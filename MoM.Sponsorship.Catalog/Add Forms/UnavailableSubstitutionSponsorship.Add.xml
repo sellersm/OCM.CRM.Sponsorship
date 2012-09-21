@@ -195,11 +195,16 @@ set nocount on;
 
 
 begin try
+	declare @CONSTITUENCYCODEID uniqueidentifier
+	declare @DATEFROM datetime = getdate()
+	declare @DATETO datetime
+	declare  @CONSTITUENTID uniqueidentifier
+	
+	set @CONSTITUENTID = @SPONSORSHIPCONSTITUENTID      -- this is the con/sponsor	
 
--- do the Partnership for Mercy setup if the user picked one:
+	-- do the Partnership for Mercy setup if the user picked one:
 	if @PFMID is not null
 	begin
-		declare  @CONSTITUENTID uniqueidentifier
 		declare  @RELATIONSHIPSTARTDATE datetime
 		declare  @COMMENTS nvarchar(256) = ''
 		declare  @PRIMARYSOFTCREDITRELATIONSHIPEXISTS bit = 0
@@ -248,7 +253,7 @@ begin try
 			if @CHANGEAGENTID is null  
 				exec dbo.USP_CHANGEAGENT_GETORCREATECHANGEAGENT @CHANGEAGENTID output
 			--set @CHANGEAGENTID = '1EBCC2A6-4FDA-4A7E-90B1-8AFEC457A564'
-			set @CONSTITUENTID = @SPONSORSHIPCONSTITUENTID      -- this is the con/sponsor	
+			
 			
 			exec dbo.USR_USP_CREATE_PARTNERSHIP_RELATIONSHIP_WITH_SPONSOR
 				@ID OUTPUT
@@ -273,11 +278,7 @@ begin try
 				,@ISMATCHINGGIFTRELATIONSHIP
 		end   -- @RECIPROCALTYPECODEID is not null
 		
-		-- now add the constituency code of 'Partnership for mercy' to sponsor if not there:
-		declare @CONSTITUENCYCODEID uniqueidentifier
-		declare @DATEFROM datetime
-		declare @DATETO datetime
-		
+		-- now add the constituency code of 'Partnership for mercy' to sponsor if not there:		
 		-- get the constituency code id for Partnership for mercy
 		select @CONSTITUENCYCODEID = ID
 		from dbo.CONSTITUENCYCODE
@@ -421,8 +422,26 @@ begin try
 	  -- try to remove the lock on this opportunity
 	  exec dbo.USR_DELETE_LOCK_CHILD_FOR_SPONSORSHIP_SELECTION @SPONSORSHIPOPPORTUNITYIDCHILD		
 	end
+
 	
-	-- ** THIS IS WHERE THE INTERACTION CALLS WILL BE PLACED! **
+	/*   
+	-- what to do with errors?
+	if @@error <> 0 
+		begin
+			if @r <> 0 return @r
+			return 1;
+		end
+	*/
+	--
+	fetch next from chidCursor into @SPONSORSHIPPROGRAMID, @UNAVAILABLECHILDNAME, @UNAVAILABLELOOKUPID, @TRANSFERCHILDNAME, @TRANSFERLOOKUPID, @TRANSFERCHILDID 
+  end
+
+  close chidCursor 
+  deallocate chidCursor 
+
+
+	-- put the interaction code here:
+-- ** THIS IS WHERE THE INTERACTION CALLS WILL BE PLACED! **
 	-- create the necessary interactions for this new sponsorship, based on whether it's a Prospect or non-prospect sponsorship:	
 	/*   
 	*          **** THIS DOESN"T WORK, NEED THE NEW INTERACTION SPROCS FROM CARY THAT WILL TAKE THE XML PARAMETER *****
@@ -462,24 +481,63 @@ begin try
 	end
 	else
 		RAISERROR 1000000 'There are no Children for which to set Interactions!'	
-	*/
+	*/	
 	
-	
-	
-	/*   
-	-- what to do with errors?
-	if @@error <> 0 
+	-- do the constituency code inserts here, based on whether or not this is a Prospect Sponsor or not:	
+	if @ISPROSPECT = 1
 		begin
-			if @r <> 0 return @r
-			return 1;
-		end
-	*/
-	--
-	fetch next from chidCursor into @SPONSORSHIPPROGRAMID, @UNAVAILABLECHILDNAME, @UNAVAILABLELOOKUPID, @TRANSFERCHILDNAME, @TRANSFERLOOKUPID, @TRANSFERCHILDID 
-  end
+		-- add the 'Prospect Sponsor' constituency code if not already there:
+		-- get the constituencycodeid of 'Prospect Sponsor'
+	
+		select @CONSTITUENCYCODEID = ID
+		from dbo.CONSTITUENCYCODE
+		where lower([DESCRIPTION]) = lower('Prospect Sponsor')
 
-  close chidCursor 
-  deallocate chidCursor 
+		if @CONSTITUENCYCODEID is null
+			RAISERROR 1000000 'Could not find the "Prospect Sponsor" constituency code!'
+
+		-- check now for the given constituency code for the given constituent
+		declare @ISPROSPECTSPONSOR bit = 0;
+		
+		select @ISPROSPECTSPONSOR = dbo.USR_UFN_CONSTITUENT_HAS_CONSTITUENCYCODE (@CONSTITUENTID, @CONSTITUENCYCODEID)
+	
+		if @ISPROSPECTSPONSOR = 0
+			exec dbo.USR_USP_ADD_CONSTITUENT_CONSTITUENCYCODE
+							@ID OUTPUT
+							,@CHANGEAGENTID
+							,@CONSTITUENTID
+							,@CONSTITUENCYCODEID
+							,@DATEFROM
+							,@DATETO
+		end
+	else
+		begin
+			-- add the 'Sponsor' constituency code if not already there:
+			-- get the constituencycodeid of 'Sponsor'
+	
+			select @CONSTITUENCYCODEID = ID
+			from dbo.CONSTITUENCYCODE
+			where lower([DESCRIPTION]) = lower('Sponsor')
+
+			if @CONSTITUENCYCODEID is null
+				RAISERROR 1000000 'Could not find the "Sponsor" constituency code!'
+
+			-- check now for the given constituency code for the given constituent
+			declare @ISSPONSOR bit = 0;
+		
+			select @ISSPONSOR = dbo.USR_UFN_CONSTITUENT_HAS_CONSTITUENCYCODE (@CONSTITUENTID, @CONSTITUENCYCODEID)
+
+			-- 0 means they don't have the code, so add it:
+			if @ISSPONSOR = 0
+				exec dbo.USR_USP_ADD_CONSTITUENT_CONSTITUENCYCODE
+								@ID OUTPUT
+								,@CHANGEAGENTID
+								,@CONSTITUENTID
+								,@CONSTITUENCYCODEID
+								,@DATEFROM
+								,@DATETO		
+		end
+
 
 
 end try
