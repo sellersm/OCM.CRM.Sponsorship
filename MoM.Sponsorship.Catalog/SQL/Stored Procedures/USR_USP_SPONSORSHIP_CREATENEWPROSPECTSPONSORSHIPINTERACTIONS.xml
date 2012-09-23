@@ -71,6 +71,7 @@ begin
 
 
 	-- These are used to lookup the interactionTypeCodeIDs from USR_NEWSPONSORSHIPINTERACTIONTYPECODE
+	-- This is what the user selected on the form
 	declare @interactionTypeCodeDesc_ProspectWelcomePacket nvarchar(100) = 'Prospect Welcome Packet'
 	declare @interactionTypeCodeDesc_ProspectWelcomePacketAndProfile nvarchar(100) = 'Prospect Welcome Packet & Profile'
 	declare @interactionTypeCodeDesc_ProspectWelcomeLetter nvarchar(100) = 'Prospect Welcome Letter'

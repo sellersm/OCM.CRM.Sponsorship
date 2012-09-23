@@ -77,6 +77,7 @@ begin
 
 
 	-- These are used to lookup the interactionTypeCodeIDs from USR_NEWSPONSORSHIPINTERACTIONTYPECODE
+	-- This is what the user selected on the form
 	declare @interactionTypeCodeDesc_WelcomePacket nvarchar(100) = 'Welcome Packet'
 	declare @interactionTypeCodeDesc_WelcomePacketAndProfile nvarchar(100) = 'Welcome Packet & Profile'
 	declare @interactionTypeCodeDesc_WelcomeLetter nvarchar(100) = 'Welcome Letter'
