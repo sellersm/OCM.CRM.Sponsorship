@@ -821,8 +821,9 @@ Partial Public Class [UnavailableSubstitutionSponsorshipAddDataFormUIModel]
         '_interactiontypecodeid
         '
         _interactiontypecodeid.Name = "INTERACTIONTYPECODEID"
-        _interactiontypecodeid.Caption = "Interaction"
-        _interactiontypecodeid.Required = True
+		_interactiontypecodeid.Caption = "Interaction"
+		' Memphis 9/22/12  this field isn't required for unavailable sponsorships:
+		_interactiontypecodeid.Required = False
 		_interactiontypecodeid.CodeTableName = "USR_NEWSPONSORSHIPINTERACTIONTYPECODE"
         Me.Fields.Add(_interactiontypecodeid)
         '

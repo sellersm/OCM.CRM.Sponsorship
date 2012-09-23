@@ -18,6 +18,7 @@
 	Date            Modified By     Comments
 	06-Sep-2012		Memphis			Initial Version.
 	15-Sep-2012		Memphis			Added call to add solicitor if there's an Appeal.
+	22-Sep-2012		Memphis			'Hid' the INteraction Type Code and made it not required.
 	-->
 
 
@@ -1022,7 +1023,7 @@ return @r;
 			</c:FormField>
 
 			<!-- Memphis 9/1/12 -->
-			<c:FormField FieldID="INTERACTIONTYPECODEID" DataType="Guid" Caption="Interaction" Required="true">
+			<c:FormField FieldID="INTERACTIONTYPECODEID" DataType="Guid" Caption="Interaction" Required="false">
 				<c:CodeTable CodeTableName="USR_NEWSPONSORSHIPINTERACTIONTYPECODE" />
 			</c:FormField>
 			

@@ -27,7 +27,8 @@
 	16-Sep-2012		CMayeda			Added USR_USP_SPONSORSHIP_CREATENEWPROSPECTSPONSORSHIPINTERACTIONS
 	21-Sep-2012		Memphis			Added USR_UFN_GETSPONSORSHIPREASON_FOROPPORTUNITY.xml, ActiveSponsorshipCancellationWrapped.Edit.xml, SponsorshipCancellationInteractionType.CodeTable.xml
 	22-Sep-2012		CMayeda			Added USR_UFN_SPONSORSHIPOPPORTUNTITY_GETID_BYLOOKUPID.xml
-	-->
+	22-Sep-2012		Memphis			Added the PendingSponsorshipCancellationWrapped.Edit.xml cancel form.
+-->
 
 	<!-- Note:  the order of the items listed here is important.  For example, you won't be able to load a data form that references 
 	a table that hasn't been loaded, etc.  In general, the following order is recommended:
@@ -135,6 +136,7 @@
 		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.SponsorshipOpportunityReserveBusinessProcessExtension.Add.xml" />
 		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.SponsorshipOpportunityReserveBusinessProcessExtension.Edit.xml" />
 		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.ActiveSponsorshipCancellationWrapped.Edit.xml" />
+		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.PendingSponsorshipCancellationWrapped.Edit.xml" />
 
 		<!-- Tasks -->
 		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.SponsorshipAdd_Wrapped.Task.xml" />
