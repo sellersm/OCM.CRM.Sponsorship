@@ -1,0 +1,164 @@
+﻿<SQLStoredProcedureSpec
+	xmlns="bb_appfx_sqlstoredprocedure"
+	xmlns:common="bb_appfx_commontypes" 
+	ID="5f1b8408-e4ad-4c26-915c-828e619f5693"
+	Name="USR_USP_CREATE_PARTNERSHIP_RELATIONSHIP_WITH_SPONSOR"
+	Description="Creates a Partnership for Mercy relationship with the given Sponsor."
+	Author="Memphis Sellers"
+	SPName="USR_USP_CREATE_PARTNERSHIP_RELATIONSHIP_WITH_SPONSOR"
+	>
+
+	<!-- 
+	Remarks:    This creates the PFM relationship with a given sponsor. Called from Add a Sponsorship Custom form.
+				
+	History:
+	Date            Modified By     Comments
+	28-Aug-2012		Memphis			Initial Version to create the PFM relationship with a given sponsor.
+	30-Aug-2012		Memphis			Added check for the existing relationship based on these fields:
+										RELATIONSHIPCONSTITUENTID,
+										RECIPROCALCONSTITUENTID,
+										RELATIONSHIPTYPECODEID,
+										RECIPROCALTYPECODEID,
+	-->
+	
+	<CreateProcedureSQL>
+		<![CDATA[
+create procedure dbo.USR_USP_CREATE_PARTNERSHIP_RELATIONSHIP_WITH_SPONSOR (
+	@ID uniqueidentifier = null output,
+	@CHANGEAGENTID uniqueidentifier = null,
+	@CONSTITUENTID uniqueidentifier,
+	@RECIPROCALCONSTITUENTID uniqueidentifier = null,
+	@RECIPROCALTYPECODEID uniqueidentifier = null,
+	@RELATIONSHIPTYPECODEID uniqueidentifier = null,
+	@RELATIONSHIPSTARTDATE datetime,
+	@COMMENTS nvarchar(256) = '',
+	@PRIMARYSOFTCREDITRELATIONSHIPEXISTS bit = 1,
+	@PRIMARYSOFTCREDITMATCHFACTOR decimal(5,2) = 100,
+	@RECIPROCALSOFTCREDITRELATIONSHIPEXISTS bit = 0,		-- set to 1 so the credit goes to org
+	@RECIPROCALSOFTCREDITMATCHFACTOR decimal(5,2) = 0,
+	@RECIPROCALRECOGNITIONTYPECODEID uniqueidentifier = null,     -- set to the recognition type code 
+	@CURRENTDATE datetime = GETDATE,
+	@ISCONTACT bit = 0,
+	@ISPRIMARYCONTACT bit = 0,
+	@CONTACTTYPECODEID uniqueidentifier = null,
+	@RELATIONSHIPENDDATE datetime = null,
+	@ISPRIMARYBUSINESS bit = 0,
+	@ISMATCHINGGIFTRELATIONSHIP bit = 0
+)
+as
+begin
+	-- do work
+	 begin try
+	
+	  if @ID is null
+		set @ID = newid();
+	
+		-- first check to see if this relationship already exists:
+		-- function returns 0 if not exists, 1 if it does
+		declare @relationExists bit;
+		set @relationExists = dbo.USR_UFN_CONSTITUENT_HAS_RELATIONSHIP(
+			@CONSTITUENTID,	
+			@RECIPROCALCONSTITUENTID,	
+			@RELATIONSHIPTYPECODEID,
+			@RECIPROCALTYPECODEID
+		)
+		
+		if @relationExists = 0  -- not exists
+		begin
+		
+			declare @SETID uniqueidentifier = newid();
+
+			insert into dbo.RELATIONSHIPSET
+			(
+			  ID,
+			  ADDEDBYID,
+			  CHANGEDBYID,
+			  DATEADDED,
+			  DATECHANGED
+			)
+			values
+			(
+			  @SETID,
+			  @CHANGEAGENTID,
+			  @CHANGEAGENTID,
+			  @CURRENTDATE,
+			  @CURRENTDATE
+			);
+
+			insert into dbo.RELATIONSHIP
+			(
+			  ID,
+			  RELATIONSHIPCONSTITUENTID,
+			  RECIPROCALCONSTITUENTID,
+			  RELATIONSHIPTYPECODEID,
+			  RECIPROCALTYPECODEID,
+			  ISCONTACT,
+			  ISPRIMARYCONTACT,
+			  CONTACTTYPECODEID,
+			  STARTDATE,
+			  ENDDATE,
+			  ISPRIMARYBUSINESS,
+			  ISMATCHINGGIFTRELATIONSHIP,
+			  RELATIONSHIPSETID,
+			  COMMENTS,
+			  ADDEDBYID,
+			  CHANGEDBYID,
+			  DATEADDED,
+			  DATECHANGED
+			)
+			values
+			(
+			  @ID,
+			  @CONSTITUENTID,
+			  @RECIPROCALCONSTITUENTID,
+			  @RELATIONSHIPTYPECODEID,
+			  @RECIPROCALTYPECODEID,
+			  @ISCONTACT,
+			  @ISPRIMARYCONTACT,
+			  @CONTACTTYPECODEID,
+			  @RELATIONSHIPSTARTDATE,
+			  @RELATIONSHIPENDDATE,
+			  @ISPRIMARYBUSINESS,
+			  @ISMATCHINGGIFTRELATIONSHIP,
+			  @SETID,
+			  @COMMENTS,
+			  @CHANGEAGENTID,
+			  @CHANGEAGENTID,
+			  @CURRENTDATE,
+			  @CURRENTDATE
+			);
+	
+			-- these were done in the BB sproc that adds a relationship:
+			select @RECIPROCALRECOGNITIONTYPECODEID = ID
+			from dbo.REVENUERECOGNITIONTYPECODE
+			where lower([DESCRIPTION]) = lower('Soft Credit')
+		
+			declare @PRIMARYRECOGNITIONTYPECODEID uniqueidentifier
+		
+			set @PRIMARYRECOGNITIONTYPECODEID = @RECIPROCALRECOGNITIONTYPECODEID
+
+			exec dbo.USP_RECOGNITIONDEFAULTSUPDATE @CONSTITUENTID, @RECIPROCALCONSTITUENTID, @RELATIONSHIPSTARTDATE, @RELATIONSHIPENDDATE, 
+			  @PRIMARYSOFTCREDITRELATIONSHIPEXISTS, @PRIMARYSOFTCREDITMATCHFACTOR, @PRIMARYRECOGNITIONTYPECODEID,
+			  @RECIPROCALSOFTCREDITRELATIONSHIPEXISTS, @RECIPROCALSOFTCREDITMATCHFACTOR, @RECIPROCALRECOGNITIONTYPECODEID,
+			  @CHANGEAGENTID;
+
+			exec dbo.USP_RELATIONSHIPCONFIGURATION_CONFIGURE @CONSTITUENTID, @RECIPROCALCONSTITUENTID, @RELATIONSHIPTYPECODEID,
+			  @RECIPROCALTYPECODEID, @CHANGEAGENTID, @CURRENTDATE;	
+		
+		end   -- if relationship ecists or not
+		
+		return 0;
+	
+	end try
+	
+	begin catch
+		exec dbo.USP_RAISE_ERROR;
+		return 1;
+	end catch
+
+end
+
+		]]>
+	</CreateProcedureSQL>
+
+</SQLStoredProcedureSpec>

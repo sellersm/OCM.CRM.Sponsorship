@@ -1,0 +1,10 @@
+﻿<UIModelWizardMetadata>
+  <SpecFileName>SponsorshipAdd_Wrapped.Add.xml</SpecFileName>
+  <Namespace></Namespace>
+  <ClassName>SponsorshipAddFormWrappedUIModel</ClassName>
+  <HtmlInfo GenerateHtml="true">
+    <HtmlFile>SponsorshipAddFormWrapped_IGNORE.html</HtmlFile>
+    <HtmlFolder>htmlforms\</HtmlFolder>
+  </HtmlInfo>
+  <GenerateFromDatabase>true</GenerateFromDatabase>
+</UIModelWizardMetadata>

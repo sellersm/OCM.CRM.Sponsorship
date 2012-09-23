@@ -1,0 +1,38 @@
+﻿<TableSpec 
+	xmlns="bb_appfx_table"
+	xmlns:common="bb_appfx_commontypes" 
+	ID="a34a84cc-b061-41ac-9633-bade7ffaba8c"
+	Name="USR_CHILD_SELECTED_FOR_SPONSORSHIP_LOCK"
+	Description="Lock table for a child selected for sponsorship"
+	Author="Memphis"
+	Tablename="USR_CHILD_SELECTED_FOR_SPONSORSHIP_LOCK"		 
+	EnableAuditTrail="false"  
+	>
+
+	<!-- define fields on the table -->
+	<Fields>
+		<GuidField IsUnique="true" Name="OPPORTUNITYID" Description="SponsorshipOpportunityId value of the Child" Required="true"/>
+		<GuidField Name="AGENTID" Description="USERID that added the row" Required="true"/>
+    <DateField DefaultValue="GetDate()" Name="LOCKDATE" Required="true"/>
+	</Fields>
+
+	<!-- define any additional check constraints on the table -->
+	<!--<CheckConstraints>
+
+	</CheckConstraints>-->
+
+	<!-- define any indexes on the table -->
+	<Indexes>
+    <Index IsUnique="true">
+      <IndexFields>
+        <IndexField Name="OPPORTUNITYID" />
+      </IndexFields>
+    </Index>
+	</Indexes>
+		
+	<!-- define any triggers on the table -->
+	<!--<Triggers>
+
+	</Triggers>-->
+
+</TableSpec>

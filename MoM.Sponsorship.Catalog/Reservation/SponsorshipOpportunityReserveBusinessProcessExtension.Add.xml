@@ -1,0 +1,85 @@
+﻿<AddDataFormTemplateSpec
+	xmlns="bb_appfx_adddataformtemplate"
+	xmlns:common="bb_appfx_commontypes"
+	ID="fec4e85f-c5f3-4a49-9545-1b5286b8c3b4"
+	Name="Sponsorship Opportunity Reserve Business Process Extension  Add Data Form"
+	Description="This is used to extend the Sponsorship Opportunity Reserve Business Process Add Form to include Solicitor"
+	Author="Cary Mayeda"
+	DataFormInstanceID="22bee79e-b3e6-49d9-92d0-47c357f9bb0e"
+	RecordType="Sponsorship Opportunity Reserve Process"
+	common:SecurityUIFolder="Sponsorship\Business Process\Reserve Opportunities" >
+
+	<!-- 
+	Remarks:    
+
+	History:
+	Date            Modified By     Comments
+	04-Sep-2012		CMayeda			Initial Version
+	19-Sep-2012		CMayeda			Renamed Solicitor Tab and Field Caption to Fundraiser - Fogbugz Case 831
+	-->
+
+	<SPDataForm>
+		<!-- describe the save SP -->
+		<SaveImplementation SPName="USR_USP_DATAFORMTEMPLATE_ADD_SPONSORSHIPOPPORTUNITYRESERVEBUSINESSEXTENSION">
+			<common:CreateProcedureSQL>
+				<![CDATA[
+create procedure dbo.USR_USP_DATAFORMTEMPLATE_ADD_SPONSORSHIPOPPORTUNITYRESERVEBUSINESSEXTENSION
+(
+    @ID uniqueidentifier = null output,
+	@CONTEXTID uniqueidentifier,
+    @CHANGEAGENTID uniqueidentifier = null,
+	@SOLICITORID uniqueidentifier = null
+)
+as
+
+set nocount on;
+
+set @ID = @CONTEXTID
+
+if @CHANGEAGENTID is null  
+    exec dbo.USP_CHANGEAGENT_GETORCREATECHANGEAGENT @CHANGEAGENTID output
+
+declare @CURRENTDATE datetime
+set @CURRENTDATE = getdate()
+
+begin try
+	-- handle inserting the data
+	insert into dbo.USR_SPONSORSHIPOPPORTUNITYRESERVEPROCESSEXTENSION
+		(ID, SOLICITORID, ADDEDBYID, CHANGEDBYID, DATEADDED, DATECHANGED)
+    values
+		(@ID, @SOLICITORID, @CHANGEAGENTID, @CHANGEAGENTID, @CURRENTDATE, @CURRENTDATE)
+	
+end try
+
+begin catch
+    exec dbo.USP_RAISE_ERROR
+    return 1
+end catch
+
+return 0				
+				]]>
+			</common:CreateProcedureSQL>
+		</SaveImplementation>
+	</SPDataForm>
+
+	<!-- describe the context ID for this form (if applicable), which corresponds to a parameter in the SP. -->
+	<Context ContextRecordType="Sponsorship Opportunity Reserve Process" RecordIDParameter="CONTEXTID"/>
+
+	<!-- describe fields on the form, which correspond to parameters on the SP.  Note that system parameters 
+	like the context @ID, @CONTEXTID, and @CURRENTAPPUSERID need not be listed. -->
+	<common:FormMetaData FixedDialog="true">
+		<common:FormFields>
+			<common:FormField FieldID="SOLICITORID" Caption="Fundraiser" DataType="Guid" >
+				<common:SearchList SearchListID="35fa0186-b669-436f-913a-5e9fd5e59982" />
+			</common:FormField>
+		</common:FormFields>
+
+		<!-- indicate the client-side component for the user interface -->
+		<common:WebUIComponent>
+			<common:WebUI>
+				<common:DefaultWebUI/>
+			</common:WebUI>
+		</common:WebUIComponent>
+	</common:FormMetaData>
+	<common:DataFormExtension DataFormInstanceID="826d2419-f6d8-4422-acda-d1e430f4bc23" RenderStyle="Tab" TabCaption="Fundraiser" />
+</AddDataFormTemplateSpec>
