@@ -15,6 +15,7 @@
 	10-Sep-2012		CMayeda			Initial Version - just a copy of USR_USP_SPONSORSHIP_CREATENEWSPONSORSHIPINTERACTIONS for Mark to use in Add Prospect Sponsorship form
 	16-Sep-2012		CMayeda			Completed Prospect specific changes
 									Modified @interactionSummary to be prospect specific
+	22-Sep-2012		CMayeda			Fixed the Prospect Thank You is always set to the Call Center Manger - Fogbugz Case 840
 	-->
 
 	<CreateProcedureSQL>
@@ -216,11 +217,15 @@ begin
 
 	-- Create Prospect Thank You call/email
 	
+	declare @prospectThankYouOwner uniqueidentifier = null
+	
 	if dbo.USR_UFN_CONSTITUENT_GETVALIDPRIMARYEMAILADDRESS(@financialSponsorID) <> ''
 		set @prospectContactMethodDesc = @contactMethodDesc_Email
 	else
+	begin
 		set @prospectContactMethodDesc = @contactMethodDesc_Phone
-	
+		set @prospectThankYouOwner = @callCenterManagerConstituentID
+	end
 
 	--declare @expectedDate date = dateadd(d, @welcomeGreetingPhoneCallDelay, @currentDate)
 	

@@ -8,7 +8,8 @@
 	SPName="USR_USP_SPONSORSHIP_CREATEUNAVAILABLESPONSORSHIPINTERACTIONS" >
 
 	<!-- 
-	Remarks:    This sproc is used by the Unavailable sponsorship form to create the appropriate interactions on the financial and corresponding sponsors for a sponsorship (not prospect).
+	Remarks:    This sproc is used by the Unavailable sponsorship form to create the appropriate interactions on the financial and corresponding sponsors for a sponsorship.
+				NOTE:  This sproc is used by both new sponsorship and new prospect sponsorships.
 
 	History:
 	Date            Modified By     Comments

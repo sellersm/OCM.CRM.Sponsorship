@@ -165,7 +165,6 @@
     <EmbeddedResource Include="Edit Forms\ActiveSponsorshipCancellationWrapped.Edit.xml" />
     <Content Include="SQL\User Functions\USR_UFN_SPONSORSHIPOPPORTUNTITY_GETID_BYLOOKUPID.xml" />
     <EmbeddedResource Include="SQL\Stored Procedures\USR_USP_SPONSORSHIP_CREATENEWPROSPECTSPONSORSHIPINTERACTIONS.xml" />
-    <EmbeddedResource Include="SQL\Stored Procedures\USR_USP_SPONSORSHIP_CREATEUNAVAILABLEPROSPECTSPONSORSHIPINTERACTIONS.xml" />
     <EmbeddedResource Include="SQL\Stored Procedures\USR_USP_SPONSORSHIP_CREATEUNAVAILABLESPONSORSHIPINTERACTIONS.xml" />
     <EmbeddedResource Include="SQL\User Functions\USR_UFN_GETSPONSORSHIPREASON_FOROPPORTUNITY.xml" />
     <Content Include="SQL\User Functions\USR_UFN_SPONSORSHIP_GETSPONSORSHIPID.xml" />
