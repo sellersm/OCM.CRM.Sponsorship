@@ -1,0 +1,137 @@
+﻿<SQLFunctionSpec
+	xmlns="bb_appfx_sqlfunction"
+	xmlns:common="bb_appfx_commontypes" 
+	ID="766abc49-7bff-4576-a5c5-4426b9fd9670"
+	Name="USR_UFN_VALIDATE_SPONSORSHIP_CANCELLATION_REASON "
+	Description="Validates the sponsorship cancellation reasons when cancelling a child sponsorship"
+	Author="Memphis Sellers"
+	DBFunctionName="USR_UFN_VALIDATE_SPONSORSHIP_CANCELLATION_REASON "
+	>
+
+	<!-- 
+	Remarks:  This peforms the validation of sponsorshipreason, cancellation reason and cancellation interaction type codes.
+
+	History:
+	Date            Modified By     Comments
+	21-Sep-2012		Memphis			Initial Version
+	-->	
+	
+	<CreateFunctionSQL>
+		<![CDATA[
+create function dbo.USR_UFN_VALIDATE_SPONSORSHIP_CANCELLATION_REASON (
+	@SPONSORSHIPID uniqueidentifier,			-- sponsorshipid of the sponsorship being cancelled
+	@REASONID uniqueidentifier,					-- cancellation reasonid from the form
+	@INTERACTIONTYPECODEID uniqueidentifier		-- interaction type code id from the form
+)
+returns bit
+with execute as caller
+as begin
+	/*
+	a.       Child Sponsorship reason is “Blank” and staff select any cancellation reason that begins with “Sponsor Request – (reason)”.
+																i.      Sponsorship Cancellation/Cancellation Letter
+	b.      Child Sponsorship Reason is “Departure” and the staff select cancellation reason of “Departure – No Transfer”.
+																i.      Sponsorship Cancellation/Departure Cancellation Letter
+	c.       Child Sponsorship reason is “Departure – Program Completion” and the staff select cancellation reason of “Departure – No Transfer”.
+																i.      Sponsorship Cancellation/Program Completion Cancellation Letter
+	d.      Child Sponsorship reason is “Death of Child” and the staff select cancellation of “Death of Child”.
+																i.      Sponsorship Cancellation/Child Condolence Letter
+	e.      Child Sponsorship reason is Blank and the staff select cancellation of “Administrative” or “Account Correct”.
+																i.      No Interactions created. 
+	- RULES for interaction type selections: required unless administrative, if account correction it must be null
+	- Yes, validation to leave interaction blank for account correction reason code.  
+	No, validation to leave interaction blank for administrative reason code (just in case they need to create an interaction)
+	*/
+	
+	declare @ISVALID bit = 1;   -- default to valid unless proven otherwise
+	
+	-- get the interaction type code description for the given id value:
+	declare @INTERACTIONTEXT nvarchar(100) = null;
+	select @INTERACTIONTEXT = lower([DESCRIPTION])
+		from dbo.USR_SPONSORSHIPCANCELLATIONINTERACTIONTYPECODE
+		where ID = @INTERACTIONTYPECODEID
+
+	-- get the sponsorship reason for the child
+	declare @SPONSORSHIPOPPORTUNITYID uniqueidentifier = null;
+	declare @SPONSORSHIPREASON nvarchar(100) = null;
+	declare @CANCELREASONTEXT nvarchar(100) = null;
+	declare @SPONSOR_REQUEST_CANCELREASON nvarchar(50) = lower('Sponsor Request');
+	declare @DEPARTURE_NOTRANSFER_CANCELREASON nvarchar(50) = lower('Departure – No Transfer');
+	declare @DEATH_CANCELREASON nvarchar(50) = lower('Death of Child');
+	declare @ADMINISTRATIVE_CANCELREASON nvarchar(50) = lower('Administrative');
+	declare @ACCOUNTCORRECT_CANCELREASON nvarchar(50) = lower('Account Correct');
+	
+	-- sponsorship reason vars
+	declare @SPONSORSHIPREASON_DEPARTURE nvarchar(100) = lower('Departure');
+	declare @SPONSORSHIPREASON_PROGRAMCOMPLETION nvarchar(100) = lower('Departure – Program Completion');
+	declare @SPONSORSHIPREASON_DEATH nvarchar(100) = lower('Death of Child');
+
+	-- get the sponsorshipopportunityid for the given sponsorship
+	select @SPONSORSHIPOPPORTUNITYID = SPONSORSHIPOPPORTUNITYID
+	from dbo.SPONSORSHIP
+	where ID = @SPONSORSHIPID
+
+	-- if we found one, then get the sponsorship reason, if any:
+	if @SPONSORSHIPOPPORTUNITYID is not null
+		select @SPONSORSHIPREASON = dbo.USR_UFN_GETSPONSORSHIPREASON_FOROPPORTUNITY(@SPONSORSHIPOPPORTUNITYID)
+	
+	-- validate now based on reason, interaction and cancellation reason:
+	if @SPONSORSHIPREASON is null
+	begin
+		-- reason is “Blank” and staff select any cancellation reason that begins with “Sponsor Request – (reason)” 
+		if LEFT(LOWER(@CANCELREASONTEXT), 15) =  @SPONSOR_REQUEST_CANCELREASON
+		begin
+			-- check the interaction code, should be "Cancellation Letter"
+			if lower(@INTERACTIONTEXT) <> lower('Cancellation Letter')
+			begin
+				set @ISVALID = 0;  -- this is an invalid combination
+			end
+		end
+		-- check for account correction reason code:
+		if LEFT(LOWER(@CANCELREASONTEXT), 15) <> @ACCOUNTCORRECT_CANCELREASON
+		begin
+			set @ISVALID = 0;  -- invalid combination
+		end
+	end   --if @SPONSORSHIPREASON is null
+	else
+	begin
+		-- validate all cases where there is a sponsorship reason code:
+		-- check this case: Sponsorship Reason is “Departure”,  cancellation reason of “Departure – No Transfer”, interaction should be 'Departure Cancellation Letter'
+		if lower(@SPONSORSHIPREASON) = @SPONSORSHIPREASON_DEPARTURE
+		begin
+			if LEFT(LOWER(@CANCELREASONTEXT), 23) =  @DEPARTURE_NOTRANSFER_CANCELREASON
+			begin
+				if lower(@INTERACTIONTEXT) <> lower('Departure Cancellation Letter')
+					set @ISVALID = 0;
+			end
+		end
+		
+		-- check this case: Sponsorship reason is “Departure – Program Completion”, cancellation reason of “Departure – No Transfer”, interaction should be 'Program Completion Cancellation Letter'
+		if lower(@SPONSORSHIPREASON) = @SPONSORSHIPREASON_PROGRAMCOMPLETION
+		begin
+			if LEFT(LOWER(@CANCELREASONTEXT), 23) =  @DEPARTURE_NOTRANSFER_CANCELREASON
+			begin
+				if lower(@INTERACTIONTEXT) <> lower('Program Completion Cancellation Letter')
+					set @ISVALID = 0;
+			end
+		end
+		
+		-- check this case: Sponsorship reason is “Death of Child” cancellation reason of “Death of Child”, interaction should be 'Child Condolence Letter'
+		if lower(@SPONSORSHIPREASON) = @SPONSORSHIPREASON_DEATH 
+		begin
+			if LEFT(LOWER(@CANCELREASONTEXT), 14) =  @DEATH_CANCELREASON
+			begin
+				if lower(@INTERACTIONTEXT) <> lower('Child Condolence Letter')
+					set @ISVALID = 0;
+			end
+		end
+		
+	end
+	
+	-- 0 means not valid, 1 means is valid
+	return @ISVALID;
+	
+end
+		]]>
+	</CreateFunctionSQL>
+
+</SQLFunctionSpec>

@@ -208,6 +208,10 @@ Public Class UnavailableSubstitutionSponsorshipAddDataFormUIModel
 		'form is loaded as a regular sponsorship, not a prospect:
 		Me.PAYMENTMETHODCODE.Value = PledgeAddFormUIModel.PAYMENTMETHODCODES.CreditCard
 
+		'Memphis 9/22/12: INTERACTIONTYPECODEID is not used in this form, but we leave it here for future possible use.
+		Me.INTERACTIONTYPECODEID.Visible = False
+
+
 	End Sub
 
 	Private Sub TurnPaymentFieldsOnOff(ByVal turnOnOrOff As Boolean)

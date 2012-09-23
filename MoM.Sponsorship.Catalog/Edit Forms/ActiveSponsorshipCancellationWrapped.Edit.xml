@@ -10,7 +10,7 @@
 		c:SecurityUIFolder="Sponsorship"
 		HelpKey="SPSponsorshipPageCancelSponsorship.html"
 		OwnerIDMapperID="00000000-0000-0000-0000-000000000000"
-		FormHeader="Cancel sponsorship"
+		FormHeader="Cancel active sponsorship"
 	>
 
 	<!-- 
@@ -95,23 +95,16 @@ set nocount on;
 
 begin try
 	-- validate the data based on the sponsorship reason, cancel reason and interaction type selected:
-	/*
-	a.       Child Sponsorship reason is “Blank” and staff select any cancellation reason that begins with “Sponsor Request – (reason)”.
-																i.      Sponsorship Cancellation/Cancellation Letter
-	b.      Child Sponsorship Reason is “Departure” and the staff select cancellation reason of “Departure – No Transfer”.
-																i.      Sponsorship Cancellation/Departure Cancellation Letter
-	c.       Child Sponsorship reason is “Departure – Program Completion” and the staff select cancellation reason of “Departure – No Transfer”.
-																i.      Sponsorship Cancellation/Program Completion Cancellation Letter
-	d.      Child Sponsorship reason is “Death of Child” and the staff select cancellation of “Death of Child”.
-																i.      Sponsorship Cancellation/Child Condolence Letter
-	e.      Child Sponsorship reason is Blank and the staff select cancellation of “Administrative” or “Account Correct”.
-																i.      No Interactions created. 
-	- RULES for interaction type selections: required unless administrative, if account correction it must be null
-	- Yes, validation to leave interaction blank for account correction reason code.  
-	No, validation to leave interaction blank for administrative reason code (just in case they need to create an interaction)
-	*/
-	-- get the sponsorship reason for the child
-	declare @nothing int
+
+	-- call the validation function
+	declare @ISVALID bit = 1;  -- default to valid?
+	
+	select @ISVALID = dbo.USR_UFN_VALIDATE_SPONSORSHIP_CANCELLATION_REASON (@ID, @REASONID, @INTERACTIONTYPECODEID)
+	
+	-- if not valid, don't let them save
+	if @ISVALID = 0
+		RAISERROR 1000000 'The combination of Interaction Type and Cancellation Reason is not valid.'
+	
 end try
 begin catch
 	exec dbo.USP_RAISE_ERROR;
@@ -173,7 +166,7 @@ return @r;
 						</c:Params>
 					</c:SimpleDataList>
 				</c:FormField>
-				<c:FormField FieldID="INTERACTIONTYPECODEID" DataType="Guid" Caption="Interaction" Required="true">
+				<c:FormField FieldID="INTERACTIONTYPECODEID" DataType="Guid" Caption="Interaction" Required="false">
 					<c:CodeTable CodeTableName="USR_SPONSORSHIPCANCELLATIONINTERACTIONTYPECODE" />
 				</c:FormField>
 			</c:FormFields>
