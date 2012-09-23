@@ -169,9 +169,10 @@
     <EmbeddedResource Include="SQL\Stored Procedures\USR_USP_SPONSORSHIP_CREATEUNAVAILABLESPONSORSHIPINTERACTIONS.xml" />
     <EmbeddedResource Include="SQL\User Functions\USR_UFN_GETSPONSORSHIPREASON_FOROPPORTUNITY.xml" />
     <EmbeddedResource Include="Pages\AlterSponsor.Page.xml" />
-    <Content Include="Edit Forms\PendingSponsorshipCancellationWrapped.Edit.xml" />
+    <EmbeddedResource Include="Edit Forms\PendingSponsorshipCancellationWrapped.Edit.xml" />
     <EmbeddedResource Include="Pages\AlterSponsorship.Page.xml" />
-    <Content Include="SQL\User Functions\USR_UFN_SPONSORSHIP_GETSPONSORSHIPID.xml" />
+    <EmbeddedResource Include="SQL\User Functions\USR_UFN_SPONSORSHIP_GETACTIVECHILDSPONSORSHIPSFORSPONSOR.xml" />
+    <EmbeddedResource Include="SQL\User Functions\USR_UFN_SPONSORSHIP_GETSPONSORSHIPID.xml" />
     <EmbeddedResource Include="SQL\User Functions\USR_UFN_UNAVAILABLECHILDREN_FOR_TRANSFERSPONSORSHIP_FROMITEMLISTXML.xml" />
     <EmbeddedResource Include="Tasks\AddUnavailableSponsorship.Task.xml" />
     <EmbeddedResource Include="Tables\Code Tables\UnavailableContact.CodeTable.xml" />
@@ -186,7 +187,7 @@
     <EmbeddedResource Include="DataLists\GetConstituencyCodeId.DataList.xml" />
     <EmbeddedResource Include="DataLists\GetFundraiserForAppealId.DataList.xml" />
     <EmbeddedResource Include="SQL\Stored Procedures\USR_USP_ADD_SOLICITOR_TO_RECURRING_GIFT_CHILDSPONSORSHIP.xml" />
-    <Content Include="SQL\User Functions\USR_UFN_SPONSORSHIP_GETFINANCIALSPONSOR_BYSPONSORSHIPOPP.xml" />
+    <EmbeddedResource Include="SQL\User Functions\USR_UFN_SPONSORSHIP_GETFINANCIALSPONSOR_BYSPONSORSHIPOPP.xml" />
     <EmbeddedResource Include="SQL\User Functions\USR_UFN_SPONSORSHIP_ISEFT.xml" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.VisualBasic.targets" />
