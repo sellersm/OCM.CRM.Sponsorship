@@ -26,6 +26,7 @@
 									Renamed USR_UFN_CHILDREN_FOR_SPONSORSHIP_FROMITEMLISTXML (added "USR_" prefix), added a bunch more: Datalists, sproc, etc.
 	16-Sep-2012		CMayeda			Added USR_USP_SPONSORSHIP_CREATENEWPROSPECTSPONSORSHIPINTERACTIONS
 	21-Sep-2012		Memphis			Added USR_UFN_GETSPONSORSHIPREASON_FOROPPORTUNITY.xml, ActiveSponsorshipCancellationWrapped.Edit.xml, SponsorshipCancellationInteractionType.CodeTable.xml
+	22-Sep-2012		CMayeda			Added USR_UFN_SPONSORSHIPOPPORTUNTITY_GETID_BYLOOKUPID.xml
 	-->
 
 	<!-- Note:  the order of the items listed here is important.  For example, you won't be able to load a data form that references 
@@ -105,6 +106,7 @@
 		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.USR_UFN_UNAVAILABLECHILDREN_FOR_TRANSFERSPONSORSHIP_FROMITEMLISTXML.xml" />
 		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.USR_USP_ADD_SOLICITOR_TO_RECURRING_GIFT_CHILDSPONSORSHIP.xml" />
 		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.USR_UFN_GETSPONSORSHIPREASON_FOROPPORTUNITY.xml" />
+		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.USR_UFN_SPONSORSHIPOPPORTUNTITY_GETID_BYLOOKUPID.xml" />
 
 		<!-- Record Operations-->
 		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.DeleteChildSelectedForSponsorshipLock.RecordOperation.xml" />
