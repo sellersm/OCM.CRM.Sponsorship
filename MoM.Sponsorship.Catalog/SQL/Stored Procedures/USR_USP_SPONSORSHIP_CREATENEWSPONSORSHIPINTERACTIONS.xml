@@ -17,6 +17,9 @@
 	16-Sep-2012		CMayeda			Set @eftBrochureCode = 0 for Correspondent interaction
 									Added comments
 									Changed case of @interactionSummary 
+	22-Sep-2012		CMayeda			Fixed spelling mistake for "Catorgory"		
+									Added constant @interactionFulfillmentStatus_Pending 
+									Added comments
 	-->
 
 	<CreateProcedureSQL>
@@ -35,13 +38,13 @@ begin
 		exec dbo.USP_CHANGEAGENT_GETORCREATECHANGEAGENT @changeAgentID output
 
 	-- Constants
-	declare @callCenterManagerConstituentID uniqueidentifier = 'B25168DC-4DD4-46ED-B4DD-C5A26A965667'
+	declare @callCenterManagerConstituentID uniqueidentifier = 'B25168DC-4DD4-46ED-B4DD-C5A26A965667'	-- This constituent is hard coded via a script
 	
-	declare @welcomeGreetingPhoneCallDelay tinyint = 25
+	declare @welcomeGreetingPhoneCallDelay tinyint = 25									-- How many days after the current date to set the Expected Date of the Welcome Greeting Phone Call 
 
-	declare @interactionSummary nvarchar(100) = 'New sponsorship complete'
+	declare @interactionSummary nvarchar(100) = 'New sponsorship complete'				-- Used for the Summary of all interactions
 
-	declare @interactionCategoryDesc_SponsorWelcome nvarchar(100) = 'Sponsor Welcome'
+	declare @interactionCategoryDesc_SponsorWelcome nvarchar(100) = 'Sponsor Welcome'	-- The category used for all interactions
 
 	declare @contactMethodDesc_Mail nvarchar (100) = 'Mail'
 	declare @contactMethodDesc_Email nvarchar (100) = 'Email'
@@ -56,6 +59,8 @@ begin
 	declare @interactionResponse_No nvarchar(100) = 'No'
 	declare @interactionResponse_None nvarchar(100) = 'None'
 	declare @interactionResponse_Unknown nvarchar(100) = 'Unknown'
+
+	declare @interactionFulfillmentStatus_Pending nvarchar(100) = 'Pending'
 	
 	-- These are the descriptions used in creating the interactions
 	declare @interactionSubcategoryDesc_WelcomePacket nvarchar(100) = 'Welcome Packet'
@@ -179,16 +184,16 @@ begin
 
 
 	declare @welcomeMailContactMethodDesc nvarchar(100) = ''
-	declare @welcomeMailSubCatorgoryDesc nvarchar (100) = ''
+	declare @welcomeMailSubCategoryDesc nvarchar (100) = ''
 	declare @welcomeMailFulfillmentStatus nvarchar (100) = ''
-	declare @welcomePhoneSubCatorgoryDesc nvarchar (100) = ''
+	declare @welcomePhoneSubCategoryDesc nvarchar (100) = ''
 
 	declare @interactionID uniqueidentifier = null
 	declare @currentDate date = getdate()
 	declare @eftBrochureCode bit = ~ dbo.USR_UFN_SPONSORSHIP_ISEFT (@sponsorshipID) 
 
 	if @financialSponsorInteractionOnly = 1
-		set @welcomeMailSubCatorgoryDesc = 	case 
+		set @welcomeMailSubCategoryDesc = 	case 
 												when @interactionTypeCodeID = @interactionTypeCodeID_WelcomePacket  then @interactionSubcategoryDesc_WelcomePacket
 												when @interactionTypeCodeID = @interactionTypeCodeID_WelcomePacketAndProfile  then @interactionSubcategoryDesc_WelcomePacketAndProfile
 												when @interactionTypeCodeID = @interactionTypeCodeID_WelcomeLetter then @interactionSubcategoryDesc_WelcomeLetter
@@ -197,7 +202,7 @@ begin
 												else ''
 											end
 	else
-		set @welcomeMailSubCatorgoryDesc = 	case 
+		set @welcomeMailSubCategoryDesc = 	case 
 												when @interactionTypeCodeID = @interactionTypeCodeID_WelcomePacket  then @interactionSubcategoryDesc_WelcomePacketFinancialSponsor
 												when @interactionTypeCodeID = @interactionTypeCodeID_WelcomePacketAndProfile  then @interactionSubcategoryDesc_WelcomePacketAndProfileFinancialSponsor
 												when @interactionTypeCodeID = @interactionTypeCodeID_WelcomeLetter then @interactionSubcategoryDesc_WelcomeLetterFinancialSponsor
@@ -221,7 +226,7 @@ begin
 	
 	
 	if @interactionTypeCodeID in (@interactionTypeCodeID_WelcomePacketAndProfile, @interactionTypeCodeID_AdditionalChildLetterAndProfile)
-		set @welcomeMailFulfillmentStatus = 'Pending'
+		set @welcomeMailFulfillmentStatus = @interactionFulfillmentStatus_Pending
 	else
 		set @welcomeMailFulfillmentStatus = ''
 		
@@ -231,7 +236,7 @@ begin
 		@constituentID = @financialSponsorID,
 		@summary = @interactionSummary,
 		@categoryName = @interactionCategoryDesc_SponsorWelcome,
-		@subcategoryName = @welcomeMailSubCatorgoryDesc,
+		@subcategoryName = @welcomeMailSubCategoryDesc,
 		@expectedDate = @currentDate,
 		@owner = null,						
 		@contactMethodDesc = @welcomeMailContactMethodDesc,
@@ -321,7 +326,7 @@ begin
 	begin
 		-- Add the Correspondent Interaction
 	
-		set @welcomeMailSubCatorgoryDesc = 	case 
+		set @welcomeMailSubCategoryDesc = 	case 
 												when @INTERACTIONTYPECODEID in (@interactionTypeCodeID_WelcomePacket, @interactionTypeCodeID_WelcomeLetter, @interactionTypeCodeID_AdditionalChildLetter)  then
 													@interactionSubcategoryDesc_WelcomePacketCorrespondingSponsor
 												when @INTERACTIONTYPECODEID in (@interactionTypeCodeID_WelcomePacketAndProfile, @interactionTypeCodeID_AdditionalChildLetterAndProfile) then
@@ -335,7 +340,7 @@ begin
 			@constituentID = @correspondentID,
 			@summary = @interactionSummary,
 			@categoryName = @interactionCategoryDesc_SponsorWelcome,
-			@subcategoryName = @welcomeMailSubCatorgoryDesc,
+			@subcategoryName = @welcomeMailSubCategoryDesc,
 			@expectedDate = @currentDate,
 			@owner = null,						
 			@contactMethodDesc = @contactMethodDesc_Mail,

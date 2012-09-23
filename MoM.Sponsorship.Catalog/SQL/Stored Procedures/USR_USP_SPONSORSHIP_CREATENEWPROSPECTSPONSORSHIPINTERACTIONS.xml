@@ -16,6 +16,9 @@
 	16-Sep-2012		CMayeda			Completed Prospect specific changes
 									Modified @interactionSummary to be prospect specific
 	22-Sep-2012		CMayeda			Fixed the Prospect Thank You is always set to the Call Center Manger - Fogbugz Case 840
+									Removed @welcomeGreetingPhoneCallDelay since it isn't used
+									Fixed spelling mistake for "Catorgory"
+									Added constant @interactionFulfillmentStatus_Pending 
 	-->
 
 	<CreateProcedureSQL>
@@ -34,13 +37,11 @@ begin
 		exec dbo.USP_CHANGEAGENT_GETORCREATECHANGEAGENT @changeAgentID output
 
 	-- Constants
-	declare @callCenterManagerConstituentID uniqueidentifier = 'B25168DC-4DD4-46ED-B4DD-C5A26A965667'
+	declare @callCenterManagerConstituentID uniqueidentifier = 'B25168DC-4DD4-46ED-B4DD-C5A26A965667'	-- This constituent is hard coded via a script
 	
-	declare @welcomeGreetingPhoneCallDelay tinyint = 25
+	declare @interactionSummary nvarchar(100) = 'New prospect sponsorship complete'			-- Used for the Summary of all interactions
 
-	declare @interactionSummary nvarchar(100) = 'New prospect sponsorship complete' 
-
-	declare @interactionCategoryDesc_ProspectWelcome nvarchar(100) = 'Prospect Welcome'
+	declare @interactionCategoryDesc_ProspectWelcome nvarchar(100) = 'Prospect Welcome'		-- The category used for all interactions
 
 	declare @contactMethodDesc_Mail nvarchar (100) = 'Mail'
 	declare @contactMethodDesc_Email nvarchar (100) = 'Email'
@@ -55,7 +56,9 @@ begin
 	declare @interactionResponse_No nvarchar(100) = 'No'
 	declare @interactionResponse_None nvarchar(100) = 'None'
 	declare @interactionResponse_Unknown nvarchar(100) = 'Unknown'
-	
+
+	declare @interactionFulfillmentStatus_Pending nvarchar(100) = 'Pending'
+
 	-- These are the descriptions used in creating the interactions
 	declare @interactionSubcategoryDesc_ProspectWelcomePacket nvarchar(100) = 'Prospect Welcome Packet'
 	declare @interactionSubcategoryDesc_ProspectWelcomePacketAndProfile nvarchar(100) = 'Prospect Welcome Packet & Profile'
@@ -160,22 +163,22 @@ begin
 
 
 	declare @prospectContactMethodDesc nvarchar(100) = ''
-	declare @prospectWelcomeMailSubCatorgoryDesc nvarchar (100) = ''
+	declare @prospectWelcomeMailSubCategoryDesc nvarchar (100) = ''
 	declare @prospectWelcomeMailFulfillmentStatus nvarchar (100) = ''
-	--declare @welcomePhoneSubCatorgoryDesc nvarchar (100) = ''
+	--declare @welcomePhoneSubCategoryDesc nvarchar (100) = ''
 
 	declare @interactionID uniqueidentifier = null
 	declare @currentDate date = getdate()
 
 	if @financialSponsorInteractionOnly = 1
-		set @prospectWelcomeMailSubCatorgoryDesc = 	case 
+		set @prospectWelcomeMailSubCategoryDesc = 	case 
 												when @interactionTypeCodeID = @interactionTypeCodeID_ProspectWelcomePacket  then @interactionSubcategoryDesc_ProspectWelcomePacket
 												when @interactionTypeCodeID = @interactionTypeCodeID_ProspectWelcomePacketAndProfile  then @interactionSubcategoryDesc_ProspectWelcomePacketAndProfile
 												when @interactionTypeCodeID = @interactionTypeCodeID_ProspectWelcomeLetter then @interactionSubcategoryDesc_ProspectWelcomeLetter
 												else ''
 											end
 	else
-		set @prospectWelcomeMailSubCatorgoryDesc = 	case 
+		set @prospectWelcomeMailSubCategoryDesc = 	case 
 												when @interactionTypeCodeID = @interactionTypeCodeID_ProspectWelcomePacket  then @interactionSubcategoryDesc_ProspectWelcomePacketFinancialSponsor
 												when @interactionTypeCodeID = @interactionTypeCodeID_ProspectWelcomePacketAndProfile  then @interactionSubcategoryDesc_ProspectWelcomePacketAndProfileFinancialSponsor
 												when @interactionTypeCodeID = @interactionTypeCodeID_ProspectWelcomeLetter then @interactionSubcategoryDesc_ProspectWelcomeLetterFinancialSponsor
@@ -187,7 +190,7 @@ begin
 	-- Create interaction on Financial Sponsor based on user interaction type selection 
 		
 	if @interactionTypeCodeID = @interactionTypeCodeID_ProspectWelcomePacketAndProfile
-		set @prospectWelcomeMailFulfillmentStatus = 'Pending'
+		set @prospectWelcomeMailFulfillmentStatus = @interactionFulfillmentStatus_Pending
 	else
 		set @prospectWelcomeMailFulfillmentStatus = ''
 		
@@ -197,7 +200,7 @@ begin
 		@constituentID = @financialSponsorID,
 		@summary = @interactionSummary,
 		@categoryName = @interactionCategoryDesc_ProspectWelcome,
-		@subcategoryName = @prospectWelcomeMailSubCatorgoryDesc,
+		@subcategoryName = @prospectWelcomeMailSubCategoryDesc,
 		@expectedDate = @currentDate,
 		@owner = null,						
 		@contactMethodDesc = @contactMethodDesc_Mail,
@@ -226,8 +229,6 @@ begin
 		set @prospectContactMethodDesc = @contactMethodDesc_Phone
 		set @prospectThankYouOwner = @callCenterManagerConstituentID
 	end
-
-	--declare @expectedDate date = dateadd(d, @welcomeGreetingPhoneCallDelay, @currentDate)
 	
 	exec dbo.USR_USP_INTERACTION_SPONSOR_ADD_PENDING 
 		@id = @interactionID output,
@@ -286,7 +287,7 @@ begin
 	begin
 		-- Add the Correspondent Interaction
 	
-		set @prospectWelcomeMailSubCatorgoryDesc = 	case 
+		set @prospectWelcomeMailSubCategoryDesc = 	case 
 												when @INTERACTIONTYPECODEID in (@interactionTypeCodeID_ProspectWelcomePacket, @interactionTypeCodeID_ProspectWelcomeLetter) then
 													@interactionSubcategoryDesc_WelcomePacketCorrespondingSponsor
 												when @INTERACTIONTYPECODEID = @interactionTypeCodeID_ProspectWelcomePacketAndProfile  then
@@ -299,7 +300,7 @@ begin
 			@constituentID = @correspondentID,
 			@summary = @interactionSummary,
 			@categoryName = @interactionCategoryDesc_ProspectWelcome,
-			@subcategoryName = @prospectWelcomeMailSubCatorgoryDesc,
+			@subcategoryName = @prospectWelcomeMailSubCategoryDesc,
 			@expectedDate = @currentDate,
 			@owner = null,						
 			@contactMethodDesc = @contactMethodDesc_Mail,
