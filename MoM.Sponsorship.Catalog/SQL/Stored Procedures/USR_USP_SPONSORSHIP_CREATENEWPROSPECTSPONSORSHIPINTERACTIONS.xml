@@ -237,7 +237,7 @@ begin
 		@categoryName = @interactionCategoryDesc_ProspectWelcome,
 		@subcategoryName = @interactionSubcategoryDesc_ProspectThankYou,
 		@expectedDate = @currentDate,
-		@owner = @callCenterManagerConstituentID,						
+		@owner = @prospectThankYouOwner,						
 		@contactMethodDesc = @prospectContactMethodDesc,
 		@comment = '',						
 		@letterTypeDesc = '',
