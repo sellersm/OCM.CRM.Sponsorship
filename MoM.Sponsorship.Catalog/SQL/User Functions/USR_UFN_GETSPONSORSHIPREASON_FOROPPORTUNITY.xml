@@ -13,7 +13,7 @@
 create function dbo.USR_UFN_GETSPONSORSHIPREASON_FOROPPORTUNITY(
 	@OPPORTUNITYID uniqueidentifier
 )
-returns nvarchar(50)
+returns nvarchar(100)
 with execute as caller
 as begin
 	declare @REASON nvarchar(50) = null;
