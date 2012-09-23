@@ -19,6 +19,7 @@
 									Removed @welcomeGreetingPhoneCallDelay since it isn't used
 									Fixed spelling mistake for "Catorgory"
 									Added constant @interactionFulfillmentStatus_Pending 
+	22-Sep-2012		CMayeda			Removed responses from Prospect Thank You emails - Fogbugz Case 840
 	-->
 
 	<CreateProcedureSQL>
@@ -253,34 +254,37 @@ begin
 			@childIDList = @childIDList,
 			@changeAgentID = null	
 
-		exec dbo.USR_USP_INTERACTION_ADDRESPONSE 
-			@interactionID = @interactionID,
-			@responseCategoryName = @interactionResponseCategory_DonorContact,
-			@response = @interactionResponse_No,
-			@responseDate = null,		
-			@changeAgentID = @changeAgentID
+		-- Only add the responses if it is a phone call
+		if dbo.USR_UFN_CONSTITUENT_GETVALIDPRIMARYEMAILADDRESS(@financialSponsorID) = ''
+		begin
+			exec dbo.USR_USP_INTERACTION_ADDRESPONSE 
+				@interactionID = @interactionID,
+				@responseCategoryName = @interactionResponseCategory_DonorContact,
+				@response = @interactionResponse_No,
+				@responseDate = null,		
+				@changeAgentID = @changeAgentID
 
-		exec dbo.USR_USP_INTERACTION_ADDRESPONSE 
-			@interactionID = @interactionID,
-			@responseCategoryName = @interactionResponseCategory_EFTReceived,
-			@response = @interactionResponse_No,
-			@responseDate = null,		
-			@changeAgentID = @changeAgentID
+			exec dbo.USR_USP_INTERACTION_ADDRESPONSE 
+				@interactionID = @interactionID,
+				@responseCategoryName = @interactionResponseCategory_EFTReceived,
+				@response = @interactionResponse_No,
+				@responseDate = null,		
+				@changeAgentID = @changeAgentID
 
-		exec dbo.USR_USP_INTERACTION_ADDRESPONSE 
-			@interactionID = @interactionID,
-			@responseCategoryName = @interactionResponseCategory_LeftMessage,
-			@response = @interactionResponse_No,
-			@responseDate = null,		
-			@changeAgentID = @changeAgentID
+			exec dbo.USR_USP_INTERACTION_ADDRESPONSE 
+				@interactionID = @interactionID,
+				@responseCategoryName = @interactionResponseCategory_LeftMessage,
+				@response = @interactionResponse_No,
+				@responseDate = null,		
+				@changeAgentID = @changeAgentID
 
-		exec dbo.USR_USP_INTERACTION_ADDRESPONSE 
-			@interactionID = @interactionID,
-			@responseCategoryName = @interactionResponseCategory_MessageType,
-			@response = @interactionResponse_None,
-			@responseDate = null,		
-			@changeAgentID = @changeAgentID
-		
+			exec dbo.USR_USP_INTERACTION_ADDRESPONSE 
+				@interactionID = @interactionID,
+				@responseCategoryName = @interactionResponseCategory_MessageType,
+				@response = @interactionResponse_None,
+				@responseDate = null,		
+				@changeAgentID = @changeAgentID
+		end
 	end
 
 	if @financialSponsorInteractionOnly = 0
