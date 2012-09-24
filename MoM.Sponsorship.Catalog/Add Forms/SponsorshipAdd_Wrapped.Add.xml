@@ -24,6 +24,7 @@
 	05-Sep-2012		Memphis			added the call to Interaction sproc to set the user-selected Interaction
 	15-Sep-2012		Memphis			added FUNDRAISERID field, call to set the solicitor if there's an Appeal
 	17-Sep-2012		Memphis			added the code to create Sponsor constituency, refactored to create relationship first: FogBugz 827, 828
+	23-Sep-2012		CMayeda			added code to set reservation to Sponsored marked by "***  CMayeda - reservation code" - Fogbugz Case 842
 	-->
 
 	<c:ImpliedSecurityList>
@@ -220,7 +221,10 @@ begin try
 	declare  @CONSTITUENTID uniqueidentifier
 	
 	set @CONSTITUENTID = @REVENUECONSTITUENTID      -- this is the con/sponsor	
-	
+
+	declare @reservationStatusCode_Sponsored tinyint = 2	--***  CMayeda - Used to set the status of the reservation key if it exists in USR_CHILDRESERVATION
+	declare @reservationStatusCode_Open tinyint = 1			--***  CMayeda - Used to find reservations in USR_CHILDRESERVATION that are open
+
 	-- do the Partnership for Mercy setup if the user picked one:
 	if @PFMID is not null
 	begin		
@@ -340,6 +344,24 @@ begin try
 		[ID],
 		[CHILDID] 
 	from dbo.UFN_CHILDREN_FOR_SPONSORSHIP_FROMITEMLISTXML(@CHILDREN)
+
+
+--***  CMayeda - reservation code   
+
+	declare @reservedChildren table (
+				sponsorshipOpportunityChildID uniqueidentifier,		-- Child's sponsorshipopportunitychild id
+				reservationID uniqueidentifier						-- ID from USR_CHILDRESERVATION, not the reservation key.  This allows easy updating of the open row.
+			)
+		
+	insert @reservedChildren 
+	select r.SPONSORSHIPOPPORTUNITYCHILDID, r.ID
+      from dbo.USR_CHILDRESERVATION r
+	  join @TempTbl t on
+			r.SPONSORSHIPOPPORTUNITYCHILDID = cast (t.CHILDID as uniqueidentifier)
+     where r.STATUSCODE = @reservationStatusCode_Open
+	
+--***  CMayeda - reservation code   
+
 
   declare @r int
   declare childCursor cursor fast_forward for 
@@ -497,15 +519,21 @@ end catch
 /* invoke the default implementation */
 
 
-/*
 begin try
-	-- Handle any custom "after-save" logic here 
+--***  CMayeda - reservation code   
+	
+	update	dbo.USR_CHILDRESERVATION 
+	   set	STATUSCODE = @reservationStatusCode_Sponsored,
+			ENDDATE = getdate() 
+	 where	ID in (select reservationID from @reservedChildren)
+   
+--***  CMayeda - reservation code   
+
 end try
 begin catch
 	exec dbo.USP_RAISE_ERROR;
 	return 1;
 end catch
-*/
 
 return @r;
 
