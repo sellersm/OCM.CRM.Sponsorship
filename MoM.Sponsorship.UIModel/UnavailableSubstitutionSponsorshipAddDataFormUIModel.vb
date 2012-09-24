@@ -238,6 +238,11 @@ Public Class UnavailableSubstitutionSponsorshipAddDataFormUIModel
 		'Me.REFERENCENUMBER.Visible = turnOnOrOff
 		'Me.CONSTITUENTACCOUNTID.Visible = turnOnOrOff
 
+		'Memphis 9/24/12: if turning fields on, default payment method to Credit Card
+		If turnOnOrOff = True Then
+			Me.PAYMENTMETHODCODE.Value = PledgeAddFormUIModel.PAYMENTMETHODCODES.CreditCard
+		End If
+
 	End Sub
 
 	Private Sub SetupInitialValues()
@@ -1742,9 +1747,9 @@ Public Class UnavailableSubstitutionSponsorshipAddDataFormUIModel
 
 	Private Sub ChildrenSelected_ListChanged(ByVal sender As Object, ByVal e As RemovingItemEventArgs)
 		' check if there's a child, or an empty row because the collection field can have an empty row if user escapes out of adding a new one.
-		If Not e.Item.Fields("NAME").ValueObject.ToString() = Guid.Empty.ToString() Then
-			If DeleteChildSelectionLock(New Guid(e.Item.Fields("NAME").ValueObject.ToString())) Then
-				DisplayPrompt("Child lock was removed.")
+		If Not e.Item.Fields("TRANSFERCHILDID").ValueObject.ToString() = Guid.Empty.ToString() Then
+			If DeleteChildSelectionLock(New Guid(e.Item.Fields("TRANSFERCHILDID").ValueObject.ToString())) Then
+				'DisplayPrompt("Child lock was removed.")
 			End If
 		End If
 	End Sub
@@ -1946,7 +1951,8 @@ Public Class UnavailableSubstitutionSponsorshipAddDataFormUIModel
 			' child name:
 			_unavailableChildName = e.SelectedRow.Values.ToList().Item(1).ToString()
 			'set the programid value that the user used for searching for this child:
-			_unavailableProgramid = e.SelectedRow.Values.ToList().Item(9).ToString()
+			'Memphis 9/24/12: currently not using this, and sometimes it comes back empty, so comment out for now:
+			'_unavailableProgramid = e.SelectedRow.Values.ToList().Item(9).ToString()
 
 			SetAddSelectedButtonEnabled()
 		Else
