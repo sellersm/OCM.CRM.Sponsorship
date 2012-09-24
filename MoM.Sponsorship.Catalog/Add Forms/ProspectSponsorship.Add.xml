@@ -22,6 +22,7 @@
 										@PAYMENTMETHODCODE=2,  this is 'None'
 	15-Sep-2012		Memphis			added FUNDRAISERID field, call to set the solicitor if there's an Appeal.
 	23-Sep-2012		Memphis			Added code to default the constituentid if called from constituent page.
+	23-Sep-2012		CMayeda			added code to set reservation to Prospect Sponsored marked by "***  CMayeda - reservation code" - Fogbugz Case 842
 	-->
 
 	<c:ImpliedSecurityList>
@@ -219,6 +220,9 @@ begin try
 	
 	set @CONSTITUENTID = @REVENUECONSTITUENTID      -- this is the con/sponsor		
 	
+	declare @reservationStatusCode_ProspectSponsored tinyint = 3	--***  CMayeda - Used to set the status of the reservation key if it exists in USR_CHILDRESERVATION
+	declare @reservationStatusCode_Open tinyint = 1					--***  CMayeda - Used to find reservations in USR_CHILDRESERVATION that are open
+
 	-- do the Partnership for Mercy setup if the user picked one:
 	if @PFMID is not null
 	begin
@@ -338,6 +342,24 @@ begin try
 		[ID],
 		[CHILDID] 
 	from dbo.UFN_CHILDREN_FOR_SPONSORSHIP_FROMITEMLISTXML(@CHILDREN)
+
+
+--***  CMayeda - reservation code   
+
+	declare @reservedChildren table (
+				sponsorshipOpportunityChildID uniqueidentifier,		-- Child's sponsorshipopportunitychild id
+				reservationID uniqueidentifier						-- ID from USR_CHILDRESERVATION, not the reservation key.  This allows easy updating of the open row.
+			)
+		
+	insert @reservedChildren 
+	select r.SPONSORSHIPOPPORTUNITYCHILDID, r.ID
+      from dbo.USR_CHILDRESERVATION r
+	  join @TempTbl t on
+			r.SPONSORSHIPOPPORTUNITYCHILDID = cast (t.CHILDID as uniqueidentifier)
+     where r.STATUSCODE = @reservationStatusCode_Open
+	
+--***  CMayeda - reservation code   
+
 
   declare @r int
   declare chidCursor cursor fast_forward for 
@@ -482,6 +504,15 @@ begin try
 						,@DATEFROM
 						,@DATETO
 	
+
+--***  CMayeda - reservation code   
+	
+	update	dbo.USR_CHILDRESERVATION 
+	   set	STATUSCODE = @reservationStatusCode_ProspectSponsored,
+			ENDDATE = getdate() 
+	 where	ID in (select reservationID from @reservedChildren)
+   
+--***  CMayeda - reservation code   
 
 end try
 begin catch
