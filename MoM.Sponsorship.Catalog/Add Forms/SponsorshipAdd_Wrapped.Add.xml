@@ -219,8 +219,8 @@ begin try
 	declare @DATETO datetime
 	declare  @CONSTITUENTID uniqueidentifier
 	
-	set @CONSTITUENTID = @SPONSORSHIPCONSTITUENTID      -- this is the con/sponsor	
-			
+	set @CONSTITUENTID = @REVENUECONSTITUENTID      -- this is the con/sponsor	
+	
 	-- do the Partnership for Mercy setup if the user picked one:
 	if @PFMID is not null
 	begin		

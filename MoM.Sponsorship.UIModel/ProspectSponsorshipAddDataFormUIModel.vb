@@ -1906,7 +1906,7 @@ Public Class ProspectSponsorshipAddDataFormUIModel
 		If Not _isValidSponsorship Then
 			'inform the user
 			Dim message As String
-			message = "The selected sponsor has a Constituency code of 'Sponsor'! Please select a different Sponsor."
+			message = "The selected constituent is currently a Sponsor! Please select a different constituent or use the 'Add a sponsorship -ocm' form"
 
 			DisplayErrorMessage(message)
 		End If

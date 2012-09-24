@@ -19,6 +19,7 @@
 	06-Sep-2012		Memphis			Initial Version.
 	15-Sep-2012		Memphis			Added call to add solicitor if there's an Appeal.
 	22-Sep-2012		Memphis			'Hid' the INteraction Type Code and made it not required.
+	23-Sep-2012		Memphis			Added the call to USR_USP_SPONSORSHIP_CREATEUNAVAILABLESPONSORSHIPINTERACTIONS to create interactions.
 	-->
 
 
@@ -66,6 +67,7 @@
 				<![CDATA[
 create procedure dbo.USR_USP_DATAFORMTEMPLATE_ADD_UNAVAILABLESPONSORSHIP_PRELOAD 
 (
+		@CONTEXTID uniqueidentifier,
 		@FORMTITLE nvarchar(100) = null output,
 		@REVENUECONSTITUENTID uniqueidentifier = null output,
 		@SPONSORSHIPCONSTITUENTID uniqueidentifier = null output,
@@ -74,8 +76,7 @@ create procedure dbo.USR_USP_DATAFORMTEMPLATE_ADD_UNAVAILABLESPONSORSHIP_PRELOAD
 		@TRANSACTIONCURRENCYID uniqueidentifier = null output,
 		@BASECURRENCYID uniqueidentifier = null output,
 		@BASEAMOUNT money = null output,
-		@EXCHANGERATE decimal(20,
-		8) = null output,
+		@EXCHANGERATE decimal(20,8) = null output,
 		@BASECURRENCYDECIMALDIGITS tinyint = null output,
 		@BASECURRENCYROUNDINGTYPECODE tinyint = null output,
 		@REVENUEDEVELOPMENTFUNCTIONCODEID uniqueidentifier = null output
@@ -105,6 +106,18 @@ exec @r = dbo.USP_DATAFORMTEMPLATE_ADD_SPONSORSHIP_LOAD
 
 /* Handle any custom "after-load" logic here */
 
+-- try to get the Constituent if there is one:
+if @CONTEXTID is not null
+begin
+	select @SPONSORSHIPCONSTITUENTID = ID
+	from dbo.CONSTITUENT
+	where ID = @CONTEXTID
+	
+	if @SPONSORSHIPCONSTITUENTID is not null
+		set @REVENUECONSTITUENTID = @SPONSORSHIPCONSTITUENTID
+
+end
+
 if @@error <> 0 
 	begin
 		if @r <> 0 return @r
@@ -131,6 +144,7 @@ return @r;
 create procedure dbo.USR_USP_DATAFORMTEMPLATE_ADD_UNAVAILABLESPONSORSHIP 
 (
 		@ID uniqueidentifier = null output,
+		@CONTEXTID uniqueidentifier,
 		@CHANGEAGENTID uniqueidentifier = null,
 		@REVENUECONSTITUENTID uniqueidentifier = null,
 		@SPONSORSHIPCONSTITUENTID uniqueidentifier = null,
@@ -201,7 +215,7 @@ begin try
 	declare @DATETO datetime
 	declare  @CONSTITUENTID uniqueidentifier
 	
-	set @CONSTITUENTID = @SPONSORSHIPCONSTITUENTID      -- this is the con/sponsor	
+	set @CONSTITUENTID = @REVENUECONSTITUENTID      -- this is the con/sponsor	
 
 	-- do the Partnership for Mercy setup if the user picked one:
 	if @PFMID is not null
@@ -441,48 +455,22 @@ begin try
   deallocate chidCursor 
 
 
-	-- put the interaction code here:
--- ** THIS IS WHERE THE INTERACTION CALLS WILL BE PLACED! **
 	-- create the necessary interactions for this new sponsorship, based on whether it's a Prospect or non-prospect sponsorship:	
-	/*   
-	*          **** THIS DOESN"T WORK, NEED THE NEW INTERACTION SPROCS FROM CARY THAT WILL TAKE THE XML PARAMETER *****
-	-- set the Interaction for the child[ren]
-	declare @childIDList dbo.USR_UDT_CHILDIDLIST 
-	-- populate the child list with the childid values in the temptable
-	insert @childIDList 
-	select CHILDID
-	from @TempTbl 
 	
-	-- check that there are any children selected:
-	declare @childCount int
-	select @childCount = COUNT(*)
-	from @childIDList
-	
-	if @childCount > 0
-	begin
-		if @ISPROSPECT = 0
-		-- call the regular sponsorship interactions
-		begin		
-			exec dbo.USR_USP_SPONSORSHIP_CREATENEWSPONSORSHIPINTERACTIONS 
-				@sponsorshipID = @ID,				-- The sponsorship that the interactions will pertain to, which was just created for this Sponsor
-				@childIDList = @childIDList,		-- The list of children to add to the interactions created
-				@interactionTypeCodeID = @INTERACTIONTYPECODEID,		-- The ID of the Interaction Type that the user selected (Welcome Packet, Welcome Packet & Profile, ...)
-				@changeAgentID = @CHANGEAGENTID		-- Used to specify change agent for CHANGEDBYID and ADDEDBYID fields.  USP_CHANGEAGENT_GETORCREATECHANGEAGENT is called if it's null
+	--use the same sproc for both Prospects and Paid Sponsorships.  This is controlled by the @isProspect parm.  
+	--pass the ID from the USR_UNAVAILABLE_SPONSORSHIP_CONTACTCODE code table into @donorContactCodeID 
 
-		end
-		else
-		-- call the prospect sponsorship interactions
-		begin
-			exec dbo.USR_USP_SPONSORSHIP_CREATENEWPROSPECTSPONSORSHIPINTERACTIONS
-				@sponsorshipID = @ID,				-- The sponsorship that the interactions will pertain to.  
-				@childIDList = @childIDList,		-- The list of children to add to the interactions created
-				@interactionTypeCodeID = @INTERACTIONTYPECODEID,		-- The ID of the Interaction Type that the user selected (Prospect Welcome Packet, Prospect Welcome Packet & Profile, ...)
-				@changeAgentID = @CHANGEAGENTID
-		end
-	end
-	else
-		RAISERROR 1000000 'There are no Children for which to set Interactions!'	
-	*/	
+
+	exec dbo.USR_USP_SPONSORSHIP_CREATEUNAVAILABLESPONSORSHIPINTERACTIONS 
+         @sponsorshipID = @ID,     -- The sponsorship that the interactions will pertain to.  
+                                                    -- This is used to pull the financial sponsor and correspondent, and to determine if the recurring gift is on EFT
+                                                    -- However, it is not used for the child information
+         @children = @CHILDREN,                 -- The list of children to add to the interactions created. USR_UFN_UNAVAILABLECHILDREN_FOR_TRANSFERSPONSORSHIP_FROMITEMLISTXML is used to pull the unavailable and transfer child from this xml string
+         @donorContactCodeID = @DONORCONTACTCODEID,	-- ID from USR_UNAVAILABLE_SPONSORSHIP_CONTACTCODE representing whether the donor was contacted
+         @isProspect = @ISPROSPECT,                 -- Is this a prospect sponsorship.  0=Not Prospect, 1=Prospect
+         @changeAgentID = @CHANGEAGENTID			-- Used to specify change agent for CHANGEDBYID and ADDEDBYID fields.  USP_CHANGEAGENT_GETORCREATECHANGEAGENT is called if it's null
+	
+
 	
 	-- do the constituency code inserts here, based on whether or not this is a Prospect Sponsor or not:	
 	if @ISPROSPECT = 1
@@ -633,6 +621,8 @@ return @r;
 
 	</SPDataForm>
 
+	<Context ContextRecordType="Constituent" RecordIDParameter="CONTEXTID"/>
+	
 	<!-- describe the context ID for this form (if applicable), which corresponds to a parameter in the SP. -->
 	<!--<Context ContextRecordType="REPLACE_WITH_RECORDTYPE" RecordIDParameter="CONTEXTID"/>-->
 

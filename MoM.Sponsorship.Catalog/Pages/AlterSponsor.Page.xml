@@ -26,7 +26,7 @@
 							<AlterDataListSection DataListID="b87f9b24-91e9-40c2-b54a-f6fbcc09f6f0" SectionID="08adb764-c56e-452b-bea6-4b7d65c4791f">
 								<AlterActions>
 									<AddAction>
-										<Action ID="0c7f7b0c-57e9-4827-ae07-e9fa20e0cd2a" Caption="Cancel active sponsorship" ImageKey="RES:do_not_symbol" Visible="=Fields!STATUS.StartsWith(&quot;Active&quot;) AndAlso Fields!STATUS&lt;&gt;&quot;Active (Transfer pending)&quot;" CaptionResourceKey="$$cancel">
+										<Action ID="003b14b1-c88e-4102-853d-6238bd5ad8e1" Caption="Cancel active sponsorship" ImageKey="RES:do_not_symbol" Visible="=Fields!STATUS.StartsWith(&quot;Active&quot;) AndAlso Fields!STATUS&lt;&gt;&quot;Active (Transfer pending)&quot;" CaptionResourceKey="$$cancel">
 											<ShowDataForm DataFormID="3e5de54f-e0f7-4187-bdd1-0bfff1156e2d" xmlns="bb_appfx_commontypes">
 												<ActionContext>
 													<SectionField>CONTEXTSPONSORSHIPID</SectionField>
@@ -39,7 +39,7 @@
 										</Action>
 									</AddAction>
 									<AddAction>
-									<Action ID="531c8fcf-6dd6-47e9-9929-2c0d18ed6959" Caption="Cancel pending sponsorship" ImageKey="RES:do_not_symbol" Visible="=Fields!STATUS=&quot;Active (Transfer pending)&quot; OrElse Fields!STATUS=&quot;Pending&quot;" CaptionResourceKey="$$cancel">
+									<Action ID="748dd1de-4577-4e93-b944-750a871b079e" Caption="Cancel pending sponsorship" ImageKey="RES:do_not_symbol" Visible="=Fields!STATUS=&quot;Active (Transfer pending)&quot; OrElse Fields!STATUS=&quot;Pending&quot;" CaptionResourceKey="$$cancel">
 										<ShowDataForm DataFormID="edde2945-0141-4677-8155-bbc3a80eb66b" xmlns="bb_appfx_commontypes">
 											<ActionContext>
 												<SectionField>CONTEXTSPONSORSHIPID</SectionField>

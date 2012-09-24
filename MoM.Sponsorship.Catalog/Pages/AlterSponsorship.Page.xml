@@ -23,7 +23,7 @@
 					<AlterPageActionGroup PageActionGroupID="6abcf84a-7235-4fdf-b14c-95fd9b088e5e">
 						<AlterActions>
 							<AddAction>
-								<Action ID="90381385-8929-4084-850e-81ff896f4489" Caption="Cancel active sponsorship" ImageKey="RES:do_not_symbol" Visible="=Page.Fields!STATUS=&quot;Active&quot;" Enabled="=Not CBool(Page.Fields!ISPENDING)" CaptionResourceKey="$$cancel_sponsorship">
+								<Action ID="ca7de4e4-09b4-4f5a-bd12-4167869c0876" Caption="Cancel active sponsorship" ImageKey="RES:do_not_symbol" Visible="=Page.Fields!STATUS=&quot;Active&quot;" Enabled="=Not CBool(Page.Fields!ISPENDING)" CaptionResourceKey="$$cancel_sponsorship">
 									<ShowDataForm DataFormID="3e5de54f-e0f7-4187-bdd1-0bfff1156e2d" xmlns="bb_appfx_commontypes">
 										<ActionContext>
 											<PageContextID />
@@ -36,7 +36,7 @@
 								</Action>
 							</AddAction>
 							<AddAction>
-								<Action ID="5e593498-c9b7-4b64-a945-b55363e62858" Caption="Cancel pending sponsorship" ImageKey="RES:do_not_symbol" Visible="=Fields!STATUS=&quot;Active (Transfer pending)&quot; OrElse Fields!STATUS=&quot;Pending&quot;" Enabled="=Not CBool(Page.Fields!ISPENDING)" CaptionResourceKey="$$cancel_sponsorship">
+								<Action ID="40129053-3509-4614-bda4-c74df330104a" Caption="Cancel pending sponsorship" ImageKey="RES:do_not_symbol" Visible="=Fields!STATUS=&quot;Active (Transfer pending)&quot; OrElse Fields!STATUS=&quot;Pending&quot;" Enabled="=Not CBool(Page.Fields!ISPENDING)" CaptionResourceKey="$$cancel_sponsorship">
 									<ShowDataForm DataFormID="edde2945-0141-4677-8155-bbc3a80eb66b" xmlns="bb_appfx_commontypes">
 										<ActionContext>
 											<PageContextID />
