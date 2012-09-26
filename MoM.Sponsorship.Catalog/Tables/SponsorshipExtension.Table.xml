@@ -24,6 +24,7 @@
 		<CodeTableField Description="Initial Sponsorship Opportunity Status" CodeTable="USR_INITIALOPPORTUNITYSPONSORSHIPSTATUSCODE" Name="INITIALOPPORTUNITYSPONSORSHIPSTATUSCODEID" Required="true"/>
 		<CodeTableField Description="Current Sponsorship Opportunity Status" CodeTable="USR_CURRENTOPPORTUNITYSPONSORSHIPSTATUSCODE" Name="CURRENTOPPORTUNITYSPONSORSHIPSTATUSCODEID" Required="true"/>
 		<DateField Description="Conversion Date" IncludeTime="false" Name="CONVERSIONDATE" Required="false"/>
+		<GuidField Description="Sponsorship Opportunity Id" Name="SPONSORSHIPOPPORTUNITYID" Required="true"/>
 		<NumberField Description="Days to Convert" Name="DAYSTOCONVERT" Type="smallint" />
 	</Fields>
 
