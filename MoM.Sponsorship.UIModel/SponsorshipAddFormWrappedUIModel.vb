@@ -342,9 +342,17 @@ Public Class SponsorshipAddFormWrappedUIModel
 			'placeholder for when changing opportunity
 			' Commented out by Memphis to turn off the automatic finding of greatest need.
 			' We're forcing the user to click the Find button!
+
+			'Memphis 9/25/12: trying to fix the default amount being set
+			'reset the amountset flag so it will be recalculated, since we're not changing the program
+			_amountSet = False
+			HandleSponsorshipProgram(True, False)
+
 			'If CheckSelectedOpportunity("financial sponsor") = CHANGEOPPORTUNITY.YES Then
-			'    HandleChangeFinancialSponsor()
+			'	HandleChangeFinancialSponsor()
 			'End If
+			'
+
 			_changeEventFired = False
 		End If
 	End Sub

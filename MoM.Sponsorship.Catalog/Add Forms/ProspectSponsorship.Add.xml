@@ -23,6 +23,7 @@
 	15-Sep-2012		Memphis			added FUNDRAISERID field, call to set the solicitor if there's an Appeal.
 	23-Sep-2012		Memphis			Added code to default the constituentid if called from constituent page.
 	23-Sep-2012		CMayeda			added code to set reservation to Prospect Sponsored marked by "***  CMayeda - reservation code" - Fogbugz Case 842
+	25-Sep-2012		Memphis			added call to new function to determine if already has sponsor constituency code: FogBugz Case 845
 	-->
 
 	<c:ImpliedSecurityList>
@@ -491,19 +492,34 @@ begin try
 		RAISERROR 1000000 'Could not find the "Prospect Sponsor" constituency code!'
 
 	-- check now for the given constituency code for the given constituent
-	declare @ISPROSPECTSPONSOR bit = 0;
 		
-	select @ISPROSPECTSPONSOR = dbo.USR_UFN_CONSTITUENT_HAS_CONSTITUENCYCODE (@CONSTITUENTID, @CONSTITUENCYCODEID)
-	
-	if @ISPROSPECTSPONSOR = 0
-		exec dbo.USR_USP_ADD_CONSTITUENT_CONSTITUENCYCODE
-						@ID OUTPUT
-						,@CHANGEAGENTID
-						,@CONSTITUENTID
-						,@CONSTITUENCYCODEID
-						,@DATEFROM
-						,@DATETO
-	
+	/*
+	* 9/25/12 Memphis call the new function and check the return codes
+	* 0 means con doesn't have this code: 
+	* 1 means con has this code and it ends in the future:  
+	* 2 means con has this code and it ends today!
+	*/
+		
+	declare @constituencyCheckCode tinyint = 0;
+	select @constituencyCheckCode = dbo.USR_UFN_CONSTITUENT_HAS_CONSTITUENCYCODE_CHECKENDDATE (@CONSTITUENTID, @CONSTITUENCYCODEID)
+
+	-- check for a value of 2 and inform the user that the code exists with today's end date:
+	if @constituencyCheckCode = 2
+		begin
+			RAISERROR 1000000 'The constituent has a Prospect Sponsor constituency code with a "Date To" field value of today.  Please verify the accuracy of the Prospect Sponsor constituency code before adding a new sponsorship.'
+		end
+	else
+		begin
+			-- 0 means they don't have the code, so add it:
+			if @constituencyCheckCode = 0
+				exec dbo.USR_USP_ADD_CONSTITUENT_CONSTITUENCYCODE
+								@ID OUTPUT
+								,@CHANGEAGENTID
+								,@CONSTITUENTID
+								,@CONSTITUENCYCODEID
+								,@DATEFROM
+								,@DATETO
+		end
 
 --***  CMayeda - reservation code   
 	

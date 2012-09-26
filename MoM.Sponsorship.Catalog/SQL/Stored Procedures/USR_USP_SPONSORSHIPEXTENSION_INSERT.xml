@@ -1,0 +1,72 @@
+﻿<SQLStoredProcedureSpec
+	xmlns="bb_appfx_sqlstoredprocedure"
+	xmlns:common="bb_appfx_commontypes" 
+	ID="b67033b1-e0c8-426c-b7d7-59ff9a81c4eb"
+	Name="USR_USP_SPONSORSHIPEXTENSION_INSERT.xml"
+	Description="Inserts a row into the USR_SPONSORSHIPEXTENSION table."
+	Author="Memphis Sellers"
+	SPName="USR_USP_SPONSORSHIPEXTENSION_INSERT"
+	>
+
+	<!-- 
+	Remarks:    Inserts a row into the USR_SPONSORSHIPEXTENSION table.
+
+	History:
+	Date            Modified By     Comments
+	25-Sep-2012		Memphis			Initial Version.
+-->	
+	
+	<CreateProcedureSQL>
+		<![CDATA[
+create procedure dbo.USR_USP_SPONSORSHIPEXTENSION_INSERT (
+	@ID uniqueidentifier,
+	@INITIALOPPORTUNITYSPONSORSHIPSTATUSCODEID uniqueidentifier,
+	@CURRENTOPPORTUNITYSPONSORSHIPSTATUSCODEID uniqueidentifier,
+	@CONVERSIONDATE date = null,
+	@DAYSTOCONVERT smallint,
+	@CHANGEAGENTID uniqueidentifier = null,
+	@DATEADDED datetime = null,
+	@DATECHANGED datetime = null
+)
+as
+begin
+
+if @CHANGEAGENTID is null
+	exec dbo.USP_CHANGEAGENT_GETORCREATECHANGEAGENT @CHANGEAGENTID output;
+
+if @DATEADDED is null
+	set @DATEADDED = getdate();
+	
+if @DATECHANGED is null
+	set @DATECHANGED = getdate();
+
+INSERT INTO [dbo].[USR_SPONSORSHIPEXTENSION]
+           (
+		   [ID]
+           ,[INITIALOPPORTUNITYSPONSORSHIPSTATUSCODEID]
+           ,[CURRENTOPPORTUNITYSPONSORSHIPSTATUSCODEID]
+           ,[CONVERSIONDATE]
+           ,[DAYSTOCONVERT]
+           ,[ADDEDBYID]
+           ,[CHANGEDBYID]
+           ,[DATEADDED]
+           ,[DATECHANGED]
+		   )
+     VALUES
+           (
+		    @ID
+           ,@INITIALOPPORTUNITYSPONSORSHIPSTATUSCODEID
+           ,@CURRENTOPPORTUNITYSPONSORSHIPSTATUSCODEID
+           ,@CONVERSIONDATE
+           ,@DAYSTOCONVERT
+           ,@CHANGEAGENTID
+           ,@CHANGEAGENTID
+           ,@DATEADDED
+           ,@DATECHANGED
+		   )
+end
+
+		]]>
+	</CreateProcedureSQL>
+
+</SQLStoredProcedureSpec>
