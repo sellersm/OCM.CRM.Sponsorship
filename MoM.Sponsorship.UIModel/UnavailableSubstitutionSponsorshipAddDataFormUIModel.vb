@@ -412,6 +412,10 @@ Public Class UnavailableSubstitutionSponsorshipAddDataFormUIModel
 			'placeholder for when changing opportunity
 			' Commented out by Memphis to turn off the automatic finding of greatest need.
 			' We're forcing the user to click the Find button!
+
+			_amountSet = False
+			HandleSponsorshipProgram(True, False)
+
 			'If CheckSelectedOpportunity("financial sponsor") = CHANGEOPPORTUNITY.YES Then
 			'    HandleChangeFinancialSponsor()
 			'End If

@@ -88,7 +88,9 @@
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="View Forms\MoM.Sponsorship.UIModelVersion.View.xml" />
-    <EmbeddedResource Include="Add Forms\SponsorshipAdd_Wrapped.Add.xml" />
+    <EmbeddedResource Include="Add Forms\SponsorshipAdd_Wrapped.Add.xml">
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
     <EmbeddedResource Include="DataLists\ChildrenToSponsor.SimpleList.xml" />
     <EmbeddedResource Include="DataLists\SponsorshipOpportunityMatchCustom.DataList.xml" />
     <EmbeddedResource Include="Packages\Sponsorship.Package.xml">
@@ -189,6 +191,21 @@
     <EmbeddedResource Include="SQL\Stored Procedures\USR_USP_ADD_SOLICITOR_TO_RECURRING_GIFT_CHILDSPONSORSHIP.xml" />
     <EmbeddedResource Include="SQL\User Functions\USR_UFN_SPONSORSHIP_GETFINANCIALSPONSOR_BYSPONSORSHIPOPP.xml" />
     <EmbeddedResource Include="SQL\User Functions\USR_UFN_SPONSORSHIP_ISEFT.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Tables\Code Tables\CurrentSponsorshipOpportunityStatus.CodeTable.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Tables\SponsorshipExtension.Table.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Tables\Code Tables\InitialSponsorshipOpportunityStatus.CodeTable.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="SQL\Stored Procedures\USR_USP_SPONSORSHIPEXTENSION_INSERT.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="SQL\Stored Procedures\USR_USP_UPDATE_USR_SPONSORSHIPEXTENSION.xml" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.VisualBasic.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
