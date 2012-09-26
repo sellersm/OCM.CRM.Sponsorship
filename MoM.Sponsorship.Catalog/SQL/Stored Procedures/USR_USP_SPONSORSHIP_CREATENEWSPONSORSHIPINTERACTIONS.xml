@@ -20,6 +20,8 @@
 	22-Sep-2012		CMayeda			Fixed spelling mistake for "Catorgory"		
 									Added constant @interactionFulfillmentStatus_Pending 
 									Added comments
+	26-Sep-2012		CMayeda			Added Child Welcome Letter interaction - FogBugz Case 826
+									Fixed @changeAgentID = null on USR_USP_INTERACTION_SPONSOR_ADDCHILDREN call. This shouldn't affect anything, it's just better to set it, since we have it.
 	-->
 
 	<CreateProcedureSQL>
@@ -42,27 +44,17 @@ begin
 	
 	declare @welcomeGreetingPhoneCallDelay tinyint = 25									-- How many days after the current date to set the Expected Date of the Welcome Greeting Phone Call 
 
-	declare @interactionSummary nvarchar(100) = 'New sponsorship complete'				-- Used for the Summary of all interactions
+	declare @interactionSummary nvarchar(100) = 'New sponsorship complete'				-- Used for the Summary of all sponsor interactions
+	declare @childInteractionSummary nvarchar(100) = 'New sponsorship complete'			-- Used for the Summary of all child interactions
 
-	declare @interactionCategoryDesc_SponsorWelcome nvarchar(100) = 'Sponsor Welcome'	-- The category used for all interactions
-
-	declare @contactMethodDesc_Mail nvarchar (100) = 'Mail'
-	declare @contactMethodDesc_Email nvarchar (100) = 'Email'
-	declare @contactMethodDesc_Phone nvarchar (100) = 'Phone'
-
-	declare @interactionResponseCategory_DonorContact nvarchar(100) = 'Donor Contact'
-	declare @interactionResponseCategory_LeftMessage nvarchar(100) = 'Left Message'
-	declare @interactionResponseCategory_MessageType nvarchar(100) = 'Message Type'
-	declare @interactionResponseCategory_PacketReceived nvarchar(100) = 'Packet Received'
-	declare @interactionResponseCategory_EFTReceived nvarchar(100) = 'EFT Received'
-
-	declare @interactionResponse_No nvarchar(100) = 'No'
-	declare @interactionResponse_None nvarchar(100) = 'None'
-	declare @interactionResponse_Unknown nvarchar(100) = 'Unknown'
 
 	declare @interactionFulfillmentStatus_Pending nvarchar(100) = 'Pending'
 	
-	-- These are the descriptions used in creating the interactions
+	-- Interaction Category / Subcategory Names used in creating the interactions
+	declare @interactionCategoryDesc_SponsorWelcome nvarchar(100) = 'Sponsor Welcome'	-- The category used for all sponsor interactions
+	declare @interactionCategoryDesc_ChildLetter nvarchar(100) = 'Child Letters'		-- The category used for all child interactions
+
+
 	declare @interactionSubcategoryDesc_WelcomePacket nvarchar(100) = 'Welcome Packet'
 	declare @interactionSubcategoryDesc_WelcomePacketAndProfile nvarchar(100) = 'Welcome Packet & Profile'
 	declare @interactionSubcategoryDesc_WelcomeLetter nvarchar(100) = 'Welcome Letter'
@@ -78,6 +70,26 @@ begin
 
 	declare @interactionSubcategoryDesc_WelcomePacketCorrespondingSponsor nvarchar(100) = 'Welcome Packet - Corresponding Sponsor'
 	declare @interactionSubcategoryDesc_WelcomePacketAndProfileCorrespondingSponsor nvarchar(100) = 'Welcome Packet & Profile - Corresponding Sponsor'
+
+	declare @interactionSubcategoryDesc_ChildWelcomeLetter nvarchar(100) = 'Child Welcome Letter'
+
+
+	-- Contact Method descriptions
+	declare @contactMethodDesc_Mail nvarchar (100) = 'Mail'
+	declare @contactMethodDesc_Email nvarchar (100) = 'Email'
+	declare @contactMethodDesc_Phone nvarchar (100) = 'Phone'
+
+	-- Response Category descriptions
+	declare @interactionResponseCategory_DonorContact nvarchar(100) = 'Donor Contact'
+	declare @interactionResponseCategory_LeftMessage nvarchar(100) = 'Left Message'
+	declare @interactionResponseCategory_MessageType nvarchar(100) = 'Message Type'
+	declare @interactionResponseCategory_PacketReceived nvarchar(100) = 'Packet Received'
+	declare @interactionResponseCategory_EFTReceived nvarchar(100) = 'EFT Received'
+
+	-- Response descriptions
+	declare @interactionResponse_No nvarchar(100) = 'No'
+	declare @interactionResponse_None nvarchar(100) = 'None'
+	declare @interactionResponse_Unknown nvarchar(100) = 'Unknown'
 
 
 
@@ -261,20 +273,20 @@ begin
 		declare @expectedDate date = dateadd(d, @welcomeGreetingPhoneCallDelay, @currentDate)
 	
 		exec dbo.USR_USP_INTERACTION_SPONSOR_ADD_PENDING 
-		@id = @interactionID output,
-		@constituentID = @financialSponsorID,
-		@summary = @interactionSummary,
-		@categoryName = @interactionCategoryDesc_SponsorWelcome,
-		@subcategoryName = @interactionSubcategoryDesc_WelcomeGreeting,
-		@expectedDate = @expectedDate,
-		@owner = @callCenterManagerConstituentID,						
-		@contactMethodDesc = @contactMethodDesc_Phone,
-		@comment = '',						
-		@letterTypeDesc = '',
-		@fulfillmentStatusDesc = '',
-		@eftBrochureCode = 0,
-		@resendCode = 0,
-		@changeAgentID = @changeAgentID				
+			@id = @interactionID output,
+			@constituentID = @financialSponsorID,
+			@summary = @interactionSummary,
+			@categoryName = @interactionCategoryDesc_SponsorWelcome,
+			@subcategoryName = @interactionSubcategoryDesc_WelcomeGreeting,
+			@expectedDate = @expectedDate,
+			@owner = @callCenterManagerConstituentID,						
+			@contactMethodDesc = @contactMethodDesc_Phone,
+			@comment = '',						
+			@letterTypeDesc = '',
+			@fulfillmentStatusDesc = '',
+			@eftBrochureCode = 0,
+			@resendCode = 0,
+			@changeAgentID = @changeAgentID				
 
 		if @interactionID is not null
 		begin
@@ -355,10 +367,49 @@ begin
 			exec dbo.USR_USP_INTERACTION_SPONSOR_ADDCHILDREN 
 				@interactionID = @interactionID,
 				@childIDList = @childIDList,
-				@changeAgentID = null
+				@changeAgentID = @changeAgentID
 	end
 
 
+	-- Add Child Welcome Letter action on all of the children
+	declare @sponsorshipOpportunityChildID uniqueidentifier = null
+
+	declare @childLetterRecipient uniqueidentifier = null
+	if @financialSponsorInteractionOnly = 1
+		set @childLetterRecipient = @financialSponsorID
+	else
+		set @childLetterRecipient = @correspondentID
+		
+
+	declare childListCursor cursor for
+	select sponsorshipOpportunityChildID from @childIDList
+			
+	open childListCursor 
+	fetch next from childListCursor 
+	into @sponsorshipOpportunityChildID
+	
+	while @@FETCH_STATUS = 0
+	begin
+		exec dbo.USR_USP_INTERACTION_CHILDLETTER_ADD_PENDING
+			@id = @interactionID output,					
+			@sponsorhipOpportunityChildID = @sponsorshipOpportunityChildID,
+			@summary = @childInteractionSummary,
+			@categoryName = @interactionCategoryDesc_ChildLetter,
+			@subcategoryName = @interactionSubcategoryDesc_ChildWelcomeLetter,
+			@expectedDate = @currentDate,
+			@owner = null,
+			@contactMethodDesc = @contactMethodDesc_Mail,
+			@comment = '',				
+			@sponsorID = @childLetterRecipient,
+			@changeAgentID = @changeAgentID
+			
+		fetch next from childListCursor 
+		into @sponsorshipOpportunityChildID
+	end
+	
+	close childListCursor
+	deallocate childListCursor
+	
 	return 0
 end
 

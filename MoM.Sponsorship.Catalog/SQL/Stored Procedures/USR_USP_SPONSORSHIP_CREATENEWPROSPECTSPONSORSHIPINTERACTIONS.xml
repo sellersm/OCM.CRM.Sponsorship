@@ -19,7 +19,9 @@
 									Removed @welcomeGreetingPhoneCallDelay since it isn't used
 									Fixed spelling mistake for "Catorgory"
 									Added constant @interactionFulfillmentStatus_Pending 
-	22-Sep-2012		CMayeda			Removed responses from Prospect Thank You emails - Fogbugz Case 840
+	22-Sep-2012		CMayeda			Removed responses from Prospect Thank You emails - FogBugz Case 840
+	26-Sep-2012		CMayeda			Added Packet Received response category to Phone Call interaction  - FogBugz Case 849
+									Fixed @changeAgentID = null on USR_USP_INTERACTION_SPONSOR_ADDCHILDREN call. This shouldn't affect anything, it's just better to set it, since we have it.
 	-->
 
 	<CreateProcedureSQL>
@@ -42,25 +44,10 @@ begin
 	
 	declare @interactionSummary nvarchar(100) = 'New prospect sponsorship complete'			-- Used for the Summary of all interactions
 
+
+	-- Interaction Category / Subcategory Names used in creating the interactions
 	declare @interactionCategoryDesc_ProspectWelcome nvarchar(100) = 'Prospect Welcome'		-- The category used for all interactions
 
-	declare @contactMethodDesc_Mail nvarchar (100) = 'Mail'
-	declare @contactMethodDesc_Email nvarchar (100) = 'Email'
-	declare @contactMethodDesc_Phone nvarchar (100) = 'Phone'
-
-	declare @interactionResponseCategory_DonorContact nvarchar(100) = 'Donor Contact'
-	declare @interactionResponseCategory_LeftMessage nvarchar(100) = 'Left Message'
-	declare @interactionResponseCategory_MessageType nvarchar(100) = 'Message Type'
-	declare @interactionResponseCategory_PacketReceived nvarchar(100) = 'Packet Received'
-	declare @interactionResponseCategory_EFTReceived nvarchar(100) = 'EFT Received'
-
-	declare @interactionResponse_No nvarchar(100) = 'No'
-	declare @interactionResponse_None nvarchar(100) = 'None'
-	declare @interactionResponse_Unknown nvarchar(100) = 'Unknown'
-
-	declare @interactionFulfillmentStatus_Pending nvarchar(100) = 'Pending'
-
-	-- These are the descriptions used in creating the interactions
 	declare @interactionSubcategoryDesc_ProspectWelcomePacket nvarchar(100) = 'Prospect Welcome Packet'
 	declare @interactionSubcategoryDesc_ProspectWelcomePacketAndProfile nvarchar(100) = 'Prospect Welcome Packet & Profile'
 	declare @interactionSubcategoryDesc_ProspectWelcomeLetter nvarchar(100) = 'Prospect Welcome Letter'
@@ -73,6 +60,25 @@ begin
 	declare @interactionSubcategoryDesc_WelcomePacketCorrespondingSponsor nvarchar(100) = 'Welcome Packet - Corresponding Sponsor'
 	declare @interactionSubcategoryDesc_WelcomePacketAndProfileCorrespondingSponsor nvarchar(100) = 'Welcome Packet & Profile - Corresponding Sponsor'
 
+	-- Contact Method descriptions
+	declare @contactMethodDesc_Mail nvarchar (100) = 'Mail'
+	declare @contactMethodDesc_Email nvarchar (100) = 'Email'
+	declare @contactMethodDesc_Phone nvarchar (100) = 'Phone'
+
+	-- Response Category descriptions
+	declare @interactionResponseCategory_DonorContact nvarchar(100) = 'Donor Contact'
+	declare @interactionResponseCategory_LeftMessage nvarchar(100) = 'Left Message'
+	declare @interactionResponseCategory_MessageType nvarchar(100) = 'Message Type'
+	declare @interactionResponseCategory_PacketReceived nvarchar(100) = 'Packet Received'
+	declare @interactionResponseCategory_EFTReceived nvarchar(100) = 'EFT Received'
+
+	-- Response descriptions
+	declare @interactionResponse_No nvarchar(100) = 'No'
+	declare @interactionResponse_None nvarchar(100) = 'None'
+	declare @interactionResponse_Unknown nvarchar(100) = 'Unknown'
+
+
+	declare @interactionFulfillmentStatus_Pending nvarchar(100) = 'Pending'
 
 
 	-- These are used to lookup the interactionTypeCodeIDs from USR_NEWSPONSORSHIPINTERACTIONTYPECODE
@@ -284,6 +290,14 @@ begin
 				@response = @interactionResponse_None,
 				@responseDate = null,		
 				@changeAgentID = @changeAgentID
+				
+			exec dbo.USR_USP_INTERACTION_ADDRESPONSE 
+				@interactionID = @interactionID,
+				@responseCategoryName = @interactionResponseCategory_PacketReceived,
+				@response = @interactionResponse_Unknown,
+				@responseDate = null,		
+				@changeAgentID = @changeAgentID
+
 		end
 	end
 
@@ -319,7 +333,7 @@ begin
 			exec dbo.USR_USP_INTERACTION_SPONSOR_ADDCHILDREN 
 				@interactionID = @interactionID,
 				@childIDList = @childIDList,
-				@changeAgentID = null
+				@changeAgentID = @changeAgentID
 	end
 
 
