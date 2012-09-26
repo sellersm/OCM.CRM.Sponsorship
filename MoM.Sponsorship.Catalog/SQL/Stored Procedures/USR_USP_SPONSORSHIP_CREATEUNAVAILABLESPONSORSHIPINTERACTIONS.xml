@@ -14,6 +14,7 @@
 	History:
 	Date            Modified By     Comments
 	22-Sep-2012		CMayeda			Initial Version
+	25-Sep-2012		CMayeda			Added Child Welcome Letter interaction - FogBugz Case 826
 	-->
 
 	<CreateProcedureSQL>
@@ -43,33 +44,23 @@ begin
 		set @interactionSummary = 'New sponsorship complete'
 	else
 		set @interactionSummary = 'New prospect sponsorship complete'
-	
+
+	declare @childInteractionSummary nvarchar(100) = 'New sponsorship complete'			-- Used for the Summary of all child interactions
+
 	declare @welcomeCallComment nvarchar (100) = 'Unavailable transfer complete'
 	declare @prospectThankYouComment nvarchar (100) = 'Unavailable transfer complete'
-	
-	declare @interactionCategoryDesc_SponsorWelcome nvarchar(100) = 'Sponsor Welcome'
-	declare @interactionCategoryDesc_ProspectWelcome nvarchar(100) = 'Prospect Welcome'
-
-	declare @contactMethodDesc_Mail nvarchar (100) = 'Mail'
-	declare @contactMethodDesc_Email nvarchar (100) = 'Email'
-	declare @contactMethodDesc_Phone nvarchar (100) = 'Phone'
 
 	declare @interactionLetterTypeDesc_Contacted nvarchar(100) = 'Contacted'
 	declare @interactionLetterTypeDesc_NotContacted nvarchar(100) = 'Not Contacted'
 
-	declare @interactionResponseCategory_DonorContact nvarchar(100) = 'Donor Contact'
-	declare @interactionResponseCategory_LeftMessage nvarchar(100) = 'Left Message'
-	declare @interactionResponseCategory_MessageType nvarchar(100) = 'Message Type'
-	declare @interactionResponseCategory_PacketReceived nvarchar(100) = 'Packet Received'
-	declare @interactionResponseCategory_EFTReceived nvarchar(100) = 'EFT Received'
-
-	declare @interactionResponse_No nvarchar(100) = 'No'
-	declare @interactionResponse_None nvarchar(100) = 'None'
-	declare @interactionResponse_Unknown nvarchar(100) = 'Unknown'
-
 	declare @interactionFulfillmentStatus_Pending nvarchar(100) = 'Pending'
 	
-	-- These are the descriptions used in creating the interactions
+	-- Interaction Category / Subcategory Names used in creating the interactions
+	declare @interactionCategoryDesc_SponsorWelcome nvarchar(100) = 'Sponsor Welcome'
+	declare @interactionCategoryDesc_ProspectWelcome nvarchar(100) = 'Prospect Welcome'
+	declare @interactionCategoryDesc_ChildLetter nvarchar(100) = 'Child Letter'				-- The category used for all child interactions
+
+
 	declare @interactionSubcategoryDesc_UnavailableChildLetter nvarchar(100) = 'Unavailable Child Letter'
 	declare @interactionSubcategoryDesc_UnavailableChildLetterAndPacket nvarchar(100) = 'Unavailable Child Letter & Packet'
 	declare @interactionSubcategoryDesc_ProspectUnavailableChildLetter nvarchar(100) = 'Prospect Unavailable Child Letter'
@@ -77,6 +68,28 @@ begin
 	declare @interactionSubcategoryDesc_WelcomeGreeting nvarchar(100) = 'Welcome Greeting'
 	declare @interactionSubcategoryDesc_WelcomePacketAndProfileCorrespondingSponsor nvarchar(100) = 'Welcome Packet & Profile - Corresponding Sponsor'
 	declare @interactionSubcategoryDesc_ProspectThankYou nvarchar(100) = 'Prospect Thank You'
+
+	declare @interactionSubcategoryDesc_ChildWelcomeLetter nvarchar(100) = 'Welcome Letter'
+
+
+	-- Contact Method descriptions
+	declare @contactMethodDesc_Mail nvarchar (100) = 'Mail'
+	declare @contactMethodDesc_Email nvarchar (100) = 'Email'
+	declare @contactMethodDesc_Phone nvarchar (100) = 'Phone'
+
+	-- Response Category descriptions
+	declare @interactionResponseCategory_DonorContact nvarchar(100) = 'Donor Contact'
+	declare @interactionResponseCategory_LeftMessage nvarchar(100) = 'Left Message'
+	declare @interactionResponseCategory_MessageType nvarchar(100) = 'Message Type'
+	declare @interactionResponseCategory_PacketReceived nvarchar(100) = 'Packet Received'
+	declare @interactionResponseCategory_EFTReceived nvarchar(100) = 'EFT Received'
+
+	-- Response descriptions
+	declare @interactionResponse_No nvarchar(100) = 'No'
+	declare @interactionResponse_None nvarchar(100) = 'None'
+	declare @interactionResponse_Unknown nvarchar(100) = 'Unknown'
+
+
 
 	declare @unavailableSponsorshipContactCodeID_Contact uniqueidentifier = null
 	declare @unavailableSponsorshipContactCodeID_NoContact uniqueidentifier = null
@@ -172,7 +185,13 @@ begin
 		set @welcomeMailCategoryDesc = @interactionCategoryDesc_ProspectWelcome
 	else
 		set @welcomeMailCategoryDesc = @interactionCategoryDesc_SponsorWelcome 
-
+	
+	declare @childLetterRecipient uniqueidentifier = null
+	if @financialSponsorInteractionOnly = 1
+		set @childLetterRecipient = @financialSponsorID
+	else
+		set @childLetterRecipient = @correspondentID
+	
 	-- Get the number of child pairs passed in
 	declare @childCount smallint 
 	select @childCount = count(*) from dbo.USR_UFN_UNAVAILABLECHILDREN_FOR_TRANSFERSPONSORSHIP_FROMITEMLISTXML(@children)
@@ -258,10 +277,21 @@ begin
 				
 		end	
 		
-		-- ** if @isProspect = 0
-			-- ** Create Welcome Letter interaction on the transfer child
-		--*****	
-		
+		if @isProspect = 0
+			exec dbo.USR_USP_INTERACTION_CHILDLETTER_ADD_PENDING
+				@id = @interactionID output,					
+				@sponsorhipOpportunityChildID = @transferChildID,
+				@summary = @childInteractionSummary,
+				@categoryName = @interactionCategoryDesc_ChildLetter,
+				@subcategoryName = @interactionSubcategoryDesc_ChildWelcomeLetter,
+				@expectedDate = @currentDate,
+				@owner = null,
+				@contactMethodDesc = @contactMethodDesc_Mail,
+				@comment = '',				
+				@sponsorID = @childLetterRecipient,
+				@changeAgentID = @changeAgentID
+
+
 		fetch next from childrenCursor 
 		into @unavailableChildID, @transferChildID
 
@@ -306,7 +336,7 @@ begin
 			exec dbo.USR_USP_INTERACTION_SPONSOR_ADDCHILDREN 
 				@interactionID = @interactionID,
 				@childIDList = @childIDList,
-				@changeAgentID = null	
+				@changeAgentID = @changeAgentID	
 
 			exec dbo.USR_USP_INTERACTION_ADDRESPONSE 
 				@interactionID = @interactionID,
@@ -344,6 +374,7 @@ begin
 				@changeAgentID = @changeAgentID
 		end
 	end	
+	
 	-- Is prospect
 	-- Prospects get a Prospect Thank You (call / email)
 	else
@@ -380,7 +411,7 @@ begin
 			exec dbo.USR_USP_INTERACTION_SPONSOR_ADDCHILDREN 
 				@interactionID = @interactionID,
 				@childIDList = @childIDList,
-				@changeAgentID = null	
+				@changeAgentID = @changeAgentID		
 
 			exec dbo.USR_USP_INTERACTION_ADDRESPONSE 
 				@interactionID = @interactionID,
@@ -438,7 +469,7 @@ begin
 			exec dbo.USR_USP_INTERACTION_SPONSOR_ADDCHILDREN 
 				@interactionID = @interactionID,
 				@childIDList = @childIDList,
-				@changeAgentID = null
+				@changeAgentID = @changeAgentID
 	end
 
 
