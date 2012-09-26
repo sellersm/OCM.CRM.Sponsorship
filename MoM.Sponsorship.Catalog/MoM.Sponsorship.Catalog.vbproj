@@ -183,7 +183,9 @@
     <EmbeddedResource Include="SQL\Stored Procedures\USR_USP_SPONSORSHIP_CREATENEWSPONSORSHIPINTERACTIONS.xml" />
     <EmbeddedResource Include="Reservation\SponsorshipOpportunityReserveBusinessProcessExtension.Edit.xml" />
     <EmbeddedResource Include="Reservation\SponsorshipOpportunityReserveBusinessProcessExtension.Add.xml" />
-    <EmbeddedResource Include="Add Forms\UnavailableSubstitutionSponsorship.Add.xml" />
+    <EmbeddedResource Include="Add Forms\UnavailableSubstitutionSponsorship.Add.xml">
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
     <EmbeddedResource Include="DataLists\TransferChildrenToSponsor.SimpleList.xml" />
     <EmbeddedResource Include="DataLists\DoesSponsorHaveConstituencyCode.DataList.xml" />
     <EmbeddedResource Include="DataLists\GetConstituencyCodeId.DataList.xml" />

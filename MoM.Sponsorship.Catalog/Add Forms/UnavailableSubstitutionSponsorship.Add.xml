@@ -21,6 +21,7 @@
 	22-Sep-2012		Memphis			'Hid' the INteraction Type Code and made it not required.
 	23-Sep-2012		Memphis			Added the call to USR_USP_SPONSORSHIP_CREATEUNAVAILABLESPONSORSHIPINTERACTIONS to create interactions.
 	25-Sep-2012		Memphis			added call to new function to determine if already has sponsor constituency code: FogBugz Case 845
+	26-Sep-2012		Memphis			added code on behalf of Cary, to set reservation to Sponsored marked by "***  CMayeda - reservation code" - Fogbugz Case 842
 	-->
 
 
@@ -218,6 +219,11 @@ begin try
 	
 	set @CONSTITUENTID = @REVENUECONSTITUENTID      -- this is the con/sponsor	
 
+	declare @reservationStatusCode_Sponsored tinyint = 2	--***  CMayeda - Used to set the status of the reservation key if it exists in USR_CHILDRESERVATION
+	declare @reservationStatusCode_Open tinyint = 1			--***  CMayeda - Used to find reservations in USR_CHILDRESERVATION that are open
+	declare @reservationStatusCode_ProspectSponsored tinyint = 3	--***  CMayeda - Used to set the status of the reservation key if it exists in USR_CHILDRESERVATION
+
+
 	-- do the Partnership for Mercy setup if the user picked one:
 	if @PFMID is not null
 	begin
@@ -344,6 +350,24 @@ begin try
 	   [TRANSFERLOOKUPID],
 	   [TRANSFERCHILDID]
 	from dbo.USR_UFN_UNAVAILABLECHILDREN_FOR_TRANSFERSPONSORSHIP_FROMITEMLISTXML(@CHILDREN)
+
+
+	--***  CMayeda - reservation code   
+
+		declare @reservedChildren table (
+					sponsorshipOpportunityChildID uniqueidentifier,		-- Child's sponsorshipopportunitychild id
+					reservationID uniqueidentifier						-- ID from USR_CHILDRESERVATION, not the reservation key.  This allows easy updating of the open row.
+				)
+		
+		insert @reservedChildren 
+		select r.SPONSORSHIPOPPORTUNITYCHILDID, r.ID
+		  from dbo.USR_CHILDRESERVATION r
+		  join @TempTbl t on r.SPONSORSHIPOPPORTUNITYCHILDID = cast (t.TRANSFERCHILDID as uniqueidentifier)
+		 where r.STATUSCODE = @reservationStatusCode_Open
+	
+	--***  CMayeda - reservation code   
+
+
 
 	declare @r int
 	declare @UNAVAILABLECHILDNAME nvarchar(100)
@@ -516,6 +540,15 @@ begin try
 									,@DATEFROM
 									,@DATETO
 			end
+			--***  CMayeda - reservation code   
+	
+			update	dbo.USR_CHILDRESERVATION 
+			set	STATUSCODE = @reservationStatusCode_ProspectSponsored,
+			ENDDATE = getdate() 
+			where	ID in (select reservationID from @reservedChildren)
+   
+			--***  CMayeda - reservation code  
+			
 		end
 	else
 		begin
@@ -557,6 +590,16 @@ begin try
 										,@DATEFROM
 										,@DATETO
 				end
+				
+			--***  CMayeda - reservation code   
+	
+			update	dbo.USR_CHILDRESERVATION 
+			set	STATUSCODE = @reservationStatusCode_Sponsored,
+			ENDDATE = getdate() 
+			where	ID in (select reservationID from @reservedChildren)
+   
+			--***  CMayeda - reservation code   	
+			
 		end
 
 
