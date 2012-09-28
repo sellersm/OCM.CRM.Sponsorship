@@ -209,6 +209,25 @@
   <ItemGroup>
     <EmbeddedResource Include="SQL\Stored Procedures\USR_USP_UPDATE_USR_SPONSORSHIPEXTENSION.xml" />
   </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Tasks\AddProjectSponsorship.Task.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Add Forms\ProjectSponsorship.Add.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="SQL\Stored Procedures\USR_USP_SPONSORSHIP_ACQUIREPROJECTOPPORTUNITY_OCMCUSTOM.xml" />
+    <EmbeddedResource Include="SQL\Stored Procedures\USR_USP_SPONSORSHIP_MATCHPROJECTOPPORTUNITY_OCMCUSTOM.xml" />
+    <EmbeddedResource Include="Tables\Code Tables\PaidProjectSponsorshipInteractionType.CodeTable.xml" />
+    <EmbeddedResource Include="Tables\Code Tables\ProspectProjectSponsorshipInteractionType.CodeTable.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="SQL\User Functions\USR_UFN_SPONSORSHIP_MATCHEDOPPORTUNITY_PROJECTSPONSORSHIP.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="DataLists\ProjectsAvailableForSponsorship.SimpleList.xml" />
+    <EmbeddedResource Include="DataLists\SponsorshipProjectOpportunityMatchCustom.DataList.xml" />
+  </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.VisualBasic.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
