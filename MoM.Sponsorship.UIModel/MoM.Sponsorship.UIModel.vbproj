@@ -106,6 +106,10 @@
   <ItemGroup>
     <Compile Include="Helpers\SponsorshipHelper.vb" />
     <Compile Include="My Project\AssemblyInfo.vb" />
+    <Compile Include="OCMCustomAddProjectSponsorshipFormCHILDRENUIModel.CodeGen.vb" />
+    <Compile Include="OCMCustomAddProjectSponsorshipFormINSTALLMENTSUIModel.CodeGen.vb" />
+    <Compile Include="OCMCustomAddProjectSponsorshipFormUIModel.CodeGen.vb" />
+    <Compile Include="OCMCustomAddProjectSponsorshipFormUIModel.vb" />
     <Compile Include="ProspectSponsorshipAddDataFormCHILDRENUIModel.CodeGen.vb">
       <DependentUpon>ProspectSponsorshipAddDataFormUIModel.vb</DependentUpon>
     </Compile>
@@ -156,7 +160,9 @@
     <None Include="..\MoM.Sponsorship.Catalog\Add Forms\UnavailableSubstitutionSponsorship.Add.xml">
       <Link>LinkedSpecs\UnavailableSubstitutionSponsorship.Add.xml</Link>
     </None>
+    <Content Include="htmlforms\OCMCustomAddProjectSponsorshipForm.html" />
     <Content Include="htmlforms\UnavailableSubstitutionSponsorship.AddDataForm.html" />
+    <Content Include="OCMCustomAddProjectSponsorshipFormUIModel.xml" />
     <Content Include="UnavailableSubstitutionSponsorshipAddDataFormUIModel.xml">
       <DependentUpon>UnavailableSubstitutionSponsorshipAddDataFormUIModel.vb</DependentUpon>
     </Content>

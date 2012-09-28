@@ -1,0 +1,18 @@
+﻿<TaskSpec xmlns:xsd="http://www.w3.org/2001/XMLSchema" 
+		  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+		  ID="c76e4d0e-3175-415b-9d04-b9343cacb5e5" 
+		  Name="Add project sponsorship" 
+		  Description="Add a new project sponsorship" 
+		  Author="Memphis Sellers" 
+		  ImageKey="CATALOG:Blackbaud.AppFx.Sponsorship.Catalog,Blackbaud.AppFx.Sponsorship.Catalog.sponsor_new_32.png" 
+		  FunctionalAreaID="9ea48d9c-7e2d-42e6-91cc-210792618017" 
+		  TaskGroup="Sponsor" 
+		  Sequence="7" 
+		  xmlns="bb_appfx_task">
+	<ShowAddDataForm DataFormID="0eaaf756-2faa-4798-b445-60000ad298f5" xmlns="bb_appfx_commontypes">
+		<PostActionEvent>
+			<RefreshPage />
+		</PostActionEvent>
+	</ShowAddDataForm>
+</TaskSpec>
+
