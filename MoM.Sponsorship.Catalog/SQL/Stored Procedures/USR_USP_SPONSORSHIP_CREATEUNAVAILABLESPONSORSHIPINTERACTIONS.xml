@@ -15,6 +15,7 @@
 	Date            Modified By     Comments
 	22-Sep-2012		CMayeda			Initial Version
 	25-Sep-2012		CMayeda			Added Child Welcome Letter interaction - FogBugz Case 826
+	28-Sep-2012		CMayeda			Fixed @interactionCategoryDesc_ChildLetter = 'Child Letter'	(should be 'Child Letters'
 	-->
 
 	<CreateProcedureSQL>
@@ -58,7 +59,7 @@ begin
 	-- Interaction Category / Subcategory Names used in creating the interactions
 	declare @interactionCategoryDesc_SponsorWelcome nvarchar(100) = 'Sponsor Welcome'
 	declare @interactionCategoryDesc_ProspectWelcome nvarchar(100) = 'Prospect Welcome'
-	declare @interactionCategoryDesc_ChildLetter nvarchar(100) = 'Child Letter'				-- The category used for all child interactions
+	declare @interactionCategoryDesc_ChildLetter nvarchar(100) = 'Child Letters'				-- The category used for all child interactions
 
 
 	declare @interactionSubcategoryDesc_UnavailableChildLetter nvarchar(100) = 'Unavailable Child Letter'
@@ -69,7 +70,7 @@ begin
 	declare @interactionSubcategoryDesc_WelcomePacketAndProfileCorrespondingSponsor nvarchar(100) = 'Welcome Packet & Profile - Corresponding Sponsor'
 	declare @interactionSubcategoryDesc_ProspectThankYou nvarchar(100) = 'Prospect Thank You'
 
-	declare @interactionSubcategoryDesc_ChildWelcomeLetter nvarchar(100) = 'Welcome Letter'
+	declare @interactionSubcategoryDesc_ChildWelcomeLetter nvarchar(100) = 'Child Welcome Letter'
 
 
 	-- Contact Method descriptions
