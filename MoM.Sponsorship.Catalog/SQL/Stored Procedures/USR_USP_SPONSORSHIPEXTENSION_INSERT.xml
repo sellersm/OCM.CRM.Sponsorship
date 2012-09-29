@@ -2,7 +2,7 @@
 	xmlns="bb_appfx_sqlstoredprocedure"
 	xmlns:common="bb_appfx_commontypes" 
 	ID="b67033b1-e0c8-426c-b7d7-59ff9a81c4eb"
-	Name="USR_USP_SPONSORSHIPEXTENSION_INSERT.xml"
+	Name="USR_USP_SPONSORSHIPEXTENSION_INSERT"
 	Description="Inserts a row into the USR_SPONSORSHIPEXTENSION table."
 	Author="Memphis Sellers"
 	SPName="USR_USP_SPONSORSHIPEXTENSION_INSERT"
@@ -19,12 +19,12 @@
 	<CreateProcedureSQL>
 		<![CDATA[
 create procedure dbo.USR_USP_SPONSORSHIPEXTENSION_INSERT (
-	@ID uniqueidentifier,
+	@SPONSORSHIPID uniqueidentifier,
 	@INITIALOPPORTUNITYSPONSORSHIPSTATUSCODEID uniqueidentifier,
 	@CURRENTOPPORTUNITYSPONSORSHIPSTATUSCODEID uniqueidentifier,
 	@CONVERSIONDATE date = null,
 	@SPONSORSHIPOPPORTUNITYID uniqueidentifier,
-	@DAYSTOCONVERT smallint,
+	@DAYSTOCONVERT smallint = 0,
 	@CHANGEAGENTID uniqueidentifier = null,
 	@DATEADDED datetime = null,
 	@DATECHANGED datetime = null
@@ -56,7 +56,7 @@ INSERT INTO [dbo].[USR_SPONSORSHIPEXTENSION]
 		   )
      VALUES
            (
-		    @ID
+		    @SPONSORSHIPID
            ,@INITIALOPPORTUNITYSPONSORSHIPSTATUSCODEID
            ,@CURRENTOPPORTUNITYSPONSORSHIPSTATUSCODEID
            ,@CONVERSIONDATE

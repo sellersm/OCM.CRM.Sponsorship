@@ -228,6 +228,16 @@
     <EmbeddedResource Include="DataLists\ProjectsAvailableForSponsorship.SimpleList.xml" />
     <EmbeddedResource Include="DataLists\SponsorshipProjectOpportunityMatchCustom.DataList.xml" />
   </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="SQL\Stored Procedures\USR_USP_FINANCIALTRANSACTION_EXTENSION_UPDATEROW.xml" />
+    <EmbeddedResource Include="SQL\Stored Procedures\USR_USP_FINANCIALTRANSACTION_EXTENSION_INSERTROW.xml" />
+    <Content Include="SQL\Stored Procedures\USR_USP_INSERTNEWSPONSORSHIP_SPONSORSHIPEXTENSION.xml" />
+    <Content Include="SQL\User Functions\USR_UFN_CURRENTOPPORTUNITYSPONSORSHIPSTATUSCODE_GETID_FORDESCRIPTION.xml" />
+    <Content Include="SQL\User Functions\USR_UFN_INITIALOPPORTUNITYSPONSORSHIPSTATUSCODE_GETID_FORDESCRIPTION.xml" />
+    <EmbeddedResource Include="Tables\FinancialTransactionExtension.Table.xml" />
+    <EmbeddedResource Include="Tables\Code Tables\DirectDebitSchedule.CodeTable.xml" />
+    <EmbeddedResource Include="Tables\Code Tables\CreditCardSchedule.CodeTable.xml" />
+  </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.VisualBasic.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

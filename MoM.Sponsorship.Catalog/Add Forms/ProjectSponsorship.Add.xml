@@ -919,7 +919,7 @@ return @r;
 		</c:FormFields>
 
         <c:WebUIComponent>
-            <c:UIModel AssemblyName="CRM.Temp.UIModel.dll" ClassName="CRM.Temp.UIModel.OCMCustomAddProjectSponsorshipFormUIModel" />
+            <c:UIModel AssemblyName="MoM.Sponsorship.UIModel.dll" ClassName="MoM.Sponsorship.UIModel.OCMCustomAddProjectSponsorshipFormUIModel" />
             <c:WebUI>
                 <c:ExternalResource Url="browser/htmlforms/custom/OCMCustomAddProjectSponsorshipForm.html" />
             </c:WebUI>

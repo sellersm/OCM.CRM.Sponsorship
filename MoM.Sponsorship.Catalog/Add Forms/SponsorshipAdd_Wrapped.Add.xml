@@ -26,6 +26,7 @@
 	17-Sep-2012		Memphis			added the code to create Sponsor constituency, refactored to create relationship first: FogBugz 827, 828
 	23-Sep-2012		CMayeda			added code to set reservation to Sponsored marked by "***  CMayeda - reservation code" - Fogbugz Case 842
 	25-Sep-2012		Memphis			added call to new function to determine if already has sponsor constituency code: FogBugz Case 845
+	28-Sep-2012		Memphis			added call to sproc to insert row into sponsorship extension, for each child being sponsored.
 	-->
 
 	<c:ImpliedSecurityList>
@@ -435,6 +436,14 @@ begin try
 				@SPONSORSHIPID = @ID, 
 				@CONSTITUENTID = @FUNDRAISERID,
 				@CHANGEAGENTID = @CHANGEAGENTID
+				
+		-- insert into the sponsorship extension table:
+		exec dbo.USR_USP_INSERTNEWSPONSORSHIP_SPONSORSHIPEXTENSION
+			@SPONSORSHIPID = @ID,
+			@initialStatusText = 'Sponsored',			
+			@currentStatusText = 'Sponsored',			
+			@CHANGEAGENTID = @CHANGEAGENTID,			
+			@SPONSORSHIPOPPORTUNITYID = @SPONSORSHIPOPPORTUNITYIDCHILD
 		
 	
 	if @@error = 0 and @r = 0
