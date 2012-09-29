@@ -173,6 +173,9 @@ Public Class SponsorshipAddFormWrappedUIModel
 		_isValidSponsorship = True
 		_sponsorshipHelper = New SponsorshipHelper()
 
+		'9/29/12 Memphis added these for the payment schedule
+		Me.CREDITCARDSCHEDULECODEID.Visible = False
+		Me.DIRECTDEBITSCHEDULECODEID.Visible = False
 
 	End Sub
 
@@ -1451,6 +1454,13 @@ Public Class SponsorshipAddFormWrappedUIModel
 		If Not Loading Then
 			UpdatePaymentFieldsVisible()
 			UpdatePaymentFieldsRequired()
+			'If e.NewValue.Equals("Credit Card") Then
+			'	Me.CREDITCARDSCHEDULECODEID.Visible = True
+			'	Me.CREDITCARDSCHEDULECODEID.Enabled = True
+			'Else
+			'	Me.DIRECTDEBITSCHEDULECODEID.Visible = True
+			'	Me.DIRECTDEBITSCHEDULECODEID.Enabled = True
+			'End If
 		End If
 	End Sub
 

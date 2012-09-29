@@ -22,6 +22,7 @@
 	23-Sep-2012		Memphis			Added the call to USR_USP_SPONSORSHIP_CREATEUNAVAILABLESPONSORSHIPINTERACTIONS to create interactions.
 	25-Sep-2012		Memphis			added call to new function to determine if already has sponsor constituency code: FogBugz Case 845
 	26-Sep-2012		Memphis			added code on behalf of Cary, to set reservation to Sponsored marked by "***  CMayeda - reservation code" - Fogbugz Case 842
+	28-Sep-2012		Memphis			added call to insert new row into sponsorship extension table.	
 	-->
 
 
@@ -455,7 +456,21 @@ begin try
 				@CONSTITUENTID = @FUNDRAISERID,
 				@CHANGEAGENTID = @CHANGEAGENTID
 		
+		-- insert the new row into sponsorship extension table, based on the paid/prospect type of sponsorship:
+		declare @currentStatusText nvarchar(100) = null
+		declare @initialStatusText nvarchar(100) = null
 		
+		-- set the status values based on the isprospect flag:
+		set @currentStatusText = (case @isProspect when 0 then 'Sponsored' else 'Prospect Sponsored' end)
+		set @initialStatusText = (case @isProspect when 0 then 'Sponsored' else 'Prospect Sponsored' end)
+		
+		-- insert into the sponsorship extension table:
+		exec dbo.USR_USP_INSERTNEWSPONSORSHIP_SPONSORSHIPEXTENSION
+			@SPONSORSHIPID = @ID,
+			@initialStatusText = @initialStatusText,			
+			@currentStatusText = @currentStatusText,			
+			@CHANGEAGENTID = @CHANGEAGENTID,			
+			@SPONSORSHIPOPPORTUNITYID = @SPONSORSHIPOPPORTUNITYIDCHILD		
 
 	if @@error = 0 and @r = 0
 	begin

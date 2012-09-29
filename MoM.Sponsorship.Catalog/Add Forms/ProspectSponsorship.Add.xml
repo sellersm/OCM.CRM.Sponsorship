@@ -24,6 +24,7 @@
 	23-Sep-2012		Memphis			Added code to default the constituentid if called from constituent page.
 	23-Sep-2012		CMayeda			added code to set reservation to Prospect Sponsored marked by "***  CMayeda - reservation code" - Fogbugz Case 842
 	25-Sep-2012		Memphis			added call to new function to determine if already has sponsor constituency code: FogBugz Case 845
+	28-Sep-2012		Memphis			added call to insert new row into sponsorship extension table.
 	-->
 
 	<c:ImpliedSecurityList>
@@ -433,6 +434,16 @@ begin try
 				@SPONSORSHIPID = @ID, 
 				@CONSTITUENTID = @FUNDRAISERID,
 				@CHANGEAGENTID = @CHANGEAGENTID
+				
+
+		-- insert into the sponsorship extension table:
+		exec dbo.USR_USP_INSERTNEWSPONSORSHIP_SPONSORSHIPEXTENSION
+			@SPONSORSHIPID = @ID,
+			@initialStatusText = 'Prospect Sponsored',			
+			@currentStatusText = 'Prospect Sponsored',			
+			@CHANGEAGENTID = @CHANGEAGENTID,			
+			@SPONSORSHIPOPPORTUNITYID = @SPONSORSHIPOPPORTUNITYIDCHILD
+		
 				
 				
 	if @@error = 0 and @r = 0
