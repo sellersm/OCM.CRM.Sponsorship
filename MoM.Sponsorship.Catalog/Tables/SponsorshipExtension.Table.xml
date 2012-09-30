@@ -16,6 +16,7 @@
 	History:
 	Date            Modified By     Comments
 	25-Sep-2012		Memphis			Initial Version.
+	30-Sep-2012		Memphis			Added the ISCURRENT field.
 -->
 
 	<!-- define fields on the table -->
@@ -26,6 +27,7 @@
 		<DateField Description="Conversion Date" IncludeTime="false" Name="CONVERSIONDATE" Required="false"/>
 		<GuidField Description="Sponsorship Opportunity Id" Name="SPONSORSHIPOPPORTUNITYID" Required="true"/>
 		<NumberField Description="Days to Convert" Name="DAYSTOCONVERT" Type="smallint" />
+		<BooleanField Description="Is current status?" Name="ISCURRENT"/>
 	</Fields>
 
 	<!-- define any additional check constraints on the table -->
