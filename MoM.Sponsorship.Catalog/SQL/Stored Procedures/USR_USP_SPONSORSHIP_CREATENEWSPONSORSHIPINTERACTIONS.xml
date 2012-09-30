@@ -22,6 +22,8 @@
 									Added comments
 	26-Sep-2012		CMayeda			Added Child Welcome Letter interaction - FogBugz Case 826
 									Fixed @changeAgentID = null on USR_USP_INTERACTION_SPONSOR_ADDCHILDREN call. This shouldn't affect anything, it's just better to set it, since we have it.
+	28-Sep-2012		CMayeda			Set Child Welcome Letter expected date to 2 months out - FogBugz Case 855
+	29-Sep-2012		CMayeda			Only create call /email interaction if new sponsor/prospect sponsor - FogBugz Case 862, 863
 	-->
 
 	<CreateProcedureSQL>
@@ -120,7 +122,7 @@ begin
 	begin try
 		select @interactionTypeCodeID_WelcomePacket = ID from dbo.USR_NEWSPONSORSHIPINTERACTIONTYPECODE where lower (DESCRIPTION) = lower (@interactionTypeCodeDesc_WelcomePacket)
 		if @interactionTypeCodeID_WelcomePacket is null
-			raiserror 10000 @interactionTypeCodeErrorMsg_WelcomePacket
+			raiserror 100000 @interactionTypeCodeErrorMsg_WelcomePacket
 		
 		select @interactionTypeCodeID_WelcomePacketAndProfile = ID from dbo.USR_NEWSPONSORSHIPINTERACTIONTYPECODE where lower (DESCRIPTION) = lower (@interactionTypeCodeDesc_WelcomePacketAndProfile)
 		if @interactionTypeCodeID_WelcomePacketAndProfile is null
@@ -380,6 +382,9 @@ begin
 	else
 		set @childLetterRecipient = @correspondentID
 		
+	-- Set the expected date of the child welcome to the last day of the month 2 months from the current date
+	declare @childWelcomLetterExpectedDate date
+	set @childWelcomLetterExpectedDate = dateadd(dd, -1, dateadd(mm, 3, (dateadd(dd,-(day(@currentDate)-1),@currentDate))))
 
 	declare childListCursor cursor for
 	select sponsorshipOpportunityChildID from @childIDList
@@ -396,7 +401,7 @@ begin
 			@summary = @childInteractionSummary,
 			@categoryName = @interactionCategoryDesc_ChildLetter,
 			@subcategoryName = @interactionSubcategoryDesc_ChildWelcomeLetter,
-			@expectedDate = @currentDate,
+			@expectedDate = @childWelcomLetterExpectedDate,
 			@owner = null,
 			@contactMethodDesc = @contactMethodDesc_Mail,
 			@comment = '',				

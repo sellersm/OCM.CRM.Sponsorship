@@ -36,6 +36,7 @@
 										SponsorshipExtension.Table.xml
 	28-Sep-2012		Memphis			Added the missing USR_UFN_VALIDATE_SPONSORSHIP_CANCELLATION_REASON.xml
 	29-Sep-2012		Memphis			Added many files for Project Sponsorship, Financial extension stuff.
+	29-Sep-2012		CMayeda			Added USR_USP_SPONSORSHIP_CREATESPONSORSHIPCANCELLATIONINTERACTIONS.xml
 	-->
 
 	<!-- Note:  the order of the items listed here is important.  For example, you won't be able to load a data form that references 
@@ -134,7 +135,8 @@
 		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.USR_USP_INSERTNEWSPONSORSHIP_SPONSORSHIPEXTENSION.xml" />
 		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.USR_USP_SPONSORSHIP_ACQUIREPROJECTOPPORTUNITY_OCMCUSTOM.xml" />
 		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.USR_USP_SPONSORSHIP_MATCHPROJECTOPPORTUNITY_OCMCUSTOM.xml" />
-
+		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.USR_USP_SPONSORSHIP_CREATESPONSORSHIPCANCELLATIONINTERACTIONS.xml" />
+		
 		<!-- Record Operations-->
 		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.DeleteChildSelectedForSponsorshipLock.RecordOperation.xml" />
 		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.LockSelectedChild.RecordOperation.xml" />

@@ -1,0 +1,196 @@
+﻿<SQLStoredProcedureSpec
+	xmlns="bb_appfx_sqlstoredprocedure"
+	xmlns:common="bb_appfx_commontypes" 
+	ID="e4cb99fb-ba81-498b-ac60-99223117f717"
+	Name="USR_USP_SPONSORSHIP_CREATESPONSORSHIPCANCELLATIONINTERACTIONS"
+	Description="Creates the interactions pertaining to cancellation of a sponsorship"
+	Author="Cary Mayeda"
+	SPName="USR_USP_SPONSORSHIP_CREATESPONSORSHIPCANCELLATIONINTERACTIONS"
+	>
+	<!-- 
+	Remarks:    This currently only takes one child as a parm.  In the future we will incorporate a multiselect
+				Because it only takes in a single child, it needs to look for pending interactions with the same subcategory for the sponsor and add 
+				the child to that interaction.
+				If the @interactionTypeCodeID passed in is null, no interaction is created.
+
+	History:
+	Date            Modified By     Comments
+	29-Sep-2012		CMayeda			Initial Version
+	-->
+	<CreateProcedureSQL>
+		<![CDATA[
+create procedure dbo.USR_USP_SPONSORSHIP_CREATESPONSORSHIPCANCELLATIONINTERACTIONS (
+	@sponsorshipID uniqueidentifier = null,				-- The sponsorship that the interactions will pertain to.  
+														-- This is used to pull the financial sponsor 
+														-- However, it is not used for the child information
+	@childID uniqueidentifier = null,					-- Child to include in the cancellation interaction
+--	@childIDList dbo.USR_UDT_CHILDIDLIST readonly,		-- NOT USED CURRENTLY The list of children to add to the interactions created
+	@interactionTypeCodeID uniqueidentifier = null,		-- The ID of the Interaction Type that the user selected (Cancellation Letter, Departure Cancellation Letter, ...)
+	@changeAgentID uniqueidentifier = null				-- Used to specify change agent for CHANGEDBYID and ADDEDBYID fields.  USP_CHANGEAGENT_GETORCREATECHANGEAGENT is called if it's null
+)
+as
+begin
+	set nocount on 
+	
+	if @interactionTypeCodeID is null
+		RETURN 0
+		
+	if @changeAgentID is null  
+		exec dbo.USP_CHANGEAGENT_GETORCREATECHANGEAGENT @changeAgentID output
+
+	declare @raiseErrorIfNotFound bit = 1	
+	
+	declare @statusCode_Pending tinyint = 1
+	
+	declare @interactionSummary nvarchar(100) = 'Cancel sponsorship'				-- Used for the Summary of all sponsor interactions
+
+	
+	-- Interaction Category / Subcategory Names and IDs used in creating and querying the interactions
+	declare @interactionCategoryDesc_SponsorshipCancellation nvarchar(100) = 'Sponsorship Cancellation'		-- The category used for all sponsor interactions
+	
+	declare @interactionSubcategoryDesc_CancellationLetter nvarchar(100) = 'Cancellation Letter'
+	declare @interactionSubcategoryDesc_ChildCondolenceLetter nvarchar(100) = 'Child Condolence Letter'
+	declare @interactionSubcategoryDesc_DepartureCancellationLetter nvarchar(100) = 'Departure Cancellation Letter'
+	declare @interactionSubcategoryDesc_ProgramCompletionCancellationLetter nvarchar(100) = 'Program Completion Cancellation Letter'
+	declare @interactionSubcategoryDesc_SympathyAndCancellationLetter nvarchar(100) = 'Sympathy and Cancellation Letter'
+	
+	declare @interactionSubcategoryID_CancellationLetter uniqueidentifier = null
+	declare @interactionSubcategoryID_ChildCondolenceLetter uniqueidentifier = null
+	declare @interactionSubcategoryID_DepartureCancellationLetter uniqueidentifier = null
+	declare @interactionSubcategoryID_ProgramCompletionCancellationLetter uniqueidentifier = null
+	declare @interactionSubcategoryID_SympathyAndCancellationLetter uniqueidentifier = null
+
+
+	-- Contact Method descriptions
+	declare @contactMethodDesc_Mail nvarchar (100) = 'Mail'
+	
+
+	-- These are used to lookup the interactionTypeCodeIDs from USR_NEWSPONSORSHIPINTERACTIONTYPECODE
+	-- This is what the user selected on the form
+	declare @interactionTypeCodeDesc_CancellationLetter nvarchar(100) = 'Cancellation Letter'
+	declare @interactionTypeCodeDesc_ChildCondolenceLetter nvarchar(100) = 'Child Condolence Letter'
+	declare @interactionTypeCodeDesc_DepartureCancellationLetter nvarchar(100) = 'Departure Cancellation Letter'
+	declare @interactionTypeCodeDesc_ProgramCompletionCancellationLetter nvarchar(100) = 'Program Completion Cancellation Letter'
+	declare @interactionTypeCodeDesc_SympathyAndCancellationLetter nvarchar(100) = 'Sympathy and Cancellation'
+
+	-- This are used to determine what interaction type the user selected
+	declare @interactionTypeCodeID_CancellationLetter uniqueidentifier = null
+	declare @interactionTypeCodeID_ChildCondolenceLetter uniqueidentifier = null
+	declare @interactionTypeCodeID_DepartureCancellationLetter uniqueidentifier = null
+	declare @interactionTypeCodeID_ProgramCompletionCancellationLetter uniqueidentifier = null
+	declare @interactionTypeCodeID_SympathyAndCancellationLetter uniqueidentifier = null
+
+
+	-- Error messages if the interaction type code couldn't be found
+	declare @interactionTypeCodeErrorMsg_CancellationLetter  nvarchar(255) = 'Could not find ' + @interactionTypeCodeDesc_CancellationLetter + ' in code table USR_SPONSORSHIPCANCELLATIONINTERACTIONTYPECODE'
+	declare @interactionTypeCodeErrorMsg_ChildCondolenceLetter  nvarchar(255) = 'Could not find ' + @interactionTypeCodeDesc_ChildCondolenceLetter + ' in code table USR_SPONSORSHIPCANCELLATIONINTERACTIONTYPECODE'
+	declare @interactionTypeCodeErrorMsg_DepartureCancellationLetter  nvarchar(255) = 'Could not find ' + @interactionTypeCodeDesc_DepartureCancellationLetter + ' in code table USR_SPONSORSHIPCANCELLATIONINTERACTIONTYPECODE'
+	declare @interactionTypeCodeErrorMsg_ProgramCompletionCancellationLetter nvarchar(255) = 'Could not find ' + @interactionTypeCodeDesc_ProgramCompletionCancellationLetter + ' in code table USR_SPONSORSHIPCANCELLATIONINTERACTIONTYPECODE'
+	declare @interactionTypeCodeErrorMsg_SympathyAndCancellationLetter nvarchar(255) = 'Could not find ' + @interactionTypeCodeDesc_SympathyAndCancellationLetter + ' in code table USR_SPONSORSHIPCANCELLATIONINTERACTIONTYPECODE'
+
+
+	begin try
+		select @interactionTypeCodeID_CancellationLetter = ID from dbo.USR_SPONSORSHIPCANCELLATIONINTERACTIONTYPECODE where lower (DESCRIPTION) = lower (@interactionTypeCodeDesc_CancellationLetter)
+		if @interactionTypeCodeID_CancellationLetter is null
+			raiserror 100000 @interactionTypeCodeErrorMsg_CancellationLetter
+		
+		select @interactionTypeCodeID_ChildCondolenceLetter = ID from dbo.USR_SPONSORSHIPCANCELLATIONINTERACTIONTYPECODE where lower (DESCRIPTION) = lower (@interactionTypeCodeDesc_ChildCondolenceLetter)
+		if @interactionTypeCodeID_ChildCondolenceLetter is null
+			raiserror 100000 @interactionTypeCodeErrorMsg_ChildCondolenceLetter
+			
+		select @interactionTypeCodeID_DepartureCancellationLetter = ID from dbo.USR_SPONSORSHIPCANCELLATIONINTERACTIONTYPECODE where lower (DESCRIPTION) = lower (@interactionTypeCodeDesc_DepartureCancellationLetter)
+		if @interactionTypeCodeID_DepartureCancellationLetter is null
+			raiserror 100000 @interactionTypeCodeErrorMsg_DepartureCancellationLetter
+
+		select @interactionTypeCodeID_ProgramCompletionCancellationLetter = ID from dbo.USR_SPONSORSHIPCANCELLATIONINTERACTIONTYPECODE where lower (DESCRIPTION) = lower (@interactionTypeCodeDesc_ProgramCompletionCancellationLetter)
+		if @interactionTypeCodeID_ProgramCompletionCancellationLetter is null
+			raiserror 100000 @interactionTypeCodeErrorMsg_ProgramCompletionCancellationLetter
+	
+		select @interactionTypeCodeID_SympathyAndCancellationLetter = ID from dbo.USR_SPONSORSHIPCANCELLATIONINTERACTIONTYPECODE where lower (DESCRIPTION) = lower (@interactionTypeCodeDesc_SympathyAndCancellationLetter)
+		if @interactionTypeCodeID_SympathyAndCancellationLetter is null
+			raiserror 100000 @interactionTypeCodeErrorMsg_SympathyAndCancellationLetter
+
+		-- Set the Interaction Subcategory IDs	
+		exec dbo.USR_USP_INTERACTION_GETSUBCATEGORYID @interactionSubcategoryID_CancellationLetter output, @interactionCategoryDesc_SponsorshipCancellation, @interactionTypeCodeDesc_CancellationLetter, @raiseErrorIfNotFound
+		exec dbo.USR_USP_INTERACTION_GETSUBCATEGORYID @interactionSubcategoryID_ChildCondolenceLetter output, @interactionCategoryDesc_SponsorshipCancellation, @interactionSubcategoryDesc_ChildCondolenceLetter, @raiseErrorIfNotFound
+		exec dbo.USR_USP_INTERACTION_GETSUBCATEGORYID @interactionSubcategoryID_DepartureCancellationLetter output, @interactionCategoryDesc_SponsorshipCancellation, @interactionSubcategoryDesc_DepartureCancellationLetter, @raiseErrorIfNotFound
+		exec dbo.USR_USP_INTERACTION_GETSUBCATEGORYID @interactionSubcategoryID_ProgramCompletionCancellationLetter output, @interactionCategoryDesc_SponsorshipCancellation, @interactionSubcategoryDesc_ProgramCompletionCancellationLetter, @raiseErrorIfNotFound
+		exec dbo.USR_USP_INTERACTION_GETSUBCATEGORYID @interactionSubcategoryID_SympathyAndCancellationLetter output, @interactionCategoryDesc_SponsorshipCancellation, @interactionSubcategoryDesc_SympathyAndCancellationLetter, @raiseErrorIfNotFound
+
+	
+	end try
+	begin catch
+		exec dbo.USP_RAISE_ERROR
+		return 1	
+	end catch
+
+	declare @cancellationLetterSubcategoryDesc nvarchar(100) = ''
+	set @cancellationLetterSubcategoryDesc = case 
+												when @interactionTypeCodeID = @interactionTypeCodeID_CancellationLetter then @interactionSubcategoryDesc_CancellationLetter
+												when @interactionTypeCodeID = @interactionTypeCodeID_ChildCondolenceLetter then @interactionSubcategoryDesc_ChildCondolenceLetter
+												when @interactionTypeCodeID = @interactionTypeCodeID_DepartureCancellationLetter then @interactionSubcategoryDesc_DepartureCancellationLetter
+												when @interactionTypeCodeID = @interactionTypeCodeID_ProgramCompletionCancellationLetter then @interactionSubcategoryDesc_ProgramCompletionCancellationLetter
+												when @interactionTypeCodeID = @interactionTypeCodeID_SympathyAndCancellationLetter then @interactionSubcategoryDesc_SympathyAndCancellationLetter
+											 end
+
+	declare @cancellationLetterSubcategoryID uniqueidentifier = null
+	set @cancellationLetterSubcategoryID = case 
+												when @interactionTypeCodeID = @interactionTypeCodeID_CancellationLetter then @interactionSubcategoryID_CancellationLetter
+												when @interactionTypeCodeID = @interactionTypeCodeID_ChildCondolenceLetter then @interactionSubcategoryID_ChildCondolenceLetter
+												when @interactionTypeCodeID = @interactionTypeCodeID_DepartureCancellationLetter then @interactionSubcategoryID_DepartureCancellationLetter
+												when @interactionTypeCodeID = @interactionTypeCodeID_ProgramCompletionCancellationLetter then @interactionSubcategoryID_ProgramCompletionCancellationLetter
+												when @interactionTypeCodeID = @interactionTypeCodeID_SympathyAndCancellationLetter then @interactionSubcategoryID_SympathyAndCancellationLetter
+											 end
+	
+											
+	declare @financialSponsorID uniqueidentifier = null
+	set @financialSponsorID = dbo.USR_UFN_SPONSORSHIP_GETFINANCIALSPONSOR (@sponsorshipID)
+
+	declare @currentDate date = getdate()
+	
+	declare @interactionID uniqueidentifier = null
+	
+	-- Find the most recent pending interaction with the appropriate subcategory, which was created today
+	-- If it is found, the child will be added to this interaction.  Otherwise a new interaction will be created
+	select @interactionID = INTERACTION.ID
+	  from dbo.INTERACTION 
+	 where INTERACTION.SEQUENCEID = 
+			(select max(i2.SEQUENCEID) 
+			   from dbo.INTERACTION i2
+			  where i2.CONSTITUENTID = @financialSponsorID
+				and i2.INTERACTIONSUBCATEGORYID = @cancellationLetterSubcategoryID
+				and i2.EXPECTEDDATE = @currentDate
+				and i2.STATUSCODE = @statusCode_Pending)
+
+
+	-- If there isn't an existing interaction, then create one
+	if @interactionID is null
+		exec dbo.USR_USP_INTERACTION_SPONSOR_ADD_PENDING 
+			@id = @interactionID output,
+			@constituentID = @financialSponsorID,
+			@summary = @interactionSummary,
+			@categoryName = @interactionCategoryDesc_SponsorshipCancellation,
+			@subcategoryName = @cancellationLetterSubcategoryDesc,
+			@expectedDate = @currentDate,
+			@owner = null,
+			@contactMethodDesc = @contactMethodDesc_Mail,
+			@comment = '',						
+			@letterTypeDesc = '',
+			@fulfillmentStatusDesc = '',
+			@eftBrochureCode = 0,
+			@resendCode = 0,
+			@changeAgentID = @changeAgentID			
+		
+	-- Add the child to the interaction (already exisiting or new one)
+	if @interactionID is not null
+		exec dbo.USR_USP_INTERACTION_SPONSOR_ADDCHILD
+			@interactionID = @interactionID,
+			@sponsorshipOpportunityChildID = @childID,
+			@changeAgentID = @changeAgentID 
+
+end
+
+		]]>
+	</CreateProcedureSQL>
+
+</SQLStoredProcedureSpec>

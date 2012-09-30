@@ -102,7 +102,7 @@ begin
 	begin try
 		select @interactionTypeCodeID_ProspectWelcomePacket = ID from dbo.USR_NEWPROSPECTSPONSORSHIPINTERACTIONTYPECODE where lower (DESCRIPTION) = lower (@interactionTypeCodeDesc_ProspectWelcomePacket)
 		if @interactionTypeCodeID_ProspectWelcomePacket is null
-			raiserror 10000 @interactionTypeCodeErrorMsg_ProspectWelcomePacket
+			raiserror 100000 @interactionTypeCodeErrorMsg_ProspectWelcomePacket
 		
 		select @interactionTypeCodeID_ProspectWelcomePacketAndProfile = ID from dbo.USR_NEWPROSPECTSPONSORSHIPINTERACTIONTYPECODE where lower (DESCRIPTION) = lower (@interactionTypeCodeDesc_ProspectWelcomePacketAndProfile)
 		if @interactionTypeCodeID_ProspectWelcomePacketAndProfile is null
