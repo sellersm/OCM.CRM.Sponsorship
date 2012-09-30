@@ -1049,7 +1049,7 @@ Partial Public Class [SponsorshipAddFormWrappedUIModel]
 		'_directdebitschedulecodeid
 		'
 		_directdebitschedulecodeid.Name = "DIRECTDEBITSCHEDULECODEID"
-		_directdebitschedulecodeid.Caption = "EFT Schedule"
+		_directdebitschedulecodeid.Caption = "Direct Debit Schedule"
 		_directdebitschedulecodeid.Required = False
 		_directdebitschedulecodeid.CodeTableName = "USR_DIRECTDEBITSCHEDULECODE"
 		Me.Fields.Add(_directdebitschedulecodeid)
