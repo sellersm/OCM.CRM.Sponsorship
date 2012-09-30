@@ -16,6 +16,8 @@
 	22-Sep-2012		CMayeda			Initial Version
 	25-Sep-2012		CMayeda			Added Child Welcome Letter interaction - FogBugz Case 826
 	28-Sep-2012		CMayeda			Fixed @interactionCategoryDesc_ChildLetter = 'Child Letter'	(should be 'Child Letters'
+	29-Sep-2012		CMayeda			Set Child Welcome Letter expected date to 2 months out - FogBugz Case 855
+	29-Sep-2012		CMayeda			Only create call /email interaction if new sponsor/prospect sponsor - FogBugz Case 862, 863
 	-->
 
 	<CreateProcedureSQL>
@@ -99,11 +101,11 @@ begin
 		-- These are required for the sproc to work correctly, so we need to throw an exception if the IDs aren't found
 		select @unavailableSponsorshipContactCodeID_Contact = ID from dbo.USR_UNAVAILABLE_SPONSORSHIP_CONTACTCODE where DESCRIPTION = lower ('Contact')
 		if @unavailableSponsorshipContactCodeID_Contact is null 
-			RAISERROR 1000000 'Could not find the "Contact" donor contact code'
+			RAISERROR 100000 'Could not find the "Contact" donor contact code'
 			
 		select @unavailableSponsorshipContactCodeID_NoContact = ID from dbo.USR_UNAVAILABLE_SPONSORSHIP_CONTACTCODE where DESCRIPTION = lower ('No Contact')
 		if @unavailableSponsorshipContactCodeID_NoContact is null 
-			RAISERROR 1000000 'Could not find the "No Contact" donor contact code'
+			RAISERROR 100000 'Could not find the "No Contact" donor contact code'
 	end try
 	begin catch
 	    exec dbo.USP_RAISE_ERROR
@@ -193,6 +195,10 @@ begin
 	else
 		set @childLetterRecipient = @correspondentID
 	
+	-- Set the expected date of the child welcome to the last day of the month 2 months from the current date
+	declare @childWelcomLetterExpectedDate date
+	set @childWelcomLetterExpectedDate = dateadd(dd, -1, dateadd(mm, 3, (dateadd(dd,-(day(@currentDate)-1),@currentDate))))
+
 	-- Get the number of child pairs passed in
 	declare @childCount smallint 
 	select @childCount = count(*) from dbo.USR_UFN_UNAVAILABLECHILDREN_FOR_TRANSFERSPONSORSHIP_FROMITEMLISTXML(@children)
@@ -285,7 +291,7 @@ begin
 				@summary = @childInteractionSummary,
 				@categoryName = @interactionCategoryDesc_ChildLetter,
 				@subcategoryName = @interactionSubcategoryDesc_ChildWelcomeLetter,
-				@expectedDate = @currentDate,
+				@expectedDate = @childWelcomLetterExpectedDate,
 				@owner = null,
 				@contactMethodDesc = @contactMethodDesc_Mail,
 				@comment = '',				
@@ -310,141 +316,142 @@ begin
 		return 1	
 	end catch
 		
-	-- Create Welcome Call or Prospect Thank You call/email
-	if @isProspect = 0
+	-- Create Welcome Call or Prospect Thank You call/email if a new sponsor
+	if dbo.USR_UFN_SPONSORSHIP_GETACTIVECHILDSPONSORSHIPSFORSPONSOR (@financialSponsorID) <= @childCount
 	begin
-		-- Paid sponsorship gets a Welcome Call
-		declare @expectedDate date = dateadd(d, @welcomeGreetingPhoneCallDelay, @currentDate)
-	
-		exec dbo.USR_USP_INTERACTION_SPONSOR_ADD_PENDING 
-			@id = @interactionID output,
-			@constituentID = @financialSponsorID,
-			@summary = @interactionSummary,
-			@categoryName = @interactionCategoryDesc_SponsorWelcome,
-			@subcategoryName = @interactionSubcategoryDesc_WelcomeGreeting,
-			@expectedDate = @expectedDate,
-			@owner = @callCenterManagerConstituentID,						
-			@contactMethodDesc = @contactMethodDesc_Phone,
-			@comment = @welcomeCallComment,						
-			@letterTypeDesc = '',
-			@fulfillmentStatusDesc = '',
-			@eftBrochureCode = 0,
-			@resendCode = 0,
-			@changeAgentID = @changeAgentID				
-
-		if @interactionID is not null
+		if @isProspect = 0
 		begin
-			exec dbo.USR_USP_INTERACTION_SPONSOR_ADDCHILDREN 
-				@interactionID = @interactionID,
-				@childIDList = @childIDList,
-				@changeAgentID = @changeAgentID	
-
-			exec dbo.USR_USP_INTERACTION_ADDRESPONSE 
-				@interactionID = @interactionID,
-				@responseCategoryName = @interactionResponseCategory_DonorContact,
-				@response = @interactionResponse_No,
-				@responseDate = null,		
-				@changeAgentID = @changeAgentID
-
-			exec dbo.USR_USP_INTERACTION_ADDRESPONSE 
-				@interactionID = @interactionID,
-				@responseCategoryName = @interactionResponseCategory_EFTReceived,
-				@response = @interactionResponse_No,
-				@responseDate = null,		
-				@changeAgentID = @changeAgentID
-
-			exec dbo.USR_USP_INTERACTION_ADDRESPONSE 
-				@interactionID = @interactionID,
-				@responseCategoryName = @interactionResponseCategory_LeftMessage,
-				@response = @interactionResponse_No,
-				@responseDate = null,		
-				@changeAgentID = @changeAgentID
-
-			exec dbo.USR_USP_INTERACTION_ADDRESPONSE 
-				@interactionID = @interactionID,
-				@responseCategoryName = @interactionResponseCategory_MessageType,
-				@response = @interactionResponse_None,
-				@responseDate = null,		
-				@changeAgentID = @changeAgentID
-			
-			exec dbo.USR_USP_INTERACTION_ADDRESPONSE 
-				@interactionID = @interactionID,
-				@responseCategoryName = @interactionResponseCategory_PacketReceived,
-				@response = @interactionResponse_Unknown,
-				@responseDate = null,		
-				@changeAgentID = @changeAgentID
-		end
-	end	
+			-- Paid sponsorship gets a Welcome Call
+			declare @expectedDate date = dateadd(d, @welcomeGreetingPhoneCallDelay, @currentDate)
 	
-	-- Is prospect
-	-- Prospects get a Prospect Thank You (call / email)
-	else
-	begin
-		declare @prospectContactMethodDesc nvarchar (100) = ''
-		declare @prospectThankYouOwner uniqueidentifier = null
-		
-		if dbo.USR_UFN_CONSTITUENT_GETVALIDPRIMARYEMAILADDRESS(@financialSponsorID) <> ''
-			set @prospectContactMethodDesc = @contactMethodDesc_Email
+			exec dbo.USR_USP_INTERACTION_SPONSOR_ADD_PENDING 
+				@id = @interactionID output,
+				@constituentID = @financialSponsorID,
+				@summary = @interactionSummary,
+				@categoryName = @interactionCategoryDesc_SponsorWelcome,
+				@subcategoryName = @interactionSubcategoryDesc_WelcomeGreeting,
+				@expectedDate = @expectedDate,
+				@owner = @callCenterManagerConstituentID,						
+				@contactMethodDesc = @contactMethodDesc_Phone,
+				@comment = @welcomeCallComment,						
+				@letterTypeDesc = '',
+				@fulfillmentStatusDesc = '',
+				@eftBrochureCode = 0,
+				@resendCode = 0,
+				@changeAgentID = @changeAgentID				
+
+			if @interactionID is not null
+			begin
+				exec dbo.USR_USP_INTERACTION_SPONSOR_ADDCHILDREN 
+					@interactionID = @interactionID,
+					@childIDList = @childIDList,
+					@changeAgentID = @changeAgentID	
+
+				exec dbo.USR_USP_INTERACTION_ADDRESPONSE 
+					@interactionID = @interactionID,
+					@responseCategoryName = @interactionResponseCategory_DonorContact,
+					@response = @interactionResponse_No,
+					@responseDate = null,		
+					@changeAgentID = @changeAgentID
+
+				exec dbo.USR_USP_INTERACTION_ADDRESPONSE 
+					@interactionID = @interactionID,
+					@responseCategoryName = @interactionResponseCategory_EFTReceived,
+					@response = @interactionResponse_No,
+					@responseDate = null,		
+					@changeAgentID = @changeAgentID
+
+				exec dbo.USR_USP_INTERACTION_ADDRESPONSE 
+					@interactionID = @interactionID,
+					@responseCategoryName = @interactionResponseCategory_LeftMessage,
+					@response = @interactionResponse_No,
+					@responseDate = null,		
+					@changeAgentID = @changeAgentID
+
+				exec dbo.USR_USP_INTERACTION_ADDRESPONSE 
+					@interactionID = @interactionID,
+					@responseCategoryName = @interactionResponseCategory_MessageType,
+					@response = @interactionResponse_None,
+					@responseDate = null,		
+					@changeAgentID = @changeAgentID
+			
+				exec dbo.USR_USP_INTERACTION_ADDRESPONSE 
+					@interactionID = @interactionID,
+					@responseCategoryName = @interactionResponseCategory_PacketReceived,
+					@response = @interactionResponse_Unknown,
+					@responseDate = null,		
+					@changeAgentID = @changeAgentID
+			end
+		end	
+	
+		-- Is prospect
+		-- Prospects get a Prospect Thank You (call / email)
 		else
 		begin
-			set @prospectContactMethodDesc = @contactMethodDesc_Phone
-			set @prospectThankYouOwner = @callCenterManagerConstituentID
-		end
+			declare @prospectContactMethodDesc nvarchar (100) = ''
+			declare @prospectThankYouOwner uniqueidentifier = null
 		
-		exec dbo.USR_USP_INTERACTION_SPONSOR_ADD_PENDING 
-			@id = @interactionID output,
-			@constituentID = @financialSponsorID,
-			@summary = @interactionSummary,
-			@categoryName = @interactionCategoryDesc_ProspectWelcome,
-			@subcategoryName = @interactionSubcategoryDesc_ProspectThankYou,
-			@expectedDate = @currentDate,
-			@owner = @callCenterManagerConstituentID,						
-			@contactMethodDesc = @prospectContactMethodDesc,
-			@comment = @prospectThankYouComment,						
-			@letterTypeDesc = '',
-			@fulfillmentStatusDesc = '',
-			@eftBrochureCode = 0,
-			@resendCode = 0,
-			@changeAgentID = @changeAgentID				
+			if dbo.USR_UFN_CONSTITUENT_GETVALIDPRIMARYEMAILADDRESS(@financialSponsorID) <> ''
+				set @prospectContactMethodDesc = @contactMethodDesc_Email
+			else
+			begin
+				set @prospectContactMethodDesc = @contactMethodDesc_Phone
+				set @prospectThankYouOwner = @callCenterManagerConstituentID
+			end
+		
+			exec dbo.USR_USP_INTERACTION_SPONSOR_ADD_PENDING 
+				@id = @interactionID output,
+				@constituentID = @financialSponsorID,
+				@summary = @interactionSummary,
+				@categoryName = @interactionCategoryDesc_ProspectWelcome,
+				@subcategoryName = @interactionSubcategoryDesc_ProspectThankYou,
+				@expectedDate = @currentDate,
+				@owner = @callCenterManagerConstituentID,						
+				@contactMethodDesc = @prospectContactMethodDesc,
+				@comment = @prospectThankYouComment,						
+				@letterTypeDesc = '',
+				@fulfillmentStatusDesc = '',
+				@eftBrochureCode = 0,
+				@resendCode = 0,
+				@changeAgentID = @changeAgentID				
 
-		if @interactionID is not null
-		begin
-			exec dbo.USR_USP_INTERACTION_SPONSOR_ADDCHILDREN 
-				@interactionID = @interactionID,
-				@childIDList = @childIDList,
-				@changeAgentID = @changeAgentID		
+			if @interactionID is not null
+			begin
+				exec dbo.USR_USP_INTERACTION_SPONSOR_ADDCHILDREN 
+					@interactionID = @interactionID,
+					@childIDList = @childIDList,
+					@changeAgentID = @changeAgentID		
 
-			exec dbo.USR_USP_INTERACTION_ADDRESPONSE 
-				@interactionID = @interactionID,
-				@responseCategoryName = @interactionResponseCategory_DonorContact,
-				@response = @interactionResponse_No,
-				@responseDate = null,		
-				@changeAgentID = @changeAgentID
+				exec dbo.USR_USP_INTERACTION_ADDRESPONSE 
+					@interactionID = @interactionID,
+					@responseCategoryName = @interactionResponseCategory_DonorContact,
+					@response = @interactionResponse_No,
+					@responseDate = null,		
+					@changeAgentID = @changeAgentID
 
-			exec dbo.USR_USP_INTERACTION_ADDRESPONSE 
-				@interactionID = @interactionID,
-				@responseCategoryName = @interactionResponseCategory_EFTReceived,
-				@response = @interactionResponse_No,
-				@responseDate = null,		
-				@changeAgentID = @changeAgentID
+				exec dbo.USR_USP_INTERACTION_ADDRESPONSE 
+					@interactionID = @interactionID,
+					@responseCategoryName = @interactionResponseCategory_EFTReceived,
+					@response = @interactionResponse_No,
+					@responseDate = null,		
+					@changeAgentID = @changeAgentID
 
-			exec dbo.USR_USP_INTERACTION_ADDRESPONSE 
-				@interactionID = @interactionID,
-				@responseCategoryName = @interactionResponseCategory_LeftMessage,
-				@response = @interactionResponse_No,
-				@responseDate = null,		
-				@changeAgentID = @changeAgentID
+				exec dbo.USR_USP_INTERACTION_ADDRESPONSE 
+					@interactionID = @interactionID,
+					@responseCategoryName = @interactionResponseCategory_LeftMessage,
+					@response = @interactionResponse_No,
+					@responseDate = null,		
+					@changeAgentID = @changeAgentID
 
-			exec dbo.USR_USP_INTERACTION_ADDRESPONSE 
-				@interactionID = @interactionID,
-				@responseCategoryName = @interactionResponseCategory_MessageType,
-				@response = @interactionResponse_None,
-				@responseDate = null,		
-				@changeAgentID = @changeAgentID
+				exec dbo.USR_USP_INTERACTION_ADDRESPONSE 
+					@interactionID = @interactionID,
+					@responseCategoryName = @interactionResponseCategory_MessageType,
+					@response = @interactionResponse_None,
+					@responseDate = null,		
+					@changeAgentID = @changeAgentID
 			
+			end
 		end
-			
-	
 	end
 
 	if @financialSponsorInteractionOnly = 0
