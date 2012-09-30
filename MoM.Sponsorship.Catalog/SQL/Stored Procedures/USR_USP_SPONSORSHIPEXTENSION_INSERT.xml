@@ -41,6 +41,14 @@ if @DATEADDED is null
 if @DATECHANGED is null
 	set @DATECHANGED = getdate();
 
+-- set the inserted row to be the current row for this opportunity:
+declare @ISCURRENT bit = 1;
+
+-- before inserting, set all rows to be not current
+update dbo.USR_SPONSORSHIPEXTENSION
+set ISCURRENT = 0
+where SPONSORSHIPOPPORTUNITYID = @SPONSORSHIPOPPORTUNITYID
+
 INSERT INTO [dbo].[USR_SPONSORSHIPEXTENSION]
            (
 		   [ID]
@@ -49,6 +57,7 @@ INSERT INTO [dbo].[USR_SPONSORSHIPEXTENSION]
            ,[CONVERSIONDATE]
 		   ,[SPONSORSHIPOPPORTUNITYID]
            ,[DAYSTOCONVERT]
+		   ,[ISCURRENT]
            ,[ADDEDBYID]
            ,[CHANGEDBYID]
            ,[DATEADDED]
@@ -62,6 +71,7 @@ INSERT INTO [dbo].[USR_SPONSORSHIPEXTENSION]
            ,@CONVERSIONDATE
 		   ,@SPONSORSHIPOPPORTUNITYID
            ,@DAYSTOCONVERT
+		   ,@ISCURRENT
            ,@CHANGEAGENTID
            ,@CHANGEAGENTID
            ,@DATEADDED

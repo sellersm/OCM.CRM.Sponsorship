@@ -338,14 +338,14 @@ begin try
 	if @ISPROSPECT = 1
 		begin
 		-- add the 'Prospect Sponsor' constituency code if not already there:
-		-- get the constituencycodeid of 'Prospect Sponsor'
+		-- get the constituencycodeid of 'Prospect Project Sponsor'
 	
 		select @CONSTITUENCYCODEID = ID
 		from dbo.CONSTITUENCYCODE
-		where lower([DESCRIPTION]) = lower('Prospect Sponsor')
+		where lower([DESCRIPTION]) = lower('Prospect Project Sponsor')
 
 		if @CONSTITUENCYCODEID is null
-			RAISERROR 1000000 'Could not find the "Prospect Sponsor" constituency code!'
+			RAISERROR 1000000 'Could not find the "Prospect Project Sponsor" constituency code!'
 
 		-- check now for the given constituency code for the given constituent
 		
@@ -361,7 +361,7 @@ begin try
 		-- check for a value of 2 and inform the user that the code exists with today's end date:
 		if @constituencyCheckCode = 2
 			begin
-				RAISERROR 1000000 'The constituent has a Prospect Sponsor constituency code with a "Date To" field value of today.  Please verify the accuracy of the Prospect Sponsor constituency code before adding a new sponsorship.'
+				RAISERROR 1000000 'The constituent has a Prospect Project Sponsor constituency code with a "Date To" field value of today.  Please verify the accuracy of the Prospect Sponsor constituency code before adding a new sponsorship.'
 			end
 		else
 			begin
@@ -379,15 +379,15 @@ begin try
 		end
 	else
 		begin
-			-- add the 'Sponsor' constituency code if not already there:
-			-- get the constituencycodeid of 'Sponsor'
+			-- add the 'Project Sponsor' constituency code if not already there:
+			-- get the constituencycodeid of 'Project Sponsor'
 	
 			select @CONSTITUENCYCODEID = ID
 			from dbo.CONSTITUENCYCODE
-			where lower([DESCRIPTION]) = lower('Sponsor')
+			where lower([DESCRIPTION]) = lower('Project Sponsor')
 
 			if @CONSTITUENCYCODEID is null
-				RAISERROR 1000000 'Could not find the "Sponsor" constituency code!'
+				RAISERROR 1000000 'Could not find the "Project Sponsor" constituency code!'
 
 			-- check now for the given constituency code for the given constituent
 		
@@ -403,7 +403,7 @@ begin try
 			-- check for a value of 2 and inform the user that the code exists with today's end date:
 			if @constituencyCheckCode = 2
 				begin
-					RAISERROR 1000000 'The constituent has a Sponsor constituency code with a "Date To" field value of today.  Please verify the accuracy of the Sponsor constituency code before adding a new sponsorship.'
+					RAISERROR 1000000 'The constituent has a Project Sponsor constituency code with a "Date To" field value of today.  Please verify the accuracy of the Sponsor constituency code before adding a new sponsorship.'
 				end
 			else
 				begin
