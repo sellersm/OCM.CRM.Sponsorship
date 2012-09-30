@@ -1555,9 +1555,9 @@ Partial Public Class [SponsorshipAddFormWrappedUIModel]
 	End Property
 
 	''' <summary>
-	''' EFT Schedule
+	''' Direct Debit Schedule
 	''' </summary>
-	<System.ComponentModel.Description("EFT Schedule")> _
+	<System.ComponentModel.Description("Direct Debit Schedule")> _
  <System.CodeDom.Compiler.GeneratedCodeAttribute("BBUIModelLibrary", "2.93.2034.0")> _
  Public ReadOnly Property [DIRECTDEBITSCHEDULECODEID]() As Global.Blackbaud.AppFx.UIModeling.Core.CodeTableField
 		Get

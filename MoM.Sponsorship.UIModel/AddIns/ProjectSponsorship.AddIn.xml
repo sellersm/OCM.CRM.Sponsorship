@@ -1,0 +1,13 @@
+﻿<DataFormAddInSpec
+	xmlns="bb_appfx_dataformaddin"
+	xmlns:common="bb_appfx_commontypes"
+	ID="4177a239-364c-4568-8088-b3280ab42c67" 
+	Name="ProjectSponsorship AddIn"
+	Description="REPLACE_WITH_DESCRIPTION" 
+	Author="$author$"
+	DataFormInstanceID="0eaaf756-2faa-4798-b445-60000ad298f5"
+	>
+
+	<DataFormAddIn AssemblyName="MoM.Sponsorship.UIModel" ClassName="MoM.Sponsorship.UIModel.ProjectSponsorshipAddIn" />
+
+</DataFormAddInSpec>

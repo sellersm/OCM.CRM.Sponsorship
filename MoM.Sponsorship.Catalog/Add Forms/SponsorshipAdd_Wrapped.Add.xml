@@ -445,6 +445,19 @@ begin try
 			@CHANGEAGENTID = @CHANGEAGENTID,			
 			@SPONSORSHIPOPPORTUNITYID = @SPONSORSHIPOPPORTUNITYIDCHILD
 		
+		-- insert into financial transaction extension if there's a eft/credit card schedule value:
+		/*
+		USR_USP_FINANCIALTRANSACTION_EXTENSION_INSERTROW 
+			@FINANCIALTRANSACTIONID uniqueidentifier, 
+			@DIRECTDEBITSCHEDULECODEID uniqueidentifier,
+			@CREDITCARDSCHEDULECODEID uniqueidentifier,
+			@ADDEDBYID uniqueidentifier = null,
+			@CHANGEDBYID uniqueidentifier = null,
+			@DATEADDED date = GETDATE,
+			@DATECHANGED date = GETDATE
+		*/
+		
+		
 	
 	if @@error = 0 and @r = 0
 	begin

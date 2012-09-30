@@ -114,6 +114,11 @@
     <Import Include="System.Linq" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AddIns\ProjectSponsorship.AddIn.CodeGen.vb">
+      <SubType>Code</SubType>
+      <DependentUpon>ProjectSponsorship.AddIn.vb</DependentUpon>
+    </Compile>
+    <Compile Include="AddIns\ProjectSponsorship.AddIn.vb" />
     <Compile Include="AddIns\Sponsorship.AddSponsorshipFields.vb" />
     <Compile Include="AddIns\Sponsorship.AddSponsorshipHelper.vb" />
     <Compile Include="AddIns\Sponsorship.SponsorshipAddFormWrapped.AddIn.CodeGen.vb">
@@ -121,6 +126,11 @@
       <DependentUpon>Sponsorship.SponsorshipAddFormWrapped.AddIn.vb</DependentUpon>
     </Compile>
     <Compile Include="AddIns\Sponsorship.SponsorshipAddFormWrapped.AddIn.vb" />
+    <Compile Include="AddIns\UnavailableSponsorship.AddIn.CodeGen.vb">
+      <SubType>Code</SubType>
+      <DependentUpon>UnavailableSponsorship.AddIn.vb</DependentUpon>
+    </Compile>
+    <Compile Include="AddIns\UnavailableSponsorship.AddIn.vb" />
     <Compile Include="Helpers\SponsorshipHelper.vb" />
     <Compile Include="My Project\AssemblyInfo.vb" />
     <Compile Include="OCMCustomAddProjectSponsorshipFormCHILDRENUIModel.CodeGen.vb" />
@@ -178,6 +188,8 @@
       <Link>LinkedSpecs\UnavailableSubstitutionSponsorship.Add.xml</Link>
     </None>
     <EmbeddedResource Include="AddIns\Sponsorship.SponsorshipAddFormWrapped.AddIn.xml" />
+    <EmbeddedResource Include="AddIns\UnavailableSponsorship.AddIn.xml" />
+    <EmbeddedResource Include="AddIns\ProjectSponsorship.AddIn.xml" />
     <Content Include="htmlforms\OCMCustomAddProjectSponsorshipForm.html" />
     <Content Include="htmlforms\UnavailableSubstitutionSponsorship.AddDataForm.html" />
     <Content Include="OCMCustomAddProjectSponsorshipFormUIModel.xml" />

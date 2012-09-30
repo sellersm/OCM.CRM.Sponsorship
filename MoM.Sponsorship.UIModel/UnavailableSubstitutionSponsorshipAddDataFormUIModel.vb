@@ -211,6 +211,9 @@ Public Class UnavailableSubstitutionSponsorshipAddDataFormUIModel
 		'Memphis 9/22/12: INTERACTIONTYPECODEID is not used in this form, but we leave it here for future possible use.
 		Me.INTERACTIONTYPECODEID.Visible = False
 
+		'9/29/12 Memphis added these for the payment schedule
+		Me.CREDITCARDSCHEDULECODEID.Visible = False
+		Me.DIRECTDEBITSCHEDULECODEID.Visible = False
 
 	End Sub
 
