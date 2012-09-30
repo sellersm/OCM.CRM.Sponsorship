@@ -183,6 +183,11 @@ Public Class OCMCustomAddProjectSponsorshipFormUIModel
 		'Memphis 9/26/12 added to set this up for a Project Sponsorship
 		_opportunitytype = PROJECT_OPPORTUNITY
 
+		'9/29/12 Memphis added these for the payment schedule
+		Me.CREDITCARDSCHEDULECODEID.Visible = False
+		Me.DIRECTDEBITSCHEDULECODEID.Visible = False
+
+
 	End Sub
 
 

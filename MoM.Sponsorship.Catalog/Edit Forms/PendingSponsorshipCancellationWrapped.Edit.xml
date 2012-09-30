@@ -118,6 +118,27 @@ exec @r = dbo.USP_DATAFORMTEMPLATE_EDITSAVE_SPONSORSHIPCANCELTRANSFER
   @ID = @ID, 
   @CHANGEAGENTID = @CHANGEAGENTID, 
   @REASONID = @REASONID
+  
+  
+-- get the childId of this sponsorship:
+declare @CHILDID uniqueidentifier;
+select @CHILDID = SPONSORSHIPOPPORTUNITYID
+from dbo.SPONSORSHIP
+where ID = @ID
+
+if @CHILDID is null
+	RAISERROR 1000000 'Unable to locate Child for this Sponsorship. Cannot create Interaction.'
+
+-- create interaction for this cancellation:
+exec dbo.USR_USP_SPONSORSHIP_CREATESPONSORSHIPCANCELLATIONINTERACTIONS
+         @sponsorshipID = @ID,             -- The sponsorship that the interactions will pertain to.  
+                                                             -- This is used to pull the financial sponsor 
+                                                             -- However, it is not used for the child information
+         @childID = @CHILDID,                   -- Child to include in the cancellation interaction
+         @interactionTypeCodeID = @INTERACTIONTYPECODEID,     -- The ID of the Interaction Type that the user selected (Cancellation Letter, Departure Cancellation Letter, ...)
+         @changeAgentID = @CHANGEAGENTID		              -- Used to specify change agent for CHANGEDBYID and ADDEDBYID fields.  USP_CHANGEAGENT_GETORCREATECHANGEAGENT is called if it's null
+
+  
 
 if @@error <> 0 
 	begin
