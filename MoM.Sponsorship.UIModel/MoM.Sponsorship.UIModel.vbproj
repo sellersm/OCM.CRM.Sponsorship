@@ -56,6 +56,7 @@
   <ItemGroup>
     <Reference Include="Blackbaud.AppFx, Version=2.93.2034.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\..\..\References\Third Party\2.93\Blackbaud.AppFx.dll</HintPath>
+      <SpecificVersion>False</SpecificVersion>
       <Private>False</Private>
     </Reference>
     <Reference Include="Blackbaud.AppFx.Fundraising.UIModel, Version=2.93.2034.13, Culture=neutral, processorArchitecture=MSIL">
@@ -74,6 +75,7 @@
     </Reference>
     <Reference Include="Blackbaud.AppFx.UIModeling.Core, Version=2.93.2034.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\..\..\References\Third Party\2.93\Blackbaud.AppFx.UIModeling.Core.dll</HintPath>
+      <SpecificVersion>False</SpecificVersion>
       <Private>False</Private>
     </Reference>
     <Reference Include="Blackbaud.AppFx.XmlTypes, Version=2.93.2034.0, Culture=neutral, processorArchitecture=MSIL">
@@ -82,6 +84,14 @@
     </Reference>
     <Reference Include="Blackbaud.AppFx.XmlTypes.XmlSerializers, Version=2.93.2034.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\..\..\References\Third Party\2.93\Blackbaud.AppFx.XmlTypes.XmlSerializers.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="MoM.Common">
+      <HintPath>..\..\..\References\MoM\MoM.Common.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="MoM.Sponsorship.UIModel, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
       <Private>False</Private>
     </Reference>
     <Reference Include="System" />
@@ -104,6 +114,13 @@
     <Import Include="System.Linq" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AddIns\Sponsorship.AddSponsorshipFields.vb" />
+    <Compile Include="AddIns\Sponsorship.AddSponsorshipHelper.vb" />
+    <Compile Include="AddIns\Sponsorship.SponsorshipAddFormWrapped.AddIn.CodeGen.vb">
+      <SubType>Code</SubType>
+      <DependentUpon>Sponsorship.SponsorshipAddFormWrapped.AddIn.vb</DependentUpon>
+    </Compile>
+    <Compile Include="AddIns\Sponsorship.SponsorshipAddFormWrapped.AddIn.vb" />
     <Compile Include="Helpers\SponsorshipHelper.vb" />
     <Compile Include="My Project\AssemblyInfo.vb" />
     <Compile Include="OCMCustomAddProjectSponsorshipFormCHILDRENUIModel.CodeGen.vb" />
@@ -160,6 +177,7 @@
     <None Include="..\MoM.Sponsorship.Catalog\Add Forms\UnavailableSubstitutionSponsorship.Add.xml">
       <Link>LinkedSpecs\UnavailableSubstitutionSponsorship.Add.xml</Link>
     </None>
+    <EmbeddedResource Include="AddIns\Sponsorship.SponsorshipAddFormWrapped.AddIn.xml" />
     <Content Include="htmlforms\OCMCustomAddProjectSponsorshipForm.html" />
     <Content Include="htmlforms\UnavailableSubstitutionSponsorship.AddDataForm.html" />
     <Content Include="OCMCustomAddProjectSponsorshipFormUIModel.xml" />
