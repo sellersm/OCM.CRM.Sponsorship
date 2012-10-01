@@ -239,9 +239,9 @@
     <EmbeddedResource Include="SQL\Stored Procedures\USR_USP_HANDLE_CREDIT_DEBIT_PAYMENTSCHEDULE_INSERTING.xml" />
     <EmbeddedResource Include="Edit Forms\RecurringGiftExtension.Edit.xml" />
     <EmbeddedResource Include="SQL\Stored Procedures\USR_USP_SPONSORSHIP_CREATENEWPROJECTSPONSORSHIPINTERACTIONS.xml" />
-    <Content Include="SQL\User Functions\USR_UFN_CURRENTOPPORTUNITYSPONSORSHIPSTATUSCODE_GETID_FORDESCRIPTION.xml" />
+    <EmbeddedResource Include="SQL\User Functions\USR_UFN_CURRENTOPPORTUNITYSPONSORSHIPSTATUSCODE_GETID_FORDESCRIPTION.xml" />
     <EmbeddedResource Include="SQL\User Functions\USR_UFN_GETFINANCIALTRANSACTIONID_FORSPONSORSHIP.xml" />
-    <Content Include="SQL\User Functions\USR_UFN_INITIALOPPORTUNITYSPONSORSHIPSTATUSCODE_GETID_FORDESCRIPTION.xml" />
+    <EmbeddedResource Include="SQL\User Functions\USR_UFN_INITIALOPPORTUNITYSPONSORSHIPSTATUSCODE_GETID_FORDESCRIPTION.xml" />
     <EmbeddedResource Include="Tables\FinancialTransactionExtension.Table.xml" />
     <EmbeddedResource Include="Tables\Code Tables\DirectDebitSchedule.CodeTable.xml" />
     <EmbeddedResource Include="Tables\Code Tables\CreditCardSchedule.CodeTable.xml" />
