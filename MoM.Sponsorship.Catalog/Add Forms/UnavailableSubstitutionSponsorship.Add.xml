@@ -203,7 +203,9 @@ create procedure dbo.USR_USP_DATAFORMTEMPLATE_ADD_UNAVAILABLESPONSORSHIP
 		@SUBSTITUTECHILDID uniqueidentifier = null,
 		@FUNDRAISERID uniqueidentifier = null,
 		@DONORCONTACTCODEID uniqueidentifier = null,  -- new donor contact code field
-		@ISPROSPECT bit = 0   -- set to the value of isprospectsponsorship checkbox
+		@ISPROSPECT bit = 0,   -- set to the value of isprospectsponsorship checkbox
+		@DIRECTDEBITSCHEDULECODEID uniqueidentifier = null,
+		@CREDITCARDSCHEDULECODEID uniqueidentifier = null		
 )
 
 
@@ -470,7 +472,20 @@ begin try
 			@initialStatusText = @initialStatusText,			
 			@currentStatusText = @currentStatusText,			
 			@CHANGEAGENTID = @CHANGEAGENTID,			
-			@SPONSORSHIPOPPORTUNITYID = @SPONSORSHIPOPPORTUNITYIDCHILD		
+			@SPONSORSHIPOPPORTUNITYID = @SPONSORSHIPOPPORTUNITYIDCHILD	
+			
+	-- manage the handling of payment method stuff if this is credit card or direct debit:
+	if @AUTOPAY <> 0
+	begin
+		-- we must have at least one schedule type if this is autopay
+		if (@CREDITCARDSCHEDULECODEID is not null) or (@DIRECTDEBITSCHEDULECODEID is not null)
+			exec dbo.USR_USP_HANDLE_CREDIT_DEBIT_PAYMENTSCHEDULE_INSERTING 
+				@SPONSORSHIPID = @ID, 
+				@DIRECTDEBITSCHEDULECODEID = @DIRECTDEBITSCHEDULECODEID,
+				@CREDITCARDSCHEDULECODEID = @CREDITCARDSCHEDULECODEID,
+				@CHANGEAGENTID = @CHANGEAGENTID
+	end			
+		
 
 	if @@error = 0 and @r = 0
 	begin
@@ -1119,7 +1134,14 @@ return @r;
 
 			<!-- 9/17/12 Memphis added to indicate to the save procedure what value the user checked -->
 			<c:FormField FieldID="ISPROSPECT" DataType="Boolean" Caption="Is Prospect" Required="true" Hidden="true" />
-
+			
+			<!-- payment methodschedule codes-->
+			<c:FormField FieldID="DIRECTDEBITSCHEDULECODEID" DataType="Guid" Caption="Direct debit schedule" Required="false">
+				<c:CodeTable CodeTableName="USR_DIRECTDEBITSCHEDULECODE" />
+			</c:FormField>
+			<c:FormField FieldID="CREDITCARDSCHEDULECODEID" DataType="Guid" Caption="Credit card schedule" Required="false">
+				<c:CodeTable CodeTableName="USR_CREDITCARDSCHEDULECODE" />
+			</c:FormField>
 		</c:FormFields>
 
         <c:WebUIComponent>

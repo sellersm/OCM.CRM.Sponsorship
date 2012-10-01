@@ -37,6 +37,11 @@
 	28-Sep-2012		Memphis			Added the missing USR_UFN_VALIDATE_SPONSORSHIP_CANCELLATION_REASON.xml
 	29-Sep-2012		Memphis			Added many files for Project Sponsorship, Financial extension stuff.
 	29-Sep-2012		CMayeda			Added USR_USP_SPONSORSHIP_CREATESPONSORSHIPCANCELLATIONINTERACTIONS.xml
+	30-Sep-2012		Memphis			Added these: USR_USP_SPONSORSHIP_CANCEL_SPONSORSHIP_CONSTITUENCYCODES.xml
+												USR_USP_HANDLE_SPONSORSHIP_CANCELLATION.xml
+												USR_USP_HANDLE_CREDIT_DEBIT_PAYMENTSCHEDULE_INSERTING.xml
+												USR_UFN_GETFINANCIALTRANSACTIONID_FORSPONSORSHIP.xml
+												USR_USP_SPONSORSHIP_CREATENEWPROJECTSPONSORSHIPINTERACTIONS
 	-->
 
 	<!-- Note:  the order of the items listed here is important.  For example, you won't be able to load a data form that references 
@@ -132,11 +137,16 @@
 		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.USR_UFN_VALIDATE_SPONSORSHIP_CANCELLATION_REASON.xml" />
 		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.USR_UFN_CURRENTOPPORTUNITYSPONSORSHIPSTATUSCODE_GETID_FORDESCRIPTION.xml" />
 		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.USR_UFN_INITIALOPPORTUNITYSPONSORSHIPSTATUSCODE_GETID_FORDESCRIPTION.xml" />
+		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.USR_UFN_GETFINANCIALTRANSACTIONID_FORSPONSORSHIP.xml" />
 		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.USR_USP_INSERTNEWSPONSORSHIP_SPONSORSHIPEXTENSION.xml" />
 		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.USR_USP_SPONSORSHIP_ACQUIREPROJECTOPPORTUNITY_OCMCUSTOM.xml" />
 		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.USR_USP_SPONSORSHIP_MATCHPROJECTOPPORTUNITY_OCMCUSTOM.xml" />
 		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.USR_USP_SPONSORSHIP_CREATESPONSORSHIPCANCELLATIONINTERACTIONS.xml" />
-		
+		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.USR_USP_SPONSORSHIP_CANCEL_SPONSORSHIP_CONSTITUENCYCODES.xml" />
+		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.USR_USP_HANDLE_SPONSORSHIP_CANCELLATION.xml" />
+		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.USR_USP_HANDLE_CREDIT_DEBIT_PAYMENTSCHEDULE_INSERTING.xml" />
+		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.USR_USP_SPONSORSHIP_CREATENEWPROJECTSPONSORSHIPINTERACTIONS.xml" />		
+
 		<!-- Record Operations-->
 		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.DeleteChildSelectedForSponsorshipLock.RecordOperation.xml" />
 		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.LockSelectedChild.RecordOperation.xml" />

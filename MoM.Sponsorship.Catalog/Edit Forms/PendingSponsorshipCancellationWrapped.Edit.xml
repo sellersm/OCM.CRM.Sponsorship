@@ -122,7 +122,10 @@ exec @r = dbo.USP_DATAFORMTEMPLATE_EDITSAVE_SPONSORSHIPCANCELTRANSFER
   
 -- get the childId of this sponsorship:
 declare @CHILDID uniqueidentifier;
-select @CHILDID = SPONSORSHIPOPPORTUNITYID
+declare @CONSTITUENTID uniqueidentifier;
+
+select @CHILDID = SPONSORSHIPOPPORTUNITYID,
+	   @CONSTITUENTID = CONSTITUENTID
 from dbo.SPONSORSHIP
 where ID = @ID
 
@@ -138,6 +141,10 @@ exec dbo.USR_USP_SPONSORSHIP_CREATESPONSORSHIPCANCELLATIONINTERACTIONS
          @interactionTypeCodeID = @INTERACTIONTYPECODEID,     -- The ID of the Interaction Type that the user selected (Cancellation Letter, Departure Cancellation Letter, ...)
          @changeAgentID = @CHANGEAGENTID		              -- Used to specify change agent for CHANGEDBYID and ADDEDBYID fields.  USP_CHANGEAGENT_GETORCREATECHANGEAGENT is called if it's null
 
+-- call the sproc that does all the work related to 'extra' things like constituencycodes and sponsorship extension:
+exec dbo.USR_USP_HANDLE_SPONSORSHIP_CANCELLATION
+	@CONSTITUENTID = @CONSTITUENTID,
+	@SPONSORSHIPID = @ID
   
 
 if @@error <> 0 

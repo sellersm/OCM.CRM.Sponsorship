@@ -1,0 +1,47 @@
+﻿<SQLStoredProcedureSpec
+	xmlns="bb_appfx_sqlstoredprocedure"
+	xmlns:common="bb_appfx_commontypes" 
+	ID="caae2af1-ee61-4127-9391-56c95846bbd9"
+	Name="USR_USP_HANDLE_SPONSORSHIP_CANCELLATION"
+	Description="Does the work when a sponsorship is cancelled. Called from various sponsorship cancellation forms."
+	Author="Memphis Sellers"
+	SPName="USR_USP_HANDLE_SPONSORSHIP_CANCELLATION"
+	>
+
+	<CreateProcedureSQL>
+		<![CDATA[
+create procedure dbo.USR_USP_HANDLE_SPONSORSHIP_CANCELLATION (
+	@CONSTITUENTID uniqueidentifier,
+	@SPONSORSHIPID uniqueidentifier
+)
+as
+begin
+	-- this manages the constituency code cancellation logic and the sponsorship extension updating:
+	-- manage the constituency code cancellation here:
+	-- first check if this is the only sponsorship for this sponsor, otherwise don't cancel
+	declare @SPONSORSHIPCOUNT int = 0;
+	set @SPONSORSHIPCOUNT = dbo.USR_UFN_SPONSORSHIP_GETACTIVECHILDSPONSORSHIPSFORSPONSOR(@CONSTITUENTID)
+	
+	-- if this is the only Child sponsorship, then cancel the sponsor constituency code:
+	if @SPONSORSHIPCOUNT = 0
+	begin
+		exec dbo.USR_USP_SPONSORSHIP_CANCEL_SPONSORSHIP_CONSTITUENCYCODES 
+					@CONSTITUENTID = @CONSTITUENTID
+	end
+
+	-- update the sponsorship extension table setting the currentstatuscode to "Formerly Sponsored"
+	declare @STATUSCODEID uniqueidentifier;
+	set @STATUSCODEID = dbo.USR_UFN_CURRENTOPPORTUNITYSPONSORSHIPSTATUSCODE_GETID_FORDESCRIPTION('Formerly Sponsored')
+	if @STATUSCODEID is not null
+	begin
+		update dbo.USR_SPONSORSHIPEXTENSION
+		set CURRENTOPPORTUNITYSPONSORSHIPSTATUSCODEID = @STATUSCODEID
+		where ID = @SPONSORSHIPID
+	end
+
+end
+
+		]]>
+	</CreateProcedureSQL>
+
+</SQLStoredProcedureSpec>

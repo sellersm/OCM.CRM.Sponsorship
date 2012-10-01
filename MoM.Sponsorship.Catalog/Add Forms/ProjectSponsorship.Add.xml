@@ -186,7 +186,10 @@ create procedure dbo.USR_USP_DATAFORMTEMPLATE_ADD_PROJECTSPONSORSHIP_TEST
 		--@PFMID uniqueidentifier = null,
 		@INTERACTIONTYPECODEID uniqueidentifier = null,
 		@FUNDRAISERID uniqueidentifier = null,
-		@ISPROSPECT bit = 0   -- set to the value of isprospectsponsorship checkbox
+		@ISPROSPECT bit = 0,   -- set to the value of isprospectsponsorship checkbox
+		@DIRECTDEBITSCHEDULECODEID uniqueidentifier = null,
+		@CREDITCARDSCHEDULECODEID uniqueidentifier = null
+
 )
 
 
@@ -292,7 +295,19 @@ begin try
 				@CONSTITUENTID = @FUNDRAISERID,
 				@CHANGEAGENTID = @CHANGEAGENTID
 		
-	
+		-- manage the handling of payment method stuff if this is credit card or direct debit:
+		if @AUTOPAY <> 0
+		begin
+			-- we must have at least one schedule type if this is autopay
+			if (@CREDITCARDSCHEDULECODEID is not null) or (@DIRECTDEBITSCHEDULECODEID is not null)
+				exec dbo.USR_USP_HANDLE_CREDIT_DEBIT_PAYMENTSCHEDULE_INSERTING 
+					@SPONSORSHIPID = @ID, 
+					@DIRECTDEBITSCHEDULECODEID = @DIRECTDEBITSCHEDULECODEID,
+					@CREDITCARDSCHEDULECODEID = @CREDITCARDSCHEDULECODEID,
+					@CHANGEAGENTID = @CHANGEAGENTID
+		end
+
+
 	if @@error = 0 and @r = 0
 	begin
 	  -- try to remove the lock on this opportunity
@@ -316,21 +331,13 @@ begin try
   
 	-- create the necessary interactions for this new sponsorship, based on whether it's a Prospect or non-prospect sponsorship:	
 	
-	--use the same sproc for both Prospects and Paid Sponsorships.  This is controlled by the @isProspect parm.  
-	--pass the ID from the USR_UNAVAILABLE_SPONSORSHIP_CONTACTCODE code table into @donorContactCodeID 
+	exec dbo.USR_USP_SPONSORSHIP_CREATENEWPROJECTSPONSORSHIPINTERACTIONS 
+         @sponsorshipID = @ID,										   -- The sponsorship that the interactions will pertain to.  
+         @sponsorshipOpportunityID = @SPONSORSHIPOPPORTUNITYIDPROJECT, -- The sponsorship opportunity that was sponsored
+         @interactionTypeCodeID = @INTERACTIONTYPECODEID,              -- The ID of the Interaction Type that the user selected (Project Sponsorship Thank You Letter, Project Sponsorship Thank You Letter & Profile, ...)
+         @isProspect = @ISPROSPECT,                                    -- Is this a prospect sponsorship.  0=Not Prospect, 1=Prospect
+         @changeAgentID = @CHANGEAGENTID                               -- Used to specify change agent for CHANGEDBYID and ADDEDBYID fields.  USP_CHANGEAGENT_GETORCREATECHANGEAGENT is called if it's null
 
-/*
-*  There is no contact code with project sponsorship, at least not yet:
-	exec dbo.USR_USP_SPONSORSHIP_CREATEUNAVAILABLESPONSORSHIPINTERACTIONS 
-         @sponsorshipID = @ID,     -- The sponsorship that the interactions will pertain to.  
-                                                    -- This is used to pull the financial sponsor and correspondent, and to determine if the recurring gift is on EFT
-                                                    -- However, it is not used for the child information
-         @children = @CHILDREN,                 -- The list of children to add to the interactions created. USR_UFN_UNAVAILABLECHILDREN_FOR_TRANSFERSPONSORSHIP_FROMITEMLISTXML is used to pull the unavailable and transfer child from this xml string
-         @donorContactCodeID = @DONORCONTACTCODEID,	-- ID from USR_UNAVAILABLE_SPONSORSHIP_CONTACTCODE representing whether the donor was contacted
-         @isProspect = @ISPROSPECT,                 -- Is this a prospect sponsorship.  0=Not Prospect, 1=Prospect
-         @changeAgentID = @CHANGEAGENTID			-- Used to specify change agent for CHANGEDBYID and ADDEDBYID fields.  USP_CHANGEAGENT_GETORCREATECHANGEAGENT is called if it's null
-	
-*/
 	
 	-- do the constituency code inserts here, based on whether or not this is a Prospect Sponsor or not:	
 	declare @constituencyCheckCode tinyint = 0;	
@@ -915,7 +922,13 @@ return @r;
 
 			<!-- 9/26/12 Memphis added to indicate to the save procedure what value the user checked -->
 			<c:FormField FieldID="ISPROSPECT" DataType="Boolean" Caption="Is Prospect" Required="true" Hidden="true" />
-
+			<!-- payment methodschedule codes-->
+			<c:FormField FieldID="DIRECTDEBITSCHEDULECODEID" DataType="Guid" Caption="Direct debit schedule" Required="false">
+				<c:CodeTable CodeTableName="USR_DIRECTDEBITSCHEDULECODE" />
+			</c:FormField>
+			<c:FormField FieldID="CREDITCARDSCHEDULECODEID" DataType="Guid" Caption="Credit card schedule" Required="false">
+				<c:CodeTable CodeTableName="USR_CREDITCARDSCHEDULECODE" />
+			</c:FormField>
 		</c:FormFields>
 
         <c:WebUIComponent>
