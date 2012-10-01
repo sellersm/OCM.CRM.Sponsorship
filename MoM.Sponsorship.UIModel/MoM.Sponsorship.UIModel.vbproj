@@ -193,6 +193,7 @@
     <Content Include="htmlforms\OCMCustomAddProjectSponsorshipForm.html" />
     <Content Include="htmlforms\UnavailableSubstitutionSponsorship.AddDataForm.html" />
     <Content Include="OCMCustomAddProjectSponsorshipFormUIModel.xml" />
+    <EmbeddedResource Include="Packages\SponsorshipAddIns.Package.xml" />
     <Content Include="UnavailableSubstitutionSponsorshipAddDataFormUIModel.xml">
       <DependentUpon>UnavailableSubstitutionSponsorshipAddDataFormUIModel.vb</DependentUpon>
     </Content>
