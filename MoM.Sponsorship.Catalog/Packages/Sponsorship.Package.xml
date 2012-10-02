@@ -42,6 +42,8 @@
 												USR_USP_HANDLE_CREDIT_DEBIT_PAYMENTSCHEDULE_INSERTING.xml
 												USR_UFN_GETFINANCIALTRANSACTIONID_FORSPONSORSHIP.xml
 												USR_USP_SPONSORSHIP_CREATENEWPROJECTSPONSORSHIPINTERACTIONS
+	02-Oct-2012		Memphis			Adding these as they were missing:  USR_USP_FINANCIALTRANSACTION_EXTENSION_INSERTROW.xml
+												USR_USP_FINANCIALTRANSACTION_EXTENSION_UPDATEROW
 	-->
 
 	<!-- Note:  the order of the items listed here is important.  For example, you won't be able to load a data form that references 
@@ -145,7 +147,9 @@
 		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.USR_USP_SPONSORSHIP_CANCEL_SPONSORSHIP_CONSTITUENCYCODES.xml" />
 		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.USR_USP_HANDLE_SPONSORSHIP_CANCELLATION.xml" />
 		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.USR_USP_HANDLE_CREDIT_DEBIT_PAYMENTSCHEDULE_INSERTING.xml" />
-		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.USR_USP_SPONSORSHIP_CREATENEWPROJECTSPONSORSHIPINTERACTIONS.xml" />		
+		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.USR_USP_SPONSORSHIP_CREATENEWPROJECTSPONSORSHIPINTERACTIONS.xml" />
+		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.USR_USP_FINANCIALTRANSACTION_EXTENSION_INSERTROW.xml" />
+		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.USR_USP_FINANCIALTRANSACTION_EXTENSION_UPDATEROW.xml" />
 
 		<!-- Record Operations-->
 		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.DeleteChildSelectedForSponsorshipLock.RecordOperation.xml" />
