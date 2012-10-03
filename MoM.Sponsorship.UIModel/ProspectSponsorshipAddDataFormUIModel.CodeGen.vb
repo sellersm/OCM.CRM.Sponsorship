@@ -184,6 +184,9 @@ Partial Public Class [ProspectSponsorshipAddDataFormUIModel]
     Private WithEvents _sourcecodelookup As Global.Blackbaud.AppFx.UIModeling.Core.ShowSearchFormUIAction
 	Private WithEvents _currencyaction As Global.Blackbaud.AppFx.UIModeling.Core.ShowCustomFormUIAction
 	Private WithEvents _fundraiserid As Global.Blackbaud.AppFx.UIModeling.Core.SearchListField(Of Guid)
+	Private WithEvents _creditcardschedulecodeid As Global.Blackbaud.AppFx.UIModeling.Core.CodeTableField
+	Private WithEvents _directdebitschedulecodeid As Global.Blackbaud.AppFx.UIModeling.Core.CodeTableField
+
 
 	<System.CodeDom.Compiler.GeneratedCodeAttribute("BBUIModelLibrary", "2.93.2034.0")> _
     Public Sub New()
@@ -274,6 +277,9 @@ Partial Public Class [ProspectSponsorshipAddDataFormUIModel]
         _sourcecodelookup = New Global.Blackbaud.AppFx.UIModeling.Core.ShowSearchFormUIAction
 		_currencyaction = New Global.Blackbaud.AppFx.UIModeling.Core.ShowCustomFormUIAction
 		_fundraiserid = New Global.Blackbaud.AppFx.UIModeling.Core.SearchListField(Of Guid)
+		_creditcardschedulecodeid = New Global.Blackbaud.AppFx.UIModeling.Core.CodeTableField
+		_directdebitschedulecodeid = New Global.Blackbaud.AppFx.UIModeling.Core.CodeTableField
+
 
         MyBase.Mode = Global.Blackbaud.AppFx.UIModeling.Core.DataFormMode.Add
         MyBase.DataFormTemplateId = New Guid("d143aadd-e76f-472e-9cb1-6465490977e7")
@@ -1014,6 +1020,27 @@ Partial Public Class [ProspectSponsorshipAddDataFormUIModel]
 		'_fundraiserid.SearchFieldOverrides.Add(New Global.Blackbaud.AppFx.UIModeling.Core.FieldOverride() With {.FieldId = "FINANCIALSPONSORID", .Hidden = True, .DefaultValueText = "Fields!REVENUECONSTITUENTID"})
 		Me.Fields.Add(_fundraiserid)
 
+		'
+		'_creditcardschedulecodeid
+		'
+		_creditcardschedulecodeid.Name = "CREDITCARDSCHEDULECODEID"
+		_creditcardschedulecodeid.Caption = "Credit Card Schedule"
+		_creditcardschedulecodeid.Required = False
+		_creditcardschedulecodeid.CodeTableName = "USR_CREDITCARDSCHEDULECODE"
+		_creditcardschedulecodeid.Visible = False
+		Me.Fields.Add(_creditcardschedulecodeid)
+
+		'
+		'
+		'
+		'_directdebitschedulecodeid
+		'
+		_directdebitschedulecodeid.Name = "DIRECTDEBITSCHEDULECODEID"
+		_directdebitschedulecodeid.Caption = "Direct Debit Schedule"
+		_directdebitschedulecodeid.Required = False
+		_directdebitschedulecodeid.CodeTableName = "USR_DIRECTDEBITSCHEDULECODE"
+		_directdebitschedulecodeid.Visible = False
+		Me.Fields.Add(_directdebitschedulecodeid)
 
 		OnCreated()
 
@@ -1918,6 +1945,28 @@ Partial Public Class [ProspectSponsorshipAddDataFormUIModel]
 	Public ReadOnly Property [FUNDRAISERID]() As Global.Blackbaud.AppFx.UIModeling.Core.SearchListField(Of Guid)
 		Get
 			Return _fundraiserid
+		End Get
+	End Property
+
+	''' <summary>
+	''' Credit Card Schedule
+	''' </summary>
+	<System.ComponentModel.Description("Credit Card Schedule")> _
+	<System.CodeDom.Compiler.GeneratedCodeAttribute("BBUIModelLibrary", "2.93.2034.0")> _
+	Public ReadOnly Property [CREDITCARDSCHEDULECODEID]() As Global.Blackbaud.AppFx.UIModeling.Core.CodeTableField
+		Get
+			Return _creditcardschedulecodeid
+		End Get
+	End Property
+
+	''' <summary>
+	''' Direct Debit Schedule
+	''' </summary>
+	<System.ComponentModel.Description("Direct Debit Schedule")> _
+	<System.CodeDom.Compiler.GeneratedCodeAttribute("BBUIModelLibrary", "2.93.2034.0")> _
+	Public ReadOnly Property [DIRECTDEBITSCHEDULECODEID]() As Global.Blackbaud.AppFx.UIModeling.Core.CodeTableField
+		Get
+			Return _directdebitschedulecodeid
 		End Get
 	End Property
 

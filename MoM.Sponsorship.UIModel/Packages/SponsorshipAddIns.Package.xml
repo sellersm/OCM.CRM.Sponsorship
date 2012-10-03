@@ -53,6 +53,8 @@
         <common:Dependency CatalogAssembly="MoM.Sponsorship.UIModel.dll" CatalogItem="MoM.Sponsorship.UIModel.ProjectSponsorship.AddIn.xml" />
         <common:Dependency CatalogAssembly="MoM.Sponsorship.UIModel.dll" CatalogItem="MoM.Sponsorship.UIModel.Sponsorship.SponsorshipAddFormWrapped.AddIn.xml" />
         <common:Dependency CatalogAssembly="MoM.Sponsorship.UIModel.dll" CatalogItem="MoM.Sponsorship.UIModel.UnavailableSponsorship.AddIn.xml" />
-    </common:DependencyList>
+		<common:Dependency CatalogAssembly="MoM.Sponsorship.UIModel.dll" CatalogItem="MoM.Sponsorship.UIModel.ProspectSponsorship.AddIn.xml" />
+		
+	</common:DependencyList>
 
 </PackageSpec>
