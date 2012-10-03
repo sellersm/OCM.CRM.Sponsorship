@@ -23,11 +23,11 @@ begin
 	declare @CURRENTOPPORTUNITYSPONSORSHIPSTATUSCODEID uniqueidentifier  -- current opportunity sponsorship status id
 	declare @DATEADDED date = GETDATE();
 	
-	-- get the id for initial status code 'Sponsored':		
-	select @INITIALOPPORTUNITYSPONSORSHIPSTATUSCODEID = dbo.USR_UFN_INITIALOPPORTUNITYSPONSORSHIPSTATUSCODE_GETID_FORDESCRIPTION ('Sponsored')
+	-- get the id for initial status code passed in:		
+	select @INITIALOPPORTUNITYSPONSORSHIPSTATUSCODEID = dbo.USR_UFN_INITIALOPPORTUNITYSPONSORSHIPSTATUSCODE_GETID_FORDESCRIPTION (@initialStatusText)
 		
-	-- get the id for current status code 'Sponsored':
-	select @CURRENTOPPORTUNITYSPONSORSHIPSTATUSCODEID = dbo.USR_UFN_CURRENTOPPORTUNITYSPONSORSHIPSTATUSCODE_GETID_FORDESCRIPTION ('Sponsored')
+	-- get the id for current status code passed in:
+	select @CURRENTOPPORTUNITYSPONSORSHIPSTATUSCODEID = dbo.USR_UFN_CURRENTOPPORTUNITYSPONSORSHIPSTATUSCODE_GETID_FORDESCRIPTION (@currentStatusText)
 		
 	-- add call to insert into sponsorship extension:
 	exec dbo.USR_USP_SPONSORSHIPEXTENSION_INSERT 
