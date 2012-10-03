@@ -203,7 +203,10 @@ create procedure dbo.USR_USP_DATAFORMTEMPLATE_ADD_PROSPECTSPONSORSHIP
 		@CHILDREN xml = null,
 		@PFMID uniqueidentifier = null,
 		@INTERACTIONTYPECODEID uniqueidentifier = null,
-		@FUNDRAISERID uniqueidentifier = null		
+		@FUNDRAISERID uniqueidentifier = null,
+		@DIRECTDEBITSCHEDULECODEID uniqueidentifier = null,
+		@CREDITCARDSCHEDULECODEID uniqueidentifier = null
+		
 )
 
 
@@ -1022,7 +1025,12 @@ return @r;
 			<c:FormField FieldID="FUNDRAISERID" DataType="Guid" Required="false" Caption="Fundraiser" >
 				<c:SearchList SearchListID="c588bc58-68de-4a57-ba4e-cfa45c601b71" EnableQuickFind="true" />
 			</c:FormField>
-
+			<c:FormField FieldID="DIRECTDEBITSCHEDULECODEID" DataType="Guid" Caption="Direct debit schedule" Required="false" Hidden="true">
+				<c:CodeTable CodeTableName="USR_DIRECTDEBITSCHEDULECODE" />
+			</c:FormField>
+			<c:FormField FieldID="CREDITCARDSCHEDULECODEID" DataType="Guid" Caption="Credit card schedule" Required="false" Hidden="true">
+				<c:CodeTable CodeTableName="USR_CREDITCARDSCHEDULECODE" />
+			</c:FormField>
 		</c:FormFields>
 
 		<c:WebUIComponent>
