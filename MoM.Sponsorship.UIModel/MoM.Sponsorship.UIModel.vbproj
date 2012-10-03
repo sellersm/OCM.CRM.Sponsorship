@@ -119,6 +119,11 @@
       <DependentUpon>ProjectSponsorship.AddIn.vb</DependentUpon>
     </Compile>
     <Compile Include="AddIns\ProjectSponsorship.AddIn.vb" />
+    <Compile Include="AddIns\ProspectSponsorship.AddIn.CodeGen.vb">
+      <SubType>Code</SubType>
+      <DependentUpon>ProspectSponsorship.AddIn.vb</DependentUpon>
+    </Compile>
+    <Compile Include="AddIns\ProspectSponsorship.AddIn.vb" />
     <Compile Include="AddIns\Sponsorship.AddSponsorshipFields.vb" />
     <Compile Include="AddIns\Sponsorship.AddSponsorshipHelper.vb" />
     <Compile Include="AddIns\Sponsorship.SponsorshipAddFormWrapped.AddIn.CodeGen.vb">
@@ -190,6 +195,7 @@
     <EmbeddedResource Include="AddIns\Sponsorship.SponsorshipAddFormWrapped.AddIn.xml" />
     <EmbeddedResource Include="AddIns\UnavailableSponsorship.AddIn.xml" />
     <EmbeddedResource Include="AddIns\ProjectSponsorship.AddIn.xml" />
+    <EmbeddedResource Include="AddIns\ProspectSponsorship.AddIn.xml" />
     <Content Include="htmlforms\OCMCustomAddProjectSponsorshipForm.html" />
     <Content Include="htmlforms\UnavailableSubstitutionSponsorship.AddDataForm.html" />
     <Content Include="OCMCustomAddProjectSponsorshipFormUIModel.xml" />
