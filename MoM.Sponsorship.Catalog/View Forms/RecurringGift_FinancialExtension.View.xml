@@ -20,8 +20,8 @@ create procedure dbo.USR_USP_DATAFORMTEMPLATE_VIEW_RECURRINGGIFTEXTENSION
 (
 	@ID uniqueidentifier,
 	@DATALOADED bit = 0 output,
-	@DIRECTDEBITSCHEDULECODEID uniqueidentifier = null output,
-	@CREDITCARDSCHEDULECODEID uniqueidentifier = null output,
+	--@DIRECTDEBITSCHEDULECODEID uniqueidentifier = null output,
+	--@CREDITCARDSCHEDULECODEID uniqueidentifier = null output,
 	@DIRECTDEBITCODE nvarchar(100) = null output,
 	@CREDITCARDCODE nvarchar(100) = null output
 )
@@ -30,15 +30,20 @@ as
 	
 	-- be sure to set this, in case the select returns no rows
 	set @DATALOADED = 0;
+	declare @DIRECTDEBITSCHEDULECODEID uniqueidentifier = null
+	declare @CREDITCARDSCHEDULECODEID uniqueidentifier = null
 	
 	-- populate the output parameters, which correspond to fields on the form.  Note that
 	-- we set @DATALOADED = 1 to indicate that the load was successful.  Otherwise, the system
 	-- will display a "no data loaded" message.
 	select @DATALOADED = 1,
-		@DIRECTDEBITCODE = (select DESCRIPTION from dbo.USR_DIRECTDEBITSCHEDULECODE where ID = @DIRECTDEBITSCHEDULECODEID),
-		@CREDITCARDCODE = (select DESCRIPTION from dbo.USR_CREDITCARDSCHEDULECODE where ID = @CREDITCARDSCHEDULECODEID) 
+		@DIRECTDEBITSCHEDULECODEID = DIRECTDEBITSCHEDULECODEID,
+		@CREDITCARDSCHEDULECODEID = CREDITCARDSCHEDULECODEID
 	from dbo.USR_FINANCIALTRANSACTION_EXTENSION
 	where ID = @ID
+	
+	set @DIRECTDEBITCODE = (select DESCRIPTION from dbo.USR_DIRECTDEBITSCHEDULECODE where ID = @DIRECTDEBITSCHEDULECODEID)
+	set	@CREDITCARDCODE = (select DESCRIPTION from dbo.USR_CREDITCARDSCHEDULECODE where ID = @CREDITCARDSCHEDULECODEID) 
 	
 	return 0;
 			]]>
@@ -53,8 +58,8 @@ as
 		<common:FormFields>
 			<common:FormField FieldID="DIRECTDEBITCODE" Caption="Direct debit schedule" DataType="String" MaxLength="100" />
 			<common:FormField FieldID="CREDITCARDCODE" Caption="Credit card schedule" DataType="String" MaxLength="100" />
-			<common:FormField FieldID="DIRECTDEBITSCHEDULECODEID" Caption="direct debit" Hidden="true" />
-			<common:FormField FieldID="CREDITCARDSCHEDULECODEID" Caption="credit card" Hidden="true" />
+			<!--<common:FormField FieldID="DIRECTDEBITSCHEDULECODEID" Caption="direct debit" Hidden="true" />
+			<common:FormField FieldID="CREDITCARDSCHEDULECODEID" Caption="credit card" Hidden="true" />-->
 		</common:FormFields>
 	</common:FormMetaData>
 
