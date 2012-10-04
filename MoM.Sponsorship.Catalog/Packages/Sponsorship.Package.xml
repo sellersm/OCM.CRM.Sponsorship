@@ -44,7 +44,8 @@
 												USR_USP_SPONSORSHIP_CREATENEWPROJECTSPONSORSHIPINTERACTIONS
 	02-Oct-2012		Memphis			Adding these as they were missing:  USR_USP_FINANCIALTRANSACTION_EXTENSION_INSERTROW.xml
 												USR_USP_FINANCIALTRANSACTION_EXTENSION_UPDATEROW
-	-->
+	02-Oct-2012		CMayeda			Added Website.SponsorshipCheckoutSource.DataList.xml
+		-->
 
 	<!-- Note:  the order of the items listed here is important.  For example, you won't be able to load a data form that references 
 	a table that hasn't been loaded, etc.  In general, the following order is recommended:
@@ -167,7 +168,8 @@
 		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.TransferChildrenToSponsor.SimpleList.xml" />
 		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.SponsorshipProjectOpportunityMatchCustom.DataList.xml" />
 		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.ProjectsAvailableForSponsorship.SimpleList.xml" />
-		
+		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.Website.SponsorshipCheckoutSource.DataList.xml" />
+
 		<!-- Forms -->
 		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.SponsorshipAdd_Wrapped.Add.xml" />
 		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.SponsorshipOpportunityChild_MoMCustom.Search.xml" />
