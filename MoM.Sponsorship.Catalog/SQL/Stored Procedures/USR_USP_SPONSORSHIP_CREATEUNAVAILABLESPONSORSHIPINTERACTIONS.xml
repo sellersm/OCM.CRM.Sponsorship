@@ -56,7 +56,7 @@ begin
 	declare @interactionLetterTypeDesc_Contacted nvarchar(100) = 'Contacted'
 	declare @interactionLetterTypeDesc_NotContacted nvarchar(100) = 'Not Contacted'
 
-	declare @interactionFulfillmentStatus_Pending nvarchar(100) = 'Pending'
+	declare @interactionFulfillmentStatus_CallInProcess nvarchar(100) = 'Phone Call in Process'
 	
 	-- Interaction Category / Subcategory Names used in creating the interactions
 	declare @interactionCategoryDesc_SponsorWelcome nvarchar(100) = 'Sponsor Welcome'
@@ -64,14 +64,18 @@ begin
 	declare @interactionCategoryDesc_ChildLetter nvarchar(100) = 'Child Letters'				-- The category used for all child interactions
 
 
+	-- Sponsor interaction sub categories
 	declare @interactionSubcategoryDesc_UnavailableChildLetter nvarchar(100) = 'Unavailable Child Letter'
 	declare @interactionSubcategoryDesc_UnavailableChildLetterAndPacket nvarchar(100) = 'Unavailable Child Letter & Packet'
 	declare @interactionSubcategoryDesc_ProspectUnavailableChildLetter nvarchar(100) = 'Prospect Unavailable Child Letter'
 	declare @interactionSubcategoryDesc_ProspectUnavailableChildLetterAndPacket nvarchar(100) = 'Prospect Unavailable Child Letter & Packet'
 	declare @interactionSubcategoryDesc_WelcomeGreeting nvarchar(100) = 'Welcome Greeting'
 	declare @interactionSubcategoryDesc_WelcomePacketAndProfileCorrespondingSponsor nvarchar(100) = 'Welcome Packet & Profile - Corresponding Sponsor'
-	declare @interactionSubcategoryDesc_ProspectThankYou nvarchar(100) = 'Prospect Thank You'
-
+	declare @interactionSubcategoryDesc_ProspectThankYou nvarchar(100) = 'Prospect Thank You'	
+	declare @interactionSubcategoryDesc_ProspectThankYou nvarchar(100) = 'Prospect Thank You'	
+	declare @interactionSubcategoryDesc_UnavailableChildNotification nvarchar(100) = 'Unavailable Child Notification'	
+	
+	-- Child interaction sub categories
 	declare @interactionSubcategoryDesc_ChildWelcomeLetter nvarchar(100) = 'Child Welcome Letter'
 
 
@@ -264,8 +268,7 @@ begin
 				@contactMethodDesc = @contactMethodDesc_Mail,
 				@comment = '',						
 				@letterTypeDesc = @welcomeMailLetterTypeDesc,
-				@fulfillmentStatusDesc = @interactionFulfillmentStatus_Pending  
-, 
+				@fulfillmentStatusDesc = @interactionFulfillmentStatus_CallInProcess, 
 				@eftBrochureCode = @eftBrochureCode,
 				@resendCode = 0,
 				@changeAgentID = @changeAgentID				
@@ -461,14 +464,14 @@ begin
 			@id = @interactionID output,
 			@constituentID = @correspondentID,
 			@summary = @interactionSummary,
-			@categoryName = @interactionCategoryDesc_SponsorWelcome,
+			@categoryName = @welcomeMailCategoryDesc,
 			@subcategoryName = @interactionSubcategoryDesc_WelcomePacketAndProfileCorrespondingSponsor,
 			@expectedDate = @currentDate,
 			@owner = null,						
 			@contactMethodDesc = @contactMethodDesc_Mail,
 			@comment = '',						
 			@letterTypeDesc = '',
-			@fulfillmentStatusDesc = @interactionFulfillmentStatus_Pending, 
+			@fulfillmentStatusDesc = @interactionFulfillmentStatus_CallInProcess, 
 			@eftBrochureCode = 0,
 			@resendCode = 0,
 			@changeAgentID = @changeAgentID				

@@ -1,0 +1,87 @@
+﻿<DataListSpec 
+	xmlns="bb_appfx_datalist"
+	xmlns:common="bb_appfx_commontypes" 
+	ID="37fe2ce9-1889-49b9-86fe-75cbd3af0af1" 
+	Name="Website Sponsorship Checkout Source Data List"
+	Description="Used to populate the source drop down on the sponsorship checkout page" 
+	Author="Cary Mayeda"
+	common:SecurityUIFolder="Website">
+
+	<!-- 
+	Remarks:    The @CONTEXT ID isn't currently used.  CRM apparently requires a non-empty string to be passed in, so "test" or any string can be used.
+				@CONTEXT ID may later determine what set of Sources should be displayed
+
+	History:
+	Date            Modified By     Comments
+	01-Oct-2012		CMayeda			Initial Version
+	-->
+
+	<!-- define the SP that returns the data for the datalist -->
+	<SPDataList SPName="USP_DATALIST_WEBSITESPONSORSHIPCHECKOUTSOURCE">
+		<common:CreateProcedureSQL>
+			<![CDATA[
+create procedure dbo.USP_DATALIST_WEBSITESPONSORSHIPCHECKOUTSOURCE (@CONTEXTID nvarchar(100))
+as begin
+	-- CONTEXTID is not currently used.
+	
+	set nocount on;
+
+	declare @sources table (
+		SORTORDER tinyint,
+		APPEALID uniqueidentifier,
+		SOURCEDESC nvarchar(50),
+		HASADDITIONALINFORMATION bit,
+		ADDITIONALINFORMATIONCAPTION nvarchar(100)
+	)
+
+	insert @sources
+	values
+	(1, null, 'Appeal Code', 1, 'Enter the Appeal Code'),
+	(3, null, 'Concert/Artist', 1, 'Enter the Concert/Artist'),
+	(4, null, 'Facebook', 0, ''),
+	(5, null, 'Friend', 0, ''),
+	(6, null, 'Internet', 0, ''),
+	(7, null, 'Ministry Representative', 1, 'Enter the Representative'),
+	(8, null, 'Radio', 1, 'Enter the Radio Call Letters'),
+	(9, null, 'Other ', 1, 'Enter How You Heard About MoM')
+
+	insert @sources
+	select 2, ID, 'Children''s Cup', 0, '' from dbo.APPEAL where lower(NAME) = lower ('Ben Rodgers')
+
+	select	SORTORDER,
+			APPEALID,
+			SOURCEDESC,
+			HASADDITIONALINFORMATION,
+			ADDITIONALINFORMATIONCAPTION 
+	  from	@sources 
+	  order by SORTORDER
+end	
+
+]]>
+		</common:CreateProcedureSQL>
+	</SPDataList>
+
+	<!-- describe the context ID parameter for the SP (if applicable) -->
+	<Context ContextRecordType="NOTUSED" RecordIDParameter="CONTEXTID"/>
+
+	<!-- describe any parameters (other than the context ID) defined on the SP
+	<Parameters>
+		<common:FormMetaData>
+			<common:FormFields>
+				<common:FormField FieldID="PARAMETER1" Caption="Paramter1" DataType="REPLACE_WITH_DATATYPE"/>
+			</common:FormFields>
+		</common:FormMetaData>
+	</Parameters>-->
+
+	<!-- define the output fields in the list -->
+	<Output>
+		<OutputFields>
+			<OutputField FieldID="SORTORDER" Caption="Sort order" DataType="TinyInt" />
+			<OutputField FieldID="APPEALID" Caption="Appeal ID" DataType="Guid" />
+			<OutputField FieldID="SOURCEDESC" Caption="Source Description" DataType="String" />
+			<OutputField FieldID="HASADDITIONALINFORMATION" Caption="Has additional info" DataType="Boolean" />
+			<OutputField FieldID="ADDITIONALINFORMATIONCAPTION" Caption="Additional info caption" DataType="String" />
+		</OutputFields>
+	</Output>
+
+</DataListSpec>

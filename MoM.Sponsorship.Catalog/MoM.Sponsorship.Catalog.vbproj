@@ -246,6 +246,9 @@
     <EmbeddedResource Include="Tables\Code Tables\DirectDebitSchedule.CodeTable.xml" />
     <EmbeddedResource Include="Tables\Code Tables\CreditCardSchedule.CodeTable.xml" />
   </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="DataLists\Website.SponsorshipCheckoutSource.DataList.xml" />
+  </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.VisualBasic.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
