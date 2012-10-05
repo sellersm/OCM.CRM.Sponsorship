@@ -46,6 +46,7 @@
 												USR_USP_FINANCIALTRANSACTION_EXTENSION_UPDATEROW
 	02-Oct-2012		CMayeda			Added Website.SponsorshipCheckoutSource.DataList.xml
 	05-Oct-2012		Memphis			Added USR_USP_HANDLE_SPONSORSHIP_ADD_PARTNERSHIP.xml
+	05-Oct-2012		CMayeda			Added USR_UFN_SPONSORSHIP_GETCURRENTOPPORTUNITYSTATUSCODEID.xml
 		-->
 
 	<!-- Note:  the order of the items listed here is important.  For example, you won't be able to load a data form that references 
@@ -153,6 +154,7 @@
 		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.USR_USP_FINANCIALTRANSACTION_EXTENSION_INSERTROW.xml" />
 		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.USR_USP_FINANCIALTRANSACTION_EXTENSION_UPDATEROW.xml" />
 		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.USR_USP_HANDLE_SPONSORSHIP_ADD_PARTNERSHIP.xml" />
+		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.USR_UFN_SPONSORSHIP_GETCURRENTOPPORTUNITYSTATUSCODEID.xml" />
 
 		<!-- Record Operations-->
 		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.DeleteChildSelectedForSponsorshipLock.RecordOperation.xml" />
