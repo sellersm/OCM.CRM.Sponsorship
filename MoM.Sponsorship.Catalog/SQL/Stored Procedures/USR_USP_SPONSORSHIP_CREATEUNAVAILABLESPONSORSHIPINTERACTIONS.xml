@@ -72,7 +72,7 @@ begin
 	declare @interactionSubcategoryDesc_WelcomeGreeting nvarchar(100) = 'Welcome Greeting'
 	declare @interactionSubcategoryDesc_WelcomePacketAndProfileCorrespondingSponsor nvarchar(100) = 'Welcome Packet & Profile - Corresponding Sponsor'
 	declare @interactionSubcategoryDesc_ProspectThankYou nvarchar(100) = 'Prospect Thank You'	
-	declare @interactionSubcategoryDesc_ProspectThankYou nvarchar(100) = 'Prospect Thank You'	
+	--** why was this like this? declare @interactionSubcategoryDesc_ProspectThankYou nvarchar(100) = 'Prospect Thank You'	
 	declare @interactionSubcategoryDesc_UnavailableChildNotification nvarchar(100) = 'Unavailable Child Notification'	
 	
 	-- Child interaction sub categories
