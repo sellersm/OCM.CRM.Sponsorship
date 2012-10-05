@@ -12,7 +12,8 @@
 		<![CDATA[
 create procedure dbo.USR_USP_HANDLE_SPONSORSHIP_CANCELLATION (
 	@CONSTITUENTID uniqueidentifier,
-	@SPONSORSHIPID uniqueidentifier
+	@SPONSORSHIPID uniqueidentifier,
+	@CHANGEAGENTID uniqueidentifier
 )
 as
 begin
@@ -38,6 +39,17 @@ begin
 		set CURRENTOPPORTUNITYSPONSORSHIPSTATUSCODEID = @STATUSCODEID
 		where ID = @SPONSORSHIPID
 	end
+
+	-- FogBugz Case 878: need to check eligibility after cancellation:
+	declare @sponsorshipOpportunityChildID uniqueidentifier;
+	select @sponsorshipOpportunityChildID = SPONSORSHIPOPPORTUNITYID
+	from dbo.SPONSORSHIP
+	where ID = @SPONSORSHIPID
+	
+	exec dbo.USR_USP_CHILD_SETELIGIBLEORPENDING
+		@sponsorshipOpportunityChildID = @sponsorshipOpportunityChildID,		-- Specify a Sponsorship Opportunity ID (same as the child's ID) if the sproc should only process a single child
+		@includeIneligibleInUpdate = 0,				-- Whether to include Ineligible children in updates.  0 = Do not include Ineligible children, 1 = Include Ineligible children
+		@CHANGEAGENTID = @CHANGEAGENTID
 
 end
 

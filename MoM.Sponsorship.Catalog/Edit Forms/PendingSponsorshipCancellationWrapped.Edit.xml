@@ -141,11 +141,24 @@ exec dbo.USR_USP_SPONSORSHIP_CREATESPONSORSHIPCANCELLATIONINTERACTIONS
          @interactionTypeCodeID = @INTERACTIONTYPECODEID,     -- The ID of the Interaction Type that the user selected (Cancellation Letter, Departure Cancellation Letter, ...)
          @changeAgentID = @CHANGEAGENTID		              -- Used to specify change agent for CHANGEDBYID and ADDEDBYID fields.  USP_CHANGEAGENT_GETORCREATECHANGEAGENT is called if it's null
 
+-- get the financial sponsor for this sponsorship
+set @CONSTITUENTID = dbo.USR_UFN_SPONSORSHIP_GETFINANCIALSPONSOR (@ID)
+
+if @CONSTITUENTID is null
+	RAISERROR 1000000 'Unable to locate Financial Sponsor for this Sponsorship.'
+
 -- call the sproc that does all the work related to 'extra' things like constituencycodes and sponsorship extension:
 exec dbo.USR_USP_HANDLE_SPONSORSHIP_CANCELLATION
 	@CONSTITUENTID = @CONSTITUENTID,
 	@SPONSORSHIPID = @ID
-  
+
+-- call the sproc that does all the work related to 'extra' things like constituencycodes and sponsorship extension:
+exec dbo.USR_USP_HANDLE_SPONSORSHIP_CANCELLATION
+	@CONSTITUENTID = @CONSTITUENTID,
+	@SPONSORSHIPID = @ID,
+	@CHANGEAGENTID = @CHANGEAGENTID
+
+
 
 if @@error <> 0 
 	begin
