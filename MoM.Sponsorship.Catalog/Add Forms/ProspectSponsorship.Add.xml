@@ -231,6 +231,13 @@ begin try
 	-- do the Partnership for Mercy setup if the user picked one:
 	if @PFMID is not null
 	begin
+		-- call the sproc to manage the partnership stuff:
+		exec dbo.USR_USP_HANDLE_SPONSORSHIP_ADD_PARTNERSHIP 
+			@PFMID = @PFMID,
+			@CONSTITUENTID = @CONSTITUENTID,
+			@CHANGEAGENTID = @CHANGEAGENTID
+		
+		/*	
 		--declare  @CONSTITUENTID uniqueidentifier
 		declare  @RELATIONSHIPSTARTDATE datetime
 		declare  @COMMENTS nvarchar(256) = ''
@@ -332,6 +339,7 @@ begin try
 				  ,@DATEFROM
 				  ,@DATETO			  
 		end
+		*/
 		
 	end  -- @PFMID is not null
 
