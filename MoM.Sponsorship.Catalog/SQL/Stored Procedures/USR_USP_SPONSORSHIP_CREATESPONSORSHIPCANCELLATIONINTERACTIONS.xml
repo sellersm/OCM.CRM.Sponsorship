@@ -16,6 +16,7 @@
 	History:
 	Date            Modified By     Comments
 	29-Sep-2012		CMayeda			Initial Version
+	05-Oct-2012		CMayeda			Added call to cancel child letter interactions - FogBugz Case 879
 	-->
 	<CreateProcedureSQL>
 		<![CDATA[
@@ -142,7 +143,16 @@ begin
 												when @interactionTypeCodeID = @interactionTypeCodeID_SympathyAndCancellationLetter then @interactionSubcategoryID_SympathyAndCancellationLetter
 											 end
 	
-											
+
+	exec USR_USP_INTERACTION_CHILD_CANCELPENDINGLETTERS 
+		@sponsorshipOpportunityChildID = @childID,
+		@comment = 'Child sponsorship has been cancelled'	
+		
+	--***  ADD USR_USP_INTERACTION_SPONSOR_CANCELPENDINGCHILDINTERACTIONS HERE ***
+		
+		
+		
+
 	declare @financialSponsorID uniqueidentifier = null
 	set @financialSponsorID = dbo.USR_UFN_SPONSORSHIP_GETFINANCIALSPONSOR (@sponsorshipID)
 
