@@ -11,12 +11,14 @@
 	Remarks:    This currently only takes one child as a parm.  In the future we will incorporate a multiselect
 				Because it only takes in a single child, it needs to look for pending interactions with the same subcategory for the sponsor and add 
 				the child to that interaction.
-				If the @interactionTypeCodeID passed in is null, no interaction is created.
+				
+				If the @interactionTypeCodeID passed in is null, an exception is thrown.
 
 	History:
 	Date            Modified By     Comments
 	29-Sep-2012		CMayeda			Initial Version
-	05-Oct-2012		CMayeda			Added call to cancel child letter interactions - FogBugz Case 879
+	05-Oct-2012		CMayeda			Added call to cancel pending child letter interactions - FogBugz Case 879
+	07-Oct-2012		CMayeda			Added call to cancel pending sponsor interactions - FogBugz Case 880
 	-->
 	<CreateProcedureSQL>
 		<![CDATA[
@@ -33,8 +35,7 @@ as
 begin
 	set nocount on 
 	
-	if @interactionTypeCodeID is null
-		RETURN 0
+
 		
 	if @changeAgentID is null  
 		exec dbo.USP_CHANGEAGENT_GETORCREATECHANGEAGENT @changeAgentID output
@@ -91,6 +92,9 @@ begin
 
 
 	begin try
+		if @interactionTypeCodeID is null
+			raiserror 100000 'InteractionTypeCodeID cannot be null'
+			
 		select @interactionTypeCodeID_CancellationLetter = ID from dbo.USR_SPONSORSHIPCANCELLATIONINTERACTIONTYPECODE where lower (DESCRIPTION) = lower (@interactionTypeCodeDesc_CancellationLetter)
 		if @interactionTypeCodeID_CancellationLetter is null
 			raiserror 100000 @interactionTypeCodeErrorMsg_CancellationLetter
@@ -144,13 +148,19 @@ begin
 											 end
 	
 
+	-- Cancel pending child interactions for this sponsorship 
 	exec USR_USP_INTERACTION_CHILD_CANCELPENDINGLETTERS 
 		@sponsorshipOpportunityChildID = @childID,
-		@comment = 'Child sponsorship has been cancelled'	
+		@comment = 'Child sponsorship has been cancelled', 
+		@changeAgentID = @changeAgentID
 		
-	--***  ADD USR_USP_INTERACTION_SPONSOR_CANCELPENDINGCHILDINTERACTIONS HERE ***
-		
-		
+	-- Cancel pending interactions (or remove from multiple children interactions) on the sponsor (both financial and correspondent) for this child
+	exec dbo.USR_USP_INTERACTION_SPONSOR_CANCELPENDINGCHILDINTERACTIONS 
+		@sponsorshipID = @sponsorshipID,
+		@sponsorshipOpportunityChildID = @childID,
+		@cancelComment = 'Child sponsorship has been cancelled',
+		@removeChildComment = 'was removed due to sponsorship cancellation',
+		@changeAgentID = @changeAgentID
 		
 
 	declare @financialSponsorID uniqueidentifier = null
