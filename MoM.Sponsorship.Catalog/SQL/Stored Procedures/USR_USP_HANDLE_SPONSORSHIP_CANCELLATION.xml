@@ -8,6 +8,16 @@
 	SPName="USR_USP_HANDLE_SPONSORSHIP_CANCELLATION"
 	>
 
+	<!-- 
+	Remarks:    This sproc is used by the cancel sponsorship form to do all the work necessary for sponsorship cancellation.
+
+	History:
+	Date            Modified By     Comments
+	01-Oct-2012		Memphis			Initial Version - just a copy of USR_USP_SPONSORSHIP_CREATENEWSPONSORSHIPINTERACTIONS for Mark to use in Add Prospect Sponsorship form
+	08-Oct-2012		Memphis			FogBugz Case 878 changes: added the call to USR_USP_CHILD_CHECKELIGIBILITY
+
+	-->
+	
 	<CreateProcedureSQL>
 		<![CDATA[
 create procedure dbo.USR_USP_HANDLE_SPONSORSHIP_CANCELLATION (
@@ -45,6 +55,13 @@ begin
 	select @sponsorshipOpportunityChildID = SPONSORSHIPOPPORTUNITYID
 	from dbo.SPONSORSHIP
 	where ID = @SPONSORSHIPID
+
+	--FogBugz Case 878: A call to the following sproc needs to be made before calling USR_USP_CHILD_SETELIGIBLEORPENDING.
+
+	exec dbo.USR_USP_CHILD_CHECKELIGIBILITY
+		@sponsorshipOpportunityChildID = @sponsorshipOpportunityChildID ,    -- Sponsorship Opportunity Child ID (same as Sponsorship Opportunity ID) to check eligibility
+		@changeAgentID = @CHANGEAGENTID										 -- The ChangeAgentID to be used for AddedBy and ModifiedBy fields
+	
 	
 	exec dbo.USR_USP_CHILD_SETELIGIBLEORPENDING
 		@sponsorshipOpportunityChildID = @sponsorshipOpportunityChildID,		-- Specify a Sponsorship Opportunity ID (same as the child's ID) if the sproc should only process a single child

@@ -150,11 +150,6 @@ if @CONSTITUENTID is null
 -- call the sproc that does all the work related to 'extra' things like constituencycodes and sponsorship extension:
 exec dbo.USR_USP_HANDLE_SPONSORSHIP_CANCELLATION
 	@CONSTITUENTID = @CONSTITUENTID,
-	@SPONSORSHIPID = @ID
-
--- call the sproc that does all the work related to 'extra' things like constituencycodes and sponsorship extension:
-exec dbo.USR_USP_HANDLE_SPONSORSHIP_CANCELLATION
-	@CONSTITUENTID = @CONSTITUENTID,
 	@SPONSORSHIPID = @ID,
 	@CHANGEAGENTID = @CHANGEAGENTID
 
