@@ -47,6 +47,7 @@
 	02-Oct-2012		CMayeda			Added Website.SponsorshipCheckoutSource.DataList.xml
 	05-Oct-2012		Memphis			Added USR_USP_HANDLE_SPONSORSHIP_ADD_PARTNERSHIP.xml
 	05-Oct-2012		CMayeda			Added USR_UFN_SPONSORSHIP_GETCURRENTOPPORTUNITYSTATUSCODEID.xml
+	05-Oct-2012		CMayeda			USR_USP_SPONSORSHIP_CREATECOMPLETETRANSFERINTERACTIONS.xml, Sponsorship.CompleteTransfer.Edit.xml, Sponsorship.CompleteTransferInteraction.CodeTable.xml
 		-->
 
 	<!-- Note:  the order of the items listed here is important.  For example, you won't be able to load a data form that references 
@@ -104,7 +105,8 @@
 		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.DirectDebitSchedule.CodeTable.xml" />
 		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.PaidProjectSponsorshipInteractionType.CodeTable.xml" />
 		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.ProspectProjectSponsorshipInteractionType.CodeTable.xml" />
-
+		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.Sponsorship.CompleteTransferInteraction.CodeTable.xml" />
+		
 		<!-- Tables -->
 		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.USR_CHILD_SELECTED_FOR_SPONSORSHIP_LOCK.Table.xml" />
 		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.SponsorshipLocationExtension.Table.xml" />
@@ -155,7 +157,8 @@
 		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.USR_USP_FINANCIALTRANSACTION_EXTENSION_UPDATEROW.xml" />
 		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.USR_USP_HANDLE_SPONSORSHIP_ADD_PARTNERSHIP.xml" />
 		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.USR_UFN_SPONSORSHIP_GETCURRENTOPPORTUNITYSTATUSCODEID.xml" />
-
+		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.USR_USP_SPONSORSHIP_CREATECOMPLETETRANSFERINTERACTIONS.xml" />
+		
 		<!-- Record Operations-->
 		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.DeleteChildSelectedForSponsorshipLock.RecordOperation.xml" />
 		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.LockSelectedChild.RecordOperation.xml" />
@@ -188,7 +191,8 @@
 		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.ActiveSponsorshipCancellationWrapped.Edit.xml" />
 		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.PendingSponsorshipCancellationWrapped.Edit.xml" />
 		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.ProjectSponsorship.Add.xml" />
-
+		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.Sponsorship.CompleteTransfer.Edit.xml" />
+		
 		<!-- Tasks -->
 		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.SponsorshipAdd_Wrapped.Task.xml" />
 		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.AddProspectSponsorship.Task.xml" />

@@ -255,6 +255,16 @@
   <ItemGroup>
     <EmbeddedResource Include="SQL\User Functions\USR_UFN_SPONSORSHIP_GETCURRENTOPPORTUNITYSTATUSCODEID.xml" />
   </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Edit Forms\Sponsorship.CompletePendingTransfer.Edit.xml" />
+    <EmbeddedResource Include="Edit Forms\Sponsorship.CompleteTransfer.Edit.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="SQL\Stored Procedures\USR_USP_SPONSORSHIP_CREATECOMPLETETRANSFERINTERACTIONS.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Tables\Code Tables\Sponsorship.CompleteTransferInteraction.CodeTable.xml" />
+  </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.VisualBasic.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
