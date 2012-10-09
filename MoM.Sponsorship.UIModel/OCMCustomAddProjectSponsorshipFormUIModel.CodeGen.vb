@@ -1034,6 +1034,10 @@ Partial Public Class [OCMCustomAddProjectSponsorshipFormUIModel]
 		'
 		_tabexpiration.Name = "TAB_EXPIRATION"
 		_tabexpiration.Caption = "Expiration"
+
+		'10/8/12 Memphis FogBugz Case 876:
+		_tabexpiration.Visible = False
+
 		Me.Fields.Add(_tabexpiration)
 		'
 		'_findopportunity

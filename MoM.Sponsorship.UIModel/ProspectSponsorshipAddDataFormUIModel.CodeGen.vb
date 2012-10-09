@@ -957,7 +957,11 @@ Partial Public Class [ProspectSponsorshipAddDataFormUIModel]
         '_tabexpiration
         '
         _tabexpiration.Name = "TAB_EXPIRATION"
-        _tabexpiration.Caption = "Expiration"
+		_tabexpiration.Caption = "Expiration"
+
+		'10/8/12 Memphis FogBugz Case 876:
+		_tabexpiration.Visible = False
+
         Me.Fields.Add(_tabexpiration)
         '
         '_findopportunity
