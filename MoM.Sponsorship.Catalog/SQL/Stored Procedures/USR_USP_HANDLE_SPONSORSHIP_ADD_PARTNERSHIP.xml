@@ -18,6 +18,7 @@
 	History:
 	Date            Modified By     Comments
 	04-Oct-2012		Memphis			Initial Version
+	08-Oct-2012		Memphis			FogBugz Case 813:  fix to add the correct partner code of "Church Partnership"
 	-->	
 
 	<CreateProcedureSQL>
@@ -193,14 +194,16 @@ begin
 			
 	-- check now for the given constituency code for the given constituent
 	declare @ISPARTNER bit = 0;
-		
+	declare @churchConstituencyCodeId uniqueidentifier = null;
+	
+	
 	select @ISPARTNER = dbo.USR_UFN_CONSTITUENT_HAS_CONSTITUENCYCODE (@CONSTITUENTID, @CONSTITUENCYCODEID)
 	
 	if @ISPARTNER = 0
 	begin
 		--check for the church member code:
-		select @CONSTITUENCYCODEID = dbo.USR_UFN_CONSTITUENT_GETID_FORCODE ('Church')
-		select @ISPARTNER = dbo.USR_UFN_CONSTITUENT_HAS_CONSTITUENCYCODE (@CONSTITUENTID, @CONSTITUENCYCODEID)
+		select @churchConstituencyCodeId = dbo.USR_UFN_CONSTITUENT_GETID_FORCODE ('Church')
+		select @ISPARTNER = dbo.USR_UFN_CONSTITUENT_HAS_CONSTITUENCYCODE (@CONSTITUENTID, @churchConstituencyCodeId)
 	end
 	
 	-- 0 means it isn't present, 1 means it was found:
