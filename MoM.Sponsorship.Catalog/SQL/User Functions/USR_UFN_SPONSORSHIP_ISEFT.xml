@@ -1,0 +1,51 @@
+﻿<SQLFunctionSpec
+	xmlns="bb_appfx_sqlfunction"
+	xmlns:common="bb_appfx_commontypes" 
+	ID="59c820d6-3b2e-4b3e-93f1-040e7ac47a07"
+	Name="USR_UFN_SPONSORSHIP_ISEFT"
+	Description="Is the recurring gift for a particular sponsorship paid through EFT (credit card or direct debit)"
+	Author="Cary Mayeda"
+	DBFunctionName="USR_UFN_SPONSORSHIP_ISEFT" >
+	
+	<!-- 
+	Remarks:    Returns 1 if the Recurring Gift associated with the sponsorship passed in @sponsorshipID is being paid through credit card or direct debit.
+				Otherwise it returns 0
+				
+				Note: This returns 0 if the sponsorshipid is null or not found 
+
+	History:
+	Date            Modified By     Comments
+	03-Sep-2012		CMayeda			Initial Version
+	-->
+
+	<CreateFunctionSQL>
+		<![CDATA[
+create function dbo.USR_UFN_SPONSORSHIP_ISEFT (
+	@sponsorshipID uniqueidentifier = null
+)
+returns bit
+with execute as caller
+as begin
+
+	declare @isEFT bit = null
+	if @sponsorshipID is null
+		set @isEFT = 0
+	else
+		if exists ( select	trans.ID
+					  from	dbo.FINANCIALTRANSACTION trans
+					  join	dbo.REVENUEPAYMENTMETHOD paymethod on trans.ID = paymethod.REVENUEID
+					  join	dbo.REVENUESPLIT revsplit on trans.ID = revsplit.REVENUEID
+					  join	dbo.SPONSORSHIP on SPONSORSHIP.REVENUESPLITID = revsplit.ID
+					 where	SPONSORSHIP.ID = @sponsorshipID
+					   and	paymethod.PAYMENTMETHODCODE in (2,3) -- Credit Card, Direct Debit
+					   and	trans.TYPECODE = 2) -- recurring gift
+			set @isEFT = 1
+		else
+			set @isEFT = 0
+	
+	return @isEFT 
+end
+		]]>
+	</CreateFunctionSQL>
+
+</SQLFunctionSpec>

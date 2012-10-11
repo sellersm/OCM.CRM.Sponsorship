@@ -1,0 +1,50 @@
+﻿<SQLFunctionSpec
+	xmlns="bb_appfx_sqlfunction"
+	xmlns:common="bb_appfx_commontypes" 
+	ID="dfc7a7e7-edd9-41b3-9f7f-1c168c7cf9a8"
+	Name="USR_UFN_SPONSORSHIP_GETCORRESPONDENT"
+	Description="Get the correspondent on a sponsorship (gifted sponsorship recipient)"
+	Author="Cary Mayeda"
+	DBFunctionName="USR_UFN_SPONSORSHIP_GETCORRESPONDENT" >
+	
+	<!-- 
+	Remarks:    Gets the correspondent if it is a gifted sponsorship.
+				In other words, if the person writing to the child is different than the person paying for the sponsorship
+
+	History:
+	Date            Modified By     Comments
+	21-Aug-2012		CMayeda			Initial Version
+
+	-->
+
+
+	<CreateFunctionSQL>
+		<![CDATA[
+create function dbo.USR_UFN_SPONSORSHIP_GETCORRESPONDENT(
+
+	@sponsorshipID uniqueidentifier = null
+)
+returns uniqueidentifier
+with execute as caller
+as begin
+
+	declare @correspondent uniqueidentifier = null
+	
+	if @sponsorshipID is not null
+		select	@correspondent = case 
+									when SPONSORSHIP.CONSTITUENTID = REVENUE.CONSTITUENTID or REVENUE.ID is null  then null
+									else SPONSORSHIP.CONSTITUENTID 
+								end
+		  from	dbo.SPONSORSHIP
+	 left join	dbo.REVENUESPLIT on REVENUESPLIT.ID = SPONSORSHIP.REVENUESPLITID
+	 left join	dbo.REVENUE on REVENUE.ID = REVENUESPLIT.REVENUEID
+	
+		 where SPONSORSHIP.ID = @sponsorshipID
+
+
+	return @correspondent 
+end
+		]]>
+</CreateFunctionSQL>
+
+</SQLFunctionSpec>

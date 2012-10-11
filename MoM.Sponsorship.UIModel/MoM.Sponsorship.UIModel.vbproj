@@ -1,0 +1,243 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="4.0">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>9.0.30729</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{76A2384F-A332-43B0-9722-46B0CCC5DF65}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <RootNamespace>MoM.Sponsorship.UIModel</RootNamespace>
+    <AssemblyName>MoM.Sponsorship.UIModel</AssemblyName>
+    <MyType>Windows</MyType>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <OptionInfer>On</OptionInfer>
+    <OptionStrict>Off</OptionStrict>
+    <OldToolsVersion>2.0</OldToolsVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <DefineDebug>true</DefineDebug>
+    <DefineTrace>true</DefineTrace>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DocumentationFile>
+    </DocumentationFile>
+    <NoWarn>41999,42016,42017,42018,42019,42020,42021,42022,42032,42036,42353,42354,42355</NoWarn>
+    <RunCodeAnalysis>false</RunCodeAnalysis>
+    <CodeAnalysisRules>
+    </CodeAnalysisRules>
+    <CodeAnalysisRuleSet>SecurityRules.ruleset</CodeAnalysisRuleSet>
+    <WarningsAsErrors>
+    </WarningsAsErrors>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <DefineDebug>false</DefineDebug>
+    <DefineTrace>true</DefineTrace>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DocumentationFile>
+    </DocumentationFile>
+    <NoWarn>41999,42016,42017,42018,42019,42020,42021,42022,42032,42036,42353,42354,42355</NoWarn>
+    <RunCodeAnalysis>true</RunCodeAnalysis>
+    <CodeAnalysisRules>
+    </CodeAnalysisRules>
+    <CodeAnalysisRuleSet>UIModel.ruleset</CodeAnalysisRuleSet>
+    <WarningsAsErrors>
+    </WarningsAsErrors>
+  </PropertyGroup>
+  <PropertyGroup>
+    <OptionExplicit>On</OptionExplicit>
+  </PropertyGroup>
+  <PropertyGroup>
+    <OptionCompare>Binary</OptionCompare>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Blackbaud.AppFx, Version=2.93.2034.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\..\References\Third Party\2.93\Blackbaud.AppFx.dll</HintPath>
+      <SpecificVersion>False</SpecificVersion>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Blackbaud.AppFx.Fundraising.UIModel, Version=2.93.2034.13, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\References\Third Party\2.93\Blackbaud.AppFx.Fundraising.UIModel.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Blackbaud.AppFx.Server, Version=2.93.2034.13, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\References\Third Party\2.93\Blackbaud.AppFx.Server.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Blackbaud.AppFx.Sponsorship.UIModel, Version=2.93.2034.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\..\References\Third Party\2.93\Blackbaud.AppFx.Sponsorship.UIModel.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Blackbaud.AppFx.UIModeling.Core, Version=2.93.2034.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\..\References\Third Party\2.93\Blackbaud.AppFx.UIModeling.Core.dll</HintPath>
+      <SpecificVersion>False</SpecificVersion>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Blackbaud.AppFx.XmlTypes, Version=2.93.2034.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\..\References\Third Party\2.93\Blackbaud.AppFx.XmlTypes.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Blackbaud.AppFx.XmlTypes.XmlSerializers, Version=2.93.2034.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\..\References\Third Party\2.93\Blackbaud.AppFx.XmlTypes.XmlSerializers.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="MoM.Common">
+      <HintPath>..\..\..\References\MoM\MoM.Common.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core">
+      <RequiredTargetFramework>3.5</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Import Include="Blackbaud.AppFx.UIModeling.Core" />
+    <Import Include="Blackbaud.AppFx" />
+    <Import Include="Microsoft.VisualBasic" />
+    <Import Include="System" />
+    <Import Include="System.Collections" />
+    <Import Include="System.Collections.Generic" />
+    <Import Include="System.ComponentModel" />
+    <Import Include="System.Data" />
+    <Import Include="System.Diagnostics" />
+    <Import Include="System.Linq" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="AddIns\ProjectSponsorship.AddIn.CodeGen.vb">
+      <SubType>Code</SubType>
+      <DependentUpon>ProjectSponsorship.AddIn.vb</DependentUpon>
+    </Compile>
+    <Compile Include="AddIns\ProjectSponsorship.AddIn.vb" />
+    <Compile Include="AddIns\ProspectSponsorship.AddIn.CodeGen.vb">
+      <SubType>Code</SubType>
+      <DependentUpon>ProspectSponsorship.AddIn.vb</DependentUpon>
+    </Compile>
+    <Compile Include="AddIns\ProspectSponsorship.AddIn.vb" />
+    <Compile Include="AddIns\Sponsorship.AddSponsorshipFields.vb" />
+    <Compile Include="AddIns\Sponsorship.AddSponsorshipHelper.vb" />
+    <Compile Include="AddIns\Sponsorship.SponsorshipAddFormWrapped.AddIn.CodeGen.vb">
+      <SubType>Code</SubType>
+      <DependentUpon>Sponsorship.SponsorshipAddFormWrapped.AddIn.vb</DependentUpon>
+    </Compile>
+    <Compile Include="AddIns\Sponsorship.SponsorshipAddFormWrapped.AddIn.vb" />
+    <Compile Include="AddIns\UnavailableSponsorship.AddIn.CodeGen.vb">
+      <SubType>Code</SubType>
+      <DependentUpon>UnavailableSponsorship.AddIn.vb</DependentUpon>
+    </Compile>
+    <Compile Include="AddIns\UnavailableSponsorship.AddIn.vb" />
+    <Compile Include="Helpers\SponsorshipHelper.vb" />
+    <Compile Include="My Project\AssemblyInfo.vb" />
+    <Compile Include="OCMCustomAddProjectSponsorshipFormCHILDRENUIModel.CodeGen.vb" />
+    <Compile Include="OCMCustomAddProjectSponsorshipFormINSTALLMENTSUIModel.CodeGen.vb" />
+    <Compile Include="OCMCustomAddProjectSponsorshipFormUIModel.CodeGen.vb" />
+    <Compile Include="OCMCustomAddProjectSponsorshipFormUIModel.vb" />
+    <Compile Include="ProspectSponsorshipAddDataFormCHILDRENUIModel.CodeGen.vb">
+      <DependentUpon>ProspectSponsorshipAddDataFormUIModel.vb</DependentUpon>
+    </Compile>
+    <Compile Include="ProspectSponsorshipAddDataFormINSTALLMENTSUIModel.CodeGen.vb">
+      <DependentUpon>ProspectSponsorshipAddDataFormUIModel.vb</DependentUpon>
+    </Compile>
+    <Compile Include="ProspectSponsorshipAddDataFormUIModel.CodeGen.vb">
+      <DependentUpon>ProspectSponsorshipAddDataFormUIModel.vb</DependentUpon>
+    </Compile>
+    <Compile Include="ProspectSponsorshipAddDataFormUIModel.vb" />
+    <Compile Include="SponsorshipAddFormWrappedCHILDRENUIModel.CodeGen.vb">
+      <DependentUpon>SponsorshipAddFormWrappedUIModel.vb</DependentUpon>
+    </Compile>
+    <Compile Include="SponsorshipAddFormWrappedINSTALLMENTSUIModel.CodeGen.vb">
+      <DependentUpon>SponsorshipAddFormWrappedUIModel.vb</DependentUpon>
+    </Compile>
+    <Compile Include="SponsorshipAddFormWrappedUIModel.CodeGen.vb">
+      <DependentUpon>SponsorshipAddFormWrappedUIModel.vb</DependentUpon>
+    </Compile>
+    <Compile Include="SponsorshipAddFormWrappedUIModel.vb" />
+    <Compile Include="SponsorshipOpportunityChildMoMCustomSearchUIModel.CodeGen.vb">
+      <DependentUpon>SponsorshipOpportunityChildMoMCustomSearchUIModel.vb</DependentUpon>
+    </Compile>
+    <Compile Include="SponsorshipOpportunityChildMoMCustomSearchUIModel.vb" />
+    <Compile Include="SponsorshipUIModelVersionUIModel.CodeGen.vb">
+      <DependentUpon>SponsorshipUIModelVersionUIModel.vb</DependentUpon>
+    </Compile>
+    <Compile Include="SponsorshipUIModelVersionUIModel.vb" />
+    <Compile Include="UnavailableSubstitutionSponsorshipAddDataFormCHILDRENUIModel.CodeGen.vb">
+      <DependentUpon>UnavailableSubstitutionSponsorshipAddDataFormUIModel.vb</DependentUpon>
+    </Compile>
+    <Compile Include="UnavailableSubstitutionSponsorshipAddDataFormINSTALLMENTSUIModel.CodeGen.vb">
+      <DependentUpon>UnavailableSubstitutionSponsorshipAddDataFormUIModel.vb</DependentUpon>
+    </Compile>
+    <Compile Include="UnavailableSubstitutionSponsorshipAddDataFormUIModel.CodeGen.vb">
+      <DependentUpon>UnavailableSubstitutionSponsorshipAddDataFormUIModel.vb</DependentUpon>
+    </Compile>
+    <Compile Include="UnavailableSubstitutionSponsorshipAddDataFormUIModel.vb" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="htmlforms\mom.sponsorship\" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="UIModel.ruleset" />
+    <None Include="postbuild.bat" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\MoM.Sponsorship.Catalog\Add Forms\UnavailableSubstitutionSponsorship.Add.xml">
+      <Link>LinkedSpecs\UnavailableSubstitutionSponsorship.Add.xml</Link>
+    </None>
+    <EmbeddedResource Include="AddIns\Sponsorship.SponsorshipAddFormWrapped.AddIn.xml" />
+    <EmbeddedResource Include="AddIns\UnavailableSponsorship.AddIn.xml" />
+    <EmbeddedResource Include="AddIns\ProjectSponsorship.AddIn.xml" />
+    <EmbeddedResource Include="AddIns\ProspectSponsorship.AddIn.xml" />
+    <Content Include="htmlforms\OCMCustomAddProjectSponsorshipForm.html" />
+    <Content Include="htmlforms\UnavailableSubstitutionSponsorship.AddDataForm.html" />
+    <Content Include="OCMCustomAddProjectSponsorshipFormUIModel.xml" />
+    <EmbeddedResource Include="Packages\SponsorshipAddIns.Package.xml" />
+    <Content Include="UnavailableSubstitutionSponsorshipAddDataFormUIModel.xml">
+      <DependentUpon>UnavailableSubstitutionSponsorshipAddDataFormUIModel.vb</DependentUpon>
+    </Content>
+    <None Include="..\MoM.Sponsorship.Catalog\Add Forms\ProspectSponsorship.Add.xml">
+      <Link>LinkedSpecs\ProspectSponsorship.Add.xml</Link>
+    </None>
+    <Content Include="htmlforms\ProspectSponsorship.AddDataForm.html" />
+    <Content Include="ProspectSponsorshipAddDataFormUIModel.xml">
+      <DependentUpon>ProspectSponsorshipAddDataFormUIModel.vb</DependentUpon>
+    </Content>
+    <None Include="..\MoM.Sponsorship.Catalog\View Forms\MoM.Sponsorship.UIModelVersion.View.xml">
+      <Link>LinkedSpecs\MoM.Sponsorship.UIModelVersion.View.xml</Link>
+    </None>
+    <Content Include="htmlforms\Sponsorship.UIModelVersion.ViewForm.html" />
+    <Content Include="SponsorshipUIModelVersionUIModel.xml">
+      <DependentUpon>SponsorshipUIModelVersionUIModel.vb</DependentUpon>
+    </Content>
+    <None Include="..\MoM.Sponsorship.Catalog\SearchForms\SponsorshipOpportunityChild_MoMCustom.Search.xml">
+      <Link>LinkedSpecs\SponsorshipOpportunityChild_MoMCustom.Search.xml</Link>
+    </None>
+    <Content Include="htmlforms\SponsorshipAddFormWrapped.html" />
+    <Content Include="htmlforms\SponsorshipOpportunityChildMoMCustomSearch.html" />
+    <Content Include="SponsorshipOpportunityChildMoMCustomSearchUIModel.xml">
+      <DependentUpon>SponsorshipOpportunityChildMoMCustomSearchUIModel.vb</DependentUpon>
+    </Content>
+    <None Include="..\MoM.Sponsorship.Catalog\Add Forms\SponsorshipAdd_Wrapped.Add.xml">
+      <Link>LinkedSpecs\SponsorshipAdd_Wrapped.Add.xml</Link>
+    </None>
+    <Content Include="SponsorshipAddFormWrappedUIModel.xml">
+      <DependentUpon>SponsorshipAddFormWrappedUIModel.vb</DependentUpon>
+    </Content>
+  </ItemGroup>
+  <Import Project="$(MSBuildBinPath)\Microsoft.VisualBasic.targets" />
+  <PropertyGroup>
+    <PostBuildEvent>
+    </PostBuildEvent>
+  </PropertyGroup>
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

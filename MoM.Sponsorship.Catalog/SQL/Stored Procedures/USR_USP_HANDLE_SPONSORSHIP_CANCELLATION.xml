@@ -1,0 +1,76 @@
+﻿<SQLStoredProcedureSpec
+	xmlns="bb_appfx_sqlstoredprocedure"
+	xmlns:common="bb_appfx_commontypes" 
+	ID="caae2af1-ee61-4127-9391-56c95846bbd9"
+	Name="USR_USP_HANDLE_SPONSORSHIP_CANCELLATION"
+	Description="Does the work when a sponsorship is cancelled. Called from various sponsorship cancellation forms."
+	Author="Memphis Sellers"
+	SPName="USR_USP_HANDLE_SPONSORSHIP_CANCELLATION"
+	>
+
+	<!-- 
+	Remarks:    This sproc is used by the cancel sponsorship form to do all the work necessary for sponsorship cancellation.
+
+	History:
+	Date            Modified By     Comments
+	01-Oct-2012		Memphis			Initial Version - just a copy of USR_USP_SPONSORSHIP_CREATENEWSPONSORSHIPINTERACTIONS for Mark to use in Add Prospect Sponsorship form
+	08-Oct-2012		Memphis			FogBugz Case 878 changes: added the call to USR_USP_CHILD_CHECKELIGIBILITY
+
+	-->
+	
+	<CreateProcedureSQL>
+		<![CDATA[
+create procedure dbo.USR_USP_HANDLE_SPONSORSHIP_CANCELLATION (
+	@CONSTITUENTID uniqueidentifier,
+	@SPONSORSHIPID uniqueidentifier,
+	@CHANGEAGENTID uniqueidentifier
+)
+as
+begin
+	-- this manages the constituency code cancellation logic and the sponsorship extension updating:
+	-- manage the constituency code cancellation here:
+	-- first check if this is the only sponsorship for this sponsor, otherwise don't cancel
+	declare @SPONSORSHIPCOUNT int = 0;
+	set @SPONSORSHIPCOUNT = dbo.USR_UFN_SPONSORSHIP_GETACTIVECHILDSPONSORSHIPSFORSPONSOR(@CONSTITUENTID)
+	
+	-- if this is the only Child sponsorship, then cancel the sponsor constituency code:
+	if @SPONSORSHIPCOUNT = 0
+	begin
+		exec dbo.USR_USP_SPONSORSHIP_CANCEL_SPONSORSHIP_CONSTITUENCYCODES 
+					@CONSTITUENTID = @CONSTITUENTID
+	end
+
+	-- update the sponsorship extension table setting the currentstatuscode to "Formerly Sponsored"
+	declare @STATUSCODEID uniqueidentifier;
+	set @STATUSCODEID = dbo.USR_UFN_CURRENTOPPORTUNITYSPONSORSHIPSTATUSCODE_GETID_FORDESCRIPTION('Formerly Sponsored')
+	if @STATUSCODEID is not null
+	begin
+		update dbo.USR_SPONSORSHIPEXTENSION
+		set CURRENTOPPORTUNITYSPONSORSHIPSTATUSCODEID = @STATUSCODEID
+		where ID = @SPONSORSHIPID
+	end
+
+	-- FogBugz Case 878: need to check eligibility after cancellation:
+	declare @sponsorshipOpportunityChildID uniqueidentifier;
+	select @sponsorshipOpportunityChildID = SPONSORSHIPOPPORTUNITYID
+	from dbo.SPONSORSHIP
+	where ID = @SPONSORSHIPID
+
+	--FogBugz Case 878: A call to the following sproc needs to be made before calling USR_USP_CHILD_SETELIGIBLEORPENDING.
+
+	exec dbo.USR_USP_CHILD_CHECKELIGIBILITY
+		@sponsorshipOpportunityChildID = @sponsorshipOpportunityChildID ,    -- Sponsorship Opportunity Child ID (same as Sponsorship Opportunity ID) to check eligibility
+		@changeAgentID = @CHANGEAGENTID										 -- The ChangeAgentID to be used for AddedBy and ModifiedBy fields
+	
+	
+	exec dbo.USR_USP_CHILD_SETELIGIBLEORPENDING
+		@sponsorshipOpportunityChildID = @sponsorshipOpportunityChildID,		-- Specify a Sponsorship Opportunity ID (same as the child's ID) if the sproc should only process a single child
+		@includeIneligibleInUpdate = 0,				-- Whether to include Ineligible children in updates.  0 = Do not include Ineligible children, 1 = Include Ineligible children
+		@CHANGEAGENTID = @CHANGEAGENTID
+
+end
+
+		]]>
+	</CreateProcedureSQL>
+
+</SQLStoredProcedureSpec>

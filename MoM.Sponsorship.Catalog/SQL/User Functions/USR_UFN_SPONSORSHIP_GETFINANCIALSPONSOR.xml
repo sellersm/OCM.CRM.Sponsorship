@@ -1,0 +1,45 @@
+﻿<SQLFunctionSpec
+	xmlns="bb_appfx_sqlfunction"
+	xmlns:common="bb_appfx_commontypes" 
+	ID="b372086b-d239-4453-9118-d7bbfe174654"
+	Name="USR_UFN_SPONSORSHIP_GETFINANCIALSPONSOR"
+	Description="Get the Constituent ID of the financial sponsor"
+	Author="Cary Mayeda"
+	DBFunctionName="USR_UFN_SPONSORSHIP_GETFINANCIALSPONSOR" >
+
+	<!-- 
+	Remarks:  This returns the financial sponsor for all sponsorships - not just gifted sponsorships.
+
+	History:
+	Date            Modified By     Comments
+	21-Aug-2012		CMayeda			Initial Version
+	-->
+
+
+	<CreateFunctionSQL>
+		<![CDATA[
+create function dbo.USR_UFN_SPONSORSHIP_GETFINANCIALSPONSOR (
+	@sponsorshipID uniqueidentifier = null
+)
+returns uniqueidentifier
+with execute as caller
+as begin
+
+	declare @financialSponsor uniqueidentifier = null
+	
+	if @sponsorshipID is not null
+		select	@financialSponsor = REVENUE.CONSTITUENTID
+		
+		  from	dbo.SPONSORSHIP
+	 left join	dbo.REVENUESPLIT on REVENUESPLIT.ID = SPONSORSHIP.REVENUESPLITID
+	 left join	dbo.REVENUE on REVENUE.ID = REVENUESPLIT.REVENUEID
+	
+		 where SPONSORSHIP.ID = @sponsorshipID
+
+
+	return @financialSponsor 
+end
+		]]>
+	</CreateFunctionSQL>
+
+</SQLFunctionSpec>

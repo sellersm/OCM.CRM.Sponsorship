@@ -1,0 +1,11 @@
+﻿<CodeTableSpec 
+	xmlns="bb_appfx_codetable" 
+	xmlns:common="bb_appfx_commontypes"
+	ID="0f085fcb-3211-4b87-9173-095b90728f88" 
+	Name="Sponsorship Complete Transfer Interaction Codes"
+	Description="Interactions to be selected during the Complete Transfer - ocm process"
+	Author="Cary Mayeda"
+	DBTablename="USR_SPONSORSHIPCOMPLETETRANSFERINTERACTIONTYPECODE"
+	Category="Sponsorship"
+	SortMethod="Alpha"
+/>

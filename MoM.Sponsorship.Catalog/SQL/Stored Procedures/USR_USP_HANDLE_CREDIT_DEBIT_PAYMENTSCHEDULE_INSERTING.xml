@@ -1,0 +1,46 @@
+﻿<SQLStoredProcedureSpec
+	xmlns="bb_appfx_sqlstoredprocedure"
+	xmlns:common="bb_appfx_commontypes" 
+	ID="03dd3d43-530f-447e-af7a-0af69460d836"
+	Name="USR_USP_HANDLE_CREDIT_DEBIT_PAYMENTSCHEDULE_INSERTING"
+	Description="Manages the process of inserting into the financialtransaction extension table."
+	Author="Memphis Sellers"
+	SPName="USR_USP_HANDLE_CREDIT_DEBIT_PAYMENTSCHEDULE_INSERTING"
+	>
+
+	<CreateProcedureSQL>
+		<![CDATA[
+create procedure dbo.USR_USP_HANDLE_CREDIT_DEBIT_PAYMENTSCHEDULE_INSERTING (
+		@SPONSORSHIPID uniqueidentifier, 
+		@DIRECTDEBITSCHEDULECODEID uniqueidentifier,
+		@CREDITCARDSCHEDULECODEID uniqueidentifier,
+		@CHANGEAGENTID uniqueidentifier = null
+)
+as
+begin
+	-- do work
+	-- insert into financial transaction extension if there's a eft/credit card schedule value:
+	-- get the financial transaction id here dbo.USR_UFN_GETFINANCIALTRANSACTIONID_FORSPONSORSHIP(@SPONSORSHIPID)
+	declare @FINANCIALTRANSACTIONID uniqueidentifier;
+	set @FINANCIALTRANSACTIONID = dbo.USR_UFN_GETFINANCIALTRANSACTIONID_FORSPONSORSHIP(@SPONSORSHIPID);
+	declare @DATEADDED date = getdate();
+	
+	if @FINANCIALTRANSACTIONID is not null
+	begin
+		exec dbo.USR_USP_FINANCIALTRANSACTION_EXTENSION_INSERTROW 
+			@FINANCIALTRANSACTIONID = @FINANCIALTRANSACTIONID, 
+			@DIRECTDEBITSCHEDULECODEID = @DIRECTDEBITSCHEDULECODEID,
+			@CREDITCARDSCHEDULECODEID = @CREDITCARDSCHEDULECODEID,
+			@ADDEDBYID = @CHANGEAGENTID,
+			@CHANGEDBYID  = @CHANGEAGENTID,
+			@DATEADDED = @DATEADDED,
+			@DATECHANGED = @DATEADDED
+	end
+
+	return 0;
+end
+
+		]]>
+	</CreateProcedureSQL>
+
+</SQLStoredProcedureSpec>

@@ -1,0 +1,139 @@
+﻿<DataListSpec 
+	xmlns="bb_appfx_datalist"
+	xmlns:common="bb_appfx_commontypes" 
+	ID="4bb7d5f4-d8ad-464b-8ab5-56febd1a95c3" 
+	Name="SponsorshipOpportunityMatchCustom Data List"
+	Description="MoM Customization datalist to get greatest need children. Used in adding a new sponsorship to select multiple children." 
+	Author="Memphis Sellers"
+	common:SecurityUIFolder="Sponsorship">
+
+	<!-- define the SP that returns the data for the datalist -->
+	<SPDataList SPName="USR_USP_DATALIST_SPONSORSHIPOPPORTUNITYMATCH_MOMCUSTOM">
+		<common:CreateProcedureSQL>
+			<![CDATA[
+create procedure dbo.USR_USP_DATALIST_SPONSORSHIPOPPORTUNITYMATCH_MOMCUSTOM(
+	@CHANGEAGENTID uniqueidentifier = null,
+	@SPONSORSHIPPROGRAMID uniqueidentifier,
+	@SPONSORSHIPLOCATIONID uniqueidentifier = null,
+	@GENDERCODE tinyint = 0,
+	@SPROPPAGERANGEID uniqueidentifier = null,
+	@ISHIVPOSITIVECODE tinyint = 0,
+	@HASCONDITIONCODE tinyint = 0,
+	@ISORPHANEDCODE tinyint = 0,
+	@SPROPPPROJECTCATEGORYCODEID uniqueidentifier = null,
+	@SPONSORID uniqueidentifier = null,
+	@ISSOLESPONSORSHIP bit = 0,
+	@REVENUECONSTITUENTID uniqueidentifier = null
+)
+as
+begin
+	set nocount on;
+	
+	declare @SPONSORSHIPOPPORTUNITYID uniqueidentifier;
+  declare @LOCKTYPE tinyint;
+
+	if @GENDERCODE is null
+		set @GENDERCODE = 0
+	if @ISHIVPOSITIVECODE is null
+		set @ISHIVPOSITIVECODE = 0
+	if @HASCONDITIONCODE is null
+		set @HASCONDITIONCODE = 0
+	if @ISORPHANEDCODE is null
+		set @ISORPHANEDCODE = 0
+    
+  if @ISSOLESPONSORSHIP = 1
+    set @LOCKTYPE = 1
+  else
+    set @LOCKTYPE = 2
+  
+  begin try
+    exec dbo.USR_USP_SPONSORSHIP_ACQUIREOPPORTUNITY_MOMCUSTOM
+		  @SPONSORSHIPOPPORTUNITYID output,
+      @CHANGEAGENTID,
+      0,
+      @SPONSORID,
+      @SPONSORSHIPPROGRAMID,
+      @SPONSORSHIPLOCATIONID,
+		  @GENDERCODE,
+		  @SPROPPAGERANGEID,
+		  @ISHIVPOSITIVECODE,
+		  @HASCONDITIONCODE,
+		  @ISORPHANEDCODE,
+		  @SPROPPPROJECTCATEGORYCODEID,
+      @ISSOLESPONSORSHIP,
+      null,
+      null,
+      @REVENUECONSTITUENTID,
+      @LOCKTYPE
+		
+			select SO.ID SPONSORSHIPOPPORTUNITYID,
+             dbo.UFN_SPONSORSHIPOPPORTUNITY_TRANSLATIONFUNCTION(SO.ID) NAME,
+             dbo.UFN_SPONSORSHIP_OFFERSOLESPONSORSHIP(SO.SPONSORSHIPOPPORTUNITYGROUPID,SO.SPONSORSHIPLOCATIONID) OFFERSOLESPONSORSHIP,
+             C.GENDER,C.BIRTHDATE,SO.LOOKUPID,
+             dbo.UFN_SPONSORSHIPLOCATION_GETFULLNAME(SO.SPONSORSHIPLOCATIONID) LOCATION,
+             (select DESCRIPTION from dbo.SPROPPPROJECTCATEGORYCODE SPROC where SP.SPROPPPROJECTCATEGORYCODEID= SPROC.ID) CATEGORY
+			from dbo.SPONSORSHIPOPPORTUNITY SO
+			left outer join dbo.SPONSORSHIPOPPORTUNITYCHILD SC on SC.ID = SO.ID
+      left outer join dbo.CONSTITUENT C on C.ID = SC.CONSTITUENTID
+			left outer join dbo.SPONSORSHIPOPPORTUNITYPROJECT SP on SP.ID = SO.ID
+			where SO.ID = @SPONSORSHIPOPPORTUNITYID;
+	end try
+	begin catch
+    if error_message() = 'BBERR_NOMATCHINGOPPORTUNITY'
+      -- No opportunity available to match.
+		  select null SPONSORSHIPOPPORTUNITYID,
+             '&lt;No matching opportunity found&gt;' NAME,
+             null OFFERSOLESPONSORSHIP,
+             null GENDER,
+             null BIRTHDATE,
+             null LOOKUPID,
+             null LOCATION,
+             null CATEGORY
+    else
+    begin
+      exec dbo.USP_RAISE_ERROR;
+      return 1;
+    end
+  end catch
+  
+  return 0;
+end
+			]]>
+		</common:CreateProcedureSQL>
+	</SPDataList>
+
+	<!-- describe the context ID parameter for the SP (if applicable)-->
+	<!--<Context ContextRecordType="REPLACE_WITH_RECORDTYPE" RecordIDParameter="CONTEXTID"/>-->
+
+  <Parameters>
+    <FormMetaData xmlns="bb_appfx_commontypes">
+      <FormFields>
+        <FormField FieldID="CHANGEAGENTID" DataType="Guid" />
+        <FormField FieldID="SPONSORSHIPPROGRAMID" DataType="Guid" />
+        <FormField FieldID="SPONSORSHIPLOCATIONID" DataType="Guid" />
+        <FormField FieldID="GENDERCODE" DataType="TinyInt" />
+        <FormField FieldID="SPROPPAGERANGEID" DataType="Guid" />
+        <FormField FieldID="ISHIVPOSITIVECODE" DataType="TinyInt" />
+        <FormField FieldID="HASCONDITIONCODE" DataType="TinyInt" />
+        <FormField FieldID="ISORPHANEDCODE" DataType="TinyInt" />
+        <FormField FieldID="SPROPPPROJECTCATEGORYCODEID" DataType="Guid" />
+        <FormField FieldID="SPONSORID" DataType="Guid" />
+        <FormField FieldID="ISSOLESPONSORSHIP" DataType="Boolean" />
+        <FormField FieldID="REVENUECONSTITUENTID" DataType="Guid" />
+      </FormFields>
+    </FormMetaData>
+  </Parameters>
+  <Output>
+    <OutputFields>
+      <OutputField FieldID="SPONSORSHIPOPPORTUNITYID" Caption="SPONSORSHIPOPPORTUNITYID" IsHidden="true" DataType="Guid" />
+      <OutputField FieldID="NAME" Caption="NAME" IsHidden="true" DataType="String" />
+      <OutputField FieldID="GENDER" Caption="Gender" IsHidden="true" DataType="String" />
+      <OutputField FieldID="LOOKUPID" Caption="Lookup ID" IsHidden="true" DataType="String" />
+      <OutputField FieldID="LOCATION" Caption="Location" IsHidden="true" DataType="String" />
+      <OutputField FieldID="BIRTHDATE" Caption="Birthdate" IsHidden="true" DataType="FuzzyDate" />
+      <OutputField FieldID="OFFERSOLESPONSORSHIP" Caption="OFFERSOLESPONSORSHIP" IsHidden="true" DataType="Boolean" />
+      <OutputField FieldID="CATEGORY" Caption="Category" IsHidden="true" DataType="String" />
+    </OutputFields>
+  </Output>
+
+</DataListSpec>

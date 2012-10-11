@@ -1,0 +1,41 @@
+﻿<SQLFunctionSpec
+	xmlns="bb_appfx_sqlfunction"
+	xmlns:common="bb_appfx_commontypes"
+	ID="0f77980c-cf27-4bd9-b320-e391785181d6"
+	Name="USR_UFN_SPONSORSHIPOPPORTUNTITY_GETID_BYLOOKUPID"
+	Description="Retrieve the Sponsorship Opportunity ID based on the lookup id of the sponsorship opportunity"
+	Author="Cary Mayeda"
+	DBFunctionName="USR_UFN_SPONSORSHIPOPPORTUNTITY_GETID_BYLOOKUPID"
+	GrantServiceRolePermission="true" >
+	
+	<!-- 
+	Remarks:    Returns null if Lookup ID passed in @sponsorshipOpportunityLookupID is null or empty string
+
+	History:
+	Date            Modified By     Comments
+	22-Sep-2012		CMayeda			Initial Version
+
+	-->
+
+	<CreateFunctionSQL>
+		<![CDATA[
+create function dbo.USR_UFN_SPONSORSHIPOPPORTUNTITY_GETID_BYLOOKUPID (
+	@sponsorshipOpportunityLookupID nvarchar(100) = ''
+)
+returns uniqueidentifier
+with execute as caller
+as 
+begin
+	declare @sponsorshipOpportunityID uniqueidentifier = null
+
+	if @sponsorshipOpportunityLookupID <> ''
+		select	@sponsorshipOpportunityID = ID
+		  from	dbo.SPONSORSHIPOPPORTUNITY
+		 where	LOOKUPID = @sponsorshipOpportunityLookupID
+	
+	return @sponsorshipOpportunityID 
+end
+		]]>
+	</CreateFunctionSQL>
+
+</SQLFunctionSpec>

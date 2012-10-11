@@ -1,0 +1,108 @@
+﻿<PageDefinitionSpec
+    xmlns="bb_appfx_pagedefinition"
+    xmlns:common="bb_appfx_commontypes"
+    ID="144b65f5-620e-4b82-86c1-c86241047e57"
+    Name="SponsorshipLocationExtension Page"
+    Description="Alter page for Sponsorship Locations"
+    Author="Cary Mayeda"
+    ContextRecordType="Sponsorship Location" >
+
+	<!-- 
+	Remarks:    This changes the data list from the oob data list 'Sponsorship Location Hierarchy Data List' (fcf2af72-75bb-408e-934d-47199e94eef1) to our extended version
+				It also adds Go to actions for Field Office and Report Recipient
+
+	History:
+	Date            Modified By     Comments
+	15-Aug-2012		CMayeda			Initial Version
+	19-Aug-2012		CMayeda			Added Go to actions to go to the child project or country extension pages instead of the constituent page.
+	30-Aug-2012		CMayeda			Added action to call the "Sponsorship Location Report Recipient Delete" record operation - Fogbugz Case 789
+	-->
+	
+	<!-- Note:  A page can optionally have a view form associated with it as the "Expression form".  While implemented as a view data form,
+	this form has no UI in this context, and is simply used as a way of loading additional information associated with the page.  The fields
+	returned by the expression form can be used as expressions in various properties throughout the page.  To specify an expression form for this
+	page, add the following attribute:		ExpressionDataFormID="<some guid>"-->
+
+	<!-- define how the page header should appear -->
+	<PageHeader Caption="This alters the Sponsorship Locations Page" ImageKey="" />
+
+
+	<AlterExistingPages>
+		<AlterPages>
+			<AlterPage PageID="a6d03d11-ee08-4549-a9cd-10a712fc410f">
+				<AlterTabs>
+					<AlterTab TabID="2df5c1b1-9aa0-4cb4-819a-124e58c31664">
+						<AlterSections>
+							<AlterDataListSection DataListID="fcf2af72-75bb-408e-934d-47199e94eef1" SectionID="230d6aef-0784-4fb9-b777-1753dac51604"> <!--Original DataListID="fcf2af72-75bb-408e-934d-47199e94eef1" -->
+								<ReplaceDataList NewDataListID="39ac2263-c6cc-41c1-a5f7-f295d5bd614e" />
+								<AlterActions>
+									<AddAction>
+										<Action ID="5A611839-57E2-4AC7-8C58-93C6BA14EC3D" Caption="Go to" ImageKey="res:goto_round" CaptionResourceKey="$$add">
+											<ActionGroup>
+												<Actions>
+													<Action ID="750B57FF-6CD1-484E-95DE-9EDF6FE46ADF" Caption="Designation"  LinkFieldID="DESIGNATIONNAME" CaptionResourceKey="$$go_to_designation">
+														<ShowPage PageID="158571a0-52d3-4a27-9d30-0dbbfa9f1386" TabID="00000000-0000-0000-0000-000000000000" xmlns="bb_appfx_commontypes">
+															<ActionContext>
+																<SectionField>DESIGNATIONID</SectionField>
+															</ActionContext>
+														</ShowPage>
+														<HelpKey>SPSponsorshipLocationsGoToDesignatioin.html</HelpKey>
+													</Action>
+													<Action ID="41906973-ce08-4c54-b613-9864bd8784e9" Caption="Field office" Visible="= not(Fields!FIELDOFFICEISCHILDPROJECT=1 or Fields!FIELDOFFICEISCOUNTRY=1)">
+														<ShowPage PageID="88159265-2b7e-4c7b-82a2-119d01ecd40f" TabID="00000000-0000-0000-0000-000000000000" xmlns="bb_appfx_commontypes">
+															<ActionContext>
+																<SectionField>FIELDOFFICEID</SectionField>
+															</ActionContext>
+														</ShowPage>
+													</Action>
+
+													<Action ID="4D07A7D2-822D-43CA-88ED-960F70895E88" Caption="Field office - child project" Visible="= Fields!FIELDOFFICEISCHILDPROJECT=1">
+														<ShowPage PageID="29d5b7a5-d032-4b66-80f9-b1d451292ad6" TabID="00000000-0000-0000-0000-000000000000" xmlns="bb_appfx_commontypes">
+															<ActionContext>
+																<SectionField>FIELDOFFICEID</SectionField>
+															</ActionContext>
+														</ShowPage>
+													</Action>
+
+													<Action ID="F9788DA0-8977-4B3D-9E96-A00778267CA2" Caption="Field office - country" Visible="= Fields!FIELDOFFICEISCOUNTRY=1">
+														<ShowPage PageID="8bc1a2a0-c984-49b3-bd7a-6b4a62dba25f" TabID="00000000-0000-0000-0000-000000000000" xmlns="bb_appfx_commontypes">
+															<ActionContext>
+																<SectionField>FIELDOFFICEID</SectionField>
+															</ActionContext>
+														</ShowPage>
+													</Action>
+
+													
+													<Action ID="55C93FA6-0BF6-4BF2-8C59-EF50421F7EBE" Caption="Report recipient" >
+														<ShowPage PageID="88159265-2b7e-4c7b-82a2-119d01ecd40f" TabID="00000000-0000-0000-0000-000000000000" xmlns="bb_appfx_commontypes">
+															<ActionContext>
+																<SectionField>REPORTRECIPIENTID</SectionField>
+															</ActionContext>
+														</ShowPage>
+													</Action>
+												</Actions>
+											</ActionGroup>
+										</Action>
+									</AddAction>
+									<AddAction Sequence ="20">
+										<Action ID="33397b0f-4d2e-4963-b9f8-fdf69ab4d762" Caption="Remove report recipient" ImageKey="RES:Delete" AppendSeparator="true">
+											<ExecuteRecordOperation RecordOperationID="5358d7ac-4437-4660-a17d-51c6a7ba7b44" xmlns="bb_appfx_commontypes">
+												<ActionContext>
+													<SectionField>ID</SectionField>
+												</ActionContext>
+												<PostActionEvent>
+													<RefreshSection />
+												</PostActionEvent>
+											</ExecuteRecordOperation>
+										</Action>
+									</AddAction>
+								</AlterActions>
+							</AlterDataListSection>
+						</AlterSections>
+					</AlterTab>
+				</AlterTabs>
+			</AlterPage>
+		</AlterPages>
+	</AlterExistingPages>
+
+</PageDefinitionSpec>

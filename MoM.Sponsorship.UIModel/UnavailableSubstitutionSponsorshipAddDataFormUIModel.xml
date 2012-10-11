@@ -1,0 +1,10 @@
+﻿<UIModelWizardMetadata>
+  <SpecFileName>UnavailableSubstitutionSponsorship.Add.xml</SpecFileName>
+  <Namespace></Namespace>
+  <ClassName>UnavailableSubstitutionSponsorshipAddDataFormUIModel</ClassName>
+  <HtmlInfo GenerateHtml="true">
+    <HtmlFile>UnavailableSubstitutionSponsorship.AddDataForm.html</HtmlFile>
+    <HtmlFolder>htmlforms\</HtmlFolder>
+  </HtmlInfo>
+  <GenerateFromDatabase>true</GenerateFromDatabase>
+</UIModelWizardMetadata>
