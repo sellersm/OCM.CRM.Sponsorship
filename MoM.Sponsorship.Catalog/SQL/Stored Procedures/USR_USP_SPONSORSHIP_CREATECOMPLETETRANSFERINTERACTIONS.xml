@@ -37,6 +37,8 @@ as begin
 	
 	declare @statusCode_Pending tinyint = 1
 
+	declare @interactionFulfillmentStatus_Pending nvarchar(100) = 'Pending'
+
 	declare @interactionLetterTypeDesc_Contacted nvarchar(100) = 'Contacted'
 	declare @interactionLetterTypeDesc_NotContacted nvarchar(100) = 'Not Contacted'
 
@@ -157,7 +159,7 @@ as begin
 		@contactMethodDesc = @contactMethodDesc_Mail,
 		@comment = '',						
 		@letterTypeDesc = @letterTypeDesc,
-		@fulfillmentStatusDesc = '',
+		@fulfillmentStatusDesc = @interactionFulfillmentStatus_Pending,
 		@eftBrochureCode = 0,
 		@resendCode = 0,
 		@changeAgentID = @changeAgentID			
