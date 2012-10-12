@@ -20,9 +20,12 @@
 	Date            Modified By     Comments
 	21-Sep-2012		Memphis			Initial Version
 	30-Sep-2012		Memphis			Added:
-								- add end date to the existing constituency code
-								- determine if sponsor or prospect sponsor and update that row
-								- update the sponsorship extension table setting the currentstatuscode to "Formerly Sponsored"
+									- add end date to the existing constituency code
+									- determine if sponsor or prospect sponsor and update that row
+									- update the sponsorship extension table setting the currentstatuscode to "Formerly Sponsored"
+	11-Oct-2012		Memphis			Added code to use this form for cancelling a Project Sponsorship as well:
+										- validate the interaction type code value chosen by user: must match the opportunitytype, child or project
+										- call the appropriate code based on the opportunitytype (child or project)
 	-->	
 
 		<!--<c:InstalledProductList>
@@ -93,11 +96,8 @@ create procedure dbo.USP_DATAFORMTEMPLATE_EDITSAVE_SPONSORSHIPCANCEL_WRAPPED
 	@INTERACTIONTYPECODEID uniqueidentifier
 )
 
-
 as
-
 set nocount on;
-
 
 begin try
 	-- validate the data based on the sponsorship reason, cancel reason and interaction type selected:
@@ -110,6 +110,12 @@ begin try
 	-- if not valid, don't let them save
 	if @ISVALID = 0
 		RAISERROR 1000000 'The combination of Interaction Type and Cancellation Reason is not valid.'
+		
+	-- validate the interaction type code based on the opportunity type of child or project
+	select @ISVALID = dbo.USR_UFN_VALIDATE_SPONSORSHIP_CANCELLATION_INTERACTIONTYPECODE (@ID, @INTERACTIONTYPECODEID)
+	
+	if @ISVALID = 0
+		RAISERROR 1000000 'The combination of Interaction Type and Opportunity Type is not valid.'
 	
 end try
 begin catch
