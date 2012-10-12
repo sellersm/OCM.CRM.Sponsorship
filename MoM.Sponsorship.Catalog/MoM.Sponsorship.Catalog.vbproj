@@ -265,6 +265,12 @@
   <ItemGroup>
     <EmbeddedResource Include="Tables\Code Tables\Sponsorship.CompleteTransferInteraction.CodeTable.xml" />
   </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="SQL\User Functions\USR_UFN_VALIDATE_SPONSORSHIP_CANCELLATION_INTERACTIONTYPECODE.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Pages\AlterRecurringGift.Page.xml" />
+  </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.VisualBasic.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

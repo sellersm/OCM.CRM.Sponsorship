@@ -148,6 +148,10 @@
       <DependentUpon>ProspectSponsorshipAddDataFormUIModel.vb</DependentUpon>
     </Compile>
     <Compile Include="ProspectSponsorshipAddDataFormUIModel.vb" />
+    <Compile Include="Recurring Gift Extension\RecurringGiftExtensionEditDataFormUIModel.CodeGen.vb">
+      <DependentUpon>RecurringGiftExtensionEditDataFormUIModel.vb</DependentUpon>
+    </Compile>
+    <Compile Include="Recurring Gift Extension\RecurringGiftExtensionEditDataFormUIModel.vb" />
     <Compile Include="SponsorshipAddFormWrappedCHILDRENUIModel.CodeGen.vb">
       <DependentUpon>SponsorshipAddFormWrappedUIModel.vb</DependentUpon>
     </Compile>
@@ -192,10 +196,17 @@
     <EmbeddedResource Include="AddIns\UnavailableSponsorship.AddIn.xml" />
     <EmbeddedResource Include="AddIns\ProjectSponsorship.AddIn.xml" />
     <EmbeddedResource Include="AddIns\ProspectSponsorship.AddIn.xml" />
+    <None Include="..\MoM.Sponsorship.Catalog\Edit Forms\RecurringGiftExtension.Edit.xml">
+      <Link>LinkedSpecs\RecurringGiftExtension.Edit.xml</Link>
+    </None>
     <Content Include="htmlforms\OCMCustomAddProjectSponsorshipForm.html" />
+    <Content Include="htmlforms\RecurringGiftExtensionEditDataForm.html" />
     <Content Include="htmlforms\UnavailableSubstitutionSponsorship.AddDataForm.html" />
     <Content Include="OCMCustomAddProjectSponsorshipFormUIModel.xml" />
     <EmbeddedResource Include="Packages\SponsorshipAddIns.Package.xml" />
+    <Content Include="Recurring Gift Extension\RecurringGiftExtensionEditDataFormUIModel.xml">
+      <DependentUpon>RecurringGiftExtensionEditDataFormUIModel.vb</DependentUpon>
+    </Content>
     <Content Include="UnavailableSubstitutionSponsorshipAddDataFormUIModel.xml">
       <DependentUpon>UnavailableSubstitutionSponsorshipAddDataFormUIModel.vb</DependentUpon>
     </Content>
