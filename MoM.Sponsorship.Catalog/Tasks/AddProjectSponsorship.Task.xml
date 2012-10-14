@@ -10,8 +10,15 @@
 		  Sequence="7" 
 		  xmlns="bb_appfx_task">
 	<ShowAddDataForm DataFormID="0eaaf756-2faa-4798-b445-60000ad298f5" xmlns="bb_appfx_commontypes">
+		<ActionContext>
+			<Expression>00000000-0000-0000-0000-000000000000</Expression>
+		</ActionContext>
 		<PostActionEvent>
-			<RefreshPage />
+			<GoToPage>
+				<SpecificPage PageID="428f040a-eb45-4171-8c52-a030b9992d65" TabID="00000000-0000-0000-0000-000000000000">
+					<ActionContext />
+				</SpecificPage>
+			</GoToPage>
 		</PostActionEvent>
 	</ShowAddDataForm>
 </TaskSpec>
