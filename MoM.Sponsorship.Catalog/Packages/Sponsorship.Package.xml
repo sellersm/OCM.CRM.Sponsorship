@@ -52,7 +52,7 @@
 	11-Oct-2012		Memphis			Removed USR_PROJECTCANCELLATION_INTERACTIONTYPECODE codetable.
 									Added USR_UFN_VALIDATE_SPONSORSHIP_CANCELLATION_INTERACTIONTYPECODE function.
 	12-Oct-2012		Memphis			Added AlterRecurringGift.Page.xml page
-	13-Oct-2012		Memphis			Added SponsorshipDataListCustomized.DataList.xml, SponsorshipConversion.Table.xml
+	13-Oct-2012		Memphis			Added SponsorshipDataListCustomized.DataList.xml, SponsorshipConversion.Table.xml, RecurringGiftExtension.Edit.xml,RecurringGift_FinancialExtension.View.xml 
 		-->
 
 	<!-- Note:  the order of the items listed here is important.  For example, you won't be able to load a data form that references 
@@ -200,7 +200,9 @@
 		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.PendingSponsorshipCancellationWrapped.Edit.xml" />
 		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.ProjectSponsorship.Add.xml" />
 		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.Sponsorship.CompleteTransfer.Edit.xml" />
-		
+		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.RecurringGift_FinancialExtension.View.xml" />
+		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.RecurringGiftExtension.Edit.xml" />
+
 		<!-- Tasks -->
 		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.SponsorshipAdd_Wrapped.Task.xml" />
 		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.AddProspectSponsorship.Task.xml" />

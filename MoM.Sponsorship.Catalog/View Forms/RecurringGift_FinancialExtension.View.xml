@@ -29,7 +29,7 @@ as
 	set nocount on;
 	
 	-- be sure to set this, in case the select returns no rows
-	set @DATALOADED = 0;
+	set @DATALOADED = 1;
 	declare @DIRECTDEBITSCHEDULECODEID uniqueidentifier = null
 	declare @CREDITCARDSCHEDULECODEID uniqueidentifier = null
 	
