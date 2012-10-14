@@ -1,0 +1,40 @@
+﻿<TableSpec 
+	xmlns="bb_appfx_table"
+	xmlns:common="bb_appfx_commontypes" 
+	ID="8af726f7-555f-4191-8e54-118101e076f9"
+	Name="SponsorshipConversion"
+	Description="Table that holds sponsorship conversion records."
+	Author="Memphis Sellers"
+	Tablename="USR_SPONSORSHIPCONVERSION"		   
+	PrimaryKeyAsForeignKeyTablename="SPONSORSHIP"
+	>
+
+	<!-- define fields on the table -->
+	<Fields>
+		<GuidField Description="Sponsorship Opportunity" Name="SPONSORSHIPOPPORTUNITYID" Required="true"/>
+		<NumberField Description="Action Code" Name="ACTIONCODE" Type="tinyint" />
+		<GuidField Description="Sponsorship Commitment ID" Name="SPONSORSHIPCOMMITMENTID" />
+		<NumberField Description="Transaction Sequence" Name="TRANSACTIONSEQUENCE" Type="smallint" />
+		<TextField Description="Action" Length="50" Name="ACTION" />
+		<GuidField Description="Sponsorship Reason" Name="SPONSORSHIPREASONID" />
+		<GuidField Description="Context Sponsorship" Name="CONTEXTSPONSORSHIPID" />
+		<GuidField Description="Target Sponsorship" Name="TARGETSPONSORSHIPID" />
+		<DateField Description="Transaction date" Name="TRANSACTIONDATE" Required="true"/>
+	</Fields>
+
+	<!-- define any additional check constraints on the table -->
+	<!--<CheckConstraints>
+
+	</CheckConstraints>-->
+
+	<!-- define any indexes on the table -->
+	<!--<Indexes>
+
+	</Indexes>-->
+		
+	<!-- define any triggers on the table -->
+	<!--<Triggers>
+
+	</Triggers>-->
+
+</TableSpec>
