@@ -17,6 +17,7 @@
 	History:
 	Date            Modified By     Comments
 	11-Oct-2012		Memphis			Initial Version
+	14-Oct-2012		Memphis			FogBugz Case 913: the isValid flag isn't being set when it's a Child opportunity.
 	-->	
 	
 	<CreateFunctionSQL>
@@ -64,6 +65,8 @@ as begin
 							-- the interaction type passed in can't match the project one:
 							if @INTERACTIONTYPECODEID = @projectInteractionTypeCodeId
 								set @isValid = 0;
+							else
+								set @isValid = 1;
 						end
 	
 					if @sponsorshipType = 2 -- project
