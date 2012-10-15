@@ -116,7 +116,7 @@ Partial Public Class [RecurringGiftExtensionEditDataFormUIModel]
 		'
 		_revenueschedulestartdate.Name = "REVENUESCHEDULESTARTDATE"
 		_revenueschedulestartdate.Caption = "Starting on"
-		_revenueschedulestartdate.Required = True
+		_revenueschedulestartdate.Required = False
 		Me.Fields.Add(_revenueschedulestartdate)
 		'
 		'_frequencycode

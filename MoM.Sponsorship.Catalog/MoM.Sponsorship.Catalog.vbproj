@@ -280,6 +280,12 @@
   <ItemGroup>
     <EmbeddedResource Include="DataLists\SponsorshipDataListCustomized.DataList.xml" />
   </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="RecordOperations\DeleteFinancialTransactionExtensionRecord.RecordOperation.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="SQL\Stored Procedures\USR_USP_INSERT_MULTIPLE_SPONSORSHIPEXTENSION.xml" />
+  </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.VisualBasic.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

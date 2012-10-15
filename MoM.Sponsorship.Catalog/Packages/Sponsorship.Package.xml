@@ -53,6 +53,7 @@
 									Added USR_UFN_VALIDATE_SPONSORSHIP_CANCELLATION_INTERACTIONTYPECODE function.
 	12-Oct-2012		Memphis			Added AlterRecurringGift.Page.xml page
 	13-Oct-2012		Memphis			Added SponsorshipDataListCustomized.DataList.xml, SponsorshipConversion.Table.xml, RecurringGiftExtension.Edit.xml,RecurringGift_FinancialExtension.View.xml 
+	14-Oct-2012		Memphis			Added DeleteFinancialTransactionExtensionRecord.RecordOperation.xml, USR_USP_INSERT_MULTIPLE_SPONSORSHIPEXTENSION.xml
 		-->
 
 	<!-- Note:  the order of the items listed here is important.  For example, you won't be able to load a data form that references 
@@ -165,11 +166,13 @@
 		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.USR_UFN_SPONSORSHIP_GETCURRENTOPPORTUNITYSTATUSCODEID.xml" />
 		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.USR_USP_SPONSORSHIP_CREATECOMPLETETRANSFERINTERACTIONS.xml" />
 		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.USR_UFN_VALIDATE_SPONSORSHIP_CANCELLATION_INTERACTIONTYPECODE.xml" />
+		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.USR_USP_INSERT_MULTIPLE_SPONSORSHIPEXTENSION.xml" />
 
 		<!-- Record Operations-->
 		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.DeleteChildSelectedForSponsorshipLock.RecordOperation.xml" />
 		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.LockSelectedChild.RecordOperation.xml" />
 		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.SponsorshipLocationExtension.ReportRecipient.Delete.RecordOperation.xml" />
+		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.DeleteFinancialTransactionExtensionRecord.RecordOperation.xml" />
 
 		<!-- DataLists -->
 		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.ChildrenToSponsor.SimpleList.xml" />

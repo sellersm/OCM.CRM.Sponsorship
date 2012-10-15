@@ -41,6 +41,22 @@
 						</AlterSections>
 					</AlterTab>					
 				</AlterTabs>
+				<AlterOrAddPageActionGroups>
+					<AlterOrAddPageActionGroup Caption="Tasks" CaptionResourceKey="$$tasks" ID="6edc3707-736f-441f-8871-5fa6467e1d9b" >
+						<AddAction>
+							<Action ID="a361d6ce-93e3-47b5-ae5d-4d2f251df57c" Caption="Delete Payment Method Extension" ImageKey="Res:delete">
+								<ExecuteRecordOperation RecordOperationID="f02e2841-fb37-403b-a3aa-50206b4c0bb0" xmlns="bb_appfx_commontypes">
+									<ActionContext>
+										<PageExpressionField>REVENUEID</PageExpressionField>
+									</ActionContext>
+									<PostActionEvent>
+										<RefreshPage />
+									</PostActionEvent>
+								</ExecuteRecordOperation>
+							</Action>
+						</AddAction>
+					</AlterOrAddPageActionGroup>
+				</AlterOrAddPageActionGroups>
 			</AlterPage>
 		</AlterPages>
 	</AlterExistingPages>	

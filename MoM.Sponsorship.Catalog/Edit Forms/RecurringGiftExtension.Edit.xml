@@ -39,9 +39,12 @@ as
 	set @DATALOADED = 0
 	set @TSLONG = 0
 	
+	
+	
 	-- populate the output parameters, which correspond to fields on the form.  Note that
 	-- we set @DATALOADED = 1 to indicate that the load was successful.  Otherwise, the system
 	-- will display a "no data loaded" message.
+	
 	select @DATALOADED = 1,
 		@DIRECTDEBITSCHEDULECODEID = DIRECTDEBITSCHEDULECODEID,
 		@CREDITCARDSCHEDULECODEID = CREDITCARDSCHEDULECODEID
@@ -49,6 +52,41 @@ as
 		--@CREDITCARDCODE = (select DESCRIPTION from dbo.USR_CREDITCARDSCHEDULECODE where ID = @CREDITCARDSCHEDULECODEID)
 	from dbo.USR_FINANCIALTRANSACTION_EXTENSION
 	where ID = @ID
+	
+	-- there may not be a record, so check and insert a new one if there wasn't one:
+	if @DATALOADED = 0
+	begin
+		declare @CHANGEAGENTID uniqueidentifier;
+		declare @DATEADDED date = getdate();
+		exec dbo.USP_CHANGEAGENT_GETORCREATECHANGEAGENT @CHANGEAGENTID output
+		INSERT INTO dbo.USR_FINANCIALTRANSACTION_EXTENSION
+			   ([ID]
+			   ,[DIRECTDEBITSCHEDULECODEID]
+			   ,[CREDITCARDSCHEDULECODEID]
+			   ,[ADDEDBYID]
+			   ,[CHANGEDBYID]
+			   ,[DATEADDED]
+			   ,[DATECHANGED])
+		 VALUES
+			   (@ID
+			   ,NULL
+			   ,NULL
+			   ,@CHANGEAGENTID
+			   ,@CHANGEAGENTID
+			   ,@DATEADDED
+			   ,@DATEADDED
+			   )
+		
+		-- now load the data values
+		select @DATALOADED = 1,
+			@DIRECTDEBITSCHEDULECODEID = DIRECTDEBITSCHEDULECODEID,
+			@CREDITCARDSCHEDULECODEID = CREDITCARDSCHEDULECODEID
+			--@DIRECTDEBITCODE = (select DESCRIPTION from dbo.USR_DIRECTDEBITSCHEDULECODE where ID = @DIRECTDEBITSCHEDULECODEID),
+			--@CREDITCARDCODE = (select DESCRIPTION from dbo.USR_CREDITCARDSCHEDULECODE where ID = @CREDITCARDSCHEDULECODEID)
+		from dbo.USR_FINANCIALTRANSACTION_EXTENSION
+		where ID = @ID
+		
+	end
 		
 	-- populate the display only fields:
 	-- Amount:
@@ -155,7 +193,7 @@ return 0;
 				<common:CodeTable CodeTableName="USR_CREDITCARDSCHEDULECODE" />
 			</common:FormField>
 			
-			<common:FormField FieldID="REVENUESCHEDULESTARTDATE" Caption="Start date" DataType="Date" Hidden="true" />			
+			<common:FormField FieldID="REVENUESCHEDULESTARTDATE" Caption="Start date" DataType="Date" Hidden="true" Required="false" />			
 			<common:FormField FieldID="FREQUENCYCODE" Caption="Frequency code" DataType="String" Hidden="true"/>			
 		</common:FormFields>
 
