@@ -69,6 +69,9 @@ Public Class RecurringGiftExtensionEditDataFormUIModel
 	Property directDebitScheduleQuarterlyMonth3_20th As String = ""
 #End Region
 
+	' Translation = "Credit card"})
+	' PAYMENTMETHODCODES) With {.Value = PAYMENTMETHODCODES.[DirectDebit], .Translation = "Direct debit"
+
 	Private Sub RecurringGiftExtensionEditDataFormUIModel_Loaded(ByVal sender As Object, ByVal e As Blackbaud.AppFx.UIModeling.Core.LoadedEventArgs) Handles Me.Loaded
 		'turn on the correct field based on paymentmethod text
 		Select Case Me.PAYMENTMETHODTEXT.Value.ToString().ToLower()
@@ -78,7 +81,7 @@ Public Class RecurringGiftExtensionEditDataFormUIModel
 				Me.CREDITCARDSCHEDULECODEID.Visible = True
 				Me.CREDITCARDSCHEDULECODEID.Enabled = True
 
-			Case "debit card"
+			Case "direct debit"
 				Me.DIRECTDEBITSCHEDULECODEID.Visible = True
 				Me.DIRECTDEBITSCHEDULECODEID.Enabled = True
 				Me.CREDITCARDSCHEDULECODEID.Visible = False
@@ -134,6 +137,9 @@ Public Class RecurringGiftExtensionEditDataFormUIModel
 				Me.FREQUENCYCODE.Value = frequencyAnnually
 
 		End Select
+
+		ShowMessage("Be sure to check the dates of this recurring gift.", UIPromptButtonStyle.Ok, UIPromptImageStyle.Information)
+
 	End Sub
 
 
@@ -160,6 +166,9 @@ Public Class RecurringGiftExtensionEditDataFormUIModel
 			 directDebitScheduleQuarterlyMonth3_1st, directDebitScheduleQuarterlyMonth3_10th, directDebitScheduleQuarterlyMonth3_20th
 				Me.FREQUENCYCODE.Value = frequencyQuarterly
 		End Select
+
+		ShowMessage("Be sure to check the dates of this recurring gift.", UIPromptButtonStyle.Ok, UIPromptImageStyle.Information)
+
 	End Sub
 
 	' Determine the starting on date based on the day passed in and the current date
@@ -238,11 +247,24 @@ Public Class RecurringGiftExtensionEditDataFormUIModel
 		End Select
 	End Sub
 
-	Private Sub RecurringGiftExtensionEditDataFormUIModel_Saving(ByVal sender As Object, ByVal e As Blackbaud.AppFx.UIModeling.Core.SavingEventArgs) Handles Me.Saving
-		' prompt user to remind them to check the starting date of the 
-		CRMHelper.ShowMessage("Be sure to check the dates of this recurring gift.", UIPromptButtonStyle.Ok, UIPromptImageStyle.Information, Me)
-		'Me.Prompts.Add(New UIPrompt() With { _
-		'  .Text = "Be sure to check the Dates of this recurring gift.", _
-		'  .ButtonStyle = UIPromptButtonStyle.Ok})
+	' CAN NOT get these events to fire: moved it up to the changed event of the debit and credit codes!
+	'Private Sub RecurringGiftExtensionEditDataFormUIModel_Saved(ByVal sender As Object, ByVal e As Blackbaud.AppFx.UIModeling.Core.SavedEventArgs) Handles Me.Saved
+	'	ShowMessage("Be sure to check the dates of this recurring gift.", UIPromptButtonStyle.Ok, UIPromptImageStyle.Exclamation)
+	'End Sub
+
+	'Private Sub RecurringGiftExtensionEditDataFormUIModel_Saving(ByVal sender As Object, ByVal e As Blackbaud.AppFx.UIModeling.Core.SavingEventArgs) Handles Me.Saving
+	'	' prompt user to remind them to check the starting date of the 
+	'	ShowMessage("Be sure to check the dates of this recurring gift.", UIPromptButtonStyle.Ok, UIPromptImageStyle.Warning)
+	'	'Me.Prompts.Add(New UIPrompt() With { _
+	'	'  .Text = "Be sure to check the Dates of this recurring gift.", _
+	'	'  .ButtonStyle = UIPromptButtonStyle.Ok})
+	'End Sub
+
+	Private Sub ShowMessage(ByVal message As String, ByVal buttonStyle As UIPromptButtonStyle, ByVal imageStyle As UIPromptImageStyle)
+		Dim prompt As New UIPrompt
+		prompt.Text = message
+		prompt.ImageStyle = imageStyle
+		prompt.ButtonStyle = buttonStyle
+		Me.Prompts.Add(prompt)
 	End Sub
 End Class

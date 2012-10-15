@@ -1,0 +1,49 @@
+﻿<RecordOperationSpec 
+	xmlns="bb_appfx_recordoperation"
+	xmlns:common="bb_appfx_commontypes" 
+	ID="f02e2841-fb37-403b-a3aa-50206b4c0bb0" 
+	Name="Delete Financial Transaction Extension Record Operation" 
+	Description="Deletes a Financial Transaction Extension Record for a given recurring gift."
+	Author="Memphis Sellers"
+	OperationType="Delete"
+	RecordType="FinancialTransaction"
+	common:SecurityUIFolder="Sponsorship"
+	>
+
+	<SPRecord>
+		<SPOperationImplementation SPName="USR_USP_FINANCIALTRANSACTIONEXTENSION_DELETE">
+			<common:CreateProcedureSQL>
+				<![CDATA[
+create procedure dbo.USR_USP_FINANCIALTRANSACTIONEXTENSION_DELETE
+(
+	@ID uniqueidentifier,				-- RevenueID which is the key
+	@CHANGEAGENTID uniqueidentifier		-- ID of the user/changeagent
+)
+as begin
+	begin try
+		if @ID is null
+			raiserror 100000 'No recurring gift ID given.'
+
+		-- use the system generated delete routine to allow proper recording of the deleting agent
+		exec USP_USR_FINANCIALTRANSACTION_EXTENSION_DELETEBYID_WITHCHANGEAGENTID @ID, @CHANGEAGENTID		
+	
+	end try
+	begin catch
+		exec dbo.USP_RAISE_ERROR
+		return 1	
+	end catch
+		
+	return 0;
+	
+end
+				]]>
+			</common:CreateProcedureSQL>
+		</SPOperationImplementation>
+	</SPRecord>
+
+	<!-- optionally, offer a prompt before executing the record operation -->
+	<Prompt>
+		<StandardPrompt Text="Are you sure you want to delete this Recurring Gift Payment Schedule record?" />
+	</Prompt>
+
+</RecordOperationSpec>
