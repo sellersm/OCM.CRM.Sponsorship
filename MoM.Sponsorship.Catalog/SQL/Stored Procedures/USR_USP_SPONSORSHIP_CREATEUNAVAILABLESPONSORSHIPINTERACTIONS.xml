@@ -18,6 +18,7 @@
 	28-Sep-2012		CMayeda			Fixed @interactionCategoryDesc_ChildLetter = 'Child Letter'	(should be 'Child Letters'
 	29-Sep-2012		CMayeda			Set Child Welcome Letter expected date to 2 months out - FogBugz Case 855
 	29-Sep-2012		CMayeda			Only create call /email interaction if new sponsor/prospect sponsor - FogBugz Case 862, 863
+	14-Oct-2012		CMayeda			Fixed the child letter interaction going to the financial sponsor if the correspondent and financial sponsor had the same address - FogBugz Case 907	
 	-->
 
 	<CreateProcedureSQL>
@@ -194,7 +195,7 @@ begin
 		set @welcomeMailCategoryDesc = @interactionCategoryDesc_SponsorWelcome 
 	
 	declare @childLetterRecipient uniqueidentifier = null
-	if @financialSponsorInteractionOnly = 1
+	if @correspondentID is null
 		set @childLetterRecipient = @financialSponsorID
 	else
 		set @childLetterRecipient = @correspondentID
@@ -254,9 +255,11 @@ begin
 			if @isProspect = 1
 				set @welcomeMailSubCategoryDesc = @interactionSubcategoryDesc_ProspectUnavailableChildLetter
 			else
-				set @welcomeMailSubCategoryDesc = @interactionSubcategoryDesc_UnavailableChildLetter				
+				set @welcomeMailSubCategoryDesc = @interactionSubcategoryDesc_UnavailableChildLetter
 		end
 
+declare @test nvarchar(100)
+set @test = 'childcounter ' + cast (@childcounter as nvarchar(5)) + ', childcount ' + cast (@childCount as nvarchar(5)) + ', # sponsorships ' + cast (dbo.USR_UFN_SPONSORSHIP_GETACTIVECHILDSPONSORSHIPSFORSPONSOR (@financialSponsorID)  as nvarchar(5))
 		exec dbo.USR_USP_INTERACTION_SPONSOR_ADD_PENDING 
 				@id = @interactionID output,
 				@constituentID = @financialSponsorID,
@@ -266,7 +269,7 @@ begin
 				@expectedDate = @currentDate,
 				@owner = null,						
 				@contactMethodDesc = @contactMethodDesc_Mail,
-				@comment = '',						
+				@comment = @test,						
 				@letterTypeDesc = @welcomeMailLetterTypeDesc,
 				@fulfillmentStatusDesc = @interactionFulfillmentStatus_CallInProcess, 
 				@eftBrochureCode = @eftBrochureCode,
