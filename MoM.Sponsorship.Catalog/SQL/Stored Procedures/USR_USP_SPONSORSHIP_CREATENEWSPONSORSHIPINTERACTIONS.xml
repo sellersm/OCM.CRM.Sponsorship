@@ -24,6 +24,8 @@
 									Fixed @changeAgentID = null on USR_USP_INTERACTION_SPONSOR_ADDCHILDREN call. This shouldn't affect anything, it's just better to set it, since we have it.
 	28-Sep-2012		CMayeda			Set Child Welcome Letter expected date to 2 months out - FogBugz Case 855
 	29-Sep-2012		CMayeda			Only create call /email interaction if new sponsor/prospect sponsor - FogBugz Case 862, 863
+	14-Oct-2012		CMayeda			Fixed the child letter interaction going to the financial sponsor if the correspondent and financial sponsor had the same address - FogBugz Case 907
+	
 	-->
 
 	<CreateProcedureSQL>
@@ -377,7 +379,7 @@ begin
 	declare @sponsorshipOpportunityChildID uniqueidentifier = null
 
 	declare @childLetterRecipient uniqueidentifier = null
-	if @financialSponsorInteractionOnly = 1
+	if @correspondentID is null
 		set @childLetterRecipient = @financialSponsorID
 	else
 		set @childLetterRecipient = @correspondentID
