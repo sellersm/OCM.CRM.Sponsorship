@@ -1,0 +1,94 @@
+﻿<SQLStoredProcedureSpec
+	xmlns="bb_appfx_sqlstoredprocedure"
+	xmlns:common="bb_appfx_commontypes" 
+	ID="87ae02a0-5118-4165-9968-e3cb108ad2f7"
+	Name="USR_USP_INSERT_MULTIPLE_SPONSORSHIPEXTENSION"
+	Description="Inserts multiple records into Sponsorship Extension table."
+	Author="Memphis Sellers"
+	SPName="USR_USP_INSERT_MULTIPLE_SPONSORSHIPEXTENSION"
+	>
+
+	<!-- 
+	Remarks:    This sproc is used to add multiple records into Sponsorship Extension table.  Takes a TableType of USR_UDT_SPONSORSHIP_EXTENSION as parameter.
+
+	History:
+	Date            Modified By     Comments
+	14-Oct-2012		Memphis			Initial Version.  Asked for by Cary...
+	-->	
+	
+	<CreateProcedureSQL>
+		<![CDATA[
+create procedure dbo.USR_USP_INSERT_MULTIPLE_SPONSORSHIPEXTENSION(
+	@sponsorshipList dbo.USR_UDT_SPONSORSHIP_EXTENSION readonly
+)
+as
+begin
+	-- do work
+	
+	declare @SPONSORSHIPID uniqueidentifier
+	declare @INITIALOPPORTUNITYSPONSORSHIPSTATUSCODEID uniqueidentifier
+	declare @CURRENTOPPORTUNITYSPONSORSHIPSTATUSCODEID uniqueidentifier
+	declare @SPONSORSHIPOPPORTUNITYID uniqueidentifier
+	declare @CHANGEAGENTID uniqueidentifier
+	declare @DATEADDED date
+	declare @DATECHANGED date
+	declare @r int;
+
+	declare sponsorshipCursor cursor fast_forward for 
+	select 	
+		SPONSORSHIPID,
+		INITIALOPPORTUNITYSPONSORSHIPSTATUSCODEID,
+		CURRENTOPPORTUNITYSPONSORSHIPSTATUSCODEID,
+		SPONSORSHIPOPPORTUNITYID,
+		CHANGEAGENTID,
+		DATEADDED,
+		DATECHANGED
+	from @sponsorshipList 
+
+	open sponsorshipCursor 
+
+	fetch next from sponsorshipCursor into 	
+		@SPONSORSHIPID,
+		@INITIALOPPORTUNITYSPONSORSHIPSTATUSCODEID,
+		@CURRENTOPPORTUNITYSPONSORSHIPSTATUSCODEID,
+		@SPONSORSHIPOPPORTUNITYID,
+		@CHANGEAGENTID,
+		@DATEADDED,
+		@DATECHANGED
+
+
+	while @@FETCH_STATUS = 0
+	begin
+		-- do the work of adding the sponsorship extension rows here:
+		exec @r = dbo.USR_USP_SPONSORSHIPEXTENSION_INSERT 
+			@SPONSORSHIPID = @SPONSORSHIPID,
+			@INITIALOPPORTUNITYSPONSORSHIPSTATUSCODEID = @INITIALOPPORTUNITYSPONSORSHIPSTATUSCODEID,
+			@CURRENTOPPORTUNITYSPONSORSHIPSTATUSCODEID = @CURRENTOPPORTUNITYSPONSORSHIPSTATUSCODEID,
+			@CONVERSIONDATE = null,
+			@SPONSORSHIPOPPORTUNITYID = @SPONSORSHIPOPPORTUNITYID,
+			@DAYSTOCONVERT = 0,
+			@CHANGEAGENTID = @CHANGEAGENTID,
+			@DATEADDED = @DATEADDED,
+			@DATECHANGED = @DATECHANGED
+	
+		fetch next from sponsorshipCursor into 	
+			@SPONSORSHIPID,
+			@INITIALOPPORTUNITYSPONSORSHIPSTATUSCODEID,
+			@CURRENTOPPORTUNITYSPONSORSHIPSTATUSCODEID,
+			@SPONSORSHIPOPPORTUNITYID,
+			@CHANGEAGENTID,
+			@DATEADDED,
+			@DATECHANGED
+
+	end
+
+	close sponsorshipCursor 
+	deallocate sponsorshipCursor 
+	
+	return 0;
+end
+
+		]]>
+	</CreateProcedureSQL>
+
+</SQLStoredProcedureSpec>

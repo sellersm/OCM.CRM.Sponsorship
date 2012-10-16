@@ -1,0 +1,12 @@
+﻿<CodeTableSpec 
+	ID="60430be4-a1ec-4f98-9947-c018f2f80554"
+	xmlns="bb_appfx_codetable"
+	xmlns:common="bb_appfx_commontypes"
+	Name="Sponsorship Cancellation Interaction Codes"
+	Description="Interaction codes used when cancelling a sponsorship"
+	Author="Memphis Sellers"
+	DBTablename="USR_SPONSORSHIPCANCELLATIONINTERACTIONTYPECODE"
+	Category="Sponsorship"
+	SortMethod="Alpha"
+/>
+

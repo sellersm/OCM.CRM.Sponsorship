@@ -1,0 +1,51 @@
+﻿<DataListSpec 
+	xmlns="bb_appfx_datalist"
+	xmlns:common="bb_appfx_commontypes" 
+	ID="591cb645-5d30-4892-afbf-39d900f00f11" 
+	Name="Get Fundraiser For AppealId Data List"
+	Description="Gets the fundraiser constituent for the given Appeal." 
+	Author="Memphis Sellers"
+	common:SecurityUIFolder="Constituent">
+
+	<!-- define the SP that returns the data for the datalist -->
+	<SPDataList SPName="USR_USP_DATALIST_GET_FUNDRAISER_FORAPPEAL">
+		<common:CreateProcedureSQL>
+			<![CDATA[
+create procedure dbo.USR_USP_DATALIST_GET_FUNDRAISER_FORAPPEAL(
+	@APPEALID uniqueidentifier
+)
+as
+	set nocount on;
+
+	select
+	  TEAMFUNDRAISER.CONSTITUENTID
+	from
+	  dbo.TEAMFUNDRAISINGTEAMMEMBER
+	  inner join dbo.TEAMFUNDRAISER on TEAMFUNDRAISINGTEAMMEMBER.TEAMFUNDRAISERID = TEAMFUNDRAISER.ID
+	  left join dbo.APPEAL on APPEAL.ID = TEAMFUNDRAISER.APPEALID
+	  where APPEAL.ID = @APPEALID
+	  
+			]]>
+		</common:CreateProcedureSQL>
+	</SPDataList>
+
+	<!-- describe the context ID parameter for the SP (if applicable)-->
+	<!--<Context ContextRecordType="REPLACE_WITH_RECORDTYPE" RecordIDParameter="CONTEXTID"/>-->
+
+	<!-- describe any parameters (other than the context ID) defined on the SP -->
+	<Parameters>
+		<common:FormMetaData>
+			<common:FormFields>
+				<common:FormField FieldID="APPEALID" Caption="Appeal Id" DataType="Guid"/>
+			</common:FormFields>
+		</common:FormMetaData>
+	</Parameters>
+
+	<!-- define the output fields in the list -->
+	<Output>
+		<OutputFields>
+			<OutputField FieldID="CONSTITUENTID" Caption="CONSTITUENTID" DataType="Guid" />
+		</OutputFields>
+	</Output>
+
+</DataListSpec>

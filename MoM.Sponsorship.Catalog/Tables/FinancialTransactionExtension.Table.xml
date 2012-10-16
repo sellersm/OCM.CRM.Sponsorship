@@ -1,0 +1,33 @@
+﻿<TableSpec 
+	xmlns="bb_appfx_table"
+	xmlns:common="bb_appfx_commontypes" 
+	ID="13e25eec-3801-4de5-ab89-46c61b45af82"
+	Name="Financial Transaction Extension custom table."
+	Description="Holds payment schedule information related to sponsorship."
+	Author="Memphis Sellers"
+	Tablename="USR_FINANCIALTRANSACTION_EXTENSION"		
+	PrimaryKeyAsForeignKeyTablename="FINANCIALTRANSACTION"
+	>
+
+	<!-- define fields on the table -->
+	<Fields>
+		<CodeTableField CodeTable="USR_DIRECTDEBITSCHEDULECODE" Description="Direct debit schedule" Name="DIRECTDEBITSCHEDULECODEID" Required="false"/>
+		<CodeTableField CodeTable="USR_CREDITCARDSCHEDULECODE" Description="Credit card schedule" Name="CREDITCARDSCHEDULECODEID" Required="false"/>
+	</Fields>
+
+	<!-- define any additional check constraints on the table -->
+	<!--<CheckConstraints>
+
+	</CheckConstraints>-->
+
+	<!-- define any indexes on the table -->
+	<!--<Indexes>
+
+	</Indexes>-->
+		
+	<!-- define any triggers on the table -->
+	<!--<Triggers>
+
+	</Triggers>-->
+
+</TableSpec>

@@ -1,0 +1,13 @@
+﻿<DataFormAddInSpec
+	xmlns="bb_appfx_dataformaddin"
+	xmlns:common="bb_appfx_commontypes"
+	ID="019c681a-ba08-4416-8f90-22ccf2e686db" 
+	Name="ProspectSponsorship AddIn"
+	Description="Payment schedule AddIn for prospect sponsorships to set date and inbound channgel." 
+	Author="Memphis Sellers"
+	DataFormInstanceID="54a5433c-2d47-4c21-921b-1edac0478f1f"
+	>
+
+	<DataFormAddIn AssemblyName="MoM.Sponsorship.UIModel" ClassName="MoM.Sponsorship.UIModel.ProspectSponsorshipAddIn" />
+
+</DataFormAddInSpec>

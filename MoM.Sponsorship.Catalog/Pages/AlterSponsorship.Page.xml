@@ -1,0 +1,61 @@
+﻿<PageDefinitionSpec 
+    xmlns="bb_appfx_pagedefinition" 
+    xmlns:common="bb_appfx_commontypes"
+    ID="4bc759e5-a32c-467b-9785-ffd96f7f5b72"
+    Name="Alter Sponsorship Page"
+    Description="Alters Sponsorship page to change the Tasks actions for cancelling an Active and or Pending sponsorship"
+    Author="Memphis Sellers"
+    ContextRecordType="Sponsorship"	
+    >
+
+	<!-- Note:  A page can optionally have a view form associated with it as the "Expression form".  While implemented as a view data form,
+	this form has no UI in this context, and is simply used as a way of loading additional information associated with the page.  The fields
+	returned by the expression form can be used as expressions in various properties throughout the page.  To specify an expression form for this
+	page, add the following attribute:		ExpressionDataFormID="<some guid>"-->
+
+	<!-- define how the page header should appear -->
+	<PageHeader Caption="REPLACE_WITH_CAPTION" ImageKey="REPLACE_WITH_IMAGEKEY" />
+
+	<AlterExistingPages>
+		<AlterPages>
+			<AlterPage PageID="428f040a-eb45-4171-8c52-a030b9992d65">
+				<AlterPageActionGroups>
+					<AlterPageActionGroup PageActionGroupID="6abcf84a-7235-4fdf-b14c-95fd9b088e5e">
+						<AlterActions>
+							<AddAction>
+								<Action ID="ca7de4e4-09b4-4f5a-bd12-4167869c0876" Caption="Cancel active sponsorship" ImageKey="RES:do_not_symbol" Visible="=Page.Fields!STATUS=&quot;Active&quot;" Enabled="=Not CBool(Page.Fields!ISPENDING)" CaptionResourceKey="$$cancel_sponsorship">
+									<ShowDataForm DataFormID="3e5de54f-e0f7-4187-bdd1-0bfff1156e2d" xmlns="bb_appfx_commontypes">
+										<ActionContext>
+											<PageContextID />
+										</ActionContext>
+										<PostActionEvent>
+											<RefreshPage />
+										</PostActionEvent>
+									</ShowDataForm>
+									<HelpKey>SPSponsorshipPageCancelSponsorship.html</HelpKey>
+								</Action>
+							</AddAction>
+							<AddAction>
+								<Action ID="40129053-3509-4614-bda4-c74df330104a" Caption="Cancel pending sponsorship" ImageKey="RES:do_not_symbol" Visible="=Fields!STATUS=&quot;Active (Transfer pending)&quot; OrElse Fields!STATUS=&quot;Pending&quot;" Enabled="=Not CBool(Page.Fields!ISPENDING)" CaptionResourceKey="$$cancel_sponsorship">
+									<ShowDataForm DataFormID="edde2945-0141-4677-8155-bbc3a80eb66b" xmlns="bb_appfx_commontypes">
+										<ActionContext>
+											<PageContextID />
+										</ActionContext>
+										<PostActionEvent>
+											<RefreshPage />
+										</PostActionEvent>
+									</ShowDataForm>
+									<HelpKey>SPSponsorshipPageCancelSponsorship.html</HelpKey>
+								</Action>
+							</AddAction>
+						</AlterActions>
+						
+					</AlterPageActionGroup>
+					
+				</AlterPageActionGroups>
+				
+			</AlterPage>
+		</AlterPages>
+	</AlterExistingPages>
+	
+</PageDefinitionSpec>

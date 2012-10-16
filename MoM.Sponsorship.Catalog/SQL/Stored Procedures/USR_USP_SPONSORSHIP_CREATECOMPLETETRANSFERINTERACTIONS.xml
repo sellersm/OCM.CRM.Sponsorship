@@ -1,0 +1,188 @@
+﻿<SQLStoredProcedureSpec
+	xmlns="bb_appfx_sqlstoredprocedure"
+	xmlns:common="bb_appfx_commontypes" 
+	ID="e497c827-ae8b-4f1c-960c-b461cb3168fd"
+	Name="USR_USP_SPONSORSHIP_CREATECOMPLETETRANSFERINTERACTIONS"
+	Description="Used to process a Non-Pending Transfer"
+	Author="Cary Mayeda"
+	SPName="USR_USP_SPONSORSHIP_CREATECOMPLETETRANSFERINTERACTIONS" >
+
+	<!-- 
+	Remarks:    This is called from USR_USP_DATAFORMTEMPLATE_EDITLOAD_SPONSORSHIP_COMPLETETRANSFERCHILD in the Sponsorship Complete Transfer Child Edit Data Form
+
+	History:
+	Date            Modified By     Comments
+	08-Oct-2012		CMayeda			Initial Version
+
+	-->
+	
+	<CreateProcedureSQL>
+		<![CDATA[
+create procedure dbo.USR_USP_SPONSORSHIP_CREATECOMPLETETRANSFERINTERACTIONS (
+	@fromSponsorshipID uniqueidentifier = null,
+	@toSponsorshipID uniqueidentifier = null,
+	@donorContactCodeID uniqueidentifier = null,
+	@interactionTypeCodeID uniqueidentifier = null,
+	@changeAgentID uniqueidentifier = null							-- Used to specify change agent for CHANGEDBYID and ADDEDBYID fields.  USP_CHANGEAGENT_GETORCREATECHANGEAGENT is called if it's null
+)
+as begin
+
+	set nocount on;
+
+		
+	if @changeAgentID is null  
+		exec dbo.USP_CHANGEAGENT_GETORCREATECHANGEAGENT @changeAgentID output
+
+	declare @raiseErrorIfNotFound bit = 1	
+	
+	declare @statusCode_Pending tinyint = 1
+
+	declare @interactionFulfillmentStatus_Pending nvarchar(100) = 'Pending'
+
+	declare @interactionLetterTypeDesc_Contacted nvarchar(100) = 'Contacted'
+	declare @interactionLetterTypeDesc_NotContacted nvarchar(100) = 'Not Contacted'
+
+	declare @interactionSummary nvarchar(100) = 'Cancel sponsorship'				-- Used for the Summary of all sponsor interactions
+
+	
+	-- Interaction Category / Subcategory Names and IDs used in creating and querying the interactions
+	declare @interactionCategoryDesc_SponsorTransfers nvarchar(100) = 'Sponsorship Transfers'		-- The category used for all sponsor interactions
+	
+	declare @interactionSubcategoryDesc_ChildTransferLetter nvarchar(100) = 'Child Transfer Letter'
+	declare @interactionSubcategoryDesc_DoubleSponsorshipLetter nvarchar(100) = 'Double Sponsorship Letter'
+	
+
+	-- Contact Method descriptions
+	declare @contactMethodDesc_Mail nvarchar (100) = 'Mail'
+	
+
+	-- These are used to lookup the interactionTypeCodeIDs from USR_NEWSPONSORSHIPINTERACTIONTYPECODE
+	-- This is what the user selected on the form
+	declare @interactionTypeCodeDesc_ChildTransferLetter nvarchar(100) = 'Child Transfer Letter'
+	declare @interactionTypeCodeDesc_DoubleSponsorshipLetter nvarchar(100) = 'Double Sponsorship Letter'
+
+	-- This are used to determine what interaction type the user selected
+	declare @interactionTypeCodeID_ChildTransferLetter uniqueidentifier = null
+	declare @interactionTypeCodeID_DoubleSponsorshipLetter uniqueidentifier = null
+
+
+	-- Error messages if the interaction type code couldn't be found
+	declare @interactionTypeCodeErrorMsg_ChildTransferLetter  nvarchar(255) = 'Could not find ' + @interactionTypeCodeDesc_ChildTransferLetter + ' in code table USR_SPONSORSHIPCOMPLETETRANSFERINTERACTIONTYPECODE'
+	declare @interactionTypeCodeErrorMsg_DoubleSponsorshipLetter  nvarchar(255) = 'Could not find ' + @interactionTypeCodeDesc_DoubleSponsorshipLetter + ' in code table USR_SPONSORSHIPCOMPLETETRANSFERINTERACTIONTYPECODE'
+
+
+	declare @fromChildID uniqueidentifier = null
+	declare @toChildID uniqueidentifier = null
+	
+	declare @donorContactCodeID_Contact uniqueidentifier = null
+	declare @donorContactCodeID_NoContact uniqueidentifier = null
+
+		
+	begin try
+		if @interactionTypeCodeID is null
+			raiserror 100000 'InteractionTypeCodeID cannot be null'
+			
+		select @interactionTypeCodeID_ChildTransferLetter = ID from dbo.USR_SPONSORSHIPCOMPLETETRANSFERINTERACTIONTYPECODE where lower (DESCRIPTION) = lower (@interactionTypeCodeDesc_ChildTransferLetter)
+		if @interactionTypeCodeID_ChildTransferLetter is null
+			raiserror 100000 @interactionTypeCodeErrorMsg_ChildTransferLetter
+		
+		select @interactionTypeCodeID_DoubleSponsorshipLetter = ID from dbo.USR_SPONSORSHIPCOMPLETETRANSFERINTERACTIONTYPECODE where lower (DESCRIPTION) = lower (@interactionTypeCodeDesc_DoubleSponsorshipLetter)
+		if @interactionTypeCodeID_DoubleSponsorshipLetter is null
+			raiserror 100000 @interactionTypeCodeErrorMsg_DoubleSponsorshipLetter
+
+		set @fromChildID = (select SPONSORSHIPOPPORTUNITYID from dbo.SPONSORSHIP where ID = @fromSponsorshipID) 
+		if @fromChildID is null
+			raiserror 100000 'Could not find the transferred from child'
+		
+		set @toChildID = (select SPONSORSHIPOPPORTUNITYID from dbo.SPONSORSHIP where ID = @toSponsorshipID)
+		if @toChildID  is null
+			raiserror 100000 'Could not find the transferred to child'
+
+		select @donorContactCodeID_Contact = ID from dbo.USR_UNAVAILABLE_SPONSORSHIP_CONTACTCODE where DESCRIPTION = lower ('Contact')
+		if @donorContactCodeID_Contact is null 
+			RAISERROR 100000 'Could not find the "Contact" donor contact code'
+			
+		select @donorContactCodeID_NoContact = ID from dbo.USR_UNAVAILABLE_SPONSORSHIP_CONTACTCODE where DESCRIPTION = lower ('No Contact')
+		if @donorContactCodeID_NoContact is null 
+			RAISERROR 100000 'Could not find the "No Contact" donor contact code'
+	end try
+	begin catch
+	    exec dbo.USP_RAISE_ERROR
+		return 1	
+	end catch
+
+	declare @letterTypeDesc nvarchar(100) = ''
+	set @letterTypeDesc = case @donorContactCodeID
+										when @donorContactCodeID_Contact then @interactionLetterTypeDesc_Contacted
+										when @donorContactCodeID_NoContact then @interactionLetterTypeDesc_NotContacted
+										else 'unknown donorContactCodeID'
+									end
+
+	declare @letterSubcategoryDesc nvarchar(100) = ''
+	set @letterSubcategoryDesc = case 
+									when @interactionTypeCodeID = @interactionTypeCodeID_ChildTransferLetter then @interactionSubcategoryDesc_ChildTransferLetter
+									when @interactionTypeCodeID = @interactionTypeCodeID_DoubleSponsorshipLetter then @interactionTypeCodeDesc_DoubleSponsorshipLetter
+								end
+
+
+	-- Cancel pending child interactions for this sponsorship 
+	exec USR_USP_INTERACTION_CHILD_CANCELPENDINGLETTERS 
+		@sponsorshipOpportunityChildID = @fromChildID,
+		@comment = 'Child sponsorship has been cancelled', 
+		@changeAgentID = @changeAgentID
+		
+	-- Cancel pending interactions (or remove from multiple children interactions) on the sponsor (both financial and correspondent) for this child
+	exec dbo.USR_USP_INTERACTION_SPONSOR_CANCELPENDINGCHILDINTERACTIONS 
+		@sponsorshipID = @fromSponsorshipID,
+		@sponsorshipOpportunityChildID = @fromChildID,
+		@cancelComment = 'Child sponsorship has been cancelled',
+		@removeChildComment = 'was removed due to sponsorship cancellation',
+		@changeAgentID = @changeAgentID
+		
+
+	declare @financialSponsorID uniqueidentifier = null
+	set @financialSponsorID = dbo.USR_UFN_SPONSORSHIP_GETFINANCIALSPONSOR (@toSponsorshipID)
+
+	declare @currentDate date = getdate()
+	
+	declare @interactionID uniqueidentifier = null
+	
+
+	exec dbo.USR_USP_INTERACTION_SPONSOR_ADD_PENDING 
+		@id = @interactionID output,
+		@constituentID = @financialSponsorID,
+		@summary = @interactionSummary,
+		@categoryName = @interactionCategoryDesc_SponsorTransfers,
+		@subcategoryName = @letterSubcategoryDesc,
+		@expectedDate = @currentDate,
+		@owner = null,
+		@contactMethodDesc = @contactMethodDesc_Mail,
+		@comment = '',						
+		@letterTypeDesc = @letterTypeDesc,
+		@fulfillmentStatusDesc = @interactionFulfillmentStatus_Pending,
+		@eftBrochureCode = 0,
+		@resendCode = 0,
+		@changeAgentID = @changeAgentID			
+		
+	-- Add the child to the interaction (already exisiting or new one)
+	if @interactionID is not null
+	begin
+		exec dbo.USR_USP_INTERACTION_SPONSOR_SETDEPARTEDCHILD
+			@interactionID = @interactionID,
+			@sponsorshipOpportunityChildID = @fromChildID,
+			@changeAgentID = @changeAgentID 
+
+		exec dbo.USR_USP_INTERACTION_SPONSOR_SETTRANSFERCHILD
+			@interactionID = @interactionID,
+			@sponsorshipOpportunityChildID = @toChildID,
+			@changeAgentID = @changeAgentID 
+
+	end
+
+
+end
+
+		]]>
+	</CreateProcedureSQL>
+
+</SQLStoredProcedureSpec>

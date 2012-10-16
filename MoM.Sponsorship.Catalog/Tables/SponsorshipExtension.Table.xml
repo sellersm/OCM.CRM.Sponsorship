@@ -1,0 +1,50 @@
+﻿<TableSpec 
+	xmlns="bb_appfx_table"
+	xmlns:common="bb_appfx_commontypes" 
+	ID="8b2f00cf-ba07-4c98-8b11-f410a68a71f7"
+	Name="SponsorshipExtension Table"
+	Description="Holds information related to the Sponsorship."
+	Author="Memphis Sellers"
+	Tablename="USR_SPONSORSHIPEXTENSION"
+	PrimaryKeyAsForeignKeyTablename="SPONSORSHIP"
+	>
+
+<!-- 
+	Remarks:    This table is used to hold sponsorship status values for a sponsorship.
+				Used to determine the prospect conversions.
+
+	History:
+	Date            Modified By     Comments
+	25-Sep-2012		Memphis			Initial Version.
+	30-Sep-2012		Memphis			Added the ISCURRENT field.
+-->
+
+	<!-- define fields on the table -->
+	<Fields>
+		<!--<ForeignKeyField Description="FK Field to Sponsorship" Name="SPONSORSHIPID" Required="true" Cardinality="OneToOne" ForeignTable="SPONSORSHIP" OnDelete="CascadeDelete" />-->
+		<CodeTableField Description="Initial Sponsorship Opportunity Status" CodeTable="USR_INITIALOPPORTUNITYSPONSORSHIPSTATUSCODE" Name="INITIALOPPORTUNITYSPONSORSHIPSTATUSCODEID" Required="true"/>
+		<CodeTableField Description="Current Sponsorship Opportunity Status" CodeTable="USR_CURRENTOPPORTUNITYSPONSORSHIPSTATUSCODE" Name="CURRENTOPPORTUNITYSPONSORSHIPSTATUSCODEID" Required="true"/>
+		<DateField Description="Conversion Date" IncludeTime="false" Name="CONVERSIONDATE" Required="false"/>
+		<GuidField Description="Sponsorship Opportunity Id" Name="SPONSORSHIPOPPORTUNITYID" Required="true"/>
+		<NumberField Description="Days to Convert" Name="DAYSTOCONVERT" Type="smallint" />
+		<BooleanField Description="Is current status?" Name="ISCURRENT"/>
+	</Fields>
+
+	<!-- define any additional check constraints on the table -->
+	<!--<CheckConstraints>
+
+	</CheckConstraints>
+
+	--><!-- define any indexes on the table --><!--
+	<Indexes>
+
+	</Indexes>-->
+		
+	<!-- define any triggers on the table:
+	     NEED to add a trigger to update this field: CURRENTCHILDSPONSORSHIPSTATUSCODEID in USR_CHILDEXTENSION
+	-->
+	<!--<Triggers>
+
+	</Triggers>-->
+
+</TableSpec>

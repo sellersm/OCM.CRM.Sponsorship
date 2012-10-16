@@ -1,0 +1,142 @@
+﻿<SearchListSpec 
+	xmlns="bb_appfx_searchlist"
+	xmlns:common="bb_appfx_commontypes"
+	xmlns:srch="bb_appfx_searchlist"
+	ID="7d7ac450-86f7-42f7-9299-e2458592ad14"
+	Name="Sponsorship Location Search MoM Copy"
+	Description="MoM Customized Sponsorship Location search form"
+	Author="Memphis Sellers"
+	RecordType="Sponsorship Location"
+	QuickFindCriteriaFieldID="NAME" 
+	NameResourceKey="$$sponsorship_location_search" 
+	TranslationFunctionID="2a1b83f6-95e8-403b-96f7-837dd51206c6"
+	>
+	<!--<common:DependencyList>
+		<common:Dependency CatalogAssembly="Blackbaud.AppFx.Sponsorship.Catalog.dll" CatalogItem="Blackbaud.AppFx.Sponsorship.Catalog.UFN_SPONSORSHIPLOCATION_GETFULLNAME.xml" />
+		<common:Dependency CatalogAssembly="Blackbaud.AppFx.Sponsorship.Catalog.dll" CatalogItem="Blackbaud.AppFx.Sponsorship.Catalog.UFN_SPONSORSHIPLOCATION_FULLSTRING.xml" />
+	</common:DependencyList>
+	<common:InstalledProductList>
+		<common:InstalledProduct ID="3117d2c8-7f46-42f2-abeb-b654f2f63046" />
+	</common:InstalledProductList>-->
+	<srch:ResourceFile AssemblyName="Blackbaud.AppFx.Sponsorship.Catalog.dll" ClassName="Blackbaud.AppFx.Sponsorship.Catalog.SponsorshipLocation.Search" />
+
+	<!-- 
+	Remarks:    This is a copy of the BB Sponsorship Location Search Form.
+				Add LookupID (the lookupid of the location) and Name (Constituent Name if there is a field office, blank if not).  
+				Put those two columns on the far left before the Location column.
+				This will become the Default Search List for a Sponsorship Location in CRM.
+				Original ID and NAME of this spec, before changing to the BB built-in ones:
+					ID="93fc05f4-076b-4f4e-a74d-9145cb56a7d2"
+					Name="Sponsorship Location Search MoM Copy"
+				These are the BB built-in OOB values:
+					ID="7d7ac450-86f7-42f7-9299-e2458592ad14" 
+					Name="Sponsorship Location Search" 
+	History:
+	Date            Modified By     Comments
+	28-Aug-2012		Memphis			Initial Version.  
+	-->
+		
+	<!-- describe the SP used to fetch the results from the given filters.  Note that the @MAXROWS parameter is required, and should be 
+	used to limit the number of rows returned to a reasonable number. -->
+	<SPSearchList SPName="USR_USP_SEARCHLIST_SPONSORSHIPLOCATION_MOM_CUSTOM">
+		<common:CreateProcedureSQL>
+			<![CDATA[
+create procedure dbo.USR_USP_SEARCHLIST_SPONSORSHIPLOCATION_MOM_CUSTOM
+(
+		@NAME nvarchar(100) = null,
+	@TYPE uniqueidentifier = null,
+	@LOOKUPID nvarchar(100) = null,
+	@INCLUDEINACTIVE bit = 0,
+	@INCLUDECLOSED bit = 0,
+	@INCLUDECHILDNODES bit = 0,
+	@WITHINLOCATION uniqueidentifier = null,  
+	-- not used, for UI only
+	@WITHINLOCATIONDISPLAY nvarchar(max) = null,
+	@EXCLUDELOCATION uniqueidentifier = null,
+	@MAXROWS smallint = 500
+)
+as
+	set @NAME = replace(coalesce(@NAME,''),' \ ','\')+'%';
+
+	select distinct top(@MAXROWS)
+		SPONSORSHIPLOCATION.ID,
+		dbo.UFN_SPONSORSHIPLOCATION_GETFULLNAME(SPONSORSHIPLOCATION.ID) FULLSTRING,
+		SPONSORSHIPLOCATIONTYPECODE.[DESCRIPTION] [TYPE],
+		SPONSORSHIPLOCATION.[STATUS],
+		SPONSORSHIPLOCATION.LOOKUPID,
+		coalesce(projectconst.NAME, '') FIELDOFFICENAME
+	from dbo.SPONSORSHIPLOCATION
+	inner join
+		dbo.SPONSORSHIPLOCATIONTYPECODE on SPONSORSHIPLOCATIONTYPECODE.ID = SPONSORSHIPLOCATION.SPONSORSHIPLOCATIONTYPECODEID
+	inner join
+	(
+		select SPONSORSHIPLOCATION.ID,
+		       SPONSORSHIPLOCATION.HIERARCHYPATH
+		from 
+			dbo.SPONSORSHIPLOCATION
+		inner join
+			dbo.SPONSORSHIPLOCATIONTYPECODE on SPONSORSHIPLOCATIONTYPECODE.ID = SPONSORSHIPLOCATION.SPONSORSHIPLOCATIONTYPECODEID
+		where (SPONSORSHIPLOCATION.NAME like @NAME or
+				-- allow name searches like 'Africa\Mali'
+		       (@NAME like '%\%' and
+			    '\'+dbo.UFN_SPONSORSHIPLOCATION_FULLSTRING(SPONSORSHIPLOCATION.ID,'\',0,0) like '%\'+@NAME and
+				SPONSORSHIPLOCATION.NAME like substring(@NAME,len(@NAME)-charindex('\',reverse(@NAME))+2,len(@NAME))))
+		and (@TYPE is null or SPONSORSHIPLOCATION.SPONSORSHIPLOCATIONTYPECODEID = @TYPE)
+		and (@LOOKUPID is null or SPONSORSHIPLOCATION.LOOKUPID like '%'+ @LOOKUPID + '%')
+		and (SPONSORSHIPLOCATION.STATUSCODE = 0 or
+			 (@INCLUDEINACTIVE = 1 and SPONSORSHIPLOCATION.STATUSCODE = 1) or
+			 (@INCLUDECLOSED = 1 and SPONSORSHIPLOCATION.STATUSCODE = 2))
+		and (@WITHINLOCATION is null or SPONSORSHIPLOCATION.HIERARCHYPATH.IsDescendantOf((select HIERARCHYPATH from dbo.SPONSORSHIPLOCATION where ID=@WITHINLOCATION)) = 1)
+		and (@EXCLUDELOCATION is null or SPONSORSHIPLOCATION.HIERARCHYPATH.IsDescendantOf((select HIERARCHYPATH from dbo.SPONSORSHIPLOCATION where ID=@EXCLUDELOCATION)) = 0)
+	) MATCHES on 1=1
+	left join  dbo.CONSTITUENT projectconst ON SPONSORSHIPLOCATION.FIELDOFFICEID = projectconst.ID
+	where (SPONSORSHIPLOCATION.ID = MATCHES.ID or
+	       (@INCLUDECHILDNODES = 1 and SPONSORSHIPLOCATION.HIERARCHYPATH.IsDescendantOf(MATCHES.HIERARCHYPATH) = 1))
+	and (SPONSORSHIPLOCATION.STATUSCODE = 0 or
+		 (@INCLUDEINACTIVE = 1 and SPONSORSHIPLOCATION.STATUSCODE = 1) or
+		 (@INCLUDECLOSED = 1 and SPONSORSHIPLOCATION.STATUSCODE = 2))
+	and (@EXCLUDELOCATION is null or SPONSORSHIPLOCATION.HIERARCHYPATH.IsDescendantOf((select HIERARCHYPATH from dbo.SPONSORSHIPLOCATION where ID=@EXCLUDELOCATION)) = 0)
+	order by 
+		FULLSTRING
+			]]>
+		</common:CreateProcedureSQL>
+	</SPSearchList>
+
+	<!-- describe the filter fields for the search screen -->
+	<common:FormMetaData>
+		<common:FormFields>
+			<common:FormField FieldID="NAME" MaxLength="100" Caption="Name" CaptionResourceKey="$$name" />
+			<common:FormField FieldID="TYPE" DataType="Guid" Caption="Type" CaptionResourceKey="$$type">
+				<common:CodeTable CodeTableName="SPONSORSHIPLOCATIONTYPECODE" IncludeInactive="true" />
+			</common:FormField>
+			<common:FormField FieldID="LOOKUPID" MaxLength="100" Caption="Lookup ID" CaptionResourceKey="$$lookup_id" />
+			<common:FormField FieldID="INCLUDEINACTIVE" DataType="Boolean" Caption="Include inactive" CaptionResourceKey="$$include_inactive" />
+			<common:FormField FieldID="INCLUDECLOSED" DataType="Boolean" Caption="Include closed" CaptionResourceKey="$$include_closed" />
+			<common:FormField FieldID="INCLUDECHILDNODES" DataType="Boolean" Caption="Include sublocations of matches" CaptionResourceKey="$$include_sublocations_of_matches" />
+			<common:FormField FieldID="WITHINLOCATION" DataType="Guid" Hidden="true" Caption="WITHINLOCATION" />
+			<common:FormField FieldID="WITHINLOCATIONDISPLAY" ReadOnly="true" Hidden="true" Caption="Within" />
+			<common:FormField FieldID="EXCLUDELOCATION" DataType="Guid" Hidden="true" Caption="EXCLUDELOCATION" />
+		</common:FormFields>
+
+		<!--<common:WebUIComponent>
+			<common:UIModel AssemblyName="Blackbaud.AppFx.Sponsorship.UIModel.dll" ClassName="Blackbaud.AppFx.Sponsorship.UIModel.sponsorship.SponsorshipLocationSearchUIModel" />
+			<common:WebUI>
+				<common:ExternalResource Url="browser/htmlforms/sponsorship/SponsorshipLocationSearch.html" />
+			</common:WebUI>
+		</common:WebUIComponent>-->
+	</common:FormMetaData>
+
+	<!-- also describe the output fields for the search screen -->
+	<Output>
+		<OutputFields>
+			<OutputField FieldID="ID" Caption="ID" IsHidden="true" DataType="Guid" CaptionResourceKey="$$id" />
+			<OutputField FieldID="FULLSTRING" Caption="Location" DataType="String" CaptionResourceKey="$$location" />
+			<OutputField FieldID="TYPE" Caption="Type" DataType="String" CaptionResourceKey="$$type" />
+			<OutputField FieldID="STATUS" Caption="Status" DataType="String" CaptionResourceKey="$$status" />
+			<OutputField FieldID="LOOKUPID" Caption="Lookup ID" DataType="String" />
+			<OutputField FieldID="FIELDOFFICENAME" Caption="Field Office" DataType="String" />
+		</OutputFields>
+	</Output>
+
+</SearchListSpec>
+
