@@ -90,24 +90,24 @@ begin
 		begin
 			if lower(@code) = 'partner - church'
 			begin
-				set @relationshipDescription = 'Church'
-				set @reciprocalDescription = 'Church Member'
+				set @relationshipDescription = 'Church Member'
+				set @reciprocalDescription = 'Church'			
 				set @isSoftCredit = 0
 				set @constituentCodeToCreate = 'Church Partnership'
 			end
 		
 			if lower(@code) = 'partner - group'
 			begin
-				set @relationshipDescription = 'Church'
-				set @reciprocalDescription = 'Church Member'			
+				set @relationshipDescription = 'Church Member'
+				set @reciprocalDescription = 'Church'			
 				set @isSoftCredit = 0
 				set @constituentCodeToCreate = 'Group Partnership'
 			end
 		
 			if lower(@code) = 'partnership for mercy - partner'
 			begin
-				set @relationshipDescription = 'Church'
-				set @reciprocalDescription = 'Church Member'			
+				set @relationshipDescription = 'Church Member'
+				set @reciprocalDescription = 'Church'			
 				set @isSoftCredit = 1
 				set @constituentCodeToCreate = 'Partnership for Mercy'
 			end
@@ -119,7 +119,7 @@ begin
 		RAISERROR 1000000 'No rows returned from temp table!'
 	
 	-- set the values & call the create relationship sproc
-	set @RECIPROCALCONSTITUENTID = @PFMID				-- this is the PFM ID the user selected: Testing Partnership for Mercy ORG
+	set @RECIPROCALCONSTITUENTID = @PFMID				-- this is the PFM ID the user selected
 	
 	-- be sure we have some relationship codes to look for:
 	if (@reciprocalDescription is null) or (@relationshipDescription is null)
@@ -148,8 +148,8 @@ begin
 		set @COMMENTS = N'created by adding a new sponsorship'
 		set @PRIMARYSOFTCREDITRELATIONSHIPEXISTS = @isSoftCredit -- 1
 		set @PRIMARYSOFTCREDITMATCHFACTOR = CASE @isSoftCredit WHEN 1 then 100 else 0 end;
-		set @RECIPROCALSOFTCREDITRELATIONSHIPEXISTS = 0
-		set @RECIPROCALSOFTCREDITMATCHFACTOR = 0
+		set @RECIPROCALSOFTCREDITRELATIONSHIPEXISTS = 0;
+		set @RECIPROCALSOFTCREDITMATCHFACTOR = 0;
 		set @RECIPROCALRECOGNITIONTYPECODEID = NULL
 		if @CHANGEAGENTID is null  
 			exec dbo.USP_CHANGEAGENT_GETORCREATECHANGEAGENT @CHANGEAGENTID output
