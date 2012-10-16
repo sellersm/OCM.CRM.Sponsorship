@@ -11,6 +11,16 @@
     FormHeader="Edit Payment Schedule"
     >
 
+	<!-- 
+	Remarks:    NOT COMPLETE.  NOT ADDED TO PACKAGE
+
+	History:
+	Date            Modified By     Comments
+	12-Oct-2012		Memphis			Initial Version
+	15-Oct-2012		Memphis			FogBugz Case 915: make sure the payment schedule type matches with the recurring gift's payment method code (Debit or Credit).
+	-->
+	
+	
 	<SPDataForm>
 
 		<!-- define the edit load SP, which is used to load the data for the form -->
@@ -37,9 +47,7 @@ as
 
 	-- be sure to set these, in case the select returns no rows
 	set @DATALOADED = 0
-	set @TSLONG = 0
-	
-	
+	set @TSLONG = 0	
 	
 	-- populate the output parameters, which correspond to fields on the form.  Note that
 	-- we set @DATALOADED = 1 to indicate that the load was successful.  Otherwise, the system
@@ -115,7 +123,32 @@ as
 		@PAYMENTMETHODTEXT = REVENUEPAYMENTMETHOD.PAYMENTMETHOD
 		from dbo.REVENUEPAYMENTMETHOD 
 		where REVENUEPAYMENTMETHOD.REVENUEID = @ID;
-		
+
+	-- 10/15/12: FogBugz Case 915: check the recurring gift's payment method code, and ensure the extension fields match up:
+	--           if this is credit card, then make sure there's no direct debit entry, and vice versa...
+	-- we care about these: 'Credit card', 'Direct debit'
+	if LOWER(@PAYMENTMETHODTEXT) = 'credit card'
+	begin
+		-- remove any direct debit codes, since this gift's paymentmethod is credit card
+		update dbo.USR_FINANCIALTRANSACTION_EXTENSION
+			set 
+			DIRECTDEBITSCHEDULECODEID = null
+			where ID = @ID
+		set @DIRECTDEBITSCHEDULECODEID = null;
+
+	end
+	
+	if LOWER(@PAYMENTMETHODTEXT) = 'direct debit'
+	begin
+		-- remove any direct credit card codes, since this gift's paymentmethod is debit
+		update dbo.USR_FINANCIALTRANSACTION_EXTENSION
+			set 
+			CREDITCARDSCHEDULECODEID = null
+			where ID = @ID
+		set @CREDITCARDSCHEDULECODEID = null;
+			
+	end
+	
 	return 0;
 				]]>
 			</common:CreateProcedureSQL>
