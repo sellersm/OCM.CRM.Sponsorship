@@ -19,6 +19,7 @@
 	29-Sep-2012		CMayeda			Set Child Welcome Letter expected date to 2 months out - FogBugz Case 855
 	29-Sep-2012		CMayeda			Only create call /email interaction if new sponsor/prospect sponsor - FogBugz Case 862, 863
 	14-Oct-2012		CMayeda			Fixed the child letter interaction going to the financial sponsor if the correspondent and financial sponsor had the same address - FogBugz Case 907	
+	17-Oct-2012		CMayeda			Added "Unavailable Child Notification" phone call interaction - FogBugz Case 910
 	-->
 
 	<CreateProcedureSQL>
@@ -73,7 +74,6 @@ begin
 	declare @interactionSubcategoryDesc_WelcomeGreeting nvarchar(100) = 'Welcome Greeting'
 	declare @interactionSubcategoryDesc_WelcomePacketAndProfileCorrespondingSponsor nvarchar(100) = 'Welcome Packet & Profile - Corresponding Sponsor'
 	declare @interactionSubcategoryDesc_ProspectThankYou nvarchar(100) = 'Prospect Thank You'	
-	--** why was this like this? declare @interactionSubcategoryDesc_ProspectThankYou nvarchar(100) = 'Prospect Thank You'	
 	declare @interactionSubcategoryDesc_UnavailableChildNotification nvarchar(100) = 'Unavailable Child Notification'	
 	
 	-- Child interaction sub categories
@@ -91,6 +91,8 @@ begin
 	declare @interactionResponseCategory_MessageType nvarchar(100) = 'Message Type'
 	declare @interactionResponseCategory_PacketReceived nvarchar(100) = 'Packet Received'
 	declare @interactionResponseCategory_EFTReceived nvarchar(100) = 'EFT Received'
+	declare @interactionResponseCategory_AcceptTransfer nvarchar(100) = 'Accept Transfer'
+	
 
 	-- Response descriptions
 	declare @interactionResponse_No nvarchar(100) = 'No'
@@ -258,8 +260,10 @@ begin
 				set @welcomeMailSubCategoryDesc = @interactionSubcategoryDesc_UnavailableChildLetter
 		end
 
-declare @test nvarchar(100)
-set @test = 'childcounter ' + cast (@childcounter as nvarchar(5)) + ', childcount ' + cast (@childCount as nvarchar(5)) + ', # sponsorships ' + cast (dbo.USR_UFN_SPONSORSHIP_GETACTIVECHILDSPONSORSHIPSFORSPONSOR (@financialSponsorID)  as nvarchar(5))
+		-- Used for debugging - declare @test nvarchar(100)
+		-- Used for debugging - set @test = 'childcounter ' + cast (@childcounter as nvarchar(5)) + ', childcount ' + cast (@childCount as nvarchar(5)) + ', # sponsorships ' + cast (dbo.USR_UFN_SPONSORSHIP_GETACTIVECHILDSPONSORSHIPSFORSPONSOR (@financialSponsorID)  as nvarchar(5))
+		set @interactionID = null
+
 		exec dbo.USR_USP_INTERACTION_SPONSOR_ADD_PENDING 
 				@id = @interactionID output,
 				@constituentID = @financialSponsorID,
@@ -269,7 +273,7 @@ set @test = 'childcounter ' + cast (@childcounter as nvarchar(5)) + ', childcoun
 				@expectedDate = @currentDate,
 				@owner = null,						
 				@contactMethodDesc = @contactMethodDesc_Mail,
-				@comment = @test,						
+				@comment = '',						
 				@letterTypeDesc = @welcomeMailLetterTypeDesc,
 				@fulfillmentStatusDesc = @interactionFulfillmentStatus_CallInProcess, 
 				@eftBrochureCode = @eftBrochureCode,
@@ -289,6 +293,67 @@ set @test = 'childcounter ' + cast (@childcounter as nvarchar(5)) + ', childcoun
 				@changeAgentID = @changeAgentID
 				
 		end	
+		
+		set @interactionID = null
+		exec dbo.USR_USP_INTERACTION_SPONSOR_ADD_PENDING 
+			@id = @interactionID output,
+			@constituentID = @financialSponsorID,
+			@summary = @interactionSummary,
+			@categoryName = @welcomeMailCategoryDesc,
+			@subcategoryName = @interactionSubcategoryDesc_UnavailableChildNotification,
+			@expectedDate = @currentDate,
+			@owner = null,						
+			@contactMethodDesc = @contactMethodDesc_Phone,
+			@comment = '',						
+			@letterTypeDesc = '',
+			@fulfillmentStatusDesc = '',
+			@eftBrochureCode = '',
+			@resendCode = 0,
+			@changeAgentID = @changeAgentID				
+			
+		if @interactionID is not null
+		begin		
+			exec dbo.USR_USP_INTERACTION_SPONSOR_SETUNAVAILABLECHILD
+				@interactionID = @interactionID,
+				@sponsorshipOpportunityChildID = @unavailableChildID,
+				@changeAgentID = @changeAgentID
+
+			exec dbo.USR_USP_INTERACTION_SPONSOR_SETTRANSFERCHILD
+				@interactionID = @interactionID,
+				@sponsorshipOpportunityChildID = @transferChildID,
+				@changeAgentID = @changeAgentID
+
+			exec dbo.USR_USP_INTERACTION_ADDRESPONSE 
+				@interactionID = @interactionID,
+				@responseCategoryName = @interactionResponseCategory_DonorContact,
+				@response = @interactionResponse_No,
+				@responseDate = null,		
+				@changeAgentID = @changeAgentID
+
+
+			exec dbo.USR_USP_INTERACTION_ADDRESPONSE 
+				@interactionID = @interactionID,
+				@responseCategoryName = @interactionResponseCategory_LeftMessage,
+				@response = @interactionResponse_No,
+				@responseDate = null,		
+				@changeAgentID = @changeAgentID
+
+			exec dbo.USR_USP_INTERACTION_ADDRESPONSE 
+				@interactionID = @interactionID,
+				@responseCategoryName = @interactionResponseCategory_MessageType,
+				@response = @interactionResponse_None,
+				@responseDate = null,		
+				@changeAgentID = @changeAgentID
+			
+			exec dbo.USR_USP_INTERACTION_ADDRESPONSE 
+				@interactionID = @interactionID,
+				@responseCategoryName = @interactionResponseCategory_AcceptTransfer,
+				@response = @interactionResponse_No,
+				@responseDate = null,		
+				@changeAgentID = @changeAgentID
+		end	
+
+		set @interactionID = null
 		
 		if @isProspect = 0
 			exec dbo.USR_USP_INTERACTION_CHILDLETTER_ADD_PENDING
@@ -327,6 +392,8 @@ set @test = 'childcounter ' + cast (@childcounter as nvarchar(5)) + ', childcoun
 	begin
 		if @isProspect = 0
 		begin
+			set @interactionID = null
+			
 			-- Paid sponsorship gets a Welcome Call
 			declare @expectedDate date = dateadd(d, @welcomeGreetingPhoneCallDelay, @currentDate)
 	
@@ -405,6 +472,8 @@ set @test = 'childcounter ' + cast (@childcounter as nvarchar(5)) + ', childcoun
 				set @prospectThankYouOwner = @callCenterManagerConstituentID
 			end
 		
+			set @interactionID = null
+
 			exec dbo.USR_USP_INTERACTION_SPONSOR_ADD_PENDING 
 				@id = @interactionID output,
 				@constituentID = @financialSponsorID,
@@ -462,6 +531,8 @@ set @test = 'childcounter ' + cast (@childcounter as nvarchar(5)) + ', childcoun
 
 	if @financialSponsorInteractionOnly = 0
 	begin
+		set @interactionID = null
+		
 		-- Add the Correspondent Interaction
 		exec dbo.USR_USP_INTERACTION_SPONSOR_ADD_PENDING 
 			@id = @interactionID output,
