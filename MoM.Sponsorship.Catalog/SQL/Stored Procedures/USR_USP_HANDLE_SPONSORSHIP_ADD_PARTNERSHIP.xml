@@ -35,7 +35,7 @@ begin
 	declare  @DATETO datetime
 	declare  @RELATIONSHIPSTARTDATE datetime
 	declare  @COMMENTS nvarchar(256) = ''
-	declare  @PRIMARYSOFTCREDITRELATIONSHIPEXISTS bit = 0
+	declare  @PRIMARYSOFTCREDITRELATIONSHIPEXISTS bit = 1
 	declare  @PRIMARYSOFTCREDITMATCHFACTOR decimal(5,2) = 100
 	declare  @RECIPROCALSOFTCREDITRELATIONSHIPEXISTS bit = 0
 	declare  @RECIPROCALSOFTCREDITMATCHFACTOR decimal(5,2) = 100
@@ -76,7 +76,7 @@ begin
 		declare @relationshipDescription nvarchar(100) = null;
 		declare @reciprocalDescription nvarchar(100) = null;
 		declare @code nvarchar(100) = null;
-		declare @isSoftCredit bit = 0;
+		declare @isSoftCredit bit = 1;
 		declare @constituentCodeToCreate nvarchar(100) = null;
 		
 		-- set all the variables according to the partner constituency code;
