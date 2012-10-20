@@ -316,7 +316,7 @@ Partial Public Class [SponsorshipAddFormWrappedUIModel]
 		'_pfmid
 		'
 		_pfmid.Name = "PFMID"
-		_pfmid.Caption = "PFM"
+		_pfmid.Caption = "Partnership for mercy"
 		_pfmid.Required = False
 		_pfmid.SearchListId = New Guid("a00235ec-b143-4f50-ad74-4c653d605cdf")
 		_pfmid.EnableQuickFind = True
