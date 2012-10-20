@@ -771,7 +771,7 @@ Partial Public Class [ProspectSponsorshipAddDataFormUIModel]
         '_pfmid
         '
         _pfmid.Name = "PFMID"
-		_pfmid.Caption = "PFM"
+		_pfmid.Caption = "Partnership for mercy"
 		_pfmid.Required = False
         _pfmid.SearchListID = New Guid("a00235ec-b143-4f50-ad74-4c653d605cdf")
 		_pfmid.EnableQuickFind = True
@@ -1649,13 +1649,13 @@ Partial Public Class [ProspectSponsorshipAddDataFormUIModel]
     ''' <summary>
     ''' PFM
     ''' </summary>
-    <System.ComponentModel.Description("PFM")> _
-    <System.CodeDom.Compiler.GeneratedCodeAttribute("BBUIModelLibrary", "2.93.2034.0")> _
-    Public ReadOnly Property [PFMID]() As Global.Blackbaud.AppFx.UIModeling.Core.SearchListField(Of Guid)
-        Get
-            Return _pfmid
-        End Get
-    End Property
+	<System.ComponentModel.Description("Partnership for mercy")> _
+	<System.CodeDom.Compiler.GeneratedCodeAttribute("BBUIModelLibrary", "2.93.2034.0")> _
+	Public ReadOnly Property [PFMID]() As Global.Blackbaud.AppFx.UIModeling.Core.SearchListField(Of Guid)
+		Get
+			Return _pfmid
+		End Get
+	End Property
     
     ''' <summary>
     ''' Interaction
