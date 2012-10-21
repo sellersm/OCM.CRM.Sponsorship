@@ -19,6 +19,7 @@
 	29-Sep-2012		CMayeda			Initial Version
 	05-Oct-2012		CMayeda			Added call to cancel pending child letter interactions - FogBugz Case 879
 	07-Oct-2012		CMayeda			Added call to cancel pending sponsor interactions - FogBugz Case 880
+	21-Oct-2012		CMayeda			Updated Sympathy and Cancellation Letter value to look for in USR_SPONSORSHIPCANCELLATIONINTERACTIONTYPECODE - FogBugz Case 934
 	-->
 	<CreateProcedureSQL>
 		<![CDATA[
@@ -67,13 +68,13 @@ begin
 	declare @contactMethodDesc_Mail nvarchar (100) = 'Mail'
 	
 
-	-- These are used to lookup the interactionTypeCodeIDs from USR_NEWSPONSORSHIPINTERACTIONTYPECODE
+	-- These are used to lookup the interactionTypeCodeIDs from USR_SPONSORSHIPCANCELLATIONINTERACTIONTYPECODE
 	-- This is what the user selected on the form
 	declare @interactionTypeCodeDesc_CancellationLetter nvarchar(100) = 'Cancellation Letter'
 	declare @interactionTypeCodeDesc_ChildCondolenceLetter nvarchar(100) = 'Child Condolence Letter'
 	declare @interactionTypeCodeDesc_DepartureCancellationLetter nvarchar(100) = 'Departure Cancellation Letter'
 	declare @interactionTypeCodeDesc_ProgramCompletionCancellationLetter nvarchar(100) = 'Program Completion Cancellation Letter'
-	declare @interactionTypeCodeDesc_SympathyAndCancellationLetter nvarchar(100) = 'Sympathy and Cancellation'
+	declare @interactionTypeCodeDesc_SympathyAndCancellationLetter nvarchar(100) = 'Sympathy and Cancellation Letter'
 
 	-- This are used to determine what interaction type the user selected
 	declare @interactionTypeCodeID_CancellationLetter uniqueidentifier = null
@@ -92,9 +93,6 @@ begin
 
 
 	begin try
-		if @interactionTypeCodeID is null
-			raiserror 100000 'InteractionTypeCodeID cannot be null'
-			
 		select @interactionTypeCodeID_CancellationLetter = ID from dbo.USR_SPONSORSHIPCANCELLATIONINTERACTIONTYPECODE where lower (DESCRIPTION) = lower (@interactionTypeCodeDesc_CancellationLetter)
 		if @interactionTypeCodeID_CancellationLetter is null
 			raiserror 100000 @interactionTypeCodeErrorMsg_CancellationLetter
@@ -122,6 +120,30 @@ begin
 		exec dbo.USR_USP_INTERACTION_GETSUBCATEGORYID @interactionSubcategoryID_ProgramCompletionCancellationLetter output, @interactionCategoryDesc_SponsorshipCancellation, @interactionSubcategoryDesc_ProgramCompletionCancellationLetter, @raiseErrorIfNotFound
 		exec dbo.USR_USP_INTERACTION_GETSUBCATEGORYID @interactionSubcategoryID_SympathyAndCancellationLetter output, @interactionCategoryDesc_SponsorshipCancellation, @interactionSubcategoryDesc_SympathyAndCancellationLetter, @raiseErrorIfNotFound
 
+		declare @cancellationLetterSubcategoryDesc nvarchar(100) = ''
+		set @cancellationLetterSubcategoryDesc = case 
+													when @interactionTypeCodeID is null then ''
+													when @interactionTypeCodeID = @interactionTypeCodeID_CancellationLetter then @interactionSubcategoryDesc_CancellationLetter
+													when @interactionTypeCodeID = @interactionTypeCodeID_ChildCondolenceLetter then @interactionSubcategoryDesc_ChildCondolenceLetter
+													when @interactionTypeCodeID = @interactionTypeCodeID_DepartureCancellationLetter then @interactionSubcategoryDesc_DepartureCancellationLetter
+													when @interactionTypeCodeID = @interactionTypeCodeID_ProgramCompletionCancellationLetter then @interactionSubcategoryDesc_ProgramCompletionCancellationLetter
+													when @interactionTypeCodeID = @interactionTypeCodeID_SympathyAndCancellationLetter then @interactionSubcategoryDesc_SympathyAndCancellationLetter
+													else 'unknown'
+												 end
+
+		declare @cancellationLetterSubcategoryID uniqueidentifier = null
+		set @cancellationLetterSubcategoryID = case 
+													when @interactionTypeCodeID is null then null
+													when @interactionTypeCodeID = @interactionTypeCodeID_CancellationLetter then @interactionSubcategoryID_CancellationLetter
+													when @interactionTypeCodeID = @interactionTypeCodeID_ChildCondolenceLetter then @interactionSubcategoryID_ChildCondolenceLetter
+													when @interactionTypeCodeID = @interactionTypeCodeID_DepartureCancellationLetter then @interactionSubcategoryID_DepartureCancellationLetter
+													when @interactionTypeCodeID = @interactionTypeCodeID_ProgramCompletionCancellationLetter then @interactionSubcategoryID_ProgramCompletionCancellationLetter
+													when @interactionTypeCodeID = @interactionTypeCodeID_SympathyAndCancellationLetter then @interactionSubcategoryID_SympathyAndCancellationLetter
+												 end
+
+		if @interactionTypeCodeID = 'unknown'
+			raiserror 100000 'Unknown interaction type selected.'
+	
 	
 	end try
 	begin catch
@@ -129,24 +151,7 @@ begin
 		return 1	
 	end catch
 
-	declare @cancellationLetterSubcategoryDesc nvarchar(100) = ''
-	set @cancellationLetterSubcategoryDesc = case 
-												when @interactionTypeCodeID = @interactionTypeCodeID_CancellationLetter then @interactionSubcategoryDesc_CancellationLetter
-												when @interactionTypeCodeID = @interactionTypeCodeID_ChildCondolenceLetter then @interactionSubcategoryDesc_ChildCondolenceLetter
-												when @interactionTypeCodeID = @interactionTypeCodeID_DepartureCancellationLetter then @interactionSubcategoryDesc_DepartureCancellationLetter
-												when @interactionTypeCodeID = @interactionTypeCodeID_ProgramCompletionCancellationLetter then @interactionSubcategoryDesc_ProgramCompletionCancellationLetter
-												when @interactionTypeCodeID = @interactionTypeCodeID_SympathyAndCancellationLetter then @interactionSubcategoryDesc_SympathyAndCancellationLetter
-											 end
 
-	declare @cancellationLetterSubcategoryID uniqueidentifier = null
-	set @cancellationLetterSubcategoryID = case 
-												when @interactionTypeCodeID = @interactionTypeCodeID_CancellationLetter then @interactionSubcategoryID_CancellationLetter
-												when @interactionTypeCodeID = @interactionTypeCodeID_ChildCondolenceLetter then @interactionSubcategoryID_ChildCondolenceLetter
-												when @interactionTypeCodeID = @interactionTypeCodeID_DepartureCancellationLetter then @interactionSubcategoryID_DepartureCancellationLetter
-												when @interactionTypeCodeID = @interactionTypeCodeID_ProgramCompletionCancellationLetter then @interactionSubcategoryID_ProgramCompletionCancellationLetter
-												when @interactionTypeCodeID = @interactionTypeCodeID_SympathyAndCancellationLetter then @interactionSubcategoryID_SympathyAndCancellationLetter
-											 end
-	
 
 	-- Cancel pending child interactions for this sponsorship 
 	exec USR_USP_INTERACTION_CHILD_CANCELPENDINGLETTERS 
@@ -161,7 +166,7 @@ begin
 		@cancelComment = 'Child sponsorship has been cancelled',
 		@removeChildComment = 'was removed due to sponsorship cancellation',
 		@changeAgentID = @changeAgentID
-		
+	
 
 	declare @financialSponsorID uniqueidentifier = null
 	set @financialSponsorID = dbo.USR_UFN_SPONSORSHIP_GETFINANCIALSPONSOR (@sponsorshipID)
