@@ -12,14 +12,29 @@
 	<!-- define fields on the table -->
 	<Fields>
 		<GuidField Description="Sponsorship Opportunity" Name="SPONSORSHIPOPPORTUNITYID" Required="true"/>
-		<NumberField Description="Action Code" Name="ACTIONCODE" Type="tinyint" />
+		<!--<NumberField Description="Action Code" Name="ACTIONCODE" Type="tinyint" />-->
 		<GuidField Description="Sponsorship Commitment ID" Name="SPONSORSHIPCOMMITMENTID" />
 		<NumberField Description="Transaction Sequence" Name="TRANSACTIONSEQUENCE" Type="smallint" />
-		<TextField Description="Action" Length="50" Name="ACTION" />
+		<!--<TextField Description="Action" Length="50" Name="ACTION" />-->
 		<GuidField Description="Sponsorship Reason" Name="SPONSORSHIPREASONID" />
 		<GuidField Description="Context Sponsorship" Name="CONTEXTSPONSORSHIPID" />
 		<GuidField Description="Target Sponsorship" Name="TARGETSPONSORSHIPID" />
 		<DateField Description="Transaction date" Name="TRANSACTIONDATE" Required="true"/>
+		<EnumField Description="The action taken for this transaction." Name="ACTIONCODE" DefaultValue="100">
+			<EnumValues>
+				<EnumValue ID="100" Translation="Add" />
+				<EnumValue ID="101" Translation="Transfer" />
+				<EnumValue ID="102" Translation="Cancel" />
+				<EnumValue ID="103" Translation="Terminate" />
+				<EnumValue ID="104" Translation="Reactivate" />
+				<EnumValue ID="105" Translation="Reassign" />
+				<EnumValue ID="106" Translation="Initiate transfer" />
+				<EnumValue ID="107" Translation="Override transfer" />
+				<EnumValue ID="108" Translation="Complete transfer" />
+				<EnumValue ID="109" Translation="Change financial sponsor" />
+			</EnumValues>
+		</EnumField>
+
 	</Fields>
 
 	<!-- define any additional check constraints on the table -->
