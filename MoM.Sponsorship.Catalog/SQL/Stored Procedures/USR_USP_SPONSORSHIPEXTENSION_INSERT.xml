@@ -14,6 +14,10 @@
 	History:
 	Date            Modified By     Comments
 	25-Sep-2012		Memphis			Initial Version.
+	22-Oct-2012		Memphis			Added check for the row’s existence before trying to insert,
+									Added code to wrap the ‘insert logic’ in a transaction, because of the Update that I’m doing with the ISCURRENT field, 
+									it will set all rows to NOT current, before doing the insert, but if the insert fails, 
+									then there’s no longer a CURRENT ROW!
 -->	
 	
 	<CreateProcedureSQL>
@@ -35,8 +39,9 @@ begin
 if @CHANGEAGENTID is null
 	exec dbo.USP_CHANGEAGENT_GETORCREATECHANGEAGENT @CHANGEAGENTID output;
 
+-- strip out the time for the dateadded
 if @DATEADDED is null
-	set @DATEADDED = getdate();
+	set @DATEADDED = DATEADD(dd, 0, DATEDIFF(dd, 0, getdate()));
 	
 if @DATECHANGED is null
 	set @DATECHANGED = getdate();
@@ -44,39 +49,55 @@ if @DATECHANGED is null
 -- set the inserted row to be the current row for this opportunity:
 declare @ISCURRENT bit = 1;
 
--- before inserting, set all rows to be not current
-update dbo.USR_SPONSORSHIPEXTENSION
-set ISCURRENT = 0
-where SPONSORSHIPOPPORTUNITYID = @SPONSORSHIPOPPORTUNITYID
+--10/22/12 Memphis add a transaction so there's no updating if the insert fails for some reason!
+begin transaction updateInsert;
 
-INSERT INTO [dbo].[USR_SPONSORSHIPEXTENSION]
-           (
-		   [ID]
-           ,[INITIALOPPORTUNITYSPONSORSHIPSTATUSCODEID]
-           ,[CURRENTOPPORTUNITYSPONSORSHIPSTATUSCODEID]
-           ,[CONVERSIONDATE]
-		   ,[SPONSORSHIPOPPORTUNITYID]
-           ,[DAYSTOCONVERT]
-		   ,[ISCURRENT]
-           ,[ADDEDBYID]
-           ,[CHANGEDBYID]
-           ,[DATEADDED]
-           ,[DATECHANGED]
-		   )
-     VALUES
-           (
-		    @SPONSORSHIPID
-           ,@INITIALOPPORTUNITYSPONSORSHIPSTATUSCODEID
-           ,@CURRENTOPPORTUNITYSPONSORSHIPSTATUSCODEID
-           ,@CONVERSIONDATE
-		   ,@SPONSORSHIPOPPORTUNITYID
-           ,@DAYSTOCONVERT
-		   ,@ISCURRENT
-           ,@CHANGEAGENTID
-           ,@CHANGEAGENTID
-           ,@DATEADDED
-           ,@DATECHANGED
-		   )
+	-- check for the existence of this sponsorship row already, as it may have already been inserted through some other process
+	declare @Id uniqueidentifier;
+	select @Id = ID
+		from dbo.usr_sponsorshipextension
+		where ID = @SPONSORSHIPID;
+
+	-- if we have an ID, then the Sponsorship row already exists, so do nothing
+	if @Id is null
+	begin
+		-- before inserting, set all rows to be not current
+		update dbo.USR_SPONSORSHIPEXTENSION
+		set ISCURRENT = 0
+		where SPONSORSHIPOPPORTUNITYID = @SPONSORSHIPOPPORTUNITYID
+
+		INSERT INTO [dbo].[USR_SPONSORSHIPEXTENSION]
+				   (
+				   [ID]
+				   ,[INITIALOPPORTUNITYSPONSORSHIPSTATUSCODEID]
+				   ,[CURRENTOPPORTUNITYSPONSORSHIPSTATUSCODEID]
+				   ,[CONVERSIONDATE]
+				   ,[SPONSORSHIPOPPORTUNITYID]
+				   ,[DAYSTOCONVERT]
+				   ,[ISCURRENT]
+				   ,[ADDEDBYID]
+				   ,[CHANGEDBYID]
+				   ,[DATEADDED]
+				   ,[DATECHANGED]
+				   )
+			 VALUES
+				   (
+					@SPONSORSHIPID
+				   ,@INITIALOPPORTUNITYSPONSORSHIPSTATUSCODEID
+				   ,@CURRENTOPPORTUNITYSPONSORSHIPSTATUSCODEID
+				   ,@CONVERSIONDATE
+				   ,@SPONSORSHIPOPPORTUNITYID
+				   ,@DAYSTOCONVERT
+				   ,@ISCURRENT
+				   ,@CHANGEAGENTID
+				   ,@CHANGEAGENTID
+				   ,@DATEADDED
+				   ,@DATECHANGED
+				   )
+	end
+
+commit transaction updateInsert;
+
 end
 
 		]]>
