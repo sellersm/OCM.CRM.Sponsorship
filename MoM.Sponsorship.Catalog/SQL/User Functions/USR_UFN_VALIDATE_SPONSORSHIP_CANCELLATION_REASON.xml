@@ -42,7 +42,8 @@ as begin
 	No, validation to leave interaction blank for administrative reason code (just in case they need to create an interaction)
 	*/
 	
-	declare @ISVALID bit = 1;   -- default to valid unless proven otherwise
+	declare @ISVALID bit = 1;		-- default to valid unless proven otherwise
+	declare @doneChecking bit = 0;  -- tells when we're done checking the respective rule
 	
 	-- get the interaction type code description for the given id value:
 	declare @INTERACTIONTEXT nvarchar(100) = null;
@@ -70,6 +71,9 @@ as begin
 	from dbo.SPONSORSHIP
 	where ID = @SPONSORSHIPID
 
+	-- get the reason text based on the reason id
+	select @CANCELREASONTEXT = dbo.USR_UFN_SPONSORSHIP_GET_SPONSORSHIPREASON_BY_REASONID(@REASONID);
+
 	-- if we found one, then get the sponsorship reason, if any:
 	if @SPONSORSHIPOPPORTUNITYID is not null
 		select @SPONSORSHIPREASON = dbo.USR_UFN_GETSPONSORSHIPREASON_FOROPPORTUNITY(@SPONSORSHIPOPPORTUNITYID)
@@ -82,14 +86,42 @@ as begin
 		begin
 			-- check the interaction code, should be "Cancellation Letter"
 			if lower(@INTERACTIONTEXT) <> lower('Cancellation Letter')
-			begin
-				set @ISVALID = 0;  -- this is an invalid combination
-			end
+				begin
+					set @ISVALID = 0;  -- this is an invalid combination
+				end
+			else
+				begin
+					set @ISVALID = 1;  -- this is a valid combination
+					set @doneChecking = 1;  -- done checking
+				end
 		end
-		-- check for account correction reason code:
-		if LEFT(LOWER(@CANCELREASONTEXT), 15) <> @ACCOUNTCORRECT_CANCELREASON
+		
+		if @doneChecking = 0  
 		begin
-			set @ISVALID = 0;  -- invalid combination
+			-- check for account correction reason code:
+			if LEFT(LOWER(@CANCELREASONTEXT), 15) = @ACCOUNTCORRECT_CANCELREASON
+				begin
+					set @ISVALID = 1;  -- this is a valid combination
+					set @doneChecking = 1;  -- done checking
+				end
+			else
+				begin
+					set @ISVALID = 0;  -- invalid combination
+				end
+		end
+		
+		if @doneChecking = 0  
+		begin		
+			-- check for administrative reason code:
+			if LOWER(@CANCELREASONTEXT) = @ADMINISTRATIVE_CANCELREASON
+				begin
+					set @ISVALID = 1;  -- this is a valid combination
+					set @doneChecking = 1;  -- done checking
+				end
+			else
+				begin
+					set @ISVALID = 0;  -- invalid combination
+				end
 		end
 	end   --if @SPONSORSHIPREASON is null
 	else
@@ -101,30 +133,59 @@ as begin
 			if LEFT(LOWER(@CANCELREASONTEXT), 23) =  @DEPARTURE_NOTRANSFER_CANCELREASON
 			begin
 				if lower(@INTERACTIONTEXT) <> lower('Departure Cancellation Letter')
-					set @ISVALID = 0;
+					begin
+						set @ISVALID = 0;
+					end
+				else
+					begin
+						if lower(@INTERACTIONTEXT) = lower('Departure Cancellation Letter')
+							set @ISVALID = 1;		
+							set @doneChecking = 1;  -- done checking
+					end
 			end
 		end
 		
-		-- check this case: Sponsorship reason is “Departure – Program Completion”, cancellation reason of “Departure – No Transfer”, interaction should be 'Program Completion Cancellation Letter'
-		if lower(@SPONSORSHIPREASON) = @SPONSORSHIPREASON_PROGRAMCOMPLETION
-		begin
-			if LEFT(LOWER(@CANCELREASONTEXT), 23) =  @DEPARTURE_NOTRANSFER_CANCELREASON
+		if @doneChecking = 0  
+		begin				
+			-- check this case: Sponsorship reason is “Departure – Program Completion”, cancellation reason of “Departure – No Transfer”, interaction should be 'Program Completion Cancellation Letter'
+			if lower(@SPONSORSHIPREASON) = @SPONSORSHIPREASON_PROGRAMCOMPLETION
 			begin
-				if lower(@INTERACTIONTEXT) <> lower('Program Completion Cancellation Letter')
-					set @ISVALID = 0;
+				if LEFT(LOWER(@CANCELREASONTEXT), 23) =  @DEPARTURE_NOTRANSFER_CANCELREASON
+				begin
+					if lower(@INTERACTIONTEXT) <> lower('Program Completion Cancellation Letter')
+					begin
+						set @ISVALID = 0;
+					end
+					else
+					begin
+						if lower(@INTERACTIONTEXT) = lower('Program Completion Cancellation Letter')
+							set @ISVALID = 1;
+							set @doneChecking = 1;  -- done checking
+					end				
+				end
 			end
-		end
+		end		
 		
-		-- check this case: Sponsorship reason is “Death of Child” cancellation reason of “Death of Child”, interaction should be 'Child Condolence Letter'
-		if lower(@SPONSORSHIPREASON) = @SPONSORSHIPREASON_DEATH 
-		begin
-			if LEFT(LOWER(@CANCELREASONTEXT), 14) =  @DEATH_CANCELREASON
+		if @doneChecking = 0  
+		begin						
+			-- check this case: Sponsorship reason is “Death of Child” cancellation reason of “Death of Child”, interaction should be 'Child Condolence Letter'
+			if lower(@SPONSORSHIPREASON) = @SPONSORSHIPREASON_DEATH 
 			begin
-				if lower(@INTERACTIONTEXT) <> lower('Child Condolence Letter')
-					set @ISVALID = 0;
+				if LEFT(LOWER(@CANCELREASONTEXT), 14) =  @DEATH_CANCELREASON
+				begin
+					if lower(@INTERACTIONTEXT) <> lower('Child Condolence Letter')
+					begin
+						set @ISVALID = 0;
+					end
+					else
+						begin
+							if lower(@INTERACTIONTEXT) = lower('Child Condolence Letter')
+								set @ISVALID = 1;
+								set @doneChecking = 1;  -- done checking
+						end
+				end
 			end
-		end
-		
+		end		
 	end
 	
 	-- 0 means not valid, 1 means is valid

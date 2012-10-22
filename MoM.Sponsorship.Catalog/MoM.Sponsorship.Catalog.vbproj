@@ -286,6 +286,18 @@
   <ItemGroup>
     <EmbeddedResource Include="SQL\Stored Procedures\USR_USP_INSERT_MULTIPLE_SPONSORSHIPEXTENSION.xml" />
   </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="SQL\User Functions\USR_UFN_SPONSORSHIP_GET_SPONSORSHIPREASON_BY_REASONID.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Conversion Utilities\USR_USP_POPULATE_SPONSORSHIPEXTENSION.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Conversion Utilities\RunSponsorshipExtensionPopulation.RecordOperation.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Conversion Utilities\ConversionUtilities.Package.xml" />
+  </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.VisualBasic.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

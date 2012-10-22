@@ -1163,6 +1163,11 @@ Public Class OCMCustomAddProjectSponsorshipFormUIModel
 
 		ValidateSponsorConstituency(Me.REVENUECONSTITUENTID.Value)
 
+		If _prospectSponsorship Then
+			' FogBugz Case 938: payment method isn't used so it can't be required
+			Me.PAYMENTMETHODCODE.Required = False
+		End If
+
 	End Sub
 
 	Private Sub SponsorshipAddFormUIModel_Canceling(ByVal sender As Object, ByVal e As UIModeling.Core.CancelingEventArgs) Handles Me.Canceling
@@ -1282,6 +1287,11 @@ Public Class OCMCustomAddProjectSponsorshipFormUIModel
 			Me.REFERENCENUMBER.Enabled = b
 			Me.CONSTITUENTACCOUNTID.Enabled = b
 			' ---- END OF COMMENT 9/3/12
+		Else
+			'ensure the payment method field isn't required, nor is it enabled/visible
+			Me.PAYMENTMETHODCODE.Enabled = False
+			Me.PAYMENTMETHODCODE.Visible = False
+			Me.PAYMENTMETHODCODE.Required = False
 		End If
 
 	End Sub

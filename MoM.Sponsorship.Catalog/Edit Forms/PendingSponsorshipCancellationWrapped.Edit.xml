@@ -104,6 +104,16 @@ begin try
 	-- if not valid, don't let them save
 	if @ISVALID = 0
 		RAISERROR 1000000 'The combination of Interaction Type and Cancellation Reason is not valid.'
+		
+/*
+*     ********* NOT SURE WE NEED THIS FOR PENDING SPONSORSHIP CANCELLATION?  ************
+*
+	-- validate the interaction type code based on the opportunity type of child or project
+	select @ISVALID = dbo.USR_UFN_VALIDATE_SPONSORSHIP_CANCELLATION_INTERACTIONTYPECODE (@ID, @INTERACTIONTYPECODEID)
+	
+	if @ISVALID = 0
+		RAISERROR 1000000 'The combination of Interaction Type and Opportunity Type is not valid.'
+*/
 
 end try
 begin catch
@@ -132,14 +142,21 @@ where ID = @ID
 if @CHILDID is null
 	RAISERROR 1000000 'Unable to locate Child for this Sponsorship. Cannot create Interaction.'
 
--- create interaction for this cancellation:
+/*
+*  MOVED THIS CODE TO USR_USP_HANDLE_SPONSORSHIP_CANCELLATION
+--FogBugz Case 933:  only create interaction for this cancellation if the Reason type is a certain type and 
+-- the sponsorship is a certain type:
+-- NO interactions for these conditions:
+--    prospect sponsor
+--    'account correction' reason & no interaction type code
+--    'administrative' reason & no interaction type code
 exec dbo.USR_USP_SPONSORSHIP_CREATESPONSORSHIPCANCELLATIONINTERACTIONS
          @sponsorshipID = @ID,             -- The sponsorship that the interactions will pertain to.  
-                                                             -- This is used to pull the financial sponsor 
-                                                             -- However, it is not used for the child information
          @childID = @CHILDID,                   -- Child to include in the cancellation interaction
          @interactionTypeCodeID = @INTERACTIONTYPECODEID,     -- The ID of the Interaction Type that the user selected (Cancellation Letter, Departure Cancellation Letter, ...)
          @changeAgentID = @CHANGEAGENTID		              -- Used to specify change agent for CHANGEDBYID and ADDEDBYID fields.  USP_CHANGEAGENT_GETORCREATECHANGEAGENT is called if it's null
+*/  -- end of moved code
+
 
 -- get the financial sponsor for this sponsorship
 set @CONSTITUENTID = dbo.USR_UFN_SPONSORSHIP_GETFINANCIALSPONSOR (@ID)
@@ -151,7 +168,11 @@ if @CONSTITUENTID is null
 exec dbo.USR_USP_HANDLE_SPONSORSHIP_CANCELLATION
 	@CONSTITUENTID = @CONSTITUENTID,
 	@SPONSORSHIPID = @ID,
+	@REASONID = @REASONID,					-- cancellation reasonid from the form
+	@INTERACTIONTYPECODEID = @INTERACTIONTYPECODEID,	-- interaction type code id from the form
+	@CHILDID = @CHILDID,					-- id of the sponsorshipopportunity: child or project
 	@CHANGEAGENTID = @CHANGEAGENTID
+
 
 
 
