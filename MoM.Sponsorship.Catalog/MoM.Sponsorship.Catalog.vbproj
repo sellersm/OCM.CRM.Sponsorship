@@ -76,6 +76,7 @@
   <ItemGroup>
     <Folder Include="Global Changes\" />
     <Folder Include="Images\" />
+    <Folder Include="Query Views\" />
     <Folder Include="SearchLists\" />
   </ItemGroup>
   <ItemGroup>
@@ -297,6 +298,9 @@
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Conversion Utilities\ConversionUtilities.Package.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="DataLists\Sponsorship.NoSponsorshipExtensionRow.DataList.xml" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.VisualBasic.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
