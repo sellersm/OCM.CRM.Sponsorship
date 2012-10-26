@@ -300,10 +300,9 @@
     <EmbeddedResource Include="Conversion Utilities\ConversionUtilities.Package.xml" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="DataLists\Sponsorship.NoSponsorshipExtensionRow.DataList.xml" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="Conversion Utilities\RecurringGiftConversionIssues.DataList.xml" />
+    <EmbeddedResource Include="Conversion Utilities\RecurringGiftConversionIssues.DataList.xml">
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
     <EmbeddedResource Include="Conversion Utilities\Sponsorship.NoSponsorshipExtensionRow.DataList.xml" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.VisualBasic.targets" />
