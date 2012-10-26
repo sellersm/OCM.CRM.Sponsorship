@@ -1,0 +1,56 @@
+﻿<DataListSpec 
+	xmlns="bb_appfx_datalist"
+	xmlns:common="bb_appfx_commontypes" 
+	ID="95fe4818-edd6-4956-9c9c-3b9fca8bfd98" 
+	Name="Recurring Gift Conversion Issues Data List"
+	Description="Active Sponsorships with Recurring Gifts that are not active or held" 
+	Author="Cary Mayeda"
+	common:SecurityUIFolder="REPLACE_WITH_SECURITYUIFOLDER">
+
+	<!-- define the SP that returns the data for the datalist -->
+	<SPDataList SPName="USP_DATALIST_CONVERSION_ACTIVESPONSORSHIPSINACTIVERG">
+		<common:CreateProcedureSQL>
+			<![CDATA[
+create procedure dbo.USP_DATALIST_CONVERSION_ACTIVESPONSORSHIPSINACTIVERG(@CONTEXTID uniqueidentifier)
+as
+	set nocount on;
+
+ select	SPONSORSHIP.ID,
+		SPONSORSHIP.CONSTITUENTID,
+		(select NAME from dbo.UFN_CONSTITUENT_DISPLAYNAME (SPONSORSHIP.CONSTITUENTID)) as CONSTITUENTNAME, 
+		SPONSORSHIP.STATUS as SPONSORSHIPSTATUS,
+		REVENUESCHEDULE.STATUS as RECURRINGGIFTSTATUS
+   from	dbo.SPONSORSHIP
+   join	dbo.REVENUESPLIT on REVENUESPLIT.ID = SPONSORSHIP.REVENUESPLITID
+   join	dbo.REVENUESCHEDULE on REVENUESCHEDULE.ID = REVENUESPLIT.REVENUEID
+   join	financialtransaction ft on ft.ID = REVENUESCHEDULE.ID
+  where sponsorship.statuscode = 1 and REVENUESCHEDULE.STATUSCODE in (2,3) 
+
+			]]>
+		</common:CreateProcedureSQL>
+	</SPDataList>
+
+	<!-- describe the context ID parameter for the SP (if applicable)-->
+	<Context ContextRecordType="REPLACE_WITH_RECORDTYPE" RecordIDParameter="CONTEXTID"/>
+
+	<!-- describe any parameters (other than the context ID) defined on the SP
+	<Parameters>
+		<common:FormMetaData>
+			<common:FormFields>
+				<common:FormField FieldID="PARAMETER1" Caption="Paramter1" DataType="REPLACE_WITH_DATATYPE"/>
+			</common:FormFields>
+		</common:FormMetaData>
+	</Parameters>-->
+
+	<!-- define the output fields in the list -->
+	<Output>
+		<OutputFields>
+			<OutputField FieldID="ID" Caption="ID" DataType="Guid" IsHidden="false" />
+			<OutputField FieldID="CONSTITUENTID" Caption="Constituent ID" DataType="Guid" />
+			<OutputField FieldID="CONSTITUENTNAME" Caption="Constituent Name" DataType="String" />
+			<OutputField FieldID="SPONSORSHIPSTATUS" Caption="Sponsorship Status" DataType="String" />
+			<OutputField FieldID="RECURRINGGIFTSTATUS" Caption="Recurring Gift Status" DataType="String" />
+		</OutputFields>
+	</Output>
+
+</DataListSpec>

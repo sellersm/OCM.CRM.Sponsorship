@@ -55,7 +55,9 @@
 	13-Oct-2012		Memphis			Added SponsorshipDataListCustomized.DataList.xml, SponsorshipConversion.Table.xml, RecurringGiftExtension.Edit.xml,RecurringGift_FinancialExtension.View.xml 
 	14-Oct-2012		Memphis			Added DeleteFinancialTransactionExtensionRecord.RecordOperation.xml, USR_USP_INSERT_MULTIPLE_SPONSORSHIPEXTENSION.xml
 	21-Oct-2012		Memphis			Added USR_UFN_SPONSORSHIP_GET_SPONSORSHIPREASON_BY_REASONID.xml
-		-->
+	26-Oct-2012		CMayeda			Moved NoSponsorshipExtensionRow.DataList.xml to Conversion Utilities
+
+-->
 
 	<!-- Note:  the order of the items listed here is important.  For example, you won't be able to load a data form that references 
 	a table that hasn't been loaded, etc.  In general, the following order is recommended:
@@ -189,7 +191,6 @@
 		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.ProjectsAvailableForSponsorship.SimpleList.xml" />
 		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.Website.SponsorshipCheckoutSource.DataList.xml" />
 		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.SponsorshipDataListCustomized.DataList.xml" />
-		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.Sponsorship.NoSponsorshipExtensionRow.DataList.xml" />
 
 		<!-- Forms -->
 		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.SponsorshipAdd_Wrapped.Add.xml" />

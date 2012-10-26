@@ -7,6 +7,15 @@
     Author="Memphis Sellers"
     >
 
+	<!-- 
+	Remarks:    
+
+	History:
+	Date            Modified By     Comments
+	26-Oct-2012		CMayeda			Added Sponsorship.NoSponsorshipExtensionRow.DataList.xml, RecurringGiftConversionIssues.DataList.xml
+
+	-->
+
 	<!-- Note:  the order of the items listed here is important.  For example, you won't be able to load a data form that references 
 	a table that hasn't been loaded, etc.  In general, the following order is recommended:
 	
@@ -55,6 +64,11 @@
         
 		<!-- Record Operations -->
 		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.RunSponsorshipExtensionPopulation.RecordOperation.xml" />
-    </common:DependencyList>
+
+		<!-- DataLists -->
+		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.Sponsorship.NoSponsorshipExtensionRow.DataList.xml" />
+		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.RecurringGiftConversionIssues.DataList.xml" />
+		
+	</common:DependencyList>
 
 </PackageSpec>
