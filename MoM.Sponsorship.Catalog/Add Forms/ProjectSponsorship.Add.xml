@@ -709,7 +709,7 @@ return @r;
 				<c:CurrencyField CurrencyFieldID="TRANSACTIONCURRENCYID" />
 			</c:FormField>
 			<c:FormField FieldID="AUTOPAY" DataType="Boolean" Caption="Pay installments automatically by:" DefaultValueText="1" CaptionResourceKey="$$pay_installments_automatically_by:" />
-			<c:FormField FieldID="PAYMENTMETHODCODE" DataType="TinyInt" Required="true" Caption="Payment method" DefaultValueText="2" CaptionResourceKey="$$payment_method">
+			<c:FormField FieldID="PAYMENTMETHODCODE" DataType="TinyInt" Required="false" Caption="Payment method" DefaultValueText="2" CaptionResourceKey="$$payment_method">
 				<c:ValueList>
 					<c:Items>
 						<c:Item>
