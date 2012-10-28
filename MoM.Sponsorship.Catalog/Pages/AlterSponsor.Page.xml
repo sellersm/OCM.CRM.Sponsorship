@@ -252,7 +252,20 @@
 					</AlterTab>
 					
 				</AlterTabs>
-				
+
+				<AlterOrAddPageActionGroups>
+					<AlterOrAddPageActionGroup ID="7fa2d3be-ddd2-4dd3-8285-2904f9a7bdc1" Caption="Tasks" ImageKey="RES:Tasks" CaptionResourceKey="$$tasks">
+						<AddAction>
+							<Action ID="d3b68ef1-77f1-47c5-a3f5-ec03df186601" Caption="Assign Orphan Recurring Gift" ImageKey="CATALOG:Blackbaud.AppFx.Fundraising.Catalog,Blackbaud.AppFx.Fundraising.Catalog.apply_commitments_32.png">
+								<ShowAddDataForm DataFormID="7ab31706-0174-4fb3-8201-63c80ccc932f" xmlns="bb_appfx_commontypes">
+									<ActionContext>
+										<PageContextID />
+									</ActionContext>
+								</ShowAddDataForm>
+							</Action>
+						</AddAction>
+					</AlterOrAddPageActionGroup>
+				</AlterOrAddPageActionGroups>
 			</AlterPage>
 			
 		</AlterPages>		
