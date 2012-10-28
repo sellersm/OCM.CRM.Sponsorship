@@ -13,7 +13,7 @@
 	History:
 	Date            Modified By     Comments
 	26-Oct-2012		CMayeda			Added Sponsorship.NoSponsorshipExtensionRow.DataList.xml, RecurringGiftConversionIssues.DataList.xml
-
+	27-Oct-2012		Memphis			Added ReassignOrphanRecurringGift.Add.xml
 	-->
 
 	<!-- Note:  the order of the items listed here is important.  For example, you won't be able to load a data form that references 
@@ -61,13 +61,17 @@
 	<common:DependencyList>
 		<!-- Sprocs, UFN -->
         <common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.USR_USP_POPULATE_SPONSORSHIPEXTENSION.xml" />
-        
+		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.USR_USP_MOVE_RECURRING_GIFT.xml" />
+
 		<!-- Record Operations -->
 		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.RunSponsorshipExtensionPopulation.RecordOperation.xml" />
 
 		<!-- DataLists -->
 		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.Sponsorship.NoSponsorshipExtensionRow.DataList.xml" />
 		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.RecurringGiftConversionIssues.DataList.xml" />
+		
+		<!-- Forms -->
+		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.ReassignOrphanRecurringGift.Add.xml" />
 		
 	</common:DependencyList>
 
