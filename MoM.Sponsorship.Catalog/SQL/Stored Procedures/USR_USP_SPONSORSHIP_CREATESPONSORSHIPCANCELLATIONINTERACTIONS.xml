@@ -21,6 +21,7 @@
 	07-Oct-2012		CMayeda			Added call to cancel pending sponsor interactions - FogBugz Case 880
 	21-Oct-2012		CMayeda			Updated Sympathy and Cancellation Letter value to look for in USR_SPONSORSHIPCANCELLATIONINTERACTIONTYPECODE - FogBugz Case 934
 	21-Oct-2012		CMayeda			Removed cancellation of pending interactions
+	29-Oct-2012		CMayeda			Fixed defect - FogBugz Case 933
 	-->
 	<CreateProcedureSQL>
 		<![CDATA[
@@ -142,7 +143,7 @@ begin
 													when @interactionTypeCodeID = @interactionTypeCodeID_SympathyAndCancellationLetter then @interactionSubcategoryID_SympathyAndCancellationLetter
 												 end
 
-		if @interactionTypeCodeID = 'unknown'
+		if @cancellationLetterSubcategoryDesc = 'unknown'
 			raiserror 100000 'Unknown interaction type selected.'
 	
 	
@@ -169,6 +170,10 @@ begin
 		@changeAgentID = @changeAgentID
 	
 */
+
+	-- If no interaction was passed in, then we don't need to create an interaction
+	if @cancellationLetterSubcategoryDesc = ''
+		return 0
 
 	declare @financialSponsorID uniqueidentifier = null
 	set @financialSponsorID = dbo.USR_UFN_SPONSORSHIP_GETFINANCIALSPONSOR (@sponsorshipID)
