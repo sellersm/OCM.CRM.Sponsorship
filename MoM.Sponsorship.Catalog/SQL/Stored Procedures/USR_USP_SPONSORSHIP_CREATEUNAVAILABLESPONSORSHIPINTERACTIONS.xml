@@ -20,6 +20,8 @@
 	29-Sep-2012		CMayeda			Only create call /email interaction if new sponsor/prospect sponsor - FogBugz Case 862, 863
 	14-Oct-2012		CMayeda			Fixed the child letter interaction going to the financial sponsor if the correspondent and financial sponsor had the same address - FogBugz Case 907	
 	17-Oct-2012		CMayeda			Added "Unavailable Child Notification" phone call interaction - FogBugz Case 910
+	29-Oct-2012		CMayeda			Added @interactionFulfillmentStatus_CallInProcess to Prospect Thank You Letter/Phone - FogBugz Case 927
+									Added @callCenterManagerConstituentID to Unavailable Child Notification phone call - FogBugz Case 928
 	-->
 
 	<CreateProcedureSQL>
@@ -302,7 +304,7 @@ begin
 			@categoryName = @welcomeMailCategoryDesc,
 			@subcategoryName = @interactionSubcategoryDesc_UnavailableChildNotification,
 			@expectedDate = @currentDate,
-			@owner = null,						
+			@owner = @callCenterManagerConstituentID,						
 			@contactMethodDesc = @contactMethodDesc_Phone,
 			@comment = '',						
 			@letterTypeDesc = '',
@@ -485,7 +487,7 @@ begin
 				@contactMethodDesc = @prospectContactMethodDesc,
 				@comment = @prospectThankYouComment,						
 				@letterTypeDesc = '',
-				@fulfillmentStatusDesc = '',
+				@fulfillmentStatusDesc = @interactionFulfillmentStatus_CallInProcess,
 				@eftBrochureCode = 0,
 				@resendCode = 0,
 				@changeAgentID = @changeAgentID				
