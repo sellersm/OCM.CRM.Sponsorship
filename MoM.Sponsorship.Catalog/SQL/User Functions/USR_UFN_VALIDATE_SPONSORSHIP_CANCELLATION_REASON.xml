@@ -14,6 +14,7 @@
 	History:
 	Date            Modified By     Comments
 	21-Sep-2012		Memphis			Initial Version
+	29-Oct-2012		Memphis			FogBugz Case 934. Allow codes that begin with 'Cancellation' when reason code begins with 'Sponsor Request'
 	-->	
 	
 	<CreateFunctionSQL>
@@ -85,7 +86,9 @@ as begin
 		if LEFT(LOWER(@CANCELREASONTEXT), 15) =  @SPONSOR_REQUEST_CANCELREASON
 		begin
 			-- check the interaction code, should be "Cancellation Letter"
-			if lower(@INTERACTIONTEXT) <> lower('Cancellation Letter')
+			-- 10/29/12 Memphis: changed to allow any code that starts with 'Cancellation'
+			--if lower(@INTERACTIONTEXT) <> lower('Cancellation Letter')
+			if LEFT(lower(@INTERACTIONTEXT), 12) <> lower('Cancellation')
 				begin
 					set @ISVALID = 0;  -- this is an invalid combination
 				end
