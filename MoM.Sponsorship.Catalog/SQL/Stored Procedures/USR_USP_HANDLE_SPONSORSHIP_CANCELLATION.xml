@@ -15,7 +15,7 @@
 	Date            Modified By     Comments
 	01-Oct-2012		Memphis			Initial Version - just a copy of USR_USP_SPONSORSHIP_CREATENEWSPONSORSHIPINTERACTIONS for Mark to use in Add Prospect Sponsorship form
 	08-Oct-2012		Memphis			FogBugz Case 878 changes: added the call to USR_USP_CHILD_CHECKELIGIBILITY
-
+	29-Oct-2012		Memphis			FogBugz Case 948.  Had the logic inverted in the IF statement that controls calling the create interactions sproc.
 	-->
 	
 	<CreateProcedureSQL>
@@ -106,7 +106,7 @@ begin
 			where CONSTITUENTID = @CONSTITUENTID
 			and LOWER([DESCRIPTION]) like '%prospect%'
 
-		if (((LOWER(@CANCELREASONTEXT) = 'account correction' or LOWER(@CANCELREASONTEXT) = 'administrative') And (@INTERACTIONTYPECODEID is NULL)) Or (@isProspect = 1))
+		if (((LOWER(@CANCELREASONTEXT) <> 'account correction' And LOWER(@CANCELREASONTEXT) <> 'administrative') And (@INTERACTIONTYPECODEID is NOT NULL)) Or (@isProspect = 0))
 		begin
 			exec dbo.USR_USP_SPONSORSHIP_CREATESPONSORSHIPCANCELLATIONINTERACTIONS
 					 @sponsorshipID = @SPONSORSHIPID,					-- The sponsorship that the interactions will pertain to.  
