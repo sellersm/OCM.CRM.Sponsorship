@@ -56,7 +56,7 @@
 	14-Oct-2012		Memphis			Added DeleteFinancialTransactionExtensionRecord.RecordOperation.xml, USR_USP_INSERT_MULTIPLE_SPONSORSHIPEXTENSION.xml
 	21-Oct-2012		Memphis			Added USR_UFN_SPONSORSHIP_GET_SPONSORSHIPREASON_BY_REASONID.xml
 	26-Oct-2012		CMayeda			Moved NoSponsorshipExtensionRow.DataList.xml to Conversion Utilities
-
+	30-Oct-2012		Memphis			Added USR_UFN_SPONSORSHIP_GET_NEXT_TRANSACTIONDATE_BY_SPONSORSHIPID.xml, USR_UFN_SPONSORSHIP_HASPAYMENT.xml
 -->
 
 	<!-- Note:  the order of the items listed here is important.  For example, you won't be able to load a data form that references 
@@ -171,6 +171,8 @@
 		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.USR_USP_SPONSORSHIP_CREATECOMPLETETRANSFERINTERACTIONS.xml" />
 		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.USR_UFN_VALIDATE_SPONSORSHIP_CANCELLATION_INTERACTIONTYPECODE.xml" />
 		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.USR_USP_INSERT_MULTIPLE_SPONSORSHIPEXTENSION.xml" />
+		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.USR_UFN_SPONSORSHIP_GET_NEXT_TRANSACTIONDATE_BY_SPONSORSHIPID.xml" />
+		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.USR_UFN_SPONSORSHIP_HASPAYMENT.xml" />
 
 		<!-- Record Operations-->
 		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.DeleteChildSelectedForSponsorshipLock.RecordOperation.xml" />
