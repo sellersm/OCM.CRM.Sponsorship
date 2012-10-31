@@ -16,6 +16,7 @@
 	Date            Modified By     Comments
 	04-Sep-2012		CMayeda			Initial Version
 	19-Sep-2012		CMayeda			Renamed Solicitor Tab and Field Caption to Fundraiser - Fogbugz Case 831
+	31-Oct-2012		CMayeda			Changed Fundraiser search list to OCM version to allow orgs
 	-->
 
 	<SPDataForm>
@@ -70,7 +71,8 @@ return 0
 	<common:FormMetaData FixedDialog="true">
 		<common:FormFields>
 			<common:FormField FieldID="SOLICITORID" Caption="Fundraiser" DataType="Guid" >
-				<common:SearchList SearchListID="35fa0186-b669-436f-913a-5e9fd5e59982" />
+				<common:SearchList SearchListID="c588bc58-68de-4a57-ba4e-cfa45c601b71" />
+				<!-- C0B9946E-6124-48DA-B81F-FF1F8F444825" OCM searchlist,  replaced OOB 35fa0186-b669-436f-913a-5e9fd5e59982 -->
 			</common:FormField>
 		</common:FormFields>
 
