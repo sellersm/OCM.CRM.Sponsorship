@@ -14,7 +14,8 @@
 	History:
 	Date            Modified By     Comments
 	21-Sep-2012		Memphis			Initial Version
-	29-Oct-2012		Memphis			FogBugz Case 934. Allow codes that begin with 'Cancellation' when reason code begins with 'Sponsor Request'
+	29-Oct-2012		Memphis			FogBugz Case 934. Allow codes that begin with 'Cancellation' when reason code begins with 'Sponsor Request'.
+	06-Nov-2012		Memphis			Fix the validation when the code contains the word 'Cancellation' and reason code begins with 'Sponsor Request'.
 	-->	
 	
 	<CreateFunctionSQL>
@@ -87,15 +88,25 @@ as begin
 		begin
 			-- check the interaction code, should be "Cancellation Letter"
 			-- 10/29/12 Memphis: changed to allow any code that starts with 'Cancellation'
-			--if lower(@INTERACTIONTEXT) <> lower('Cancellation Letter')
-			if LEFT(lower(@INTERACTIONTEXT), 12) <> lower('Cancellation')
+			--if LEFT(lower(@INTERACTIONTEXT), 12) <> lower('Cancellation')
+			-- 11/6/12 Memphis: need to validate if the code contains 'Cancellation', not just starts with it
+			if (CHARINDEX('cancellation', lower(@INTERACTIONTEXT)) = 0)
 				begin
 					set @ISVALID = 0;  -- this is an invalid combination
 				end
 			else
 				begin
-					set @ISVALID = 1;  -- this is a valid combination
-					set @doneChecking = 1;  -- done checking
+					-- the interaction contains 'cancellation', but
+					-- it cannot contain 'Delinquent' or 'Departure' or 'Program Completion'
+					if (CHARINDEX('delinquent', lower(@INTERACTIONTEXT)) <> 0) Or (CHARINDEX('departure', lower(@INTERACTIONTEXT)) <> 0) Or (CHARINDEX('completion', lower(@INTERACTIONTEXT)) <> 0)
+						begin
+							set @ISVALID = 0;  -- this is an invalid combination
+						end
+					else
+						begin
+							set @ISVALID = 1;  -- this is a valid combination
+							set @doneChecking = 1;  -- done checking
+						end
 				end
 		end
 		
