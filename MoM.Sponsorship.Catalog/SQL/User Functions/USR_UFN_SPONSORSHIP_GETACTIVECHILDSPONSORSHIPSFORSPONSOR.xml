@@ -14,6 +14,7 @@
 	22-Sep-2012		CMayeda			Initial Version
 	03-Oct-2012		CMayeda			Modified it to exclude corresponding sponsorship and include sponsorship gifts (financial sponsors) - FogBugz Case 870
 	16-Oct-2012		CMayeda			Fixed incorrect financial sponsorship - FogBugz Case 909
+	16-Nov-2012		CMayeda			Fixed defect in UFN_SPONSORSHIP_GIFTFINANCIALSPONSORID - not sure if this is due to 
 	-->
 
 	<CreateFunctionSQL>
@@ -35,8 +36,9 @@ as begin
      where CONSTITUENTID=@SPONSORID 
        and STATUSCODE=1  -- Active
        and SPONSORSHIPOPPORTUNITYID in (select ID from dbo.SPONSORSHIPOPPORTUNITYCHILD) -- Only children
-       and dbo.UFN_SPONSORSHIP_GIFTFINANCIALSPONSORID (SPONSORSHIP.ID) is null  -- only sponsorships that weren't gifted
-       
+       and (dbo.UFN_SPONSORSHIP_GIFTFINANCIALSPONSORID (SPONSORSHIP.ID) is null  -- only sponsorships that weren't gifted
+            or dbo.USR_UFN_SPONSORSHIP_GETFINANCIALSPONSOR (SPONSORSHIP.ID) = CONSTITUENTID) -- Blackbaud's function doesn't seem to always be correct - see Godec
+
 	select @FinancialSponsorships = count(ACTIVESPONSORSHIP.ID)
 	  from dbo.SPONSORSHIPTRANSACTION GIFTSTART
 	  join dbo.SPONSORSHIPCOMMITMENT on SPONSORSHIPCOMMITMENT.ID = GIFTSTART.SPONSORSHIPCOMMITMENTID
