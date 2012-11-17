@@ -3,7 +3,7 @@
 	xmlns:common="bb_appfx_commontypes" 
 	ID="fac8eeb6-d8f8-4697-9463-16b92f1e6878"
 	Name="USR_UFN_CALCULATE_NTD_DELINQUENCY"
-	Description="Calculates the number of days delinquent based on next transaction date."
+	Description="Calculates the number of months delinquent based on next transaction date."
 	Author="Memphis Sellers"
 	DBFunctionName="USR_UFN_CALCULATE_NTD_DELINQUENCY"
 	>
@@ -17,6 +17,7 @@
 	History:
 	Date            Modified By     Comments
 	15-Nov-2012		Memphis			Initial Version
+	16-Nov-2012		Memphis			Converted to number of Months delinquent, instead of days.  Removed some extranneous code so it's more accurate.
 	-->	
 
 	<CreateFunctionSQL>
@@ -28,7 +29,7 @@ returns integer
 with execute as caller
 as begin
 	-- do work here and return a value
-	declare @daysDelinquent int;
+	declare @monthsDelinquent int;
 
 	-- create the test date, based on current month/year/date:
 	declare @testDate date = CONVERT(Date, GETDATE());
@@ -38,28 +39,29 @@ as begin
 	if @NTD_DATE is not null
 		begin
 			-- need to get the comparison dates for 'current': 
-			--   all cash payments are due on the 17th, so use that as our base, current date
-			if DATEPART(DAY, @testDate) <> 17
-			begin
-				set @compareDateCurrent = DateAdd(YY, DATEPART(YEAR,@testDate)-1900, DateAdd(m,  DATEPART(MONTH, @testDate) - 1, 17-1)) 
-				set @compareDateFuture = DATEADD(MONTH,1,@compareDateCurrent)
-			end
+			-- get the day portion of the NTD Date passed in:
+			declare @ntdDay int = DATEPART(DAY, @NTD_DATE)
+			
+			-- create the current and 1-month-future comparison dates, based on the Day value of the NTD Date parameter:
+			set @compareDateCurrent = DateAdd(YY, DATEPART(YEAR,@testDate)-1900, DateAdd(m,  DATEPART(MONTH, @testDate) - 1, @ntdDay-1)) 
+			set @compareDateFuture = DATEADD(MONTH,1,@compareDateCurrent)
 
 			-- check if the NTD is in the current month
 			if @NTD_DATE BETWEEN @compareDateCurrent AND @compareDateFuture
 				begin
-					set @daysDelinquent = 0;
+					set @monthsDelinquent = 0;
 				end
 			else
 				begin
 					-- it's not current, so calculate how many days delinquent it is
-					set @daysDelinquent =  DATEDIFF(DAY, @NTD_DATE, @compareDateCurrent);
+					-- negative values mean it's paid ahead
+					set @monthsDelinquent =  DATEDIFF(MONTH, @NTD_DATE, @compareDateCurrent);
 				end
 		end
 	else
-		set @daysDelinquent = 0;
+		set @monthsDelinquent = 0;
 		
-	return @daysDelinquent;
+	return @monthsDelinquent;
 	
 end
 		]]>
