@@ -1,0 +1,52 @@
+﻿<QueryViewSpec
+	xmlns="bb_appfx_queryview"
+	xmlns:common="bb_appfx_commontypes" 
+	ID="2e8569f1-a5b8-4086-87e6-6cedce71c785"
+	Name="Revenue EFT Schedule Query"
+	Description="Used for EFT Schedule on recurring gifts"
+	Author="Cary Mayeda"
+	IsRoot="false"
+	PrimaryKeyField="ID"
+	RecordType="FINANCIALTRANSACTION"
+	common:SecurityUIFolder="Sponsorship"
+	>
+
+	<!-- define the view used to return data for the query -->
+	<ViewImplementation ViewName="USR_V_QUERY_FINANCIALTRANSACTIONEXTENSION">
+		<ViewSQL>
+			<![CDATA[
+	select	ID,
+			DIRECTDEBITSCHEDULECODEID,
+			CREDITCARDSCHEDULECODEID,
+			(select DESCRIPTION from dbo.USR_DIRECTDEBITSCHEDULECODE where ID = DIRECTDEBITSCHEDULECODEID) as DIRECTDEBITSCHEDULECODE,
+			(select DESCRIPTION from dbo.USR_CREDITCARDSCHEDULECODE where ID = CREDITCARDSCHEDULECODEID) as CREDITCARDSCHEDULECODE
+	 from	dbo.USR_FINANCIALTRANSACTION_EXTENSION				
+			]]>
+		</ViewSQL>
+	</ViewImplementation>
+
+	<!-- describe each field in the view output -->
+	<Output>
+		<OutputFields>
+			<OutputField Caption="System record ID" Category="System Fields" Name="ID" />
+			<OutputField Name="DIRECTDEBITSCHEDULECODEID" Caption="Direct Debit Schedule code" DataType="Guid" />
+			<OutputField Name="CREDITCARDSCHEDULECODEID" Caption="Credit Card Schedule code" DataType="Guid" />
+			<OutputField Name="DIRECTDEBITSCHEDULECODE" Caption="Direct Debit Schedule" DataType="String">
+				<LookupInfo>
+					<CodeTable CodeTableName="USR_DIRECTDEBITSCHEDULECODE" IncludeInactive="true" />
+				</LookupInfo>
+			</OutputField>
+			<OutputField Name="CREDITCARDSCHEDULECODE" Caption="Credit Card Schedule" DataType="String" >
+			<LookupInfo>
+				<CodeTable CodeTableName="USR_CREDITCARDSCHEDULECODE" IncludeInactive="true" />
+			</LookupInfo>
+			</OutputField>
+		</OutputFields>
+	</Output>
+
+	<RelationshipOperations>
+		<AddToParentView Field="ID" ParentView="V_QUERY_REVENUE" ParentViewRelatedField="ID" PathAlias="EFT Schedule"/>
+	</RelationshipOperations>
+
+</QueryViewSpec>
+

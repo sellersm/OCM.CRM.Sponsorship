@@ -323,6 +323,7 @@
     <EmbeddedResource Include="Smart Fields\NextTransactionDateDelinquency.SmartField.xml" />
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="Query Views\RevenueSchedule.Query.xml" />
     <Content Include="Query Views\SponsorshipExtension.Query.xml" />
     <EmbeddedResource Include="Query Views\SponsorshipNTDChange.Query.xml" />
   </ItemGroup>
