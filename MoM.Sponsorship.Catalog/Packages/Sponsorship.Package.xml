@@ -61,6 +61,7 @@
 										USR_UFN_CALCULATE_NTD_DELINQUENCY.xml
 										NextTransactionDateDelinquency.SmartField.xml
 	17-Nov-2012		CMayeda			Added SponsorshipExtension.Query.xml and SponsorshipNTDChange.Query.xml
+	18-Nov-2012		CMayeda			Added RevenueSchedule.Query.xml
 -->
 
 	<!-- Note:  the order of the items listed here is important.  For example, you won't be able to load a data form that references 
@@ -223,6 +224,7 @@
 		<!-- Query Views -->
 		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.SponsorshipExtension.Query.xml" />
 		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.SponsorshipNTDChange.Query.xml" />
+		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.RevenueSchedule.Query.xml" />
 		
 		<!-- Tasks -->
 		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.SponsorshipAdd_Wrapped.Task.xml" />
