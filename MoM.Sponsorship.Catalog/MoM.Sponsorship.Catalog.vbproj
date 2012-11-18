@@ -324,6 +324,7 @@
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Query Views\RevenueSchedule.Query.xml" />
+    <EmbeddedResource Include="Packages\SponsorshipExtensionTable.Package.xml" />
     <Content Include="Query Views\SponsorshipExtension.Query.xml" />
     <EmbeddedResource Include="Query Views\SponsorshipNTDChange.Query.xml" />
   </ItemGroup>
