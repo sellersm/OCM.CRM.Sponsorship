@@ -128,7 +128,7 @@
 		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.SponsorshipLocationExtension.Table.xml" />
 		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.Sponsorship.ProgramAnOpportunityConsistentGroup.Table.xml" />
 		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.SponsorshipOpportunity.ReservationExtension.Table.xml" />
-		<!--<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.SponsorshipExtension.Table.xml" /> -->
+		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.SponsorshipExtension.Table.xml" />
 		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.FinancialTransactionExtension.Table.xml" />
 		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.SponsorshipConversion.Table.xml" />
 
