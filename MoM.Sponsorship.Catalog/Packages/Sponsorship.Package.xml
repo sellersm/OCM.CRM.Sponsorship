@@ -62,7 +62,7 @@
 										NextTransactionDateDelinquency.SmartField.xml
 	17-Nov-2012		CMayeda			Added SponsorshipExtension.Query.xml and SponsorshipNTDChange.Query.xml
 	18-Nov-2012		CMayeda			Added RevenueSchedule.Query.xml
-	18-Nov-2012		CMayeda			Temporarilty removed SponsorshipExtension.Table.xml
+									Sponsorship.ActiveSponsorshipsWithInactiveRG.Query.xml and Sponsorship.ActiveSponsorshipsWithNoPayments.Query.xml
 	
 -->
 
@@ -227,7 +227,9 @@
 		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.SponsorshipExtension.Query.xml" />
 		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.SponsorshipNTDChange.Query.xml" />
 		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.RevenueSchedule.Query.xml" />
-		
+		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.Sponsorship.ActiveSponsorshipsWithInactiveRG.Query.xml" />
+		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.Sponsorship.ActiveSponsorshipsWithNoPayments.Query.xml" />
+
 		<!-- Tasks -->
 		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.SponsorshipAdd_Wrapped.Task.xml" />
 		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.AddProspectSponsorship.Task.xml" />
