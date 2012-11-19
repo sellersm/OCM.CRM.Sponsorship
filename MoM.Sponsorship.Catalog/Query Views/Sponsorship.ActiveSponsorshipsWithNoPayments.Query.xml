@@ -49,5 +49,9 @@ select distinct
 		</OutputFields>
 	</Output>
 
+	<RelationshipOperations>
+		<AddRelatedView RelatedView="V_QUERY_SPONSORSHIP" RelatedField="ID" Field="ID" PathAlias="Sponsorship"/>
+	</RelationshipOperations>
+
 </QueryViewSpec>
 
