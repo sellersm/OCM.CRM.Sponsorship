@@ -29,7 +29,7 @@
 	  join	dbo.financialtransaction f_trans on f_trans.id = r_sch.id
 	  join	dbo.CONSTITUENT sponsor ON sponsor.ID = f_trans.CONSTITUENTID
  left join	dbo.BATCHREVENUE br on br.CONSTITUENTID = sponsor.ID
-	  join	dbo.BATCH on br.BATCHID = BATCH.ID
+ left join	dbo.BATCH on br.BATCHID = BATCH.ID
       join	dbo.REVENUESPLIT r_split on r_sch.ID = r_split.REVENUEID
 	  join	dbo.SPONSORSHIP on SPONSORSHIP.REVENUESPLITID = r_split.ID
 	  join  dbo.SPONSORSHIPOPPORTUNITY so on so.ID = SPONSORSHIP.SPONSORSHIPOPPORTUNITYID
