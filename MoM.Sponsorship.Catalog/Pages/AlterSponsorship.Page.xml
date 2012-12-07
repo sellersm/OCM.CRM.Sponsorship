@@ -48,6 +48,30 @@
 									<HelpKey>SPSponsorshipPageCancelSponsorship.html</HelpKey>
 								</Action>
 							</AddAction>
+							<AddAction>
+								<Action ID="cf560209-da28-4b50-9422-5b4c5203b104" Caption="Add Sponsorship Extension" Visible="= Not Page.Fields!HASEXTENSION">
+									<ShowAddDataForm DataFormID="50815777-9e09-4f2b-8b88-59c8bd6b2741" xmlns="bb_appfx_commontypes">
+										<ActionContext>
+											<PageContextID />
+										</ActionContext>
+										<PostActionEvent>
+											<RefreshPage />
+										</PostActionEvent>
+									</ShowAddDataForm>
+								</Action>
+							</AddAction>
+							<AddAction>
+								<Action ID="87da4d6a-f100-4667-bb10-8834fa8ce3e9" Caption="Edit sponsorship extension" Visible="=Page.Fields!HASEXTENSION">
+									<ShowDataForm DataFormID="23753c8b-6cd7-4216-b212-c1368b0fe945" xmlns="bb_appfx_commontypes">
+										<ActionContext>
+											<PageContextID />
+										</ActionContext>
+										<PostActionEvent>
+											<RefreshPage />
+										</PostActionEvent>
+									</ShowDataForm>
+								</Action>
+							</AddAction>
 						</AlterActions>
 						
 					</AlterPageActionGroup>

@@ -19,7 +19,7 @@ Public NotInheritable Class AddSponsorshipHelper
 	Private Const errorTextCouldNotFindCreditCardSchedule As String = "Could not find credit card schedule code table value for - "
 	Private Const errorTextCouldNotFindDirectDebitSchedule As String = "Could not find direct debit schedule code table value for - "
 
-	Private Const defaultStartingOnDayOfMonth As Integer = 17				'The day of the month to default the Starting On date to
+	Private Const defaultStartingOnDayOfMonth As Integer = 1				'The day of the month to default the Starting On date to
 	Private Const defaultMonthlyChildSponsorshipAmount As Integer = 34		'This should be pulled from the program, but for now just setting to $34
 
 	Private Const frequencyAnnually As Integer = 0

@@ -323,9 +323,12 @@
     <EmbeddedResource Include="Smart Fields\NextTransactionDateDelinquency.SmartField.xml" />
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="SponsorshipExtension\SponsorshipExtension.Edit.xml" />
+    <EmbeddedResource Include="SponsorshipExtension\SponsorshipExtension.Add.xml" />
     <EmbeddedResource Include="Query Views\Sponsorship.ActiveSponsorshipsWithNoPayments.Query.xml" />
     <EmbeddedResource Include="Query Views\RevenueSchedule.Query.xml" />
     <EmbeddedResource Include="Query Views\Sponsorship.ActiveSponsorshipsWithInactiveRG.Query.xml" />
+    <EmbeddedResource Include="Page Expressions\Sponsorship.ExpressionDataForm.View.xml" />
     <Content Include="Query Views\SponsorshipExtension.Query.xml" />
     <EmbeddedResource Include="Query Views\SponsorshipNTDChange.Query.xml" />
   </ItemGroup>
