@@ -63,6 +63,9 @@
 	17-Nov-2012		CMayeda			Added SponsorshipExtension.Query.xml and SponsorshipNTDChange.Query.xml
 	18-Nov-2012		CMayeda			Added RevenueSchedule.Query.xml
 									Sponsorship.ActiveSponsorshipsWithInactiveRG.Query.xml and Sponsorship.ActiveSponsorshipsWithNoPayments.Query.xml
+	06-Dec-2012		Memphis			Added:	SponsorshipExtension.Add.xml
+											SponsorshipExtension.Edit.xml
+											Sponsorship.ExpressionDataForm.View.xml
 	
 -->
 
@@ -222,6 +225,8 @@
 		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.Sponsorship.CompleteTransfer.Edit.xml" />
 		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.RecurringGift_FinancialExtension.View.xml" />
 		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.RecurringGiftExtension.Edit.xml" />
+		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.SponsorshipExtension.Add.xml" />
+		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.SponsorshipExtension.Edit.xml" />
 
 		<!-- Query Views -->
 		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.SponsorshipExtension.Query.xml" />
@@ -236,6 +241,9 @@
 		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.AddUnavailableSponsorship.Task.xml" />
 		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.AddProjectSponsorship.Task.xml" />
 		
+		<!-- Page Expressions -->
+		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.Sponsorship.ExpressionDataForm.View.xml" />
+
 		<!-- Pages -->
 		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.SponsorshipLocationExtension.Alter.Page.xml" />
 		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.AlterSponsor.Page.xml" />
