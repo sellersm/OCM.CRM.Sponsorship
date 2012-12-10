@@ -329,7 +329,7 @@
     <EmbeddedResource Include="Query Views\RevenueSchedule.Query.xml" />
     <EmbeddedResource Include="Query Views\Sponsorship.ActiveSponsorshipsWithInactiveRG.Query.xml" />
     <EmbeddedResource Include="Page Expressions\Sponsorship.ExpressionDataForm.View.xml" />
-    <Content Include="Query Views\SponsorshipExtension.Query.xml" />
+    <EmbeddedResource Include="Query Views\SponsorshipExtension.Query.xml" />
     <EmbeddedResource Include="Query Views\SponsorshipNTDChange.Query.xml" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.VisualBasic.targets" />
