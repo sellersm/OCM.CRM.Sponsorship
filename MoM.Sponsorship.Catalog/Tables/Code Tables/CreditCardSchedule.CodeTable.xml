@@ -1,0 +1,11 @@
+﻿<CodeTableSpec 
+	xmlns="bb_appfx_codetable" 
+	xmlns:common="bb_appfx_commontypes"
+	ID="0f3c641e-1513-4e4e-a4c9-f0662880dfaf" 
+	Name="USR_CREDITCARDSCHEDULECODE"
+	Description="Credit card schedule code table values, used for sponsorship payment."
+	Author="Memphis Sellers"
+	DBTablename="USR_CREDITCARDSCHEDULECODE"
+	Category="Sponsorship"
+	SortMethod="UserDefined"
+/>

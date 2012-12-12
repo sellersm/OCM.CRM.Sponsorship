@@ -1,0 +1,60 @@
+<PackageSpec 
+    xmlns="bb_appfx_package"
+    xmlns:common="bb_appfx_commontypes"
+    ID="486bb82a-382b-4f1d-bb09-82a24dc0d2fe"
+    Name="SponsorshipAddIns Package"
+    Description="Sponsorship Form AddIns"
+    Author="Memphis Sellers"
+    >
+
+	<!-- Note:  the order of the items listed here is important.  For example, you won't be able to load a data form that references 
+	a table that hasn't been loaded, etc.  In general, the following order is recommended:
+	
+		(functions and procedures first)
+		SQLFunctionSpec
+		SQLStoredProcedureSpec
+		TranslationFunctionSpec
+
+		(tables next)
+		CodeTableSpec
+		TableSpec
+
+		(features next)
+		SimpleDataListSpec		
+		SearchListSpec
+		RecordOperationSpec
+		DataListSpec
+		
+		(forms next)
+		AddDataFormTemplateSpec
+		EditDataFormTemplateSpec
+		ViewDataFormTemplateSpec		
+
+		(more feature types)
+		BatchTypeSpec
+		BusinessProcessSpec
+		FlashDashSpec
+		IDMapperSpec
+		KpiSpec
+		MergeConfiguration
+		MergeTaskSpec
+		QueryViewSpec
+		ReportSpec
+		SmartFieldSpec
+		SmartQuerySpec
+
+		(functional areas, pages, and tasks last)
+		PageDefinitionSpec
+		FunctionalAreaSpec
+		TaskSpec	
+	-->
+	
+	<common:DependencyList>
+        <common:Dependency CatalogAssembly="MoM.Sponsorship.UIModel.dll" CatalogItem="MoM.Sponsorship.UIModel.ProjectSponsorship.AddIn.xml" />
+        <common:Dependency CatalogAssembly="MoM.Sponsorship.UIModel.dll" CatalogItem="MoM.Sponsorship.UIModel.Sponsorship.SponsorshipAddFormWrapped.AddIn.xml" />
+        <common:Dependency CatalogAssembly="MoM.Sponsorship.UIModel.dll" CatalogItem="MoM.Sponsorship.UIModel.UnavailableSponsorship.AddIn.xml" />
+		<common:Dependency CatalogAssembly="MoM.Sponsorship.UIModel.dll" CatalogItem="MoM.Sponsorship.UIModel.ProspectSponsorship.AddIn.xml" />
+		
+	</common:DependencyList>
+
+</PackageSpec>

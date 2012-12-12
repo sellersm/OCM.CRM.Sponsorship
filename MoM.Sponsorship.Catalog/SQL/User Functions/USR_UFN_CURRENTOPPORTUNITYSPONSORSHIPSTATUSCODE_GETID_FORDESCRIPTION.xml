@@ -1,0 +1,41 @@
+﻿<SQLFunctionSpec
+	xmlns="bb_appfx_sqlfunction"
+	xmlns:common="bb_appfx_commontypes" 
+	ID="40c877f2-6219-41cd-b1fc-30bd2a49ed6b"
+	Name="USR_UFN_CURRENTOPPORTUNITYSPONSORSHIPSTATUSCODE_GETID_FORDESCRIPTION"
+	Description="Gets the CURRENTOPPORTUNITYSPONSORSHIPSTATUSCODE codetable ID for a given description."
+	Author="Memphis Sellers"
+	DBFunctionName="USR_UFN_CURRENTOPPORTUNITYSPONSORSHIPSTATUSCODE_GETID_FORDESCRIPTION"
+	>
+
+	<!-- 
+	Remarks:  This returns the USR_CURRENTOPPORTUNITYSPONSORSHIPSTATUSCODE codetable ID for a given description.
+
+	History:
+	Date            Modified By     Comments
+	28-Sep-2012		Memphis			Initial Version
+	-->
+
+	
+	<CreateFunctionSQL>
+		<![CDATA[
+create function dbo.USR_UFN_CURRENTOPPORTUNITYSPONSORSHIPSTATUSCODE_GETID_FORDESCRIPTION(
+	@codeDescription nvarchar(100)
+)
+returns uniqueidentifier
+with execute as caller
+as begin
+	-- do work here and return a value
+	declare @ID uniqueidentifier;
+	set @codeDescription = LOWER(@codeDescription)
+	
+	select @ID = ID
+		from dbo.USR_CURRENTOPPORTUNITYSPONSORSHIPSTATUSCODE
+		where LOWER([DESCRIPTION]) = @codeDescription
+	
+	return @ID;
+end
+		]]>
+	</CreateFunctionSQL>
+
+</SQLFunctionSpec>

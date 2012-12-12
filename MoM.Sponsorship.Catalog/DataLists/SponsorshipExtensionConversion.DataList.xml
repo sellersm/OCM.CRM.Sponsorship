@@ -1,0 +1,70 @@
+﻿<DataListSpec 
+	xmlns="bb_appfx_datalist"
+	xmlns:common="bb_appfx_commontypes" 
+	ID="7ded2640-a5e3-4c33-afba-aca3c55fe461" 
+	Name="SponsorshipExtensionConversion Data List"
+	Description="Data List for sponsorship extension and conversion tables." 
+	Author="Memphis Sellers"
+	common:SecurityUIFolder="Sponsorship">
+	<InstalledProductList xmlns="bb_appfx_commontypes">
+		<InstalledProduct ID="3117d2c8-7f46-42f2-abeb-b654f2f63046" />
+	</InstalledProductList>
+	<ResourceFile AssemblyName="Blackbaud.AppFx.Sponsorship.Catalog.dll" ClassName="Blackbaud.AppFx.Sponsorship.Catalog.SponsorTransactionHistory.DataList" />
+	
+	
+	<!-- define the SP that returns the data for the datalist -->
+	<SPDataList SPName="USR_USP_DATALIST_SPONSORSHIP_EXTENSION_CONVERSION">
+		<common:CreateProcedureSQL>
+			<![CDATA[
+create procedure dbo.USR_USP_DATALIST_SPONSORSHIP_EXTENSION_CONVERSION(
+	@SPONSORID uniqueidentifier
+)
+as
+	set nocount on;
+	-- SponsorshipExtension table:
+	select
+		  COMMITMENT.LOOKUPID + ' (' + convert(nvarchar, COMMITMENTSTART.TRANSACTIONDATE, 101) + ')' COMMITMENTNAME
+		   --se.INITIALOPPORTUNITYSPONSORSHIPSTATUSCODEID
+		  --,se.CURRENTOPPORTUNITYSPONSORSHIPSTATUSCODEID
+		  ,se.CONVERSIONDATE
+		  ,se.DAYSTOCONVERT
+		  ,se.DATEADDED
+		  ,dbo.UFN_SPONSORSHIPOPPORTUNITY_TRANSLATIONFUNCTION(se.SPONSORSHIPOPPORTUNITYID) as 'SPONSORSHIPOPPORTUNITY'
+		  ,se.ISCURRENT
+		  ,dbo.UFN_USR_INITIALOPPORTUNITYSPONSORSHIPSTATUSCODE_GETDESCRIPTION(se.INITIALOPPORTUNITYSPONSORSHIPSTATUSCODEID) as 'INITIALSTATUS'
+		  ,dbo.UFN_USR_CURRENTOPPORTUNITYSPONSORSHIPSTATUSCODE_GETDESCRIPTION(se.CURRENTOPPORTUNITYSPONSORSHIPSTATUSCODEID) as 'CURRENTSTATUS'
+	from dbo.SPONSORSHIP s
+	join dbo.USR_SPONSORSHIPEXTENSION se on se.SPONSORSHIPOPPORTUNITYID = s.SPONSORSHIPOPPORTUNITYID
+	join dbo.SPONSORSHIPCOMMITMENT as COMMITMENT on COMMITMENT.ID = s.SPONSORSHIPCOMMITMENTID
+	join dbo.CONSTITUENT c on s.CONSTITUENTID = c.ID
+	where c.ID = @SPONSORID
+			]]>
+		</common:CreateProcedureSQL>
+	</SPDataList>
+
+	<!-- describe the context ID parameter for the SP (if applicable)-->
+	<Context ContextRecordType="Sponsor" RecordIDParameter="SPONSORID" />
+
+	<!-- describe any parameters (other than the context ID) defined on the SP
+	<Parameters>
+		<common:FormMetaData>
+			<common:FormFields>
+				<common:FormField FieldID="PARAMETER1" Caption="Paramter1" DataType="REPLACE_WITH_DATATYPE"/>
+			</common:FormFields>
+		</common:FormMetaData>
+	</Parameters>-->
+
+	<!-- define the output fields in the list -->
+	<Output>
+		<OutputFields>
+			<OutputField FieldID="COMMITMENTNAME" Caption="Commitment" DataType="String" CaptionResourceKey="$$commitment" />
+			<OutputField FieldID="ACTION" Caption="Action" DataType="String" CaptionResourceKey="$$action" />
+			<OutputField FieldID="ACTIONCONTEXT" Caption="From" DataType="String" CaptionResourceKey="$$from" />
+			<OutputField FieldID="ACTIONTARGET" Caption="To" DataType="String" CaptionResourceKey="$$to" />
+			<OutputField FieldID="REASON" Caption="Reason" DataType="String" CaptionResourceKey="$$reason" />
+			<OutputField FieldID="TRANSACTIONDATE" Caption="Date" DataType="Date" CaptionResourceKey="$$date" />
+			<OutputField FieldID="DATEADDED" Caption="Date added" IsHidden="true" DataType="Date" />
+		</OutputFields>
+	</Output>
+
+</DataListSpec>

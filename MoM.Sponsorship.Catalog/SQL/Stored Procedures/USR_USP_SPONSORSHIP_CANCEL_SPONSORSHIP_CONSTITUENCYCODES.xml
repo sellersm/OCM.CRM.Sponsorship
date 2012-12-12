@@ -1,0 +1,33 @@
+﻿<SQLStoredProcedureSpec
+	xmlns="bb_appfx_sqlstoredprocedure"
+	xmlns:common="bb_appfx_commontypes" 
+	ID="89d19c2e-bf52-46b5-a40f-c148d229358f"
+	Name="USR_USP_SPONSORSHIP_CANCEL_SPONSORSHIP_CONSTITUENCYCODES"
+	Description="Ends the sponsorship type constituency codes for a given sponsorship"
+	Author="Memphis Sellers"
+	SPName="USR_USP_SPONSORSHIP_CANCEL_SPONSORSHIP_CONSTITUENCYCODES"
+	>
+
+	<CreateProcedureSQL>
+		<![CDATA[
+create procedure dbo.USR_USP_SPONSORSHIP_CANCEL_SPONSORSHIP_CONSTITUENCYCODES (
+	@CONSTITUENTID uniqueidentifier
+)
+as
+begin
+	-- sets the DATETO=today of the constituency code record that matches the
+	-- constituentid and either of the constituency codes: Prospect Sponsor or Sponsor
+	update dbo.CONSTITUENCY
+	set DATETO = GETDATE()
+	where CONSTITUENTID = @CONSTITUENTID
+	and CONSTITUENCYCODEID IN (
+		select ID from dbo.CONSTITUENCYCODE 
+		where LOWER([Description]) IN (LOWER('Prospect Sponsor'), LOWER('Sponsor'))
+		) 
+
+end
+
+		]]>
+	</CreateProcedureSQL>
+
+</SQLStoredProcedureSpec>

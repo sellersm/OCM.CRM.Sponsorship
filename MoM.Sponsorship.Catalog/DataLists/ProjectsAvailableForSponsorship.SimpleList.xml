@@ -1,0 +1,25 @@
+﻿<SimpleDataListSpec
+	xmlns="bb_appfx_simpledatalist"
+	xmlns:common="bb_appfx_commontypes"
+	ID="fb5db9a1-69ed-4293-a3dd-f9f0efb8fced"
+	Name="ProjectsAvailableForSponsorship Simple Data List"
+	Description="Simple data list for the Projects collection when sponsoring a project."
+	Author="Memphis Sellers"
+	TranslationFunctionID="285061cd-3180-4816-ba91-5578007d47c4"
+	>
+
+	<SPSimpleList SPName="USR_USP_SIMPLEDATALIST_PROJECTS_AVAILABLE_TOSPONSOR">
+		<common:CreateProcedureSQL >
+			<![CDATA[
+create procedure dbo.USR_USP_SIMPLEDATALIST_PROJECTS_AVAILABLE_TOSPONSOR as
+	select 
+		ID as VALUE, 
+		NAME as LABEL
+	from dbo.SPONSORSHIPOPPORTUNITYPROJECT
+	order by NAME
+
+			]]>
+		</common:CreateProcedureSQL>
+	</SPSimpleList>
+
+</SimpleDataListSpec>
