@@ -60,7 +60,7 @@ create procedure dbo.USR_USP_SPONSORSHIPOPPORTUNITYCHILD_SEARCH_MOM (
 as begin
 
 	set nocount on;
-
+	
 	declare @tempid uniqueidentifier = newid();
   --declare @programId uniqueidentifier;
 

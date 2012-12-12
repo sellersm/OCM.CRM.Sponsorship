@@ -895,7 +895,7 @@ return @r;
 						<c:FormFieldOverride FieldID="SPONSORSHIPPROGRAMID" ReadOnly="false" DefaultValueText="Fields!SPONSORSHIPPROGRAMID" />
 						<c:FormFieldOverride FieldID="ELIGIBILITYCODE" ReadOnly="false" DefaultValueText="1" />
 						<c:FormFieldOverride FieldID="AVAILABILITYCODE" ReadOnly="false" DefaultValueText="1" />
-						<c:FormFieldOverride FieldID="RESTRICTFORSOLESPONSORSHIP" Caption="Only include unsponsored" DefaultValueText="True" />
+						<c:FormFieldOverride FieldID="RESTRICTFORSOLESPONSORSHIP" Caption="Only include unsponsored" DefaultValueText="False" />
 						<c:FormFieldOverride FieldID="SPONSORSHIPOPPORTUNITYGROUPID" ReadOnly="false" />
 						<c:FormFieldOverride FieldID="RESERVATIONKEYID" ReadOnly="false" />
 						<c:FormFieldOverride FieldID="CORRESPONDINGSPONSORID" Hidden="true" DefaultValueText="Fields!SPONSORSHIPCONSTITUENTID" />

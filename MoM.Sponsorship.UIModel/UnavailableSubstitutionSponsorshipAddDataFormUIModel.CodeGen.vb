@@ -460,7 +460,7 @@ Partial Public Class [UnavailableSubstitutionSponsorshipAddDataFormUIModel]
         _sponsorshipopportunityidchild.SearchFieldOverrides.Add(New Global.Blackbaud.AppFx.UIModeling.Core.FieldOverride() With {.FieldId = "SPONSORSHIPPROGRAMID", .DefaultValueText = "Fields!SPONSORSHIPPROGRAMID"})
         _sponsorshipopportunityidchild.SearchFieldOverrides.Add(New Global.Blackbaud.AppFx.UIModeling.Core.FieldOverride() With {.FieldId = "ELIGIBILITYCODE", .DefaultValueText = "1"})
         _sponsorshipopportunityidchild.SearchFieldOverrides.Add(New Global.Blackbaud.AppFx.UIModeling.Core.FieldOverride() With {.FieldId = "AVAILABILITYCODE", .DefaultValueText = "1"})
-        _sponsorshipopportunityidchild.SearchFieldOverrides.Add(New Global.Blackbaud.AppFx.UIModeling.Core.FieldOverride() With {.FieldId = "RESTRICTFORSOLESPONSORSHIP", .Caption = "Only include unsponsored", .DefaultValueText = "True"})
+		_sponsorshipopportunityidchild.SearchFieldOverrides.Add(New Global.Blackbaud.AppFx.UIModeling.Core.FieldOverride() With {.FieldId = "RESTRICTFORSOLESPONSORSHIP", .Caption = "Only include unsponsored", .DefaultValueText = "False"})
         _sponsorshipopportunityidchild.SearchFieldOverrides.Add(New Global.Blackbaud.AppFx.UIModeling.Core.FieldOverride() With {.FieldId = "SPONSORSHIPOPPORTUNITYGROUPID"})
         _sponsorshipopportunityidchild.SearchFieldOverrides.Add(New Global.Blackbaud.AppFx.UIModeling.Core.FieldOverride() With {.FieldId = "RESERVATIONKEYID"})
         _sponsorshipopportunityidchild.SearchFieldOverrides.Add(New Global.Blackbaud.AppFx.UIModeling.Core.FieldOverride() With {.FieldId = "CORRESPONDINGSPONSORID", .Hidden = True, .DefaultValueText = "Fields!SPONSORSHIPCONSTITUENTID"})

@@ -12,9 +12,13 @@ Public Class SponsorshipOpportunityChildMoMCustomSearchUIModel
                 End If
             End If
             QUICKSEARCH.Value = String.Empty
-        End If
+		End If
+
+		' *** 12/12/12 Memphis commented this out to try to let the caller set this value cuz we're using it for the Unavailable children as well! ***
         'default this to True as we're only using it for finding children to sponsor, which is a sole sponsorship:
-        Me.RESTRICTFORSOLESPONSORSHIP.Value = True
+		'Me.RESTRICTFORSOLESPONSORSHIP.Value = True
+		' *** 12/12/12 end of Memphis commented out code ***
+
     End Sub
 
 
