@@ -44,14 +44,15 @@ begin
 	end
 
 	-- update the sponsorship extension table setting the currentstatuscode to "Formerly Sponsored"
-	--declare @STATUSCODEID uniqueidentifier;
-	--set @STATUSCODEID = dbo.USR_UFN_CURRENTOPPORTUNITYSPONSORSHIPSTATUSCODE_GETID_FORDESCRIPTION('Formerly Sponsored')
-	--if @STATUSCODEID is not null
-	--begin
-	--	update dbo.USR_SPONSORSHIPEXTENSION
-	--	set CURRENTOPPORTUNITYSPONSORSHIPSTATUSCODEID = @STATUSCODEID
-	--	where ID = @SPONSORSHIPID
-	--end
+	-- This will need to be removed when this is done in the trigger
+	declare @STATUSCODEID uniqueidentifier;
+	set @STATUSCODEID = dbo.USR_UFN_CURRENTOPPORTUNITYSPONSORSHIPSTATUSCODE_GETID_FORDESCRIPTION('Formerly Sponsored')
+	if @STATUSCODEID is not null
+	begin
+		update dbo.USR_SPONSORSHIPEXTENSION
+		set CURRENTOPPORTUNITYSPONSORSHIPSTATUSCODEID = @STATUSCODEID
+		where ID = @SPONSORSHIPID
+	end
 
 	-- FogBugz Case 878: need to check eligibility after cancellation:
 	declare @sponsorshipOpportunityChildID uniqueidentifier;
