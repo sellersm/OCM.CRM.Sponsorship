@@ -1,11 +1,11 @@
-﻿<PageDefinitionSpec 
-    xmlns="bb_appfx_pagedefinition" 
+﻿<PageDefinitionSpec
+    xmlns="bb_appfx_pagedefinition"
     xmlns:common="bb_appfx_commontypes"
     ID="77a450b0-7f52-40ef-9fd0-96f42497f521"
     Name="Alter Sponsor Page"
     Description="Alters Sponsor page to add the custom Cancel action in the sponsorships datalist"
     Author="Memphis Sellers"
-    ContextRecordType="Sponsorship"	
+    ContextRecordType="Sponsorship"
     >
 
 	<!-- Note:  A page can optionally have a view form associated with it as the "Expression form".  While implemented as a view data form,
@@ -13,7 +13,7 @@
 	returned by the expression form can be used as expressions in various properties throughout the page.  To specify an expression form for this
 	page, add the following attribute:		ExpressionDataFormID="<some guid>"-->
 
-	 <!--define how the page header should appear--> 
+	<!--define how the page header should appear-->
 	<PageHeader Caption="REPLACE_WITH_CAPTION" ImageKey="REPLACE_WITH_IMAGEKEY" />
 
 
@@ -21,7 +21,7 @@
 		<AlterPages>
 			<!-- put the custom sponsorshpis tab on the sponsor page -->
 			<AlterPage PageID="35740996-3dbb-4414-903f-c992d7504afb" >
-					<!--<AddTab>
+				<!--<AddTab>
 						<Tab Caption="Custom Sponsorships" ID="6711d92d-db4b-496b-b42d-4fb194456539">
 							<Sections>
 								<Section ID="07b147cb-c42c-44ab-8720-25fffa28cc37" Caption="Sponsorships" CaptionResourceKey="$$sponsorships">
@@ -208,7 +208,7 @@
 						</Tab>						
 					</AddTab>-->
 			</AlterPage>
-			
+
 			<AlterPage PageID="35740996-3dbb-4414-903f-c992d7504afb" >
 				<AlterTabs>
 					<!-- Sponsorships Tab -->
@@ -232,25 +232,25 @@
 										</Action>
 									</AddAction>
 									<AddAction>
-									<Action ID="748dd1de-4577-4e93-b944-750a871b079e" Caption="Cancel pending sponsorship" ImageKey="RES:do_not_symbol" Visible="=Fields!STATUS=&quot;Active (Transfer pending)&quot; OrElse Fields!STATUS=&quot;Pending&quot;" CaptionResourceKey="$$cancel">
-										<ShowDataForm DataFormID="edde2945-0141-4677-8155-bbc3a80eb66b" xmlns="bb_appfx_commontypes">
-											<ActionContext>
-												<SectionField>CONTEXTSPONSORSHIPID</SectionField>
-											</ActionContext>
-											<PostActionEvent>
-												<RefreshPage />
-											</PostActionEvent>
-										</ShowDataForm>
-										<HelpKey>SPSponsorPageCancel.html</HelpKey>
-									</Action>
+										<Action ID="748dd1de-4577-4e93-b944-750a871b079e" Caption="Cancel pending sponsorship" ImageKey="RES:do_not_symbol" Visible="=Fields!STATUS=&quot;Active (Transfer pending)&quot; OrElse Fields!STATUS=&quot;Pending&quot;" CaptionResourceKey="$$cancel">
+											<ShowDataForm DataFormID="edde2945-0141-4677-8155-bbc3a80eb66b" xmlns="bb_appfx_commontypes">
+												<ActionContext>
+													<SectionField>CONTEXTSPONSORSHIPID</SectionField>
+												</ActionContext>
+												<PostActionEvent>
+													<RefreshPage />
+												</PostActionEvent>
+											</ShowDataForm>
+											<HelpKey>SPSponsorPageCancel.html</HelpKey>
+										</Action>
 									</AddAction>
 								</AlterActions>
-								
+
 							</AlterDataListSection>
 						</AlterSections>
-						
+
 					</AlterTab>
-					
+
 				</AlterTabs>
 
 				<AlterOrAddPageActionGroups>
@@ -265,19 +265,38 @@
 							</Action>
 						</AddAction>
 					</AlterOrAddPageActionGroup>
+
+					<AlterOrAddPageActionGroup ID="7fa2d3be-ddd2-4dd3-8285-2904f9a7bdc1" Caption="Tasks" ImageKey="RES:Tasks" CaptionResourceKey="$$tasks">
+						<AddAction>
+							<Action ID="de23e350-1ebe-461a-a3bf-9246c2df5d40" Caption="Convert prospect sponsor">
+								<ExecuteRecordOperation RecordOperationID="111fcd26-7526-4564-8cec-5cc3ba4b020d" xmlns="bb_appfx_commontypes">
+									<ActionContext>
+										<PageContextID />
+									</ActionContext>
+									<PostActionEvent>
+										<RefreshPage />
+									</PostActionEvent>
+								</ExecuteRecordOperation>
+							</Action>
+						</AddAction>
+					</AlterOrAddPageActionGroup>
+
 				</AlterOrAddPageActionGroups>
 			</AlterPage>
-			
-		</AlterPages>		
-	
+
+		</AlterPages>
+
 	</AlterExistingPages>
-	
+
 	<!-- define the tabs for the page - note that if only one tab is present, then that tab's sections are promoted to the page level (ie., the tab
-	itself isn't shown --><!--
+	itself isn't shown -->
+	<!--
 	<Tabs>
 		<Tab ID="d7e0dd0f-378d-4bee-a5d3-0b7e0b502766" Caption="Tab caption">
 
-			--><!-- define the sections for this tab --><!--
+			-->
+	<!-- define the sections for this tab -->
+	<!--
 			<Sections>
 				<Section ID="56a367b7-83e6-4173-bcd8-0bef339ba5c7" Caption="Section caption">
 					<DataList ID="REPLACE_WITH_DATALISTID">
@@ -286,7 +305,9 @@
 						</RenderStyle>
 					</DataList>
 
-					--><!-- define the section-level actions --><!--
+					-->
+	<!-- define the section-level actions -->
+	<!--
 					<Actions>
 						<Action ID="b7cbd267-5acc-401a-9bf2-dc1373b56ed9" Caption="Section action caption" ImageKey="res:newitem">
 							<common:ShowPage PageID="REPLACE_WITH_PAGEID" />
@@ -298,11 +319,15 @@
 		</Tab>
 	</Tabs>
 
-	--><!-- define page-level actions groups which appear in the explorer bar area of the shell --><!--
+	-->
+	<!-- define page-level actions groups which appear in the explorer bar area of the shell -->
+	<!--
 	<PageActionGroups>
 		
 		<PageActionGroup ID="54c8131b-2950-4737-b45e-ad9998940add" Caption="Tasks" ImageKey="RES:Tasks">
-			--><!-- for this action group, define the list of actions --><!--
+			-->
+	<!-- for this action group, define the list of actions -->
+	<!--
 			<Actions>
 				<Action ID="0d2725c4-5bb1-4e80-a21d-21ad093e7717" Caption="Action caption" ImageKey="res:newitem">
 					<common:ShowPage PageID="REPLACE_WITH_PAGEID" />
@@ -311,5 +336,5 @@
 		</PageActionGroup>
 		
 	</PageActionGroups>-->
-	
+
 </PageDefinitionSpec>
