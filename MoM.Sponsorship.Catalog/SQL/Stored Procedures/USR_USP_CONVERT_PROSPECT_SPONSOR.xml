@@ -72,6 +72,8 @@ begin
 	declare @callCenterManagerConstituentID uniqueidentifier = 'B25168DC-4DD4-46ED-B4DD-C5A26A965667'        -- This constituent is hard coded via a script
 
 	declare @sponsorshipStartDate date
+	declare @childWelcomeLetterExpectedDate date = Cast(DATEADD(s,-1,DATEADD(mm, DATEDIFF(m,0,GETDATE())+3,0)) as date);  --last_day_of_month_2_months_from_now
+	declare @sponsorInteractionId uniqueidentifier = null
 
 	set @currentStatusId = dbo.USR_UFN_CURRENTOPPORTUNITYSPONSORSHIPSTATUSCODE_GETID_FORDESCRIPTION('Sponsored')
 	set @prospectSponsorCurrentStatusID = dbo.USR_UFN_CURRENTOPPORTUNITYSPONSORSHIPSTATUSCODE_GETID_FORDESCRIPTION('Prospect Sponsored')
@@ -204,7 +206,7 @@ begin
 						end
 
 					exec dbo.USR_USP_INTERACTION_SPONSOR_ADD_PENDING 
-									@id = @interactionId output,
+									@id = @sponsorInteractionId output,
 									@constituentID = @sponsorId,
 									@summary = 'Sponsorship converted',
 									@categoryName = @interactionCategoryDesc_SponsorWelcome,
@@ -219,44 +221,40 @@ begin
 									@resendCode = 0,
 									@changeAgentID = @CHANGEAGENTID                                                    
 
-					if @interactionId is not null
+					if @sponsorInteractionId  is not null
 					begin
-						-- this is the code to call for each subsequent child for the same interaction
-						exec dbo.USR_USP_INTERACTION_SPONSOR_ADDCHILD
-										@interactionId = @interactionId,
-										@sponsorshipOpportunityChildID = @opportunityChildId,
-										@changeAgentID = @ChangeAgentID
-
+						-- NOTE: the child will be added in the children cursor loop below, based on the createWelcomeGreetingInteraction bit flag!
+						
 						exec dbo.USR_USP_INTERACTION_ADDRESPONSE 
-										@interactionId = @interactionId,
+										@interactionId = @sponsorInteractionId,
 										@responseCategoryName = @interactionResponseCategory_DonorContact,
 										@response = @interactionResponse_No,
 										@responseDate = null,                  
 										@changeAgentID = @changeAgentID
 
 						exec dbo.USR_USP_INTERACTION_ADDRESPONSE 
-										@interactionId = @interactionId,
+										@interactionId = @sponsorInteractionId,
 										@responseCategoryName = @interactionResponseCategory_EFTReceived,
 										@response = @interactionResponse_No,
 										@responseDate = null,                  
 										@changeAgentID = @changeAgentID
 
 						exec dbo.USR_USP_INTERACTION_ADDRESPONSE 
-										@interactionId = @interactionId,
+										@interactionId = @sponsorInteractionId,
 										@responseCategoryName = @interactionResponseCategory_LeftMessage,
 										@response = @interactionResponse_No,
 										@responseDate = null,                  
 										@changeAgentID = @changeAgentID
 
 						exec dbo.USR_USP_INTERACTION_ADDRESPONSE 
-										@interactionId = @interactionId,
+										@interactionId = @sponsorInteractionId,
 										@responseCategoryName = @interactionResponseCategory_MessageType,
 										@response = @interactionResponse_None,
 										@responseDate = null,                  
 										@changeAgentID = @changeAgentID
                     
 						exec dbo.USR_USP_INTERACTION_ADDRESPONSE 
-										@interactionId = @interactionId,
+										@interactionId = @sponsorInteractionId,
 										@responseCategoryName = @interactionResponseCategory_PacketReceived,
 										@response = @interactionResponse_Unknown,
 										@responseDate = null,                  
@@ -334,7 +332,7 @@ begin
 							@summary = 'Sponsorship conversion',
 							@categoryName = @interactionCategoryDesc_ChildLetter,
 							@subcategoryName = @interactionSubcategoryDesc_ChildWelcomeLetter,
-							@expectedDate = @currentDate,
+							@expectedDate = @childWelcomeLetterExpectedDate --@currentDate,
 							@owner = null,
 							@contactMethodDesc = @contactMethodDesc_Mail,
 							@comment = '',                                                                
@@ -377,10 +375,10 @@ begin
 			-- Step 6b check here, do this to add each child to the interaction if it was created above
 			if @createWelcomeGreetingInteraction = 1
 				begin
-					if @interactionId is not null
+					if @sponsorInteractionId is not null
 						-- this is the code to call for each subsequent child for the same interaction
 						exec dbo.USR_USP_INTERACTION_SPONSOR_ADDCHILD
-										@interactionId = @interactionId,
+										@interactionId = @sponsorInteractionId,
 										@sponsorshipOpportunityChildID = @opportunityChildId,
 										@changeAgentID = @ChangeAgentID				
 				end
