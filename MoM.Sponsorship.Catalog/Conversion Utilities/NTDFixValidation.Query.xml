@@ -1,0 +1,62 @@
+﻿<QueryViewSpec
+	xmlns="bb_appfx_queryview"
+	xmlns:common="bb_appfx_commontypes" 
+	ID="066eea65-0912-4a69-9478-fb7248339967"
+	Name="NTDFixValidation Query"
+	Description="Used to find potential issues with NTD fixes run by Blackbaud"
+	Author="Cary Mayeda"
+	IsRoot="true"
+	PrimaryKeyField="RevenueID"
+	RecordType="Revenue"
+	common:SecurityUIFolder="REPLACE_WITH_SECURITY_UI_FOLDER"
+	>
+
+	<!-- define the view used to return data for the query -->
+	<ViewImplementation ViewName="USR_V_QUERY_NTDFIX_VALIDATION">
+		<ViewSQL>
+			<![CDATA[
+select	
+		base.REVENUEID
+		,base.REVENUELOOKUPID
+		,base.ORIGINALNEXTTRANSACTIONDATE 
+		,base.NUMBEROFPAYMENTS 
+		,base.NUMBEROFWRITEOFFS
+		,base.CALCULATEDNEXTTRANSACTIONDATE 
+		,base.ACTUALNEXTTRANSACTIONDATE 
+		,base.FREQUENCY 
+		,base.CALCULATEDAMOUNTDUE 
+		,base.ACTUALAMOUNTDUE 
+		,base.NUMBEROFCORRECTIONWRITEOFFS 
+		,base.ACTUALAMOUNTDUE - CALCULATEDAMOUNTDUE as ACTUALVSCALCULATEDDIFFERENCE
+		,ft.TRANSACTIONAMOUNT
+  from	dbo.USR_NTDFIX_VALIDATION base
+  join	FINANCIALTRANSACTION ft on ft.ID = base.RevenueID	
+
+				]]>
+		</ViewSQL>
+	</ViewImplementation>
+
+	<!-- describe each field in the view output -->
+	<Output>
+		<OutputFields>
+			<OutputField Caption="System record ID" Category="System Fields" Name="RevenueID" />
+			<OutputField Name="REVENUELOOKUPID" Caption="Revenue Lookup ID" DataType="String" />
+			<OutputField Name="ORIGINALNEXTTRANSACTIONDATE" Caption="Original Next Transaction Date" DataType="Date" />
+			<OutputField Name="NUMBEROFPAYMENTS" Caption="Number Of Payments" DataType="Integer" />
+			<OutputField Name="NUMBEROFWRITEOFFS" Caption="Number Of Writeoffs" DataType="Integer" />
+			<OutputField Name="CALCULATEDNEXTTRANSACTIONDATE" Caption="Calculated Next Transaction Date" DataType="Date" />
+			<OutputField Name="ACTUALNEXTTRANSACTIONDATE" Caption="Actual Next Transaction Date" DataType="Date" />
+			<OutputField Name="FREQUENCY" Caption="Frequency" DataType="Integer" />
+			<OutputField Name="CALCULATEDAMOUNTDUE" Caption="Calculated Amount Due" DataType="Money" />
+			<OutputField Name="ACTUALAMOUNTDUE" Caption="Actual Amount Due" DataType="Money" />
+			<OutputField Name="NUMBEROFCORRECTIONWRITEOFFS" Caption="Number Of Correction Writeoffs" DataType="Integer" />
+			<OutputField Name="ACTUALVSCALCULATEDDIFFERENCE" Caption="Actual Vs Calculated Difference" DataType="Money" />
+			<OutputField Name="TRANSACTIONAMOUNT" Caption="TRANSACTIONAMOUNT" DataType="Money" />
+		</OutputFields>
+	</Output>
+
+	<RelationshipOperations>
+		<AddRelatedView RelatedView="V_QUERY_REVENUE" RelatedField="ID" Field="RevenueID" PathAlias="Revenue"/>
+	</RelationshipOperations>
+</QueryViewSpec>
+
