@@ -46,7 +46,7 @@ select
 			<OutputField Name="NUMBEROFWRITEOFFS" Caption="Number Of Writeoffs" DataType="Integer" />
 			<OutputField Name="CALCULATEDNEXTTRANSACTIONDATE" Caption="Calculated Next Transaction Date" DataType="Date" />
 			<OutputField Name="ACTUALNEXTTRANSACTIONDATE" Caption="Actual Next Transaction Date" DataType="Date" />
-			<OutputField Name="FREQUENCY" Caption="Frequency" DataType="Integer" />
+			<OutputField Name="FREQUENCY" Caption="Frequency" DataType="String" />
 			<OutputField Name="CALCULATEDAMOUNTDUE" Caption="Calculated Amount Due" DataType="Money" />
 			<OutputField Name="ACTUALAMOUNTDUE" Caption="Actual Amount Due" DataType="Money" />
 			<OutputField Name="NUMBEROFCORRECTIONWRITEOFFS" Caption="Number Of Correction Writeoffs" DataType="Integer" />
