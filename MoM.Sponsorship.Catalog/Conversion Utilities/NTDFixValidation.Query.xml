@@ -29,6 +29,15 @@ select
 		,base.NUMBEROFCORRECTIONWRITEOFFS 
 		,base.ACTUALAMOUNTDUE - CALCULATEDAMOUNTDUE as ACTUALVSCALCULATEDDIFFERENCE
 		,ft.TRANSACTIONAMOUNT
+		,day(ORIGINALNEXTTRANSACTIONDATE) as ORIGINALNEXTTRANSACTIONDAY
+		,month(ORIGINALNEXTTRANSACTIONDATE) as ORIGINALNEXTTRANSACTIONMONTH
+		,year(ORIGINALNEXTTRANSACTIONDATE) as ORIGINALNEXTTRANSACTIONYEAR
+		,day(CALCULATEDNEXTTRANSACTIONDATE) as CALCULATEDNEXTTRANSACTIONDAY
+		,month(CALCULATEDNEXTTRANSACTIONDATE) as CALCULATEDNEXTTRANSACTIONMONTH
+		,year(CALCULATEDNEXTTRANSACTIONDATE) as CALCULATEDNEXTTRANSACTIONYEAR
+		,day(ACTUALNEXTTRANSACTIONDATE) as ACTUALNEXTTRANSACTIONDAY
+		,month(ACTUALNEXTTRANSACTIONDATE) as ACTUALNEXTTRANSACTIONMONTH
+		,year(ACTUALNEXTTRANSACTIONDATE) as ACTUALNEXTTRANSACTIONYEAR
   from	dbo.USR_NTDFIX_VALIDATION base
   join	FINANCIALTRANSACTION ft on ft.ID = base.RevenueID	
 
@@ -51,7 +60,16 @@ select
 			<OutputField Name="ACTUALAMOUNTDUE" Caption="Actual Amount Due" DataType="Money" />
 			<OutputField Name="NUMBEROFCORRECTIONWRITEOFFS" Caption="Number Of Correction Writeoffs" DataType="Integer" />
 			<OutputField Name="ACTUALVSCALCULATEDDIFFERENCE" Caption="Actual Vs Calculated Difference" DataType="Money" />
-			<OutputField Name="TRANSACTIONAMOUNT" Caption="TRANSACTIONAMOUNT" DataType="Money" />
+			<OutputField Name="TRANSACTIONAMOUNT" Caption="Amount" DataType="Money" />
+			<OutputField Name="ORIGINALNEXTTRANSACTIONDAY" Caption="Original Next Transaction Day" DataType="Integer" />
+			<OutputField Name="ORIGINALNEXTTRANSACTIONMONTH" Caption="Original Next Transaction Month" DataType="Integer" />
+			<OutputField Name="ORIGINALNEXTTRANSACTIONYEAR" Caption="Original Next Transaction Year" DataType="Integer" />
+			<OutputField Name="CALCULATEDNEXTTRANSACTIONDAY" Caption="Calculated Next Transaction Day" DataType="Integer" />
+			<OutputField Name="CALCULATEDNEXTTRANSACTIONMONTH" Caption="Calculated Next Transaction Month" DataType="Integer" />
+			<OutputField Name="CALCULATEDNEXTTRANSACTIONYEAR" Caption="Calculated Next Transaction Year" DataType="Integer" />
+			<OutputField Name="ACTUALNEXTTRANSACTIONDAY" Caption="Actual Next Transaction Day" DataType="Integer" />
+			<OutputField Name="ACTUALNEXTTRANSACTIONMONTH" Caption="Actual Next Transaction Month" DataType="Integer" />
+			<OutputField Name="ACTUALNEXTTRANSACTIONYEAR" Caption="Actual Next Transaction Year" DataType="Integer" />
 		</OutputFields>
 	</Output>
 
