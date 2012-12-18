@@ -28,6 +28,7 @@ select
 		,base.ACTUALAMOUNTDUE 
 		,base.NUMBEROFCORRECTIONWRITEOFFS 
 		,base.ACTUALAMOUNTDUE - CALCULATEDAMOUNTDUE as ACTUALVSCALCULATEDDIFFERENCE
+		,base.CALCULATEDAMOUNTDUE - ACTUALAMOUNTDUE as CALCULATEDVSACTUALDIFFERENCE
 		,ft.TRANSACTIONAMOUNT
 		,day(ORIGINALNEXTTRANSACTIONDATE) as ORIGINALNEXTTRANSACTIONDAY
 		,month(ORIGINALNEXTTRANSACTIONDATE) as ORIGINALNEXTTRANSACTIONMONTH
@@ -60,6 +61,7 @@ select
 			<OutputField Name="ACTUALAMOUNTDUE" Caption="Actual Amount Due" DataType="Money" />
 			<OutputField Name="NUMBEROFCORRECTIONWRITEOFFS" Caption="Number Of Correction Writeoffs" DataType="Integer" />
 			<OutputField Name="ACTUALVSCALCULATEDDIFFERENCE" Caption="Actual Vs Calculated Difference" DataType="Money" />
+			<OutputField Name="CALCULATEDVSACTUALDIFFERENCE" Caption="Calculated Vs Actual Difference" DataType="Money" />
 			<OutputField Name="TRANSACTIONAMOUNT" Caption="Amount" DataType="Money" />
 			<OutputField Name="ORIGINALNEXTTRANSACTIONDAY" Caption="Original Next Transaction Day" DataType="Integer" />
 			<OutputField Name="ORIGINALNEXTTRANSACTIONMONTH" Caption="Original Next Transaction Month" DataType="Integer" />
