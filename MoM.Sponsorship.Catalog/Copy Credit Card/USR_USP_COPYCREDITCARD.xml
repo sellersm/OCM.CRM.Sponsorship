@@ -1,0 +1,149 @@
+﻿<SQLStoredProcedureSpec
+	xmlns="bb_appfx_sqlstoredprocedure"
+	xmlns:common="bb_appfx_commontypes" 
+	ID="a5dd6e2c-95ba-4883-bca1-4fc7cf411145"
+	Name="USR_USP_COPYCREDITCARD"
+	Description="Copies the credit card from one recurring gift to another, for the same sponsor."
+	Author="Memphis Sellers"
+	SPName="USR_USP_COPYCREDITCARD"
+	>
+	
+	<!-- 
+	Remarks:    This sproc is used by the CopyCreditCard.Add form. The @revenueId value passed in will get its credit card replaced with the credit card
+				associated with the @revenueLookupId recurring gift!
+
+	History:
+	Date            Modified By     Comments
+	19-Dec-2012		Memphis			Initial Version - will copy a credit card from one recurring gift to another, for the given sponsor.
+	-->
+	
+	<CreateProcedureSQL>
+		<![CDATA[
+create procedure dbo.USR_USP_COPYCREDITCARD
+(
+	@revenueId uniqueidentifier,   -- this is passed in from the form as context of the recurring gift user is "sitting on", it's CC will be replaced
+	@revenueLookupId nvarchar(100) -- user entered value, this will determine the credit card to copy/replace the gift that the user is "sitting on"
+)
+as
+begin
+	SET NOCOUNT ON;
+	
+	begin try
+
+		declare @sameSponsor bit = 0		-- flag to identify if the same sponsor is for both recurring gifts or not
+		declare @expireDate date;
+		declare @ccExpiresOn dbo.UDT_FUZZYDATE;
+		declare @CREDITCARDID uniqueidentifier;
+		declare @origSponsorId uniqueidentifier;
+		declare @ccIsValid bit = 0;
+		declare @paymentMethodCode int
+
+		-- for the recurring gift that is passed in, 
+		-- get the sponsor
+		select @origSponsorId = SPONSORSHIP.CONSTITUENTID
+		from dbo.SPONSORSHIP
+		where REVENUESPLITID = (select rs.ID from dbo.REVENUE r 
+								join dbo.REVENUESPLIT rs on r.ID = rs.REVENUEID
+								where r.ID = @revenueId)
+
+		----print 'Original Sponsor ID: ' + RTRIM(Cast(@origSponsorId as nvarchar(100)))
+
+		-- for the given revenue lookupid
+		-- get the sponsor
+		declare @ccSponsorId uniqueidentifier;
+		select @ccSponsorId = SPONSORSHIP.CONSTITUENTID
+		from dbo.SPONSORSHIP
+		where REVENUESPLITID = (select rs.ID from dbo.REVENUE r 
+								join dbo.REVENUESPLIT rs on r.ID = rs.REVENUEID
+								where r.LOOKUPID = @revenueLookupId)
+
+		----print 'ccSponsor ID: ' + RTRIM(Cast(@ccSponsorId as nvarchar(100)))
+
+		-- check that the sponsor is the same
+		if @origSponsorId = @ccSponsorId
+			begin
+				--print 'We have the same sponsor, so continue...'
+				set @sameSponsor = 1
+			end
+		else
+			begin
+				--print 'We have a different sponsor!  STOP!!!!'
+				set @sameSponsor = 0
+			end
+
+		if @sameSponsor = 1
+			begin
+				-- validate the credit card for the given revenue lookupid
+				-- get the cc info
+				select  @CREDITCARDID = CREDITCARDID, 
+						@ccExpiresOn = cc.EXPIRESON
+				from dbo.REVENUE r
+				join dbo.REVENUESCHEDULE rs on rs.ID = r.ID
+				left join dbo.CREDITCARD cc on rs.CREDITCARDID = cc.ID
+				where LOOKUPID = @revenueLookupId
+
+				select @expireDate = dbo.UFN_DATE_FROMFUZZYDATE(@ccExpiresOn)
+		
+				-- check the expiration date of the CC
+				if @expireDate <= GETDATE()
+					begin
+						set @ccIsValid = 0;
+						--print 'CC Expired!';
+					end
+				else
+					begin
+						set @ccIsValid = 1;
+						--print 'CC Valid!'
+					end
+			
+				if @ccIsValid = 1
+					begin
+						-- NOTE: need to check the payment method first, before doing the update,
+						--       because of the check constraint based on payment method type!
+				
+						-- ensure that the payment method is 2 (Credit Card)
+						select @paymentMethodCode = PAYMENTMETHODCODE
+						from dbo.REVENUEPAYMENTMETHOD
+						where REVENUEID = @revenueId
+				
+						if @paymentMethodCode <> 2
+							begin
+								--print 'Need to update the payment method!'
+								update dbo.REVENUEPAYMENTMETHOD
+								set PAYMENTMETHODCODE = 2,
+									DATECHANGED = GETDATE()
+								where REVENUEID = @revenueId
+							end
+				
+						-- do the copy here
+						--print 'copying the Credit Card info to the user-entered Recurring Gift!';
+						update dbo.REVENUESCHEDULE
+						set CREDITCARDID = @CREDITCARDID
+						where ID = @revenueId
+						--print 'CC updated!';
+					end
+				else
+					--print 'CC Invalid, cannot continue...'
+					raiserror 1000000 'Credit Card is expired, cannot use it!'
+
+			end
+		else  --if @sameSponsor = 1
+			begin
+				raiserror 1000000 'The recurring gift you entered is for a different sponsor, cannot continue!'
+			end
+		
+		return 0;
+	
+	end try
+	
+	begin catch
+		exec dbo.USP_RAISE_ERROR;
+		return 1;	
+	end catch
+	
+end
+
+		]]>
+	</CreateProcedureSQL>
+
+</SQLStoredProcedureSpec>

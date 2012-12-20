@@ -56,6 +56,22 @@
 							</Action>
 						</AddAction>
 					</AlterOrAddPageActionGroup>
+
+					<AlterOrAddPageActionGroup Caption="Tasks" CaptionResourceKey="$$tasks" ID="6edc3707-736f-441f-8871-5fa6467e1d9b" >
+						<AddAction>
+							<Action ID="fdf4a20c-c824-4131-9fef-3186cbdd6c0d" Caption="Replace this credit card" ImageKey="RES:rename">
+						<ShowAddDataForm DataFormID="bd828943-d6c3-4fd3-99ea-e86b9fea1266" xmlns="bb_appfx_commontypes">
+							<ActionContext>
+								<PageContextID />
+							</ActionContext>
+							<PostActionEvent>
+								<RefreshPage />
+							</PostActionEvent>
+						</ShowAddDataForm>
+					</Action>
+						</AddAction>
+					</AlterOrAddPageActionGroup>
+
 				</AlterOrAddPageActionGroups>
 			</AlterPage>
 		</AlterPages>
