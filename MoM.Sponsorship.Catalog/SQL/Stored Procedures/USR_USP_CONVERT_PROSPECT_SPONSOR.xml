@@ -332,7 +332,7 @@ begin
 							@summary = 'Sponsorship conversion',
 							@categoryName = @interactionCategoryDesc_ChildLetter,
 							@subcategoryName = @interactionSubcategoryDesc_ChildWelcomeLetter,
-							@expectedDate = @childWelcomeLetterExpectedDate --@currentDate,
+							@expectedDate = @childWelcomeLetterExpectedDate, --@currentDate,
 							@owner = null,
 							@contactMethodDesc = @contactMethodDesc_Mail,
 							@comment = '',                                                                
