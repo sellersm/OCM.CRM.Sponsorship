@@ -18,6 +18,8 @@
 	28-Dec-2012		Memphis			Trying to fix issue of formerly sponsored children showing up as Sponsored,
 									added join to sponsorshipextension so it gets the right row for the sponsorship, NOT
 									for the Child (sponsorshipopportunity).
+	31-Dec-2012		Memphis			Added the "left outer" to the join to USR_CURRENTOPPORTUNITYSPONSORSHIPSTATUSCODE so all children
+									display even if there's no sponsorship extension row for the child.
 -->
 	<DependencyList xmlns="bb_appfx_commontypes">
 		<Dependency CatalogAssembly="Blackbaud.AppFx.Sponsorship.Catalog.dll" CatalogItem="Blackbaud.AppFx.Sponsorship.Catalog.UFN_SPONSORSHIPOPPORTUNITY_TRANSLATIONFUNCTION.xml" />
@@ -145,7 +147,7 @@ as
     outer apply dbo.UFN_CONSTITUENT_DISPLAYNAME(REASSIGNED.CONSTITUENTID) REASSIGNEDCONSTITUENTNAME_NF
     outer apply dbo.UFN_CONSTITUENT_DISPLAYNAME(dbo.UFN_SPONSORSHIP_GIFTFINANCIALSPONSORID(SPONSORSHIP.ID)) PAIDFORBY_NF
     left outer join dbo.USR_SPONSORSHIPEXTENSION on dbo.USR_SPONSORSHIPEXTENSION.ID = SPONSORSHIP.ID
-    join dbo.usr_currentopportunitysponsorshipstatuscode currStatusCode on currStatusCode.ID = CURRENTOPPORTUNITYSPONSORSHIPSTATUSCODEID	
+    left outer join dbo.USR_CURRENTOPPORTUNITYSPONSORSHIPSTATUSCODE currStatusCode on currStatusCode.ID = CURRENTOPPORTUNITYSPONSORSHIPSTATUSCODEID	
 	where SPONSORSHIPCOMMITMENT.CONSTITUENTID = @CONSTITUENTID
 	and (@SHOWHISTORY = 1 or SPONSORSHIP.STATUSCODE = 1)
 	order by COMMITMENTSEQUENCE, SPONSORSHIPSEQUENCE;
