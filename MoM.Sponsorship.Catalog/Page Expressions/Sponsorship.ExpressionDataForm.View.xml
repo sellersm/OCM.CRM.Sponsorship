@@ -34,7 +34,7 @@ as
 			@HASEXTENSION = 1
 	from dbo.USR_SPONSORSHIPEXTENSION
 	where ID = @ID
-	and ISCURRENT = 1
+	--and ISCURRENT = 1
 
 	return 0;
 			]]>
