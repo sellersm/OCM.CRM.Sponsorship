@@ -17,14 +17,18 @@
 	19-Dec-2012		Memphis			Initial Version - will copy a credit card from one recurring gift to another, for the given sponsor.
 	28-Dec-2012		Memphis			Changed to use the Constituent from the Revenue view, not the Sponsorship because the Credit Card 
 									could be used for a Gift, not a sponsorship payment!
+	29-Dec-2012		Memphis			Added the optional parameter so we can call this and override the check for the same constituent, so that
+									the user can actually use the credit card from a different constituent/payer/donor. This will be called
+									from a new Action Task called "Apply different Credit Card"
 	-->
 	
 	<CreateProcedureSQL>
 		<![CDATA[
 create procedure dbo.USR_USP_COPYCREDITCARD
 (
-	@revenueId uniqueidentifier,   -- this is passed in from the form as context of the recurring gift user is "sitting on", it's CC will be replaced
-	@revenueLookupId nvarchar(100) -- user entered value, this will determine the credit card to copy/replace the gift that the user is "sitting on"
+	@revenueId uniqueidentifier,		-- this is passed in from the form as context of the recurring gift user is "sitting on", it's CC will be replaced
+	@revenueLookupId nvarchar(100),		-- user entered value, this will determine the credit card to copy/replace the gift that the user is "sitting on"
+	@overrideConstituentCheck bit = 0	-- flag for checking that the credit card belongs to the same constituent, by default perform the check
 )
 as
 begin
@@ -40,39 +44,48 @@ begin
 		declare @ccIsValid bit = 0;
 		declare @paymentMethodCode int
 		
-		--****  12/27/12: 
-		---- CHANGE THIS TO BE THE CONSTITUENTID of the RECURRING GIFT, NOT THE SPONSORSHIP!
-		--  It's possible that this gift is NOT related to a sponsorship, so only get stuff from the
-		--  Reveue view, not Sponsorship table.
-		--****************************************
+		-- if the override flag isn't set, then check that the cc belongs to the same person
+		if @overrideConstituentCheck = 0
+			begin		
+				--****  12/27/12: 
+				---- CHANGE THIS TO BE THE CONSTITUENTID of the RECURRING GIFT, NOT THE SPONSORSHIP!
+				--  It's possible that this gift is NOT related to a sponsorship, so only get stuff from the
+				--  Reveue view, not Sponsorship table.
+				--****************************************
 
-		-- for the recurring gift that is passed in, 
-		-- get the constituent
-		select @origSponsorId = REVENUE.CONSTITUENTID
-		from dbo.REVENUE
-		where ID = @revenueId
+				-- for the recurring gift that is passed in, 
+				-- get the constituent
+				select @origSponsorId = REVENUE.CONSTITUENTID
+				from dbo.REVENUE
+				where ID = @revenueId
 
-		----print 'Original Sponsor ID: ' + RTRIM(Cast(@origSponsorId as nvarchar(100)))
+				----print 'Original Sponsor ID: ' + RTRIM(Cast(@origSponsorId as nvarchar(100)))
 
-		-- for the given revenue lookupid
-		-- get the constituentid for the reveue/recurring gift:
-		declare @ccSponsorId uniqueidentifier;
-		select @ccSponsorId = REVENUE.CONSTITUENTID
-		from dbo.REVENUE
-		where LOOKUPID = @revenueLookupId
+				-- for the given revenue lookupid
+				-- get the constituentid for the reveue/recurring gift:
+				declare @ccSponsorId uniqueidentifier;
+				select @ccSponsorId = REVENUE.CONSTITUENTID
+				from dbo.REVENUE
+				where LOOKUPID = @revenueLookupId
 
-		----print 'ccSponsor ID: ' + RTRIM(Cast(@ccSponsorId as nvarchar(100)))
+				----print 'ccSponsor ID: ' + RTRIM(Cast(@ccSponsorId as nvarchar(100)))
 
-		-- check that the sponsor is the same
-		if @origSponsorId = @ccSponsorId
-			begin
-				--print 'We have the same sponsor, so continue...'
-				set @sameSponsor = 1
+				-- check that the sponsor is the same
+				if @origSponsorId = @ccSponsorId
+					begin
+						--print 'We have the same sponsor, so continue...'
+						set @sameSponsor = 1
+					end
+				else
+					begin
+						--print 'We have a different sponsor!  STOP!!!!'
+						set @sameSponsor = 0
+					end
 			end
 		else
 			begin
-				--print 'We have a different sponsor!  STOP!!!!'
-				set @sameSponsor = 0
+				-- we don't care who the cc belongs to so set the flag stating that it's OK to proceed
+				set @sameSponsor = 1
 			end
 
 		if @sameSponsor = 1
