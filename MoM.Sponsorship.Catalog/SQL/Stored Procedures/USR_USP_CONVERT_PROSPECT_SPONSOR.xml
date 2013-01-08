@@ -14,6 +14,7 @@
 	History:
 	Date            Modified By     Comments
 	12-Dec-2012		Memphis			Initial Version.
+	08-Jan-2013		Memphis			Fogbugz Case 956: only pull the Active sponsorships (Children) for the sponsor.
 	-->
 
 
@@ -114,6 +115,7 @@ begin
 		join dbo.SPONSORSHIPOPPORTUNITY so on s.SPONSORSHIPOPPORTUNITYID = so.ID
 		join dbo.SPONSORSHIPOPPORTUNITYCHILD sc on sc.ID = so.ID
 		where s.CONSTITUENTID = @sponsorId
+		and s.STATUSCODE = 1    -- Active
 	)  
 	insert into @conversionTbl(OpportunityChildID, SponsorshipID)
 	select OpportunityChildID, SponsorshipID
