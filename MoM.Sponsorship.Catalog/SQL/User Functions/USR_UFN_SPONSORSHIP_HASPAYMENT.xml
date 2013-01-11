@@ -15,6 +15,7 @@
 	History:
 	Date            Modified By     Comments
 	30-Oct-2012		Memphis			Initial Version
+	11-Jan-2013     CMayeda			Added functionality for a null date passed in @date_passed_in date to return any payment (no date criteria)
 	-->
 	
 	<CreateFunctionSQL>
@@ -34,7 +35,7 @@ as begin
 		join dbo.financialtransaction ft on ftl.FINANCIALTRANSACTIONID = ft.ID
 		where rga.SOURCEREVENUEID = dbo.USR_UFN_GETFINANCIALTRANSACTIONID_FORSPONSORSHIP (@sponsorshipID)
 		and AMOUNT > 0
-		and cast(ft.[DATE] as date) >= @date_passed_in
+		and (@date_passed_in is null or cast(ft.[DATE] as date) >= @date_passed_in)
 
 	return @hasPayment
 end
