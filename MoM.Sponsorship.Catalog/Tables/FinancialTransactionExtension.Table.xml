@@ -9,10 +9,21 @@
 	PrimaryKeyAsForeignKeyTablename="FINANCIALTRANSACTION"
 	>
 
+	<!-- 
+	Remarks:    This table is used for 
+
+	History:
+	Date            Modified By     Comments
+	21-Jan-2013		Memphis			Added the new field to hold the pre-departure gift status:  PreDepartureGiftStatus
+-->
+
+
+
 	<!-- define fields on the table -->
 	<Fields>
 		<CodeTableField CodeTable="USR_DIRECTDEBITSCHEDULECODE" Description="Direct debit schedule" Name="DIRECTDEBITSCHEDULECODEID" Required="false"/>
 		<CodeTableField CodeTable="USR_CREDITCARDSCHEDULECODE" Description="Credit card schedule" Name="CREDITCARDSCHEDULECODEID" Required="false"/>
+		<TextField Name="PREDEPARTUREGIFTSTATUS" Description="Pre Departure Gift Status" Length="10" Required="false" DefaultValue="" />
 	</Fields>
 
 	<!-- define any additional check constraints on the table -->
