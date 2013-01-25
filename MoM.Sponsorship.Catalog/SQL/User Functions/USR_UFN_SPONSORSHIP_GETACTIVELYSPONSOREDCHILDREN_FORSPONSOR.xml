@@ -1,0 +1,50 @@
+﻿<SQLFunctionSpec
+	xmlns="bb_appfx_sqlfunction"
+	xmlns:common="bb_appfx_commontypes" 
+	ID="32110129-c2f4-451e-91ec-b01318924a45"
+	Name="USR_UFN_SPONSORSHIP_GETACTIVELYSPONSOREDCHILDREN_FORSPONSOR"
+	Description="Get all Active Children that are sponsored by the given sponsor."
+	Author="Memphis Sellers"
+	DBFunctionName="USR_UFN_SPONSORSHIP_GETACTIVELYSPONSOREDCHILDREN_FORSPONSOR"
+	>
+
+	<!-- 
+	Remarks:    UFN to return table of Active Children that are sponsored by the sponsor
+
+	History:
+	Date            Modified By     Comments
+	24-Jan-2013		Memphis			Initial Version
+
+	-->	
+
+	<CreateFunctionSQL>
+		<![CDATA[
+create function dbo.USR_UFN_SPONSORSHIP_GETACTIVELYSPONSOREDCHILDREN_FORSPONSOR 
+(
+	-- Add the parameters for the function here
+	@sponsorId uniqueidentifier
+)
+returns 
+@SponsoredChildrenTable TABLE 
+(
+	-- Add the column definitions for the TABLE variable here
+	childId uniqueidentifier
+)
+with execute as caller
+as
+begin
+	-- Fill the table variable with the rows for your result set
+	insert @SponsoredChildrenTable
+	select soc.id
+	from dbo.SPONSORSHIP s 
+	left join dbo.SPONSORSHIPOPPORTUNITYCHILD soc on s.SPONSORSHIPOPPORTUNITYID = soc.ID
+	where s.CONSTITUENTID = @sponsorId
+	and s.STATUSCODE = 1
+	and soc.ID is not null
+
+	return 
+end
+		]]>
+	</CreateFunctionSQL>
+
+</SQLFunctionSpec>
