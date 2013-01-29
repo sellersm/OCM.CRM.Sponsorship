@@ -8,8 +8,16 @@
 	IsRoot="true"
 	PrimaryKeyField="ID"
 	RecordType="Sponsorship"
-	common:SecurityUIFolder="Sponsorship"
-	>
+	common:SecurityUIFolder="Sponsorship" >
+	
+	<!-- 
+	Remarks:    
+
+	History:
+	Date            Modified By     Comments
+	22-Oct-2012		CMayeda			Initial Version
+	29-Jan-2013		CMayeda			Added V_QUERY_SPONSORSHIP as a related view - FogBugz case 962
+	-->
 
 	<!-- define the view used to return data for the query -->
 	<ViewImplementation ViewName="USR_V_QUERY_SPONSORSHIPEXTENSION">
@@ -84,6 +92,7 @@
 	</Output>
 	<RelationshipOperations>
 		<AddRelatedView RelatedView="V_QUERY_SPONSORSHIPOPPORTUNITY" RelatedField="ID" Field="SPONSORSHIPOPPORTUNITYID" PathAlias="Sponsorship Opportunity"/>
+		<AddRelatedView RelatedView="V_QUERY_SPONSORSHIP" RelatedField="ID" Field="ID" PathAlias="Sponsorship"/>
 	</RelationshipOperations>
 </QueryViewSpec>
 
