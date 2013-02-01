@@ -1,0 +1,82 @@
+﻿<QueryViewSpec
+	xmlns="bb_appfx_queryview"
+	xmlns:common="bb_appfx_commontypes" 
+	ID="a825e581-cb96-416f-8a4e-423c8cc36556"
+	Name="Sponsorship NTD Change Query"
+	Description="Used to determine which sponsorships have changed after a batch commit"
+	Author="Cary Mayeda"
+	IsRoot="true"
+	PrimaryKeyField="ID"
+	RecordType="Sponsorship"
+	common:SecurityUIFolder="Sponsorship"
+	>
+
+	<!-- define the view used to return data for the query -->
+	<ViewImplementation ViewName="USR_V_QUERY_NTDCHANGE">
+		<ViewSQL>
+			<![CDATA[
+
+
+with afterbatchcommit 
+as (	 
+	select	CONSTITUENT.LOOKUPID as SPONSORLOOKUPID,
+			CONSTITUENT.NAME as SPONSORNAME, 
+			SPONSORSHIPOPPORTUNITY.LOOKUPID as CHILDLOOKUPID,
+			SPONSORSHIPOPPORTUNITYCHILD.NAME as CHILDNAME,
+			SPONSORSHIP.ID SPONSORSHIPID, 
+			REVENUESCHEDULE.NEXTTRANSACTIONDATE,
+			REVENUESCHEDULE.DATECHANGED,
+			CHANGEDBY.USERNAME as CHANGEDBY_USERNAME
+			
+	  
+	  from	dbo.REVENUE
+	  join	dbo.REVENUESCHEDULE on REVENUESCHEDULE.ID = REVENUE.ID
+	  join	dbo.REVENUESPLIT rs on REVENUE.ID = rs.REVENUEID
+	  join	dbo.SPONSORSHIP on SPONSORSHIP.REVENUESPLITID = rs.ID
+	  join	dbo.CONSTITUENT on CONSTITUENT.ID = SPONSORSHIP.CONSTITUENTID
+	  join	dbo.SPONSORSHIPOPPORTUNITY on SPONSORSHIPOPPORTUNITY.ID = SPONSORSHIP.SPONSORSHIPOPPORTUNITYID
+	  join	dbo.SPONSORSHIPOPPORTUNITYCHILD on SPONSORSHIPOPPORTUNITYCHILD.ID = SPONSORSHIPOPPORTUNITY.ID 
+	  left join	dbo.CHANGEAGENT CHANGEDBY on CHANGEDBY.ID = REVENUESCHEDULE.CHANGEDBYID
+	  
+	 where  SPONSORSHIP.STATUSCODE = 1)
+
+
+select	b.NEXTTRANSACTIONDATE as BEFORENTD,
+		a.NEXTTRANSACTIONDATE as AFTERNTD, 
+		a.SPONSORLOOKUPID,
+		a.SPONSORNAME,
+		a.CHILDLOOKUPID,
+		a.CHILDNAME,
+		a.SPONSORSHIPID as ID,
+		a.DATECHANGED,
+		a.CHANGEDBY_USERNAME
+  from USR_TEMP_NTDBEFOREBATCHCOMMIT b
+  join afterbatchcommit a on b.SPONSORSHIPID = a.SPONSORSHIPID
+ 
+
+
+]]>
+		</ViewSQL>
+	</ViewImplementation>
+
+	<!-- describe each field in the view output -->
+	<Output>
+		<OutputFields>
+			<OutputField Name="ID" Caption="Sponsorship system record ID" Category="System Fields" />
+			<OutputField Name="BEFORENTD" Caption="Before NTD" DataType="Date" />
+			<OutputField Name="AFTERNTD" Caption="After NTD" DataType="Date" />
+			<OutputField Name="SPONSORLOOKUPID" Caption="Sponsor Lookup ID" DataType="String" />
+			<OutputField Name="SPONSORNAME" Caption="Sponsor Name" DataType="String" />
+			<OutputField Name="CHILDLOOKUPID" Caption="Child Lookup ID" DataType="String" />
+			<OutputField Name="CHILDNAME" Caption="Child Name" DataType="String" />
+			<OutputField Name="DATECHANGED" Caption="Date Schedule Changed" DataType="Date" />
+			<OutputField Name="CHANGEDBY_USERNAME" Caption="Changed By" DataType="String">
+				<LookupInfo>
+					<SimpleDataList SimpleDataListID="CEA15E1C-E455-41be-9ECF-6B5453FA96A4" />
+				</LookupInfo>
+			</OutputField>
+		</OutputFields>
+	</Output>
+
+</QueryViewSpec>
+

@@ -1,0 +1,106 @@
+﻿<SQLStoredProcedureSpec
+	xmlns="bb_appfx_sqlstoredprocedure"
+	xmlns:common="bb_appfx_commontypes" 
+	ID="83bb94ea-d348-47a7-9107-0651298136f5"
+	Name="USR_USP_POPULATE_SPONSORSHIPEXTENSION"
+	Description="Populates the sponsorship extension rows for the converted sponsorships."
+	Author="Memphis Sellers"
+	SPName="USR_USP_POPULATE_SPONSORSHIPEXTENSION"
+	>
+
+	<!-- 
+	Remarks:    Populates the sponsorship extension table, only sets the current status field, for all Active sponsorships converted from RE.
+				FogBugz 923:
+
+	History:
+	Date            Modified By     Comments
+	21-Oct-2012		Memphis			Initial Version
+	-->
+
+
+	<CreateProcedureSQL>
+		<![CDATA[
+create procedure dbo.USR_USP_POPULATE_SPONSORSHIPEXTENSION(
+	@ID uniqueidentifier
+)
+as
+begin
+begin try
+      declare @CONSTITUENTID uniqueidentifier;
+      declare @SPONSORSHIPOPPORTUNITYID uniqueidentifier;
+      declare @SPONSORSHIPID uniqueidentifier;
+
+      -- use a cursor to iterate through each sponsorship record that was converted, sponsorship date < 10/18/12
+      declare populateCursor cursor fast_forward for 
+      select c.ID, s.SPONSORSHIPOPPORTUNITYID, s.ID
+      from dbo.SPONSORSHIP s
+      join dbo.SPONSORSHIPOPPORTUNITY so on so.ID = s.SPONSORSHIPOPPORTUNITYID
+      join dbo.CONSTITUENT c on c.ID = s.CONSTITUENTID 
+      where s.STATUSCODE = 1
+      and s.DATEADDED < '10/18/2012';  -- Active only, sponsored before 10-18-12.
+
+      open populateCursor 
+
+      -- ** NEED put the fields into params that will be used later
+      fetch next from populateCursor into @CONSTITUENTID, @SPONSORSHIPOPPORTUNITYID, @SPONSORSHIPID
+
+      while @@FETCH_STATUS = 0
+      begin
+      -- the theory is this: this must be a sponsor because the child is sponsored
+      -- so if the sponsor isn't Prospect Sponsor, then must be regular Sponsor!
+      declare @isProspect bit = 0;
+
+      select @isProspect = 1
+      from dbo.CONSTITUENCY c
+      join dbo.CONSTITUENCYCODE cc on c.CONSTITUENCYCODEID = cc.ID
+      where CONSTITUENTID = @CONSTITUENTID
+      and LOWER([DESCRIPTION]) like '%prospect%'
+
+      declare @descriptionText nvarchar(100);
+      declare @currentStatusId uniqueidentifier;
+
+      if @isProspect = 1
+            begin
+                  --set the status code to Prospect Sponsored
+                  set @descriptionText = 'Prospect Sponsored';
+                  set @currentStatusId = dbo.USR_UFN_CURRENTOPPORTUNITYSPONSORSHIPSTATUSCODE_GETID_FORDESCRIPTION(@descriptionText)
+            end
+      else
+            begin
+                  --set the status code to Sponsored
+                  set @descriptionText = 'Sponsored';
+                  set @currentStatusId = dbo.USR_UFN_CURRENTOPPORTUNITYSPONSORSHIPSTATUSCODE_GETID_FORDESCRIPTION(@descriptionText)
+            end
+
+      -- do the insert into sponsorship extension
+      exec dbo.USR_USP_SPONSORSHIPEXTENSION_INSERT 
+            @SPONSORSHIPID = @SPONSORSHIPID,
+            @INITIALOPPORTUNITYSPONSORSHIPSTATUSCODEID = null,
+            @CURRENTOPPORTUNITYSPONSORSHIPSTATUSCODEID = @currentStatusId,
+            @CONVERSIONDATE = null,
+            @SPONSORSHIPOPPORTUNITYID = @SPONSORSHIPOPPORTUNITYID,
+            @DAYSTOCONVERT = 0,
+            @CHANGEAGENTID = null,
+            @DATEADDED = null,
+            @DATECHANGED = null
+
+      fetch next from populateCursor into @CONSTITUENTID, @SPONSORSHIPOPPORTUNITYID, @SPONSORSHIPID
+  end
+
+  close populateCursor 
+  deallocate populateCursor 
+
+	return 0;
+	
+end try
+begin catch
+      exec dbo.USP_RAISE_ERROR;
+      return 1;
+end catch
+
+end
+
+		]]>
+	</CreateProcedureSQL>
+
+</SQLStoredProcedureSpec>

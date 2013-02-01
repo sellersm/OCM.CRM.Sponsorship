@@ -1,0 +1,73 @@
+﻿<AddDataFormTemplateSpec 
+	xmlns="bb_appfx_adddataformtemplate"
+	xmlns:common="bb_appfx_commontypes" 
+	ID="dc6fa54c-3487-462d-8180-43654e9b4f0b" 
+	Name="Replace Credit Card No Constituent Check Add Data Form"
+	Description="Replace credit card with no constituent check" 
+	Author="Memphis Sellers"
+	DataFormInstanceID="a86e598f-90ff-445f-8b0b-879a4be4953d" 
+	RecordType="Revenue"
+	common:SecurityUIFolder="Revenue"
+	FormHeader="Replace Credit Card NO Constituent Check!"
+	>
+
+	<SPDataForm>
+		<!-- describe the save SP -->
+		<SaveImplementation SPName="USR_USP_DATAFORMTEMPLATE_ADD_COPYCREDITCARD_NOCONSTITUENTCHECK">
+			<common:CreateProcedureSQL>
+				<![CDATA[
+create procedure dbo.USR_USP_DATAFORMTEMPLATE_ADD_COPYCREDITCARD_NOCONSTITUENTCHECK
+(
+    @ID uniqueidentifier = null output,
+	@CONTEXTID uniqueidentifier,
+    @CHANGEAGENTID uniqueidentifier = null,
+	@REVENUELOOKUPID nvarchar(100) = ''
+)
+as
+
+set nocount on;
+
+if @ID is null
+    set @ID = newid()
+
+if @CHANGEAGENTID is null  
+    exec dbo.USP_CHANGEAGENT_GETORCREATECHANGEAGENT @CHANGEAGENTID output
+
+declare @CURRENTDATE datetime
+set @CURRENTDATE = getdate()
+
+begin try
+	-- call the sproc to do the work
+	if @REVENUELOOKUPID is not null
+		exec dbo.USR_USP_COPYCREDITCARD
+			@revenueId = @CONTEXTID,				-- this is passed in from the form as context of the recurring gift user is "sitting on", it's CC will be replaced
+			@revenueLookupId = @REVENUELOOKUPID,	-- this is the value the user entered into the form
+			@overrideConstituentCheck = 1			-- flag for checking that the credit card belongs to the same constituent, we don't want to perform the check!
+	else
+		raiserror 1000000 'You must enter a Revenue Lookup Id value, otherwise click the Cancel button.'
+
+end try
+
+begin catch
+    exec dbo.USP_RAISE_ERROR
+    return 1
+end catch
+
+return 0			
+				]]>
+			</common:CreateProcedureSQL>
+		</SaveImplementation>
+	</SPDataForm>
+
+	<!-- describe the context ID for this form (if applicable), which corresponds to a parameter in the SP. -->
+	<Context ContextRecordType="REVENUE" RecordIDParameter="CONTEXTID"/>
+
+	<!-- describe fields on the form, which correspond to parameters on the SP.  Note that system parameters 
+	like the context @ID, @CONTEXTID, and @CURRENTAPPUSERID need not be listed. -->
+	<common:FormMetaData FixedDialog="true">
+		<common:FormFields>
+			<common:FormField FieldID="REVENUELOOKUPID" Caption="Revenue lookup Id of replacement card" DataType="String" MaxLength="100" Required="true" />
+		</common:FormFields>
+	</common:FormMetaData>
+
+</AddDataFormTemplateSpec>

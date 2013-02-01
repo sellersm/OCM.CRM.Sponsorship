@@ -1,0 +1,157 @@
+﻿<SQLStoredProcedureSpec
+	xmlns="bb_appfx_sqlstoredprocedure"
+	xmlns:common="bb_appfx_commontypes" 
+	ID="caae2af1-ee61-4127-9391-56c95846bbd9"
+	Name="USR_USP_HANDLE_SPONSORSHIP_CANCELLATION"
+	Description="Does the work when a sponsorship is cancelled. Called from various sponsorship cancellation forms."
+	Author="Memphis Sellers"
+	SPName="USR_USP_HANDLE_SPONSORSHIP_CANCELLATION"
+	>
+
+	<!-- 
+	Remarks:    This sproc is used by the cancel sponsorship form to do all the work necessary for sponsorship cancellation.
+
+	History:
+	Date            Modified By     Comments
+	01-Oct-2012		Memphis			Initial Version - just a copy of USR_USP_SPONSORSHIP_CREATENEWSPONSORSHIPINTERACTIONS for Mark to use in Add Prospect Sponsorship form
+	08-Oct-2012		Memphis			FogBugz Case 878 changes: added the call to USR_USP_CHILD_CHECKELIGIBILITY
+	29-Oct-2012		Memphis			FogBugz Case 948.  Had the logic inverted in the IF statement that controls calling the create interactions sproc.
+	31-Jan-2013		Memphis			FobBugz Case 973.  Check current sponsorship status before updating...
+	-->
+	
+	<CreateProcedureSQL>
+		<![CDATA[
+create procedure dbo.USR_USP_HANDLE_SPONSORSHIP_CANCELLATION (
+	@CONSTITUENTID uniqueidentifier,
+	@SPONSORSHIPID uniqueidentifier,
+	@REASONID uniqueidentifier,					-- cancellation reasonid from the form
+	@INTERACTIONTYPECODEID uniqueidentifier,	-- interaction type code id from the form
+	@CHILDID uniqueidentifier,					-- id of the sponsorshipopportunity: child or project
+	@CHANGEAGENTID uniqueidentifier
+)
+as
+begin
+	-- this manages the constituency code cancellation logic and the sponsorship extension updating:
+	-- manage the constituency code cancellation here:
+	-- first check if this is the only sponsorship for this sponsor, otherwise don't cancel
+	declare @SPONSORSHIPCOUNT int = 0;
+	set @SPONSORSHIPCOUNT = dbo.USR_UFN_SPONSORSHIP_GETACTIVECHILDSPONSORSHIPSFORSPONSOR(@CONSTITUENTID)
+	
+	-- if this is the only Child sponsorship, then cancel the sponsor constituency code:
+	if @SPONSORSHIPCOUNT = 0
+	begin
+		exec dbo.USR_USP_SPONSORSHIP_CANCEL_SPONSORSHIP_CONSTITUENCYCODES 
+					@CONSTITUENTID = @CONSTITUENTID
+	end
+
+	-- update the sponsorship extension table setting the currentstatuscode to "Formerly Sponsored"
+	-- This will need to be removed when this is done in the trigger
+	-- Fogbugz Case 973: need to check the current status before updating, if it's "Prospect Sponsored", then
+	--                   set to "Formerly Prospect Sponsored", otherwise set to "Formerly Sponsored".
+	-- var to hold the Formerly Prospect Sponsored code id:
+	declare @prospectFormerlySponsoredCurrentStatusId uniqueidentifier = null;	-- current 'Formerly Prospect Sponsored'
+	declare @prospectSponsoredCurrentStatusId uniqueidentifier = null;			-- current 'Prospect Sponsored'
+	declare @formerlySponsoredCurrentStatusId uniqueidentifier = null;	-- current 'Formerly Sponsored'
+	
+	-- populate the code id vars:
+	set @prospectFormerlySponsoredCurrentStatusId = dbo.USR_UFN_CURRENTOPPORTUNITYSPONSORSHIPSTATUSCODE_GETID_FORDESCRIPTION('Formerly Prospect Sponsored')
+	set @prospectSponsoredCurrentStatusId = dbo.USR_UFN_CURRENTOPPORTUNITYSPONSORSHIPSTATUSCODE_GETID_FORDESCRIPTION('Prospect Sponsored')
+	set @formerlySponsoredCurrentStatusId = dbo.USR_UFN_CURRENTOPPORTUNITYSPONSORSHIPSTATUSCODE_GETID_FORDESCRIPTION('Formerly Sponsored')
+	
+	declare @currentStatusCodeID uniqueidentifier = null;
+	select @currentStatusCodeID = CURRENTOPPORTUNITYSPONSORSHIPSTATUSCODEID
+	from dbo.USR_SPONSORSHIPEXTENSION
+	where ID = @SPONSORSHIPID
+	and ISCURRENT = 1
+	
+	declare @STATUSCODEID uniqueidentifier;
+	set @STATUSCODEID = (case when @currentStatusCodeID = @prospectSponsoredCurrentStatusId then @prospectFormerlySponsoredCurrentStatusId else @formerlySponsoredCurrentStatusId end)
+	if @STATUSCODEID is not null
+	begin
+		update dbo.USR_SPONSORSHIPEXTENSION
+		set CURRENTOPPORTUNITYSPONSORSHIPSTATUSCODEID = @STATUSCODEID
+		where ID = @SPONSORSHIPID
+		and ISCURRENT = 1
+	end
+
+	-- FogBugz Case 878: need to check eligibility after cancellation:
+	declare @sponsorshipOpportunityChildID uniqueidentifier;
+	select @sponsorshipOpportunityChildID = SPONSORSHIPOPPORTUNITYID
+	from dbo.SPONSORSHIP
+	where ID = @SPONSORSHIPID
+
+	-- FogBugz Case 933 cancel the interactions for this sponsorship:
+	-- cancel all the interactions, no matter what
+    exec USR_USP_INTERACTION_CHILD_CANCELPENDINGLETTERS 
+            @sponsorshipOpportunityChildID = @sponsorshipOpportunityChildID,
+            @comment = 'Child sponsorship has been cancelled', 
+            @changeAgentID = @CHANGEAGENTID
+                 
+    -- Cancel pending interactions (or remove from multiple children interactions) on the sponsor (both financial and correspondent) for this child
+    exec dbo.USR_USP_INTERACTION_SPONSOR_CANCELPENDINGCHILDINTERACTIONS 
+            @sponsorshipID = @SPONSORSHIPID,
+            @sponsorshipOpportunityChildID = @sponsorshipOpportunityChildID,
+            @cancelComment = 'Child sponsorship has been cancelled',
+            @removeChildComment = 'was removed due to sponsorship cancellation',
+            @changeAgentID = @CHANGEAGENTID
+                 
+				 
+	-- 10/22/12 Memphis: for now, don't do the interaction stuff if this is a Project Cancellation!
+	-- get the type of opportunity from the opportunitygroup, 1=Child, 2=Project
+	declare @sponsorshipType tinyint = null;
+	
+	select @sponsorshipType = sg.SPONSORSHIPOPPORTUNITYTYPECODE
+		from dbo.SPONSORSHIPOPPORTUNITYGROUP sg
+		join dbo.SPONSORSHIPOPPORTUNITY so on so.SPONSORSHIPOPPORTUNITYGROUPID = sg.ID
+		join dbo.SPONSORSHIP s on s.SPONSORSHIPOPPORTUNITYID = so.ID
+		where s.ID = @SPONSORSHIPID;
+
+	if @sponsorshipType = 1  -- child
+	begin
+		--FogBugz Case 933:  only create interaction for this cancellation if the Reason type is a certain type and 
+		-- the sponsorship is a certain type:
+		-- NO interactions for these conditions:
+		--    prospect sponsor
+		--    'account correction' reason & no interaction type code
+		--    'administrative' reason & no interaction type code
+		declare @CANCELREASONTEXT nvarchar(100) = null;
+		-- get the reason text based on the reason id
+		select @CANCELREASONTEXT = dbo.USR_UFN_SPONSORSHIP_GET_SPONSORSHIPREASON_BY_REASONID(@REASONID);
+
+		-- determine if this is a prospect sponsorship or not by checking the constituencycode of the sponsor
+		declare @isProspect bit = 0;
+
+		select @isProspect = 1
+			from dbo.CONSTITUENCY c
+			join dbo.CONSTITUENCYCODE cc on c.CONSTITUENCYCODEID = cc.ID
+			where CONSTITUENTID = @CONSTITUENTID
+			and LOWER([DESCRIPTION]) like '%prospect%'
+
+		if (((LOWER(@CANCELREASONTEXT) <> 'account correction' And LOWER(@CANCELREASONTEXT) <> 'administrative') And (@INTERACTIONTYPECODEID is NOT NULL)) Or (@isProspect = 0))
+		begin
+			exec dbo.USR_USP_SPONSORSHIP_CREATESPONSORSHIPCANCELLATIONINTERACTIONS
+					 @sponsorshipID = @SPONSORSHIPID,					-- The sponsorship that the interactions will pertain to.  
+					 @childID = @CHILDID,								-- Child to include in the cancellation interaction
+					 @interactionTypeCodeID = @INTERACTIONTYPECODEID,   -- The ID of the Interaction Type that the user selected (Cancellation Letter, Departure Cancellation Letter, ...)
+					 @changeAgentID = @CHANGEAGENTID		            -- Used to specify change agent for CHANGEDBYID and ADDEDBYID fields.  USP_CHANGEAGENT_GETORCREATECHANGEAGENT is called if it's null
+	
+		end
+	end
+
+	--FogBugz Case 878: A call to the following sproc needs to be made before calling USR_USP_CHILD_SETELIGIBLEORPENDING.
+	exec dbo.USR_USP_CHILD_CHECKELIGIBILITY
+		@sponsorshipOpportunityChildID = @sponsorshipOpportunityChildID ,    -- Sponsorship Opportunity Child ID (same as Sponsorship Opportunity ID) to check eligibility
+		@changeAgentID = @CHANGEAGENTID										 -- The ChangeAgentID to be used for AddedBy and ModifiedBy fields
+	
+	
+	exec dbo.USR_USP_CHILD_SETELIGIBLEORPENDING
+		@sponsorshipOpportunityChildID = @sponsorshipOpportunityChildID,		-- Specify a Sponsorship Opportunity ID (same as the child's ID) if the sproc should only process a single child
+		@includeIneligibleInUpdate = 0,				-- Whether to include Ineligible children in updates.  0 = Do not include Ineligible children, 1 = Include Ineligible children
+		@CHANGEAGENTID = @CHANGEAGENTID
+
+end
+
+		]]>
+	</CreateProcedureSQL>
+
+</SQLStoredProcedureSpec>

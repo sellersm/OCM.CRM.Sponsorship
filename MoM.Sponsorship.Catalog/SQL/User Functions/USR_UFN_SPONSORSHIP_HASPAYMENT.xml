@@ -1,0 +1,45 @@
+﻿<SQLFunctionSpec
+	xmlns="bb_appfx_sqlfunction"
+	xmlns:common="bb_appfx_commontypes" 
+	ID="96265a3c-1935-483c-92d8-70a149d3e4df"
+	Name="USR_UFN_SPONSORSHIP_HASPAYMENT"
+	Description="Determines if a given sponsorship has a payment since the given date (if present)"
+	Author="Memphis Sellers"
+	DBFunctionName="USR_UFN_SPONSORSHIP_HASPAYMENT"
+	>
+
+	<!-- 
+	Remarks:    Returns 1 if there is a payment on the Recurring Gift associated with the sponsorship passed in @sponsorshipID.
+				Otherwise it returns 0
+				
+	History:
+	Date            Modified By     Comments
+	30-Oct-2012		Memphis			Initial Version
+	11-Jan-2013     CMayeda			Added functionality for a null date passed in @date_passed_in date to return any payment (no date criteria)
+	-->
+	
+	<CreateFunctionSQL>
+		<![CDATA[
+create function dbo.USR_UFN_SPONSORSHIP_HASPAYMENT (
+	@sponsorshipID uniqueidentifier = null, -- sponsorshipId of the sponsorship which holds the recurring gift/payment
+	@date_passed_in date					-- uses this date to compare against
+)
+returns bit
+with execute as caller
+as begin
+	declare @hasPayment bit = 0
+	
+	select @hasPayment = 1
+		from RECURRINGGIFTACTIVITY rga
+		join dbo.financialtransactionlineitem ftl on rga.PAYMENTREVENUEID = ftl.ID
+		join dbo.financialtransaction ft on ftl.FINANCIALTRANSACTIONID = ft.ID
+		where rga.SOURCEREVENUEID = dbo.USR_UFN_GETFINANCIALTRANSACTIONID_FORSPONSORSHIP (@sponsorshipID)
+		and AMOUNT > 0
+		and (@date_passed_in is null or cast(ft.[DATE] as date) >= @date_passed_in)
+
+	return @hasPayment
+end
+		]]>
+	</CreateFunctionSQL>
+
+</SQLFunctionSpec>

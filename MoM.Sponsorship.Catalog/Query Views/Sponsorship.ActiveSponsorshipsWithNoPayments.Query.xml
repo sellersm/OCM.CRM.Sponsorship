@@ -1,0 +1,57 @@
+﻿<QueryViewSpec
+	xmlns="bb_appfx_queryview"
+	xmlns:common="bb_appfx_commontypes" 
+	ID="c9827a26-865b-40e6-9dd5-2623c4cd4ee5"
+	Name="Active Sponsorships With No Payments Query"
+	Description="Used to fix missing installments on active sponsorships that have no payments applied"
+	Author="Cary Mayeda"
+	IsRoot="true"
+	PrimaryKeyField="ID"
+	RecordType="SPONSORSHIP"
+	common:SecurityUIFolder="Sponsorship"
+	>
+
+	<!-- define the view used to return data for the query -->
+	<ViewImplementation ViewName="USR_V_QUERY_ACTIVESPONSORSHIPSWITHNOPAYMENTS">
+		<ViewSQL>
+			<![CDATA[
+select distinct
+			SPONSORSHIP.ID,
+			sponsor.LOOKUPID SPONSORLOOKUPID, 
+			so.LOOKUPID CHILDLOOKUPID,
+			so_child.NAME CHILDNAME,
+			BATCH.BATCHNUMBER,
+			SPONSORSHIP.STARTDATE
+	  from	SPONSORSHIP
+	  join	CONSTITUENT sponsor on sponsor.ID = SPONSORSHIP.CONSTITUENTID 
+	  join	SPONSORSHIPOPPORTUNITYCHILD so_child on so_child.ID = SPONSORSHIP.SPONSORSHIPOPPORTUNITYID
+	  join	SPONSORSHIPOPPORTUNITY so on so.ID = SPONSORSHIP.SPONSORSHIPOPPORTUNITYID
+ left join	dbo.BATCHREVENUE br on br.CONSTITUENTID = SPONSORSHIP.CONSTITUENTID 
+	  join	dbo.BATCH on br.BATCHID = BATCH.ID
+	  
+	where	SPONSORSHIP.STATUSCODE = 1
+	  and	dbo.USR_UFN_SPONSORSHIP_HASPAYMENT (SPONSORSHIP.ID, '1/1/2000') = 0
+
+				
+			]]>
+		</ViewSQL>
+	</ViewImplementation>
+
+	<!-- describe each field in the view output -->
+	<Output>
+		<OutputFields>
+			<OutputField Caption="System record ID" Category="System Fields" Name="ID" />
+			<OutputField Name="SPONSORLOOKUPID" Caption="Sponsor Lookup ID" DataType="String" />
+			<OutputField Name="CHILDLOOKUPID" Caption="Child Lookup ID" DataType="String" />
+			<OutputField Name="CHILDNAME" Caption="Child Name" DataType="String" />
+			<OutputField Name="BATCHNUMBER" Caption="Batch Number" DataType="String" />
+			<OutputField Name="STARTDATE" Caption="Sponsorship Start Date" DataType="String" />
+		</OutputFields>
+	</Output>
+
+	<RelationshipOperations>
+		<AddRelatedView RelatedView="V_QUERY_SPONSORSHIP" RelatedField="ID" Field="ID" PathAlias="Sponsorship"/>
+	</RelationshipOperations>
+
+</QueryViewSpec>
+

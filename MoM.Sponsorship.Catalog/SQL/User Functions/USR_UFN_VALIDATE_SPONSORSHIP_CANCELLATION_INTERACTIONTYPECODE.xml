@@ -1,0 +1,90 @@
+﻿<SQLFunctionSpec
+	xmlns="bb_appfx_sqlfunction"
+	xmlns:common="bb_appfx_commontypes" 
+	ID="1b0178cb-1180-4073-b924-327fbdb7dcd6"
+	Name="USR_UFN_VALIDATE_SPONSORSHIP_CANCELLATION_INTERACTIONTYPECODE"
+	Description="Validates the cancellation interaction type code based on opportunity type: child or project."
+	Author="Memphis Sellers"
+	DBFunctionName="USR_UFN_VALIDATE_SPONSORSHIP_CANCELLATION_INTERACTIONTYPECODE"
+	>
+
+	<!-- 
+	Remarks:    Returns 1 if the interaction type code passed in is valid for the sponsorship opportunity type (child, project).
+				Otherwise it returns 0
+				
+				Note: This returns 0 if any of the pieces necessary aren't found: interaction type codes, etc.
+
+	History:
+	Date            Modified By     Comments
+	11-Oct-2012		Memphis			Initial Version
+	14-Oct-2012		Memphis			FogBugz Case 913: the isValid flag isn't being set when it's a Child opportunity.
+	-->	
+	
+	<CreateFunctionSQL>
+		<![CDATA[
+create function dbo.USR_UFN_VALIDATE_SPONSORSHIP_CANCELLATION_INTERACTIONTYPECODE(
+	@SPONSORSHIPID uniqueidentifier,			-- sponsorshipid of the sponsorship being cancelled
+	@INTERACTIONTYPECODEID uniqueidentifier		-- interaction type code id from the form
+)
+returns bit
+with execute as caller
+as begin
+	-- validate the interaction type code based on the opportunity type of child or project
+	-- get the type of opportunity from the opportunitygroup, 1=Child, 2=Project
+	declare @sponsorshipType tinyint = null;
+	declare @isValid bit = 0;
+	declare @projectInteractionTypeCodeText nvarchar(100) = 'project sponsorship cancellation letter';
+	
+	select @sponsorshipType = sg.SPONSORSHIPOPPORTUNITYTYPECODE
+		from dbo.SPONSORSHIPOPPORTUNITYGROUP sg
+		join dbo.SPONSORSHIPOPPORTUNITY so on so.SPONSORSHIPOPPORTUNITYGROUPID = sg.ID
+		join dbo.SPONSORSHIP s on s.SPONSORSHIPOPPORTUNITYID = so.ID
+		where s.ID = @SPONSORSHIPID;
+	
+	if @sponsorshipType is null
+		begin
+			set @isValid = 0;
+		end
+	else
+		begin
+			-- as of 10/11/12, there's only one interaction type code for Project sponsorships, so just use that ID for all these comparisons:
+			declare @projectInteractionTypeCodeId uniqueidentifier = null;
+			select @projectInteractionTypeCodeId = ID
+				from dbo.USR_SPONSORSHIPCANCELLATIONINTERACTIONTYPECODE
+				where lower([DESCRIPTION]) = @projectInteractionTypeCodeText;
+		
+			if @projectInteractionTypeCodeId is null
+				begin
+					set @isValid = 0;
+				end
+			else
+				begin
+					-- use the type to validate the interaction code passed in
+					if @sponsorshipType = 1 -- child
+						begin
+							-- the interaction type passed in can't match the project one:
+							if @INTERACTIONTYPECODEID = @projectInteractionTypeCodeId
+								set @isValid = 0;
+							else
+								set @isValid = 1;
+						end
+	
+					if @sponsorshipType = 2 -- project
+						begin
+							-- the interaction type passed in must match the project one:
+							if @INTERACTIONTYPECODEID = @projectInteractionTypeCodeId
+								set @isValid = 1;				
+						end				
+				end
+			
+		end
+		
+	
+	return @isValid;
+	
+		
+end
+		]]>
+	</CreateFunctionSQL>
+
+</SQLFunctionSpec>

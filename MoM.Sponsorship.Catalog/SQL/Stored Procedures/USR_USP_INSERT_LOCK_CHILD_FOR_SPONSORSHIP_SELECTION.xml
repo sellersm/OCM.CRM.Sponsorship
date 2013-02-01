@@ -1,0 +1,37 @@
+﻿<SQLStoredProcedureSpec
+	xmlns="bb_appfx_sqlstoredprocedure"
+	xmlns:common="bb_appfx_commontypes" 
+	ID="b6cb2cd2-33bf-4173-9339-0e7a80ac944a"
+	Name="USR_USP_INSERT_LOCK_CHILD_FOR_SPONSORSHIP_SELECTION"
+	Description="Insert row into USR_CHILD_SELECTED_FOR_SPONSORSHIP_LOCK table"
+	Author="memphis-PC\Administrator"
+	SPName="USR_USP_INSERT_LOCK_CHILD_FOR_SPONSORSHIP_SELECTION"
+	>
+
+	<CreateProcedureSQL>
+		<![CDATA[
+create procedure dbo.USR_USP_INSERT_LOCK_CHILD_FOR_SPONSORSHIP_SELECTION(
+  @CHANGEAGENTID uniqueidentifier = null,
+	@OPPORTUNITYID uniqueidentifier
+)
+as
+begin
+	-- do work
+  if @CHANGEAGENTID is null
+    exec dbo.USP_CHANGEAGENT_GETORCREATECHANGEAGENT @CHANGEAGENTID output;
+
+  begin try
+    insert into dbo.USR_CHILD_SELECTED_FOR_SPONSORSHIP_LOCK (ID, OPPORTUNITYID, AGENTID) values (newid(), @OPPORTUNITYID, @CHANGEAGENTID)
+  end try
+  begin catch
+    exec dbo.USP_RAISE_ERROR
+    return 1;
+  end catch
+  
+  return 0;
+end
+
+		]]>
+	</CreateProcedureSQL>
+
+</SQLStoredProcedureSpec>
