@@ -367,6 +367,12 @@
   <ItemGroup>
     <EmbeddedResource Include="SQL\User Functions\USR_UFN_SPONSORSHIP_GETACTIVELYSPONSOREDCHILDREN_FORSPONSOR.xml" />
   </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="SQL\User Functions\USR_UFN_ISSPONSORSHIP_PAIDAHEAD.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="SQL\Stored Procedures\USR_USP_SPONSORSHIP_HANDLE_DEPARTURETRANSFERCOMPLETION.xml" />
+  </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.VisualBasic.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

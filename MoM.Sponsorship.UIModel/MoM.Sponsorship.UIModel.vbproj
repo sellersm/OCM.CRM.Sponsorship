@@ -132,6 +132,13 @@
       <DependentUpon>UnavailableSponsorship.AddIn.vb</DependentUpon>
     </Compile>
     <Compile Include="AddIns\UnavailableSponsorship.AddIn.vb" />
+    <Compile Include="Departure Transfer Complete Override\CompleteOrOverridePendingTransferFormINSTALLMENTSUIModel.CodeGen.vb">
+      <DependentUpon>CompleteOrOverridePendingTransferFormUIModel.vb</DependentUpon>
+    </Compile>
+    <Compile Include="Departure Transfer Complete Override\CompleteOrOverridePendingTransferFormUIModel.CodeGen.vb">
+      <DependentUpon>CompleteOrOverridePendingTransferFormUIModel.vb</DependentUpon>
+    </Compile>
+    <Compile Include="Departure Transfer Complete Override\CompleteOrOverridePendingTransferFormUIModel.vb" />
     <Compile Include="Helpers\SponsorshipHelper.vb" />
     <Compile Include="My Project\AssemblyInfo.vb" />
     <Compile Include="OCMCustomAddProjectSponsorshipFormCHILDRENUIModel.CodeGen.vb" />
@@ -199,6 +206,13 @@
     <None Include="..\MoM.Sponsorship.Catalog\Edit Forms\RecurringGiftExtension.Edit.xml">
       <Link>LinkedSpecs\RecurringGiftExtension.Edit.xml</Link>
     </None>
+    <None Include="..\MoM.Sponsorship.Catalog\Edit Forms\CompleteOrOverridePendingTransfer.Edit.xml">
+      <Link>LinkedSpecs\CompleteOrOverridePendingTransfer.Edit.xml</Link>
+    </None>
+    <Content Include="Departure Transfer Complete Override\CompleteOrOverridePendingTransferFormUIModel.xml">
+      <DependentUpon>CompleteOrOverridePendingTransferFormUIModel.vb</DependentUpon>
+    </Content>
+    <Content Include="htmlforms\CompleteOrOverridePendingTransferForm.html" />
     <Content Include="htmlforms\OCMCustomAddProjectSponsorshipForm.html" />
     <Content Include="htmlforms\RecurringGiftExtensionEditDataForm.html" />
     <Content Include="htmlforms\UnavailableSubstitutionSponsorship.AddDataForm.html" />

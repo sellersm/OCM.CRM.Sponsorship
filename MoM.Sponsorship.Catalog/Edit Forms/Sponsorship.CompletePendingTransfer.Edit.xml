@@ -10,12 +10,13 @@
 	common:SecurityUIFolder="Sponsorship\Opportunity\Child" >
 
 	<!-- 
-	Remarks:    NOT COMPLETE.  NOT ADDED TO PACKAGE
+	Remarks:    **NOTE**: This form is NOT in use.  We're now using the Complete Or Override Pending Transfer Form, 
+						  which is this file:  CompleteOrOverridePendingTransfer.Edit.xml
+				NOT COMPLETE.  NOT ADDED TO PACKAGE
 
 	History:
 	Date            Modified By     Comments
 	08-Oct-2012		CMayeda			Initial Version
-
 	-->
 
 	<SPDataForm>
@@ -96,8 +97,8 @@ create procedure dbo.USR_USP_DATAFORMTEMPLATE_EDIT_SPONSORSHIP_COMPLETEPENDINGTR
 --	@SPONSORID uniqueidentifier,
 --    @FROMSPONSORSHIPID uniqueidentifier,
 --	@TOSPONSORSHIPID uniqueidentifier,
-	@DONORCONTACTCODEID uniqueidentifier
---	@INTERACTIONTYPECODEID uniqueidentifier
+	@DONORCONTACTCODEID uniqueidentifier,
+	@INTERACTIONTYPECODEID uniqueidentifier
 )
 as
 
@@ -126,28 +127,27 @@ as
 			@toSponsorshipID output
 	
 	
-		if	@fromSponsorshipID is not null and
-			@toSponsorshipID is not null
-		begin
-			-- Get the opportunity status of the sponsorship before calling the complete transfer sproc
-			set @fromCurrentOpportunityStatusCodeID = dbo.USR_UFN_SPONSORSHIP_GETCURRENTOPPORTUNITYSTATUSCODEID (@fromSponsorshipID)		
-			if @fromCurrentOpportunityStatusCodeID is null
-				RAISERROR 100000 'Could not determine the opportunity status of the "from" sponsorship'
+		if	@fromSponsorshipID is not null and @toSponsorshipID is not null
+			begin
+				-- Get the opportunity status of the sponsorship before calling the complete transfer sproc
+				set @fromCurrentOpportunityStatusCodeID = dbo.USR_UFN_SPONSORSHIP_GETCURRENTOPPORTUNITYSTATUSCODEID (@fromSponsorshipID)		
+				if @fromCurrentOpportunityStatusCodeID is null
+					RAISERROR 100000 'Could not determine the opportunity status of the "from" sponsorship'
 	
-			exec dbo.USP_SPONSORSHIP_COMPLETETRANSFER
-				@toSponsorshipID,
-				@fromSponsorshipID,
-				1,
-				@CHANGEAGENTID
-/*	
-			exec dbo.USR_USP_HANDLE_COMPLETEPENDINGTRANSFER 
-				@fromSponsorshipID  = null,
-				@toSponsorshipID = null,
-				@fromCurrentOpportunityStatusCodeID
-				@donorContactCodeID uniqueidentifier = null			
-*/		
+				exec dbo.USP_SPONSORSHIP_COMPLETETRANSFER
+					@toSponsorshipID,
+					@fromSponsorshipID,
+					1,
+					@CHANGEAGENTID
+	/*	
+				exec dbo.USR_USP_HANDLE_COMPLETEPENDINGTRANSFER 
+					@fromSponsorshipID  = null,
+					@toSponsorshipID = null,
+					@fromCurrentOpportunityStatusCodeID
+					@donorContactCodeID uniqueidentifier = null			
+	*/		
 
-		end 
+			end 
 		else
 			RAISERROR 100000 'Could not find the pending transfer sponsorships'
 			
@@ -181,7 +181,7 @@ return 0;
 			<common:FormField FieldID="DONORCONTACTCODEID" Caption="Donor Contact" DataType="Guid" >
 				<common:CodeTable CodeTableName="USR_UNAVAILABLE_SPONSORSHIP_CONTACTCODE" />
 			</common:FormField>
-			<common:FormField FieldID="INTERACTIONTYPECODEID" DataType="Guid" Caption="Interaction" ReadOnly="true">
+			<common:FormField FieldID="INTERACTIONTYPECODEID" DataType="Guid" Caption="Interaction" >
 				<common:CodeTable CodeTableName="USR_NEWSPONSORSHIPINTERACTIONTYPECODE" />
 			</common:FormField>
 		</common:FormFields>

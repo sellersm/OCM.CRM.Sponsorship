@@ -16,6 +16,7 @@
 	01-Oct-2012		Memphis			Initial Version - just a copy of USR_USP_SPONSORSHIP_CREATENEWSPONSORSHIPINTERACTIONS for Mark to use in Add Prospect Sponsorship form
 	08-Oct-2012		Memphis			FogBugz Case 878 changes: added the call to USR_USP_CHILD_CHECKELIGIBILITY
 	29-Oct-2012		Memphis			FogBugz Case 948.  Had the logic inverted in the IF statement that controls calling the create interactions sproc.
+	31-Jan-2013		Memphis			FobBugz Case 973.  Check current sponsorship status before updating...
 	-->
 	
 	<CreateProcedureSQL>
@@ -45,13 +46,32 @@ begin
 
 	-- update the sponsorship extension table setting the currentstatuscode to "Formerly Sponsored"
 	-- This will need to be removed when this is done in the trigger
+	-- Fogbugz Case 973: need to check the current status before updating, if it's "Prospect Sponsored", then
+	--                   set to "Formerly Prospect Sponsored", otherwise set to "Formerly Sponsored".
+	-- var to hold the Formerly Prospect Sponsored code id:
+	declare @prospectFormerlySponsoredCurrentStatusId uniqueidentifier = null;	-- current 'Formerly Prospect Sponsored'
+	declare @prospectSponsoredCurrentStatusId uniqueidentifier = null;			-- current 'Prospect Sponsored'
+	declare @formerlySponsoredCurrentStatusId uniqueidentifier = null;	-- current 'Formerly Sponsored'
+	
+	-- populate the code id vars:
+	set @prospectFormerlySponsoredCurrentStatusId = dbo.USR_UFN_CURRENTOPPORTUNITYSPONSORSHIPSTATUSCODE_GETID_FORDESCRIPTION('Formerly Prospect Sponsored')
+	set @prospectSponsoredCurrentStatusId = dbo.USR_UFN_CURRENTOPPORTUNITYSPONSORSHIPSTATUSCODE_GETID_FORDESCRIPTION('Prospect Sponsored')
+	set @formerlySponsoredCurrentStatusId = dbo.USR_UFN_CURRENTOPPORTUNITYSPONSORSHIPSTATUSCODE_GETID_FORDESCRIPTION('Formerly Sponsored')
+	
+	declare @currentStatusCodeID uniqueidentifier = null;
+	select @currentStatusCodeID = CURRENTOPPORTUNITYSPONSORSHIPSTATUSCODEID
+	from dbo.USR_SPONSORSHIPEXTENSION
+	where ID = @SPONSORSHIPID
+	and ISCURRENT = 1
+	
 	declare @STATUSCODEID uniqueidentifier;
-	set @STATUSCODEID = dbo.USR_UFN_CURRENTOPPORTUNITYSPONSORSHIPSTATUSCODE_GETID_FORDESCRIPTION('Formerly Sponsored')
+	set @STATUSCODEID = (case when @currentStatusCodeID = @prospectSponsoredCurrentStatusId then @prospectFormerlySponsoredCurrentStatusId else @formerlySponsoredCurrentStatusId end)
 	if @STATUSCODEID is not null
 	begin
 		update dbo.USR_SPONSORSHIPEXTENSION
 		set CURRENTOPPORTUNITYSPONSORSHIPSTATUSCODEID = @STATUSCODEID
 		where ID = @SPONSORSHIPID
+		and ISCURRENT = 1
 	end
 
 	-- FogBugz Case 878: need to check eligibility after cancellation:
