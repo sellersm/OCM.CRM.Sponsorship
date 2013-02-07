@@ -72,6 +72,14 @@
 									</ShowDataForm>
 								</Action>
 							</AddAction>
+							<RemoveShowDataFormAction ActionID="fd694771-f6a9-46dd-b110-24a7f9566c63" DataFormID="cf6ed8e2-d7b0-454d-b495-49d766252df6"/>
+						</AlterActions>
+						
+					</AlterPageActionGroup>
+
+					<AlterPageActionGroup PageActionGroupID="e16e22d3-d782-4c7c-bff3-04c0a72ca74b">
+
+						<AlterActions>
 							<AddAction>
 								<Action ID="fd694771-f6a9-46dd-b110-24a7f9566c63" Caption="Complete/Override Transfer (custom)" Visible="=Fields!STATUS=&quot;Active (Transfer pending)&quot; OrElse Fields!STATUS=&quot;Pending&quot;" CaptionResourceKey="$$override_transfer">
 									<ShowDataForm DataFormID="cf6ed8e2-d7b0-454d-b495-49d766252df6" xmlns="bb_appfx_commontypes">
@@ -85,8 +93,8 @@
 									<HelpKey>SPOverrideTransfer.html</HelpKey>
 								</Action>
 							</AddAction>
+							<!--<RemoveShowDataFormAction ActionID="fd694771-f6a9-46dd-b110-24a7f9566c63" DataFormID="cf6ed8e2-d7b0-454d-b495-49d766252df6"/>-->
 						</AlterActions>
-						
 					</AlterPageActionGroup>
 					
 				</AlterPageActionGroups>
