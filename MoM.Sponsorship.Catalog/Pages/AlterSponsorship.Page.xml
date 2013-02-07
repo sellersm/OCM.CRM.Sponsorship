@@ -72,6 +72,18 @@
 									</ShowDataForm>
 								</Action>
 							</AddAction>
+							<AddAction>
+								<Action ID="b84dcde5-751b-4228-927e-9302fc3cea3a" Caption="Set Most Recent Commitment">
+									<ExecuteRecordOperation RecordOperationID="4a813b71-b39f-4f4f-abf0-c3dc72b691d2" xmlns="bb_appfx_commontypes">
+										<ActionContext>
+											<PageContextID />
+										</ActionContext>
+										<PostActionEvent>
+											<RefreshPage />
+										</PostActionEvent>
+									</ExecuteRecordOperation>
+								</Action>
+							</AddAction>
 							<RemoveShowDataFormAction ActionID="fd694771-f6a9-46dd-b110-24a7f9566c63" DataFormID="cf6ed8e2-d7b0-454d-b495-49d766252df6"/>
 						</AlterActions>
 						
