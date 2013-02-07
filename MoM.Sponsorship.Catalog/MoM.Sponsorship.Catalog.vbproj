@@ -172,7 +172,9 @@
     <EmbeddedResource Include="SQL\User Functions\USR_UFN_GETSPONSORSHIPREASON_FOROPPORTUNITY.xml" />
     <EmbeddedResource Include="Pages\AlterSponsor.Page.xml" />
     <EmbeddedResource Include="Edit Forms\PendingSponsorshipCancellationWrapped.Edit.xml" />
-    <EmbeddedResource Include="Pages\AlterSponsorship.Page.xml" />
+    <EmbeddedResource Include="Pages\AlterSponsorship.Page.xml">
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
     <EmbeddedResource Include="SQL\User Functions\USR_UFN_SPONSORSHIP_GETACTIVECHILDSPONSORSHIPSFORSPONSOR.xml" />
     <EmbeddedResource Include="SQL\User Functions\USR_UFN_SPONSORSHIP_GETSPONSORSHIPID.xml" />
     <EmbeddedResource Include="SQL\User Functions\USR_UFN_UNAVAILABLECHILDREN_FOR_TRANSFERSPONSORSHIP_FROMITEMLISTXML.xml" />
@@ -372,6 +374,12 @@
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="SQL\Stored Procedures\USR_USP_SPONSORSHIP_HANDLE_DEPARTURETRANSFERCOMPLETION.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="RecordOperations\SetIsMostRecentCommitment.RecordOperation.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="SQL\Stored Procedures\USR_USP_SET_ISMOSTRECENTCOMMITMENTFLAG_FOR_SPONSORSHIP.xml" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.VisualBasic.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
