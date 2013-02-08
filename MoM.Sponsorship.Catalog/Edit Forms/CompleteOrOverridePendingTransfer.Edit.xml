@@ -1,4 +1,4 @@
-﻿<EditDataFormTemplateSpec 
+﻿<EditDataFormTemplateSpec
     xmlns="bb_appfx_editdataformtemplate"
     xmlns:common="bb_appfx_commontypes"
     ID="928a3378-201e-4631-8eba-953f886a86a6"
@@ -14,13 +14,13 @@
 
 
 	<!-- 
-	Remarks:    This is a 'copy' of the OOB Override Transfer form, combined with Complete Transfer.
-				It will call all the OOB Blackbaud stuff, then adds the custom things we need it to do.
-	History:
-	Date            Modified By     Comments
-	30-Jan-2013		Memphis			Initial Version
-	-->	
-	
+        Remarks:    This is a 'copy' of the OOB Override Transfer form, combined with Complete Transfer.
+                                It will call all the OOB Blackbaud stuff, then adds the custom things we need it to do.
+        History:
+        Date            Modified By     Comments
+        30-Jan-2013             Memphis                 Initial Version
+        -->
+
 	<common:DependencyList>
 		<common:Dependency CatalogAssembly="Blackbaud.AppFx.Constituent.Catalog.dll" CatalogItem="Blackbaud.AppFx.Constituent.Catalog.Constituent.Search.xml" />
 		<common:Dependency CatalogAssembly="Blackbaud.AppFx.Sponsorship.Catalog.dll" CatalogItem="Blackbaud.AppFx.Sponsorship.Catalog.SponsorshipLocation.Search.xml" />
@@ -84,410 +84,410 @@
 	<SPDataForm>
 		<LoadImplementation SPName="USR_USP_DATAFORMTEMPLATE_EDITLOAD_COMPLETEOROVERRIDEPENDINGTRANSFER_PRELOAD">
 			<common:CreateProcedureSQL>
-			<![CDATA[	
-			create procedure dbo.USR_USP_DATAFORMTEMPLATE_EDITLOAD_COMPLETEOROVERRIDEPENDINGTRANSFER_PRELOAD(
-				@ID uniqueidentifier,
-				@DATALOADED bit = 0 output,
-				@TSLONG bigint = 0 output,
-				@FORMTITLE nvarchar(100) = null output,
-				@ORIGINALOPPORTUNITYID uniqueidentifier = null output,
-				@REVENUECONSTITUENTID uniqueidentifier = null output,
-				@SPONSORSHIPCONSTITUENTID uniqueidentifier = null output,
-				@SPONSORSHIPPROGRAMID uniqueidentifier = null output,
-				@SPONSORSHIPLOCATIONID uniqueidentifier = null output,
-				@GENDERCODE int = null output,
-				@SPROPPAGERANGEID uniqueidentifier = null output,
-				@ISHIVPOSITIVECODE int = null output,
-				@HASCONDITIONCODE int = null output,
-				@ISORPHANEDCODE int = null output,
-				@ISSOLESPONSORSHIP bit = null output,
-				@STARTDATE date = null output,
-				@SPROPPPROJECTCATEGORYCODEID uniqueidentifier = null output,
-				@AMOUNT money = null output,
-				@PAYMENTMETHODCODE tinyint = null output,
-				@REFERENCEDATE dbo.UDT_FUZZYDATE = null output,
-				@REFERENCENUMBER nvarchar(20) = null output,
-				@CARDHOLDERNAME nvarchar(100) = null output,
-				@CREDITCARDNUMBER nvarchar(20) = null output,
-				@CREDITTYPECODEID uniqueidentifier = null output,
-				@EXPIRESON dbo.UDT_FUZZYDATE = null output,
-				@CONSTITUENTACCOUNTID uniqueidentifier = null output,
-				@FREQUENCYCODE tinyint = null output,
-				@REVENUESCHEDULEENDDATE datetime = null output,
-				@REVENUESCHEDULESTARTDATE datetime = null output,
-				@AUTOPAY bit = null output,
-				@CREDITCARDTOKEN uniqueidentifier = null output,
-				-- not set, just satisfying the req's of an Edit Form
-				@SPONSORSHIPREASONID uniqueidentifier = null output,
-				@SPONSORSHIPOPPORTUNITYIDCHILD uniqueidentifier = null output,
-				@SPONSORSHIPOPPORTUNITYIDPROJECT uniqueidentifier = null output,
-				@GIFTRECIPIENT bit = null output,
-				@PLANNEDENDDATE date = null output,
-				@RESERVEDOPPORTUNITYIDCHILD uniqueidentifier = null output,
-				@RESERVATIONKEY uniqueidentifier = null output,
-				@MATCHEDOPPORTUNITYID uniqueidentifier = null output,
-				@SENDREMINDER bit = null output,
-				@NEXTINSTALLMENTID uniqueidentifier = null output,
-				@FINDERNUMBER bigint = null output,
-				@SOURCECODE nvarchar(50) = null output,
-				@APPEALID uniqueidentifier = null output,
-				@MAILINGID uniqueidentifier = null output,
-				@CHANNELCODEID uniqueidentifier = null output,
-				@REFERENCE nvarchar(255) = null output,
-				@CATEGORYCODEID uniqueidentifier = null output,
-				@REVENUEDEVELOPMENTFUNCTIONCODEID uniqueidentifier = null output,
-				@EDITSTARTDATE bit = null output,
-				@LASTACTIVITYDATE date = null output,
-				@EXPIRATIONREASONID uniqueidentifier = null output,
-				@BASECURRENCYID uniqueidentifier = null output,
-				@TRANSACTIONCURRENCYID uniqueidentifier = null output,
-				@BASEEXCHANGERATEID uniqueidentifier = null output,
-				@EXCHANGERATE decimal(20,8) = null output,
-				@HADSPOTRATE bit = null output,
-				@RATECHANGED bit = null output,
-				@BASECURRENCYDECIMALDIGITS tinyint = null output,
-				@BASECURRENCYROUNDINGTYPECODE tinyint = null output,
-				@BASEAMOUNT money = null output,
-				@UPDATERECOGNITIONOPTION bit = null output,
-				@DONOTACKNOWLEDGE bit = null output,
-				@SPONSORID uniqueidentifier = null output,
-				@FROMCHILDID uniqueidentifier = null output,
-				@TOCHILDID uniqueidentifier = null output,
-				@DONORCONTACTCODEID uniqueidentifier = null output,
-				@OVERRIDEFLAG bit = null output
-			)
-			as
+				<![CDATA[    
+                        create procedure dbo.USR_USP_DATAFORMTEMPLATE_EDITLOAD_COMPLETEOROVERRIDEPENDINGTRANSFER_PRELOAD(
+                                @ID uniqueidentifier,
+                                @DATALOADED bit = 0 output,
+                                @TSLONG bigint = 0 output,
+                                @FORMTITLE nvarchar(100) = null output,
+                                @ORIGINALOPPORTUNITYID uniqueidentifier = null output,
+                                @REVENUECONSTITUENTID uniqueidentifier = null output,
+                                @SPONSORSHIPCONSTITUENTID uniqueidentifier = null output,
+                                @SPONSORSHIPPROGRAMID uniqueidentifier = null output,
+                                @SPONSORSHIPLOCATIONID uniqueidentifier = null output,
+                                @GENDERCODE int = null output,
+                                @SPROPPAGERANGEID uniqueidentifier = null output,
+                                @ISHIVPOSITIVECODE int = null output,
+                                @HASCONDITIONCODE int = null output,
+                                @ISORPHANEDCODE int = null output,
+                                @ISSOLESPONSORSHIP bit = null output,
+                                @STARTDATE date = null output,
+                                @SPROPPPROJECTCATEGORYCODEID uniqueidentifier = null output,
+                                @AMOUNT money = null output,
+                                @PAYMENTMETHODCODE tinyint = null output,
+                                @REFERENCEDATE dbo.UDT_FUZZYDATE = null output,
+                                @REFERENCENUMBER nvarchar(20) = null output,
+                                @CARDHOLDERNAME nvarchar(100) = null output,
+                                @CREDITCARDNUMBER nvarchar(20) = null output,
+                                @CREDITTYPECODEID uniqueidentifier = null output,
+                                @EXPIRESON dbo.UDT_FUZZYDATE = null output,
+                                @CONSTITUENTACCOUNTID uniqueidentifier = null output,
+                                @FREQUENCYCODE tinyint = null output,
+                                @REVENUESCHEDULEENDDATE datetime = null output,
+                                @REVENUESCHEDULESTARTDATE datetime = null output,
+                                @AUTOPAY bit = null output,
+                                @CREDITCARDTOKEN uniqueidentifier = null output,
+                                -- not set, just satisfying the req's of an Edit Form
+                                @SPONSORSHIPREASONID uniqueidentifier = null output,
+                                @SPONSORSHIPOPPORTUNITYIDCHILD uniqueidentifier = null output,
+                                @SPONSORSHIPOPPORTUNITYIDPROJECT uniqueidentifier = null output,
+                                @GIFTRECIPIENT bit = null output,
+                                @PLANNEDENDDATE date = null output,
+                                @RESERVEDOPPORTUNITYIDCHILD uniqueidentifier = null output,
+                                @RESERVATIONKEY uniqueidentifier = null output,
+                                @MATCHEDOPPORTUNITYID uniqueidentifier = null output,
+                                @SENDREMINDER bit = null output,
+                                @NEXTINSTALLMENTID uniqueidentifier = null output,
+                                @FINDERNUMBER bigint = null output,
+                                @SOURCECODE nvarchar(50) = null output,
+                                @APPEALID uniqueidentifier = null output,
+                                @MAILINGID uniqueidentifier = null output,
+                                @CHANNELCODEID uniqueidentifier = null output,
+                                @REFERENCE nvarchar(255) = null output,
+                                @CATEGORYCODEID uniqueidentifier = null output,
+                                @REVENUEDEVELOPMENTFUNCTIONCODEID uniqueidentifier = null output,
+                                @EDITSTARTDATE bit = null output,
+                                @LASTACTIVITYDATE date = null output,
+                                @EXPIRATIONREASONID uniqueidentifier = null output,
+                                @BASECURRENCYID uniqueidentifier = null output,
+                                @TRANSACTIONCURRENCYID uniqueidentifier = null output,
+                                @BASEEXCHANGERATEID uniqueidentifier = null output,
+                                @EXCHANGERATE decimal(20,8) = null output,
+                                @HADSPOTRATE bit = null output,
+                                @RATECHANGED bit = null output,
+                                @BASECURRENCYDECIMALDIGITS tinyint = null output,
+                                @BASECURRENCYROUNDINGTYPECODE tinyint = null output,
+                                @BASEAMOUNT money = null output,
+                                @UPDATERECOGNITIONOPTION bit = null output,
+                                @DONOTACKNOWLEDGE bit = null output,
+                                @SPONSORID uniqueidentifier = null output,
+                                @FROMCHILDID uniqueidentifier = null output,
+                                @TOCHILDID uniqueidentifier = null output,
+                                @DONORCONTACTCODEID uniqueidentifier = null output,
+                                @OVERRIDEFLAG bit = null output
+                        )
+                        as
 
-			set nocount on;
+                        set nocount on;
 
-			declare @FROMSPONSORSHIPID uniqueidentifier
-			declare @TOSPONSORSHIPID uniqueidentifier
+                        declare @FROMSPONSORSHIPID uniqueidentifier
+                        declare @TOSPONSORSHIPID uniqueidentifier
 
-			exec dbo.USP_GETPENDINGTRANSFERSPONSORSHIPS
-				@ID,
-				@FROMSPONSORSHIPID output,
-				@TOSPONSORSHIPID output
+                        exec dbo.USP_GETPENDINGTRANSFERSPONSORSHIPS
+                                @ID,
+                                @FROMSPONSORSHIPID output,
+                                @TOSPONSORSHIPID output
 
 
-			if @FROMSPONSORSHIPID is not null and @TOSPONSORSHIPID is not null
-			begin
-				exec dbo.USP_SPONSORSHIP_TRANSFER_EDITLOAD
-					@FROMSPONSORSHIPID,
-					1,
-					@DATALOADED output,
-					@TSLONG output,
-					@FORMTITLE output,
-					@ORIGINALOPPORTUNITYID output,
-					@REVENUECONSTITUENTID output,
-					@SPONSORSHIPCONSTITUENTID output,
-					@SPONSORSHIPPROGRAMID output,
-					@SPONSORSHIPLOCATIONID output,
-					@GENDERCODE output,
-					@SPROPPAGERANGEID output,
-					@ISHIVPOSITIVECODE output,
-					@HASCONDITIONCODE output,
-					@ISORPHANEDCODE output,
-					@SPROPPPROJECTCATEGORYCODEID output,
-					@ISSOLESPONSORSHIP output,
-					@STARTDATE output,
-					@AMOUNT output,
-					@PAYMENTMETHODCODE output,
-					@REFERENCEDATE output,
-					@REFERENCENUMBER output,
-					@CARDHOLDERNAME output,
-					@CREDITCARDNUMBER output,
-					@CREDITTYPECODEID output,
-					@EXPIRESON output,
-					@CONSTITUENTACCOUNTID output,
-					@FREQUENCYCODE output,
-					@REVENUESCHEDULEENDDATE output,
-					@REVENUESCHEDULESTARTDATE output,
-					@AUTOPAY output,
-					@CREDITCARDTOKEN output,
-					@GIFTRECIPIENT output,
-					@PLANNEDENDDATE output,
-					@SENDREMINDER output,
-					@NEXTINSTALLMENTID output,
-					@FINDERNUMBER output,
-					@SOURCECODE output,
-					@APPEALID output,
-					@MAILINGID output,
-					@CHANNELCODEID output,
-					@REFERENCE output,
-					@CATEGORYCODEID output,
-					@EDITSTARTDATE output,
-					@LASTACTIVITYDATE output,
-					@EXPIRATIONREASONID output,
-					@BASECURRENCYID output,
-					@TRANSACTIONCURRENCYID output,
-					@BASEEXCHANGERATEID output,
-					@EXCHANGERATE output,
-					@HADSPOTRATE output,
-					@RATECHANGED output,
-					@BASECURRENCYDECIMALDIGITS output,
-					@BASECURRENCYROUNDINGTYPECODE output,
-					@BASEAMOUNT output,
-					@UPDATERECOGNITIONOPTION output,
-					@DONOTACKNOWLEDGE output
+                        if @FROMSPONSORSHIPID is not null and @TOSPONSORSHIPID is not null
+                        begin
+                                exec dbo.USP_SPONSORSHIP_TRANSFER_EDITLOAD
+                                        @FROMSPONSORSHIPID,
+                                        1,
+                                        @DATALOADED output,
+                                        @TSLONG output,
+                                        @FORMTITLE output,
+                                        @ORIGINALOPPORTUNITYID output,
+                                        @REVENUECONSTITUENTID output,
+                                        @SPONSORSHIPCONSTITUENTID output,
+                                        @SPONSORSHIPPROGRAMID output,
+                                        @SPONSORSHIPLOCATIONID output,
+                                        @GENDERCODE output,
+                                        @SPROPPAGERANGEID output,
+                                        @ISHIVPOSITIVECODE output,
+                                        @HASCONDITIONCODE output,
+                                        @ISORPHANEDCODE output,
+                                        @SPROPPPROJECTCATEGORYCODEID output,
+                                        @ISSOLESPONSORSHIP output,
+                                        @STARTDATE output,
+                                        @AMOUNT output,
+                                        @PAYMENTMETHODCODE output,
+                                        @REFERENCEDATE output,
+                                        @REFERENCENUMBER output,
+                                        @CARDHOLDERNAME output,
+                                        @CREDITCARDNUMBER output,
+                                        @CREDITTYPECODEID output,
+                                        @EXPIRESON output,
+                                        @CONSTITUENTACCOUNTID output,
+                                        @FREQUENCYCODE output,
+                                        @REVENUESCHEDULEENDDATE output,
+                                        @REVENUESCHEDULESTARTDATE output,
+                                        @AUTOPAY output,
+                                        @CREDITCARDTOKEN output,
+                                        @GIFTRECIPIENT output,
+                                        @PLANNEDENDDATE output,
+                                        @SENDREMINDER output,
+                                        @NEXTINSTALLMENTID output,
+                                        @FINDERNUMBER output,
+                                        @SOURCECODE output,
+                                        @APPEALID output,
+                                        @MAILINGID output,
+                                        @CHANNELCODEID output,
+                                        @REFERENCE output,
+                                        @CATEGORYCODEID output,
+                                        @EDITSTARTDATE output,
+                                        @LASTACTIVITYDATE output,
+                                        @EXPIRATIONREASONID output,
+                                        @BASECURRENCYID output,
+                                        @TRANSACTIONCURRENCYID output,
+                                        @BASEEXCHANGERATEID output,
+                                        @EXCHANGERATE output,
+                                        @HADSPOTRATE output,
+                                        @RATECHANGED output,
+                                        @BASECURRENCYDECIMALDIGITS output,
+                                        @BASECURRENCYROUNDINGTYPECODE output,
+                                        @BASEAMOUNT output,
+                                        @UPDATERECOGNITIONOPTION output,
+                                        @DONOTACKNOWLEDGE output
 
-				-- bug 39664:  Set Original opportunity ID to the overridden sponsorship's opportunity.
-				select @ORIGINALOPPORTUNITYID = SPONSORSHIPOPPORTUNITYID
-				from dbo.SPONSORSHIP
-				where ID = @TOSPONSORSHIPID;
-				
-				set @FROMCHILDID = (select SPONSORSHIPOPPORTUNITYID from dbo.SPONSORSHIP where ID = @FROMSPONSORSHIPID) 
-				set @TOCHILDID = (select SPONSORSHIPOPPORTUNITYID from dbo.SPONSORSHIP where ID = @TOSPONSORSHIPID)
-				
-				set @SPONSORSHIPOPPORTUNITYIDCHILD = @TOCHILDID
+                                -- bug 39664:  Set Original opportunity ID to the overridden sponsorship's opportunity.
+                                select @ORIGINALOPPORTUNITYID = SPONSORSHIPOPPORTUNITYID
+                                from dbo.SPONSORSHIP
+                                where ID = @TOSPONSORSHIPID;
+                                
+                                set @FROMCHILDID = (select SPONSORSHIPOPPORTUNITYID from dbo.SPONSORSHIP where ID = @FROMSPONSORSHIPID) 
+                                set @TOCHILDID = (select SPONSORSHIPOPPORTUNITYID from dbo.SPONSORSHIP where ID = @TOSPONSORSHIPID)
+                                
+                                set @SPONSORSHIPOPPORTUNITYIDCHILD = @TOCHILDID
 
-			end
+                        end
 
-			return 0;
-			]]>	
+                        return 0;
+                        ]]>
 			</common:CreateProcedureSQL>
 		</LoadImplementation>
-		
+
 		<SaveImplementation SPName="USR_USP_DATAFORMTEMPLATE_EDIT_COMPLETEOROVERRIDEPENDINGTRANSFER">
 			<common:CreateProcedureSQL>
-			<![CDATA[
-		create procedure dbo.USR_USP_DATAFORMTEMPLATE_EDIT_COMPLETEOROVERRIDEPENDINGTRANSFER(
-				@ID uniqueidentifier,
-				@CHANGEAGENTID uniqueidentifier = null,
-				@SPONSORSHIPREASONID uniqueidentifier,
-				--@MATCHRULE tinyint,
-				@SPONSORSHIPPROGRAMID uniqueidentifier,
-				@SPONSORSHIPLOCATIONID uniqueidentifier,
-				@GENDERCODE int,
-				@SPROPPAGERANGEID uniqueidentifier,
-				@ISHIVPOSITIVECODE int,
-				@HASCONDITIONCODE int,
-				@ISORPHANEDCODE int,
-				@SPROPPPROJECTCATEGORYCODEID uniqueidentifier,
-				@SPONSORSHIPOPPORTUNITYIDCHILD uniqueidentifier,
-				@SPONSORSHIPOPPORTUNITYIDPROJECT uniqueidentifier,
-				@ISSOLESPONSORSHIP bit,
-				@AMOUNT money,
-				@FREQUENCYCODE tinyint,
-				@REVENUESCHEDULESTARTDATE datetime,
-				@REVENUESCHEDULEENDDATE datetime,
-				@PLANNEDENDDATE date,
-				@RESERVEDOPPORTUNITYIDCHILD uniqueidentifier,
-				@RESERVATIONKEY uniqueidentifier,
-				@MATCHEDOPPORTUNITYID uniqueidentifier,
-				@SENDREMINDER bit,
-				@NEXTINSTALLMENTID uniqueidentifier,
-				@FINDERNUMBER bigint,
-				@SOURCECODE nvarchar(50),
-				@APPEALID uniqueidentifier,
-				@MAILINGID uniqueidentifier,
-				@CHANNELCODEID uniqueidentifier,
-				@REFERENCE nvarchar(255),
-				@CATEGORYCODEID uniqueidentifier,
-				@REVENUEDEVELOPMENTFUNCTIONCODEID uniqueidentifier,
-				@EXPIRATIONREASONID uniqueidentifier,
-				@TRANSACTIONCURRENCYID uniqueidentifier,
-				@BASEEXCHANGERATEID uniqueidentifier,
-				@EXCHANGERATE decimal(20,8),
-				@HADSPOTRATE bit,
-				@RATECHANGED bit,
-				@UPDATERECOGNITIONOPTION bit,
-				@DONOTACKNOWLEDGE bit,
-				@DONORCONTACTCODEID uniqueidentifier,
-				@OVERRIDEFLAG bit
-			)
-			as
-			set nocount on;
+				<![CDATA[
+                create procedure dbo.USR_USP_DATAFORMTEMPLATE_EDIT_COMPLETEOROVERRIDEPENDINGTRANSFER(
+                                @ID uniqueidentifier,
+                                @CHANGEAGENTID uniqueidentifier = null,
+                                @SPONSORSHIPREASONID uniqueidentifier,
+                                --@MATCHRULE tinyint,
+                                @SPONSORSHIPPROGRAMID uniqueidentifier,
+                                @SPONSORSHIPLOCATIONID uniqueidentifier,
+                                @GENDERCODE int,
+                                @SPROPPAGERANGEID uniqueidentifier,
+                                @ISHIVPOSITIVECODE int,
+                                @HASCONDITIONCODE int,
+                                @ISORPHANEDCODE int,
+                                @SPROPPPROJECTCATEGORYCODEID uniqueidentifier,
+                                @SPONSORSHIPOPPORTUNITYIDCHILD uniqueidentifier,
+                                @SPONSORSHIPOPPORTUNITYIDPROJECT uniqueidentifier,
+                                @ISSOLESPONSORSHIP bit,
+                                @AMOUNT money,
+                                @FREQUENCYCODE tinyint,
+                                @REVENUESCHEDULESTARTDATE datetime,
+                                @REVENUESCHEDULEENDDATE datetime,
+                                @PLANNEDENDDATE date,
+                                @RESERVEDOPPORTUNITYIDCHILD uniqueidentifier,
+                                @RESERVATIONKEY uniqueidentifier,
+                                @MATCHEDOPPORTUNITYID uniqueidentifier,
+                                @SENDREMINDER bit,
+                                @NEXTINSTALLMENTID uniqueidentifier,
+                                @FINDERNUMBER bigint,
+                                @SOURCECODE nvarchar(50),
+                                @APPEALID uniqueidentifier,
+                                @MAILINGID uniqueidentifier,
+                                @CHANNELCODEID uniqueidentifier,
+                                @REFERENCE nvarchar(255),
+                                @CATEGORYCODEID uniqueidentifier,
+                                @REVENUEDEVELOPMENTFUNCTIONCODEID uniqueidentifier,
+                                @EXPIRATIONREASONID uniqueidentifier,
+                                @TRANSACTIONCURRENCYID uniqueidentifier,
+                                @BASEEXCHANGERATEID uniqueidentifier,
+                                @EXCHANGERATE decimal(20,8),
+                                @HADSPOTRATE bit,
+                                @RATECHANGED bit,
+                                @UPDATERECOGNITIONOPTION bit,
+                                @DONOTACKNOWLEDGE bit,
+                                @DONORCONTACTCODEID uniqueidentifier,
+                                @OVERRIDEFLAG bit
+                        )
+                        as
+                        set nocount on;
 
-			declare @FROMSPONSORSHIPID uniqueidentifier;
-			declare @TOSPONSORSHIPID uniqueidentifier;
+                        declare @FROMSPONSORSHIPID uniqueidentifier;
+                        declare @TOSPONSORSHIPID uniqueidentifier;
 
-		begin try
-		
-			-- if this is not an override, then just complete the transfer
-			if @OVERRIDEFLAG = 0
-				begin
-					exec dbo.USP_GETPENDINGTRANSFERSPONSORSHIPS
-						@ID,
-						@FROMSPONSORSHIPID output,
-						@TOSPONSORSHIPID output
-	
-					if @FROMSPONSORSHIPID is not null and @TOSPONSORSHIPID is not null
-						exec dbo.USP_SPONSORSHIP_COMPLETETRANSFER
-							@TOSPONSORSHIPID,
-							@FROMSPONSORSHIPID,
-							1,
-							@CHANGEAGENTID
-					else
-						raiserror('BBERR_NOPENDINGTRANSFER', 13, 1);
-				end
-			else
-				begin
-					-- do the override procedure, this is all OOB CRM from blackbaud:					
-					declare @NEWID uniqueidentifier
-					set @NEWID = newid()
+                begin try
+                
+                        -- if this is not an override, then just complete the transfer
+                        if @OVERRIDEFLAG = 0
+                                begin
+                                        exec dbo.USP_GETPENDINGTRANSFERSPONSORSHIPS
+                                                @ID,
+                                                @FROMSPONSORSHIPID output,
+                                                @TOSPONSORSHIPID output
+        
+                                        if @FROMSPONSORSHIPID is not null and @TOSPONSORSHIPID is not null
+                                                exec dbo.USP_SPONSORSHIP_COMPLETETRANSFER
+                                                        @TOSPONSORSHIPID,
+                                                        @FROMSPONSORSHIPID,
+                                                        1,
+                                                        @CHANGEAGENTID
+                                        else
+                                                raiserror('BBERR_NOPENDINGTRANSFER', 13, 1);
+                                end
+                        else
+                                begin
+                                        -- do the override procedure, this is all OOB CRM from blackbaud:                                       
+                                        declare @NEWID uniqueidentifier
+                                        set @NEWID = newid()
 
-					if @CHANGEAGENTID is null
-						exec dbo.USP_CHANGEAGENT_GETORCREATECHANGEAGENT @CHANGEAGENTID output
+                                        if @CHANGEAGENTID is null
+                                                exec dbo.USP_CHANGEAGENT_GETORCREATECHANGEAGENT @CHANGEAGENTID output
 
-					declare @SPONSORSHIPOPPORTUNITYID uniqueidentifier
-					set @SPONSORSHIPOPPORTUNITYID = isnull(@SPONSORSHIPOPPORTUNITYIDCHILD,@SPONSORSHIPOPPORTUNITYIDPROJECT)
+                                        declare @SPONSORSHIPOPPORTUNITYID uniqueidentifier
+                                        set @SPONSORSHIPOPPORTUNITYID = isnull(@SPONSORSHIPOPPORTUNITYIDCHILD,@SPONSORSHIPOPPORTUNITYIDPROJECT)
 
-					if @SPONSORSHIPOPPORTUNITYID is null and @RESERVEDOPPORTUNITYIDCHILD is not null
-						set @SPONSORSHIPOPPORTUNITYID = @RESERVEDOPPORTUNITYIDCHILD
+                                        if @SPONSORSHIPOPPORTUNITYID is null and @RESERVEDOPPORTUNITYIDCHILD is not null
+                                                set @SPONSORSHIPOPPORTUNITYID = @RESERVEDOPPORTUNITYIDCHILD
 
-					if @SPONSORSHIPOPPORTUNITYID is not null
-						begin
-							set @SPONSORSHIPLOCATIONID = null;
-							set @GENDERCODE = 0;
-							set @SPROPPAGERANGEID = null;
-							set @ISHIVPOSITIVECODE = 0;
-							set @HASCONDITIONCODE = 0;
-							set @ISORPHANEDCODE = 0;
-							set @SPROPPPROJECTCATEGORYCODEID = null;
-						end
+                                        if @SPONSORSHIPOPPORTUNITYID is not null
+                                                begin
+                                                        set @SPONSORSHIPLOCATIONID = null;
+                                                        set @GENDERCODE = 0;
+                                                        set @SPROPPAGERANGEID = null;
+                                                        set @ISHIVPOSITIVECODE = 0;
+                                                        set @HASCONDITIONCODE = 0;
+                                                        set @ISORPHANEDCODE = 0;
+                                                        set @SPROPPPROJECTCATEGORYCODEID = null;
+                                                end
 
-					if @SPONSORSHIPOPPORTUNITYID is null and @MATCHEDOPPORTUNITYID is not null
-						set @SPONSORSHIPOPPORTUNITYID = @MATCHEDOPPORTUNITYID
+                                        if @SPONSORSHIPOPPORTUNITYID is null and @MATCHEDOPPORTUNITYID is not null
+                                                set @SPONSORSHIPOPPORTUNITYID = @MATCHEDOPPORTUNITYID
 
-					if @SPONSORSHIPOPPORTUNITYID is null
-						raiserror('BBERR_NOOPPORTUNITYSPECIFIED',13,1);
+                                        if @SPONSORSHIPOPPORTUNITYID is null
+                                                raiserror('BBERR_NOOPPORTUNITYSPECIFIED',13,1);
 
-					if @GENDERCODE is null
-						set @GENDERCODE = 0
-					if @ISHIVPOSITIVECODE is null
-						set @ISHIVPOSITIVECODE = 0
-					if @HASCONDITIONCODE is null
-						set @HASCONDITIONCODE = 0
-					if @ISORPHANEDCODE is null
-						set @ISORPHANEDCODE = 0
-					if @FINDERNUMBER is null
-						set @FINDERNUMBER = 0
+                                        if @GENDERCODE is null
+                                                set @GENDERCODE = 0
+                                        if @ISHIVPOSITIVECODE is null
+                                                set @ISHIVPOSITIVECODE = 0
+                                        if @HASCONDITIONCODE is null
+                                                set @HASCONDITIONCODE = 0
+                                        if @ISORPHANEDCODE is null
+                                                set @ISORPHANEDCODE = 0
+                                        if @FINDERNUMBER is null
+                                                set @FINDERNUMBER = 0
 
-					exec dbo.USP_GETPENDINGTRANSFERSPONSORSHIPS
-						@ID,
-						@FROMSPONSORSHIPID output,
-						@TOSPONSORSHIPID output
+                                        exec dbo.USP_GETPENDINGTRANSFERSPONSORSHIPS
+                                                @ID,
+                                                @FROMSPONSORSHIPID output,
+                                                @TOSPONSORSHIPID output
 
-					if @FROMSPONSORSHIPID is not null and @TOSPONSORSHIPID is not null
-						begin
-							exec dbo.USP_SPONSORSHIP_OVERRIDETRANSFER
-							@NEWID output,
-							@FROMSPONSORSHIPID,
-							@TOSPONSORSHIPID,
-							@SPONSORSHIPREASONID,
-							0,--@MATCHRULE,
-							@SPONSORSHIPPROGRAMID,
-							@SPONSORSHIPLOCATIONID,
-							@GENDERCODE,
-							@SPROPPAGERANGEID,
-							@ISHIVPOSITIVECODE,
-							@HASCONDITIONCODE,
-							@ISORPHANEDCODE,
-							@SPROPPPROJECTCATEGORYCODEID,
-							@SPONSORSHIPOPPORTUNITYID,
-							@ISSOLESPONSORSHIP,
-							1,
-							@CHANGEAGENTID,
-							@PLANNEDENDDATE,
-							@EXPIRATIONREASONID,
-							1
+                                        if @FROMSPONSORSHIPID is not null and @TOSPONSORSHIPID is not null
+                                                begin
+                                                        exec dbo.USP_SPONSORSHIP_OVERRIDETRANSFER
+                                                        @NEWID output,
+                                                        @FROMSPONSORSHIPID,
+                                                        @TOSPONSORSHIPID,
+                                                        @SPONSORSHIPREASONID,
+                                                        0,--@MATCHRULE,
+                                                        @SPONSORSHIPPROGRAMID,
+                                                        @SPONSORSHIPLOCATIONID,
+                                                        @GENDERCODE,
+                                                        @SPROPPAGERANGEID,
+                                                        @ISHIVPOSITIVECODE,
+                                                        @HASCONDITIONCODE,
+                                                        @ISORPHANEDCODE,
+                                                        @SPROPPPROJECTCATEGORYCODEID,
+                                                        @SPONSORSHIPOPPORTUNITYID,
+                                                        @ISSOLESPONSORSHIP,
+                                                        1,
+                                                        @CHANGEAGENTID,
+                                                        @PLANNEDENDDATE,
+                                                        @EXPIRATIONREASONID,
+                                                        1
 
-							declare @REVENUEID uniqueidentifier;
+                                                        declare @REVENUEID uniqueidentifier;
 
-							select @REVENUEID = REVENUESPLIT.REVENUEID
-							from dbo.SPONSORSHIP
-							left outer join dbo.REVENUESPLIT on REVENUESPLIT.ID = SPONSORSHIP.REVENUESPLITID
-							left outer join dbo.REVENUESCHEDULE on REVENUESCHEDULE.ID = REVENUESPLIT.REVENUEID
-							where SPONSORSHIP.ID = @NEWID
+                                                        select @REVENUEID = REVENUESPLIT.REVENUEID
+                                                        from dbo.SPONSORSHIP
+                                                        left outer join dbo.REVENUESPLIT on REVENUESPLIT.ID = SPONSORSHIP.REVENUESPLITID
+                                                        left outer join dbo.REVENUESCHEDULE on REVENUESCHEDULE.ID = REVENUESPLIT.REVENUEID
+                                                        where SPONSORSHIP.ID = @NEWID
 
-							if @REVENUEID is not null
-								begin
-									declare @DATE datetime;
-									declare @SPLITS xml;
-									declare @GIVENANONYMOUSLY bit;
-									declare @SCHEDULESEEDDATE datetime;
+                                                        if @REVENUEID is not null
+                                                                begin
+                                                                        declare @DATE datetime;
+                                                                        declare @SPLITS xml;
+                                                                        declare @GIVENANONYMOUSLY bit;
+                                                                        declare @SCHEDULESEEDDATE datetime;
 
-									exec dbo.USP_DATAFORMTEMPLATE_EDITLOAD_RECURRINGGIFT_2
-										@ID = @REVENUEID,
-										@DATE = @DATE output,
-										@SPLITS = @SPLITS output,
-										@GIVENANONYMOUSLY = @GIVENANONYMOUSLY output,
-										@SCHEDULESEEDDATE = @SCHEDULESEEDDATE output;
+                                                                        exec dbo.USP_DATAFORMTEMPLATE_EDITLOAD_RECURRINGGIFT_2
+                                                                                @ID = @REVENUEID,
+                                                                                @DATE = @DATE output,
+                                                                                @SPLITS = @SPLITS output,
+                                                                                @GIVENANONYMOUSLY = @GIVENANONYMOUSLY output,
+                                                                                @SCHEDULESEEDDATE = @SCHEDULESEEDDATE output;
 
-									set @SPLITS.modify('replace value of (SPLITS/ITEM/AMOUNT[1]/text())[1] with sql:variable("@AMOUNT")')
+                                                                        set @SPLITS.modify('replace value of (SPLITS/ITEM/AMOUNT[1]/text())[1] with sql:variable("@AMOUNT")')
 
-									exec dbo.USP_DATAFORMTEMPLATE_EDIT_RECURRINGGIFT_6
-										@REVENUEID,
-										@CHANGEAGENTID,
-										@DATE,
-										@AMOUNT,
-										@SPLITS,
-										@FREQUENCYCODE,
-										@REVENUESCHEDULEENDDATE,
-										@REVENUESCHEDULESTARTDATE,
-										@FINDERNUMBER,
-										@SOURCECODE,
-										@APPEALID,
-										@GIVENANONYMOUSLY,
-										@MAILINGID,
-										@CHANNELCODEID,
-										@DONOTACKNOWLEDGE,
-										@REFERENCE,
-										@CATEGORYCODEID,
-										@SENDREMINDER,
-										@NEXTINSTALLMENTID,
-										@REVENUEDEVELOPMENTFUNCTIONCODEID,
-										@TRANSACTIONCURRENCYID,
-										@BASEEXCHANGERATEID,
-										@EXCHANGERATE,
-										@HADSPOTRATE,
-										@RATECHANGED,
-										@UPDATERECOGNITIONOPTION,
-										null,
-										@SCHEDULESEEDDATE
-								end
-						end
-					else
-						raiserror('BBERR_NOPENDINGTRANSFER', 13, 1);
-				end  -- isoverride = true
+                                                                        exec dbo.USP_DATAFORMTEMPLATE_EDIT_RECURRINGGIFT_6
+                                                                                @REVENUEID,
+                                                                                @CHANGEAGENTID,
+                                                                                @DATE,
+                                                                                @AMOUNT,
+                                                                                @SPLITS,
+                                                                                @FREQUENCYCODE,
+                                                                                @REVENUESCHEDULEENDDATE,
+                                                                                @REVENUESCHEDULESTARTDATE,
+                                                                                @FINDERNUMBER,
+                                                                                @SOURCECODE,
+                                                                                @APPEALID,
+                                                                                @GIVENANONYMOUSLY,
+                                                                                @MAILINGID,
+                                                                                @CHANNELCODEID,
+                                                                                @DONOTACKNOWLEDGE,
+                                                                                @REFERENCE,
+                                                                                @CATEGORYCODEID,
+                                                                                @SENDREMINDER,
+                                                                                @NEXTINSTALLMENTID,
+                                                                                @REVENUEDEVELOPMENTFUNCTIONCODEID,
+                                                                                @TRANSACTIONCURRENCYID,
+                                                                                @BASEEXCHANGERATEID,
+                                                                                @EXCHANGERATE,
+                                                                                @HADSPOTRATE,
+                                                                                @RATECHANGED,
+                                                                                @UPDATERECOGNITIONOPTION,
+                                                                                null,
+                                                                                @SCHEDULESEEDDATE
+                                                                end
+                                                end
+                                        else
+                                                raiserror('BBERR_NOPENDINGTRANSFER', 13, 1);
+                                end  -- isoverride = true
 
-				
-				declare @FROMCHILDID uniqueidentifier = null;
-				declare @TOCHILDID uniqueidentifier = null;
-				declare @sponsorId uniqueidentifier = null;
-				
-				set @FROMCHILDID = (select SPONSORSHIPOPPORTUNITYID from dbo.SPONSORSHIP where ID = @FROMSPONSORSHIPID) 
-				set @TOCHILDID = (select SPONSORSHIPOPPORTUNITYID from dbo.SPONSORSHIP where ID = @TOSPONSORSHIPID)
-		
-				select @sponsorId = CONSTITUENTID
-				from dbo.SPONSORSHIP
-				where ID = @ID
+                                
+                                declare @FROMCHILDID uniqueidentifier = null;
+                                declare @TOCHILDID uniqueidentifier = null;
+                                declare @sponsorId uniqueidentifier = null;
+                                
+                                set @FROMCHILDID = (select SPONSORSHIPOPPORTUNITYID from dbo.SPONSORSHIP where ID = @FROMSPONSORSHIPID) 
+                                set @TOCHILDID = (select SPONSORSHIPOPPORTUNITYID from dbo.SPONSORSHIP where ID = @TOSPONSORSHIPID)
+                
+                                select @sponsorId = CONSTITUENTID
+                                from dbo.SPONSORSHIP
+                                where ID = @ID
 
-				if @sponsorId is null
-					RAISERROR 1000000 'Unable to locate the Sponsor from this SponsorshipID.'
-				else
-					begin
-						-- perform the custom procedure after transfer's been done
-						exec dbo.USR_USP_SPONSORSHIP_HANDLE_DEPARTURETRANSFERCOMPLETION
-							@sponsorId = @sponsorId,
-							@transferSponsorshipId = @TOSPONSORSHIPID,
-							@departedSponsorshipId = @FROMSPONSORSHIPID,
-							@transferChildId = @SPONSORSHIPOPPORTUNITYID,
-							@departedChildId = @FROMCHILDID,
-							@changeAgentID = @CHANGEAGENTID,
-							@sponsorContactCodeId = @DONORCONTACTCODEID
-					end
-				
-	
-			end try
-			
-			begin catch
-				exec dbo.USP_RAISE_ERROR
-				return 1
-			end catch
+                                if @sponsorId is null
+                                        RAISERROR 1000000 'Unable to locate the Sponsor from this SponsorshipID.'
+                                else
+                                        begin
+                                                -- perform the custom procedure after transfer's been done
+                                                exec dbo.USR_USP_SPONSORSHIP_HANDLE_DEPARTURETRANSFERCOMPLETION
+                                                        @sponsorId = @sponsorId,
+                                                        @transferSponsorshipId = @TOSPONSORSHIPID,
+                                                        @departedSponsorshipId = @FROMSPONSORSHIPID,
+                                                        @transferChildId = @SPONSORSHIPOPPORTUNITYID,
+                                                        @departedChildId = @FROMCHILDID,
+                                                        @changeAgentID = @CHANGEAGENTID,
+                                                        @sponsorContactCodeId = @DONORCONTACTCODEID
+                                        end
+                                
+        
+                        end try
+                        
+                        begin catch
+                                exec dbo.USP_RAISE_ERROR
+                                return 1
+                        end catch
 
-			return 0	
-				]]>
+                        return 0        
+                                ]]>
 			</common:CreateProcedureSQL>
 			<common:ExpectedDBExceptions>
 				<common:Constraints>
@@ -691,22 +691,22 @@
 			</common:FormField>
 
 			<!--<common:FormField FieldID="SPONSORSHIPOPPORTUNITYIDCHILD" DataType="Guid" Caption="Child" CaptionResourceKey="$$child">
-				<common:SearchList SearchListID="ab076868-114a-4696-afe9-8d590677708c" EnableQuickFind="true">
-					<common:FormFieldOverrides>
-						<common:FormFieldOverride FieldID="SPONSORSHIPPROGRAMID" ReadOnly="true" DefaultValueText="Fields!SPONSORSHIPPROGRAMID" />
-						<common:FormFieldOverride FieldID="ELIGIBILITYCODE" ReadOnly="true" DefaultValueText="1" />
-						<common:FormFieldOverride FieldID="AVAILABILITYCODE" ReadOnly="true" DefaultValueText="0" />
-						<common:FormFieldOverride FieldID="RESTRICTFORSOLESPONSORSHIP" Caption="Only include unsponsored" DefaultValueText="Fields!ISSOLESPONSORSHIP" />
-						<common:FormFieldOverride FieldID="EXCLUDEOPPORTUNITYID" ReadOnly="true" Hidden="true" DefaultValueText="Fields!ORIGINALOPPORTUNITYID" />
-						<common:FormFieldOverride FieldID="SPONSORSHIPOPPORTUNITYGROUPID" ReadOnly="true" />
-						<common:FormFieldOverride FieldID="RESERVATIONKEYID" ReadOnly="true" />
-						<common:FormFieldOverride FieldID="CORRESPONDINGSPONSORID" Hidden="true" DefaultValueText="Fields!SPONSORSHIPCONSTITUENTID" />
-						<common:FormFieldOverride FieldID="FINANCIALSPONSORID" Hidden="true" DefaultValueText="Fields!REVENUECONSTITUENTID" />
-					</common:FormFieldOverrides>
-				</common:SearchList>
-			</common:FormField>-->
-			
-			
+                                <common:SearchList SearchListID="ab076868-114a-4696-afe9-8d590677708c" EnableQuickFind="true">
+                                        <common:FormFieldOverrides>
+                                                <common:FormFieldOverride FieldID="SPONSORSHIPPROGRAMID" ReadOnly="true" DefaultValueText="Fields!SPONSORSHIPPROGRAMID" />
+                                                <common:FormFieldOverride FieldID="ELIGIBILITYCODE" ReadOnly="true" DefaultValueText="1" />
+                                                <common:FormFieldOverride FieldID="AVAILABILITYCODE" ReadOnly="true" DefaultValueText="0" />
+                                                <common:FormFieldOverride FieldID="RESTRICTFORSOLESPONSORSHIP" Caption="Only include unsponsored" DefaultValueText="Fields!ISSOLESPONSORSHIP" />
+                                                <common:FormFieldOverride FieldID="EXCLUDEOPPORTUNITYID" ReadOnly="true" Hidden="true" DefaultValueText="Fields!ORIGINALOPPORTUNITYID" />
+                                                <common:FormFieldOverride FieldID="SPONSORSHIPOPPORTUNITYGROUPID" ReadOnly="true" />
+                                                <common:FormFieldOverride FieldID="RESERVATIONKEYID" ReadOnly="true" />
+                                                <common:FormFieldOverride FieldID="CORRESPONDINGSPONSORID" Hidden="true" DefaultValueText="Fields!SPONSORSHIPCONSTITUENTID" />
+                                                <common:FormFieldOverride FieldID="FINANCIALSPONSORID" Hidden="true" DefaultValueText="Fields!REVENUECONSTITUENTID" />
+                                        </common:FormFieldOverrides>
+                                </common:SearchList>
+                        </common:FormField>-->
+
+
 			<common:FormField FieldID="SPONSORSHIPOPPORTUNITYIDPROJECT" DataType="Guid" Caption="Project" CaptionResourceKey="$$project">
 				<common:SearchList SearchListID="b095dc74-4c09-40c9-9c9d-e8ff55b584ce" EnableQuickFind="true">
 					<common:FormFieldOverrides>
@@ -920,7 +920,7 @@
 			<common:FormField FieldID="DONOTACKNOWLEDGE" DataType="Boolean" Caption="Do not acknowledge" CaptionResourceKey="$$do_not_acknowledge" />
 
 			<common:FormField FieldID="OVERRIDEFLAG" Caption="Override" DataType="Boolean" Hidden="true" />
-			
+
 			<common:FormField FieldID="SPONSORID" Caption="Sponsor" DataType="Guid" ReadOnly="true">
 				<common:SearchList SearchListID="23c5c603-d7d8-4106-aecc-65392b563887" />
 			</common:FormField>
@@ -938,12 +938,12 @@
 
 		</common:FormFields>
 
-        <common:WebUIComponent>
-            <common:UIModel AssemblyName="MoM.Sponsorship.UIModel.dll" ClassName="MoM.Sponsorship.UIModel.CompleteOrOverridePendingTransferFormUIModel" />
-            <common:WebUI>
-                <common:ExternalResource Url="browser/htmlforms/custom/CompleteOrOverridePendingTransferForm.html" />
-            </common:WebUI>
-        </common:WebUIComponent>
+		<common:WebUIComponent>
+			<common:UIModel AssemblyName="MoM.Sponsorship.UIModel.dll" ClassName="MoM.Sponsorship.UIModel.CompleteOrOverridePendingTransferFormUIModel" />
+			<common:WebUI>
+				<common:ExternalResource Url="browser/htmlforms/custom/CompleteOrOverridePendingTransferForm.html" />
+			</common:WebUI>
+		</common:WebUIComponent>
 
 		<common:FieldGroups>
 			<common:FieldGroup ID="GENERALINFORMATION" Caption="General" CaptionResourceKey="$$general">
