@@ -20,82 +20,82 @@ Partial Public Class [CompleteOrOverridePendingTransferFormUIModel]
 
 #Region "Enums"
 
-    ''' <summary>
-    ''' Enumerated values for use with the GENDERCODE property
-    ''' </summary>
+	''' <summary>
+	''' Enumerated values for use with the GENDERCODE property
+	''' </summary>
 	<System.CodeDom.Compiler.GeneratedCodeAttribute("BBUIModelLibrary", "2.93.2034.0")> _
-    Public Enum GENDERCODES As Integer
-        [Male] = 1
-        [Female] = 2
-    End Enum
+	Public Enum GENDERCODES As Integer
+		[Male] = 1
+		[Female] = 2
+	End Enum
 
-    ''' <summary>
-    ''' Enumerated values for use with the ISHIVPOSITIVECODE property
-    ''' </summary>
+	''' <summary>
+	''' Enumerated values for use with the ISHIVPOSITIVECODE property
+	''' </summary>
 	<System.CodeDom.Compiler.GeneratedCodeAttribute("BBUIModelLibrary", "2.93.2034.0")> _
-    Public Enum ISHIVPOSITIVECODES As Integer
-        [Yes] = 1
-        [No] = 2
-    End Enum
+	Public Enum ISHIVPOSITIVECODES As Integer
+		[Yes] = 1
+		[No] = 2
+	End Enum
 
-    ''' <summary>
-    ''' Enumerated values for use with the HASCONDITIONCODE property
-    ''' </summary>
+	''' <summary>
+	''' Enumerated values for use with the HASCONDITIONCODE property
+	''' </summary>
 	<System.CodeDom.Compiler.GeneratedCodeAttribute("BBUIModelLibrary", "2.93.2034.0")> _
-    Public Enum HASCONDITIONCODES As Integer
-        [Yes] = 1
-        [No] = 2
-    End Enum
+	Public Enum HASCONDITIONCODES As Integer
+		[Yes] = 1
+		[No] = 2
+	End Enum
 
-    ''' <summary>
-    ''' Enumerated values for use with the ISORPHANEDCODE property
-    ''' </summary>
+	''' <summary>
+	''' Enumerated values for use with the ISORPHANEDCODE property
+	''' </summary>
 	<System.CodeDom.Compiler.GeneratedCodeAttribute("BBUIModelLibrary", "2.93.2034.0")> _
-    Public Enum ISORPHANEDCODES As Integer
-        [Yes] = 1
-        [No] = 2
-    End Enum
+	Public Enum ISORPHANEDCODES As Integer
+		[Yes] = 1
+		[No] = 2
+	End Enum
 
-    ''' <summary>
-    ''' Enumerated values for use with the PAYMENTMETHODCODE property
-    ''' </summary>
+	''' <summary>
+	''' Enumerated values for use with the PAYMENTMETHODCODE property
+	''' </summary>
 	<System.CodeDom.Compiler.GeneratedCodeAttribute("BBUIModelLibrary", "2.93.2034.0")> _
-    Public Enum PAYMENTMETHODCODES As Integer
-        [CreditCard] = 2
-        [DirectDebit] = 3
-    End Enum
+	Public Enum PAYMENTMETHODCODES As Integer
+		[CreditCard] = 2
+		[DirectDebit] = 3
+	End Enum
 
-    ''' <summary>
-    ''' Enumerated values for use with the FREQUENCYCODE property
-    ''' </summary>
+	''' <summary>
+	''' Enumerated values for use with the FREQUENCYCODE property
+	''' </summary>
 	<System.CodeDom.Compiler.GeneratedCodeAttribute("BBUIModelLibrary", "2.93.2034.0")> _
-    Public Enum FREQUENCYCODES As Integer
-        [Annually] = 0
-        [SemiAnnually] = 1
-        [Quarterly] = 2
-        [Bimonthly] = 6
-        [Monthly] = 3
-        [SemiMonthly] = 7
-        [Biweekly] = 8
-        [Weekly] = 9
-    End Enum
+	Public Enum FREQUENCYCODES As Integer
+		[Annually] = 0
+		[SemiAnnually] = 1
+		[Quarterly] = 2
+		[Bimonthly] = 6
+		[Monthly] = 3
+		[SemiMonthly] = 7
+		[Biweekly] = 8
+		[Weekly] = 9
+	End Enum
 
-    ''' <summary>
-    ''' Enumerated values for use with the SELECTOPPORTUNITYID property
-    ''' </summary>
+	''' <summary>
+	''' Enumerated values for use with the SELECTOPPORTUNITYID property
+	''' </summary>
 	<System.CodeDom.Compiler.GeneratedCodeAttribute("BBUIModelLibrary", "2.93.2034.0")> _
-    Public Enum SELECTOPPORTUNITYIDS As Integer
-        [ChooseASpecificOpportunity] = 0
-        [ChooseAReservedOpportunity] = 1
-        [FindAMatchingOpportunityOfGreatestNeed] = 2
-    End Enum
+	Public Enum SELECTOPPORTUNITYIDS As Integer
+		[ChooseASpecificOpportunity] = 0
+		[ChooseAReservedOpportunity] = 1
+		[FindAMatchingOpportunityOfGreatestNeed] = 2
+	End Enum
 
 #End Region
 
 #Region "Extensibility methods"
 
-    Partial Private Sub OnCreated()
-    End Sub
+	Partial Private Sub OnCreated()
+	End Sub
 
 #End Region
 
@@ -195,8 +195,8 @@ Partial Public Class [CompleteOrOverridePendingTransferFormUIModel]
 
 
 	<System.CodeDom.Compiler.GeneratedCodeAttribute("BBUIModelLibrary", "2.93.2034.0")> _
-    Public Sub New()
-        MyBase.New()
+	Public Sub New()
+		MyBase.New()
 
 		_formtitle = New Global.Blackbaud.AppFx.UIModeling.Core.StringField
 		_revenueconstituentid = New Global.Blackbaud.AppFx.UIModeling.Core.SearchListField(Of Guid)
@@ -292,11 +292,11 @@ Partial Public Class [CompleteOrOverridePendingTransferFormUIModel]
 		_isoverride = New Global.Blackbaud.AppFx.UIModeling.Core.BooleanField
 		_overrideflag = New Global.Blackbaud.AppFx.UIModeling.Core.BooleanField
 
-        MyBase.Mode = Global.Blackbaud.AppFx.UIModeling.Core.DataFormMode.Edit
-        MyBase.DataFormTemplateId = New Guid("928a3378-201e-4631-8eba-953f886a86a6")
-        MyBase.DataFormInstanceId = New Guid("cf6ed8e2-d7b0-454d-b495-49d766252df6")
-        MyBase.RecordType = "Sponsorship"
-        MyBase.FixedDialog = True
+		MyBase.Mode = Global.Blackbaud.AppFx.UIModeling.Core.DataFormMode.Edit
+		MyBase.DataFormTemplateId = New Guid("928a3378-201e-4631-8eba-953f886a86a6")
+		MyBase.DataFormInstanceId = New Guid("cf6ed8e2-d7b0-454d-b495-49d766252df6")
+		MyBase.RecordType = "Sponsorship"
+		MyBase.FixedDialog = True
 		MyBase.FORMHEADER.Value = "Complete/Override a Departure Transfer"
 		MyBase.UserInterfaceUrl = "browser/htmlforms/custom/CompleteOrOverridePendingTransferForm.html"
 
@@ -1119,7 +1119,7 @@ Partial Public Class [CompleteOrOverridePendingTransferFormUIModel]
 
 		OnCreated()
 
-    End Sub
+	End Sub
 
 	<System.CodeDom.Compiler.GeneratedCodeAttribute("BBUIModelLibrary", "2.93.2034.0")> _
 	Public ReadOnly Property [FORMTITLE]() As Global.Blackbaud.AppFx.UIModeling.Core.StringField
@@ -1145,9 +1145,9 @@ Partial Public Class [CompleteOrOverridePendingTransferFormUIModel]
 	'<System.ComponentModel.Description("PFM")> _
 	'<System.CodeDom.Compiler.GeneratedCodeAttribute("BBUIModelLibrary", "2.93.2034.0")> _
 	'Public ReadOnly Property [PFM]() As Global.Blackbaud.AppFx.UIModeling.Core.SearchListField(Of Guid)
-	'	Get
-	'		Return _pfmid
-	'	End Get
+	'   Get
+	'           Return _pfmid
+	'   End Get
 	'End Property
 
 
@@ -1201,9 +1201,9 @@ Partial Public Class [CompleteOrOverridePendingTransferFormUIModel]
 	'<System.ComponentModel.Description("Children")> _
 	'<System.CodeDom.Compiler.GeneratedCodeAttribute("BBUIModelLibrary", "2.93.2034.0")> _
 	'Public ReadOnly Property [CHILDREN]() As Global.Blackbaud.AppFx.UIModeling.Core.CollectionField(Of SponsorshipAddFormWrappedCHILDRENUIModel)
-	'	Get
-	'		Return _children
-	'	End Get
+	'   Get
+	'           Return _children
+	'   End Get
 	'End Property
 
 	''' <summary>
@@ -1600,9 +1600,9 @@ Partial Public Class [CompleteOrOverridePendingTransferFormUIModel]
 	'<System.ComponentModel.Description("Interaction")> _
 	'<System.CodeDom.Compiler.GeneratedCodeAttribute("BBUIModelLibrary", "2.93.2034.0")> _
 	'Public ReadOnly Property [INTERACTIONTYPECODEID]() As Global.Blackbaud.AppFx.UIModeling.Core.CodeTableField
-	'	Get
-	'		Return _interactiontypecodeid
-	'	End Get
+	'   Get
+	'           Return _interactiontypecodeid
+	'   End Get
 	'End Property
 
 	'''' <summary>
@@ -1611,9 +1611,9 @@ Partial Public Class [CompleteOrOverridePendingTransferFormUIModel]
 	'<System.ComponentModel.Description("Credit Card Schedule")> _
 	'<System.CodeDom.Compiler.GeneratedCodeAttribute("BBUIModelLibrary", "2.93.2034.0")> _
 	'Public ReadOnly Property [CREDITCARDSCHEDULECODEID]() As Global.Blackbaud.AppFx.UIModeling.Core.CodeTableField
-	'	Get
-	'		Return _creditcardschedulecodeid
-	'	End Get
+	'   Get
+	'           Return _creditcardschedulecodeid
+	'   End Get
 	'End Property
 
 	'''' <summary>
@@ -1622,9 +1622,9 @@ Partial Public Class [CompleteOrOverridePendingTransferFormUIModel]
 	'<System.ComponentModel.Description("Direct Debit Schedule")> _
 	'<System.CodeDom.Compiler.GeneratedCodeAttribute("BBUIModelLibrary", "2.93.2034.0")> _
 	'Public ReadOnly Property [DIRECTDEBITSCHEDULECODEID]() As Global.Blackbaud.AppFx.UIModeling.Core.CodeTableField
-	'	Get
-	'		Return _directdebitschedulecodeid
-	'	End Get
+	'   Get
+	'           Return _directdebitschedulecodeid
+	'   End Get
 	'End Property
 
 	''' <summary>
@@ -1717,9 +1717,9 @@ Partial Public Class [CompleteOrOverridePendingTransferFormUIModel]
 	'<System.ComponentModel.Description("Base currency decimal digits")> _
 	'<System.CodeDom.Compiler.GeneratedCodeAttribute("BBUIModelLibrary", "2.93.2034.0")> _
 	'Public ReadOnly Property [BASECURRENCYDECIMALDIGITS]() As Global.Blackbaud.AppFx.UIModeling.Core.TinyIntField
-	'	Get
-	'		Return _basecurrencydecimaldigits
-	'	End Get
+	'   Get
+	'           Return _basecurrencydecimaldigits
+	'   End Get
 	'End Property
 
 	'''' <summary>
@@ -1728,16 +1728,16 @@ Partial Public Class [CompleteOrOverridePendingTransferFormUIModel]
 	'<System.ComponentModel.Description("Base currency rounding type code")> _
 	'<System.CodeDom.Compiler.GeneratedCodeAttribute("BBUIModelLibrary", "2.93.2034.0")> _
 	'Public ReadOnly Property [BASECURRENCYROUNDINGTYPECODE]() As Global.Blackbaud.AppFx.UIModeling.Core.TinyIntField
-	'	Get
-	'		Return _basecurrencyroundingtypecode
-	'	End Get
+	'   Get
+	'           Return _basecurrencyroundingtypecode
+	'   End Get
 	'End Property
 
 	'<System.CodeDom.Compiler.GeneratedCodeAttribute("BBUIModelLibrary", "2.93.2034.0")> _
 	'Public ReadOnly Property [BATCHNUMBER]() As Global.Blackbaud.AppFx.UIModeling.Core.StringField
-	'	Get
-	'		Return _batchnumber
-	'	End Get
+	'   Get
+	'           Return _batchnumber
+	'   End Get
 	'End Property
 
 	''' <summary>
@@ -2043,9 +2043,9 @@ Partial Public Class [CompleteOrOverridePendingTransferFormUIModel]
 	'<System.ComponentModel.Description("Fundraiser")> _
 	'<System.CodeDom.Compiler.GeneratedCodeAttribute("BBUIModelLibrary", "2.93.2034.0")> _
 	'Public ReadOnly Property [FUNDRAISERID]() As Global.Blackbaud.AppFx.UIModeling.Core.SearchListField(Of Guid)
-	'	Get
-	'		Return _fundraiserid
-	'	End Get
+	'   Get
+	'           Return _fundraiserid
+	'   End Get
 	'End Property
 
 	''' <summary>
@@ -2108,8 +2108,8 @@ Partial Public Class [CompleteOrOverridePendingTransferFormUIModel]
 	''' Override flag
 	''' </summary>
 	<System.ComponentModel.Description("Override flag")> _
- <System.CodeDom.Compiler.GeneratedCodeAttribute("BBUIModelLibrary", "2.93.2034.0")> _
- Public ReadOnly Property [OVERRIDEFLAG]() As Global.Blackbaud.AppFx.UIModeling.Core.BooleanField
+<System.CodeDom.Compiler.GeneratedCodeAttribute("BBUIModelLibrary", "2.93.2034.0")> _
+	Public ReadOnly Property [OVERRIDEFLAG]() As Global.Blackbaud.AppFx.UIModeling.Core.BooleanField
 		Get
 			Return _overrideflag
 		End Get

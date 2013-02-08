@@ -17,8 +17,8 @@ Public Class CompleteOrOverridePendingTransferFormUIModel
 	Private Const PROGRAMINFO As String = "26c9edcb-a40f-4cf3-9cd4-fb01f773a777"
 	Private Const AGERANGEDATALIST As String = "b2b6fb02-19df-49d4-8092-de9611e98b2a"
 
-	Private Const TRANSFERFORMID As String = "cf6ed8e2-d7b0-454d-b495-49d766252df6"	'"c5012f3e-a9b4-4d0d-bc27-6fa3818c71c2"
-	Private Const OVERRIDETRANSFERFORMID As String = "cf6ed8e2-d7b0-454d-b495-49d766252df6"	 '"9bc8daf7-4f5f-4411-a8fd-64838e7d874f"
+	Private Const TRANSFERFORMID As String = "cf6ed8e2-d7b0-454d-b495-49d766252df6"		  '"c5012f3e-a9b4-4d0d-bc27-6fa3818c71c2"
+	Private Const OVERRIDETRANSFERFORMID As String = "cf6ed8e2-d7b0-454d-b495-49d766252df6"		   '"9bc8daf7-4f5f-4411-a8fd-64838e7d874f"
 	Private Const REASSIGNFORMID As String = "421a8ead-9eab-4fa8-8219-760fb3726e95"
 
 	Private Enum CHANGEOPPORTUNITY
@@ -55,7 +55,7 @@ Public Class CompleteOrOverridePendingTransferFormUIModel
 	'(case [SPONSORSHIPOPPORTUNITYTYPECODE] when (1) then N'Child' when (2) then N'Project'  end)
 	Private Const CHILD_OPPORTUNITY As Integer = 1
 	Private Const PROJECT_OPPORTUNITY As Integer = 2
-	Private _opportunitytype As Integer	 ' holds value to determine if this is a child (1) sponsorship or project (2) sponsorship
+	Private _opportunitytype As Integer		 ' holds value to determine if this is a child (1) sponsorship or project (2) sponsorship
 	Private _processingSoleSponsorship As Boolean = False
 	Private _cacheSoleSponsorship As Boolean = False
 	Private _groupId As String
@@ -150,9 +150,9 @@ Public Class CompleteOrOverridePendingTransferFormUIModel
 		_programHelper = New SponsorshipGroupRestrictionsHelper(Me)
 
 		'If Me.DataFormInstanceId.Equals(New Guid(REASSIGNFORMID)) Then
-		'	_currentForm = CURRENTFORM.REASSIGN
+		'   _currentForm = CURRENTFORM.REASSIGN
 		'ElseIf Me.DataFormInstanceId.Equals(New Guid(TRANSFERFORMID)) OrElse Me.DataFormInstanceId.Equals(New Guid(OVERRIDETRANSFERFORMID)) Then
-		'	_currentForm = CURRENTFORM.TRANSFER
+		'   _currentForm = CURRENTFORM.TRANSFER
 		'End If
 
 		_initialLoadComplete = True
@@ -176,10 +176,6 @@ Public Class CompleteOrOverridePendingTransferFormUIModel
 		'Me.CREDITCARDSCHEDULECODEID.Visible = False
 		'Me.DIRECTDEBITSCHEDULECODEID.Visible = False
 
-		'turn off payment tab
-		Me.TAB_PAYMENT.Enabled = False
-		Me.TAB_EXPIRATION.Enabled = False
-
 		'this form is only used for transfers:
 		_currentForm = CURRENTFORM.TRANSFER
 
@@ -189,13 +185,19 @@ Public Class CompleteOrOverridePendingTransferFormUIModel
 		_overrideflag.Value = False
 		Me.OVERRIDEFLAG.Value = False
 
-		'turn off all override fields
-		SetOverrideFields(False)
-
+		'turn off tabs
+		Me.TAB_PAYMENT.Enabled = False
+		Me.TAB_EXPIRATION.Enabled = False
 		Me.TAB_SPONSORSHIP.Enabled = False
 
 		'override/completion doesn't use any payment information, only lets user pick a child.
-		'TurnOffPaymentFields()
+		TurnOffPaymentFields()
+
+		'turn off all override fields
+		SetOverrideFields(False)
+
+		'donor contact is always required:
+		Me.DONORCONTACTCODEID.Required = True
 
 
 	End Sub
@@ -206,13 +208,13 @@ Public Class CompleteOrOverridePendingTransferFormUIModel
 		'Me.TAB_PAYMENT.Enabled = False
 
 		'set the program field to "Individual Child Sponsorship"
-		Me.SPONSORSHIPPROGRAMID.SetValueFromLabel("Individual Child Sponsorship")
+		'Me.SPONSORSHIPPROGRAMID.SetValueFromLabel("Individual Child Sponsorship")
 
 		'disable the Remove button until a child is selected
 		Me.REMOVESELECTEDCHILD.Enabled = False
 
 		'If Not Me.REVENUESCHEDULESTARTDATE.HasValue Then
-		'	Me.REVENUESCHEDULESTARTDATE.Value = Date.Today.Date()
+		'   Me.REVENUESCHEDULESTARTDATE.Value = Date.Today.Date()
 		'End If
 		If Not Me.STARTDATE.HasValue Then
 			Me.STARTDATE.Value = Date.Today.Date()
@@ -294,13 +296,13 @@ Public Class CompleteOrOverridePendingTransferFormUIModel
 		'UpdateConstituentSearchAddForms() 'Do we need this?
 
 		'If ConditionSettingHelper.ConditionSettingExists("Multicurrency", Me.GetRequestContext()) AndAlso Not _isAffiliate Then
-		'	Me.TRANSACTIONCURRENCYID.Required = True
-		'	Me.TRANSACTIONCURRENCYID.Value = Me.BASECURRENCYID.Value
-		'	Me.BASEEXCHANGERATEID.Value = Nothing
-		'	Me.EXCHANGERATE.Value = 1D
+		'   Me.TRANSACTIONCURRENCYID.Required = True
+		'   Me.TRANSACTIONCURRENCYID.Value = Me.BASECURRENCYID.Value
+		'   Me.BASEEXCHANGERATEID.Value = Nothing
+		'   Me.EXCHANGERATE.Value = 1D
 		'Else
-		'	Me.CURRENCYACTION.Visible = False
-		'	Me.BASEAMOUNT.Visible = False
+		'   Me.CURRENCYACTION.Visible = False
+		'   Me.BASEAMOUNT.Visible = False
 		'End If
 
 		_amountSet = True
@@ -339,115 +341,115 @@ Public Class CompleteOrOverridePendingTransferFormUIModel
 	End Sub
 
 	'Private Sub HandleChangeFinancialSponsor()
-	'	If Me.GIFTRECIPIENT.Value AndAlso Me.REVENUECONSTITUENTID.Value = Me.SPONSORSHIPCONSTITUENTID.Value And Not Me.REVENUECONSTITUENTID.Value.Equals(Guid.Empty) Then
-	'		'User selected same financial sponsor and corresponding sponsor - this is not a gift sponsorship.
-	'		Me.SPONSORSHIPCONSTITUENTID.Enabled = False
-	'		Me.GIFTRECIPIENT.Value = False
-	'	End If
-	'	If ReadyForOpportunity() Then
-	'		HandleSponsorshipProgram(True, False)
-	'		If MatchValid() Then
-	'			MatchOpportunity()
-	'		End If
-	'		SaveKeyValues()
-	'	Else
-	'		OpportunitySelectionEnableDisable(False)
-	'	End If
+	'   If Me.GIFTRECIPIENT.Value AndAlso Me.REVENUECONSTITUENTID.Value = Me.SPONSORSHIPCONSTITUENTID.Value And Not Me.REVENUECONSTITUENTID.Value.Equals(Guid.Empty) Then
+	'           'User selected same financial sponsor and corresponding sponsor - this is not a gift sponsorship.
+	'           Me.SPONSORSHIPCONSTITUENTID.Enabled = False
+	'           Me.GIFTRECIPIENT.Value = False
+	'   End If
+	'   If ReadyForOpportunity() Then
+	'           HandleSponsorshipProgram(True, False)
+	'           If MatchValid() Then
+	'                   MatchOpportunity()
+	'           End If
+	'           SaveKeyValues()
+	'   Else
+	'           OpportunitySelectionEnableDisable(False)
+	'   End If
 	'End Sub
 
 	'Private Sub _revenueconstituentid_ValueChanged(ByVal sender As Object, ByVal e As UIModeling.Core.ValueChangedEventArgs) Handles _revenueconstituentid.ValueChanged
-	'	If _initialLoadComplete AndAlso Not _changeEventFired Then
-	'		_changeEventFired = True
-	'		If Not Me.GIFTRECIPIENT.Value Then
-	'			Me.SPONSORSHIPCONSTITUENTID.Value = Me.REVENUECONSTITUENTID.Value
-	'			Me.SPONSORSHIPCONSTITUENTID.UpdateDisplayText(Me.REVENUECONSTITUENTID.Value)
-	'		End If
-	'		'Me.CONSTITUENTACCOUNTID.Value = Nothing
-	'		'Me.CONSTITUENTACCOUNTID.ResetDataSource()
-	'		'placeholder for when changing opportunity
-	'		' Commented out by Memphis to turn off the automatic finding of greatest need.
-	'		' We're forcing the user to click the Find button!
+	'   If _initialLoadComplete AndAlso Not _changeEventFired Then
+	'           _changeEventFired = True
+	'           If Not Me.GIFTRECIPIENT.Value Then
+	'                   Me.SPONSORSHIPCONSTITUENTID.Value = Me.REVENUECONSTITUENTID.Value
+	'                   Me.SPONSORSHIPCONSTITUENTID.UpdateDisplayText(Me.REVENUECONSTITUENTID.Value)
+	'           End If
+	'           'Me.CONSTITUENTACCOUNTID.Value = Nothing
+	'           'Me.CONSTITUENTACCOUNTID.ResetDataSource()
+	'           'placeholder for when changing opportunity
+	'           ' Commented out by Memphis to turn off the automatic finding of greatest need.
+	'           ' We're forcing the user to click the Find button!
 
-	'		'Memphis 9/25/12: trying to fix the default amount being set
-	'		'reset the amountset flag so it will be recalculated, since we're not changing the program
-	'		_amountSet = False
-	'		HandleSponsorshipProgram(True, False)
+	'           'Memphis 9/25/12: trying to fix the default amount being set
+	'           'reset the amountset flag so it will be recalculated, since we're not changing the program
+	'           _amountSet = False
+	'           HandleSponsorshipProgram(True, False)
 
-	'		'If CheckSelectedOpportunity("financial sponsor") = CHANGEOPPORTUNITY.YES Then
-	'		'	HandleChangeFinancialSponsor()
-	'		'End If
-	'		'
+	'           'If CheckSelectedOpportunity("financial sponsor") = CHANGEOPPORTUNITY.YES Then
+	'           '   HandleChangeFinancialSponsor()
+	'           'End If
+	'           '
 
-	'		_changeEventFired = False
-	'	End If
+	'           _changeEventFired = False
+	'   End If
 	'End Sub
 	'Private Sub HandleChangeCorrespondingSponsor()
-	'	If Me.REVENUECONSTITUENTID.Value = Me.SPONSORSHIPCONSTITUENTID.Value And Not Me.SPONSORSHIPCONSTITUENTID.Value.Equals(Guid.Empty) Then
-	'		'User selected same financial sponsor and corresponding sponsor - this is not a gift sponsorship.
-	'		SPONSORSHIPCONSTITUENTID.Enabled = False
-	'		Me.GIFTRECIPIENT.Value = False
-	'	End If
-	'	If ReadyForOpportunity() Then
-	'		HandleSponsorshipProgram(True, False)
-	'		If MatchValid() Then
-	'			MatchOpportunity()
-	'		End If
-	'		SaveKeyValues()
-	'	Else
-	'		OpportunitySelectionEnableDisable(False)
-	'	End If
+	'   If Me.REVENUECONSTITUENTID.Value = Me.SPONSORSHIPCONSTITUENTID.Value And Not Me.SPONSORSHIPCONSTITUENTID.Value.Equals(Guid.Empty) Then
+	'           'User selected same financial sponsor and corresponding sponsor - this is not a gift sponsorship.
+	'           SPONSORSHIPCONSTITUENTID.Enabled = False
+	'           Me.GIFTRECIPIENT.Value = False
+	'   End If
+	'   If ReadyForOpportunity() Then
+	'           HandleSponsorshipProgram(True, False)
+	'           If MatchValid() Then
+	'                   MatchOpportunity()
+	'           End If
+	'           SaveKeyValues()
+	'   Else
+	'           OpportunitySelectionEnableDisable(False)
+	'   End If
 	'End Sub
 
 	'Private Sub _sponsorshipconstituentid_ValueChanged(ByVal sender As Object, ByVal e As UIModeling.Core.ValueChangedEventArgs) Handles _sponsorshipconstituentid.ValueChanged
-	'	If _initialLoadComplete AndAlso Not _changeEventFired Then
-	'		_changeEventFired = True
-	'		If CheckSelectedOpportunity("corresponding sponsor") = CHANGEOPPORTUNITY.YES Then
-	'			HandleChangeCorrespondingSponsor()
-	'		End If
-	'		_changeEventFired = False
-	'	End If
-	'	If _initialLoadComplete Then
-	'		'check if this sponsor is valid based on the constituency code rules and whether or not this is a prospect sponsorship:
-	'		ValidateSponsorConstituency(Me.SPONSORSHIPCONSTITUENTID.Value)
-	'	End If
+	'   If _initialLoadComplete AndAlso Not _changeEventFired Then
+	'           _changeEventFired = True
+	'           If CheckSelectedOpportunity("corresponding sponsor") = CHANGEOPPORTUNITY.YES Then
+	'                   HandleChangeCorrespondingSponsor()
+	'           End If
+	'           _changeEventFired = False
+	'   End If
+	'   If _initialLoadComplete Then
+	'           'check if this sponsor is valid based on the constituency code rules and whether or not this is a prospect sponsorship:
+	'           ValidateSponsorConstituency(Me.SPONSORSHIPCONSTITUENTID.Value)
+	'   End If
 	'End Sub
 
 	'Private Sub _giftrecipient_ValueChanged(ByVal sender As Object, ByVal e As UIModeling.Core.ValueChangedEventArgs) Handles _giftrecipient.ValueChanged
-	'	If _initialLoadComplete AndAlso Not _changeEventFired Then
-	'		_changeEventFired = True
-	'		If Me.GIFTRECIPIENT.Value Then
-	'			Me.SPONSORSHIPCONSTITUENTID.Enabled = True
-	'			Me.SPONSORSHIPCONSTITUENTID.Value = Nothing
-	'			Me.SPONSORSHIPCONSTITUENTID.UpdateDisplayText()
-	'			OpportunitySelectionEnableDisable(False)
-	'		Else
-	'			Me.SPONSORSHIPCONSTITUENTID.Enabled = False
-	'			Me.SPONSORSHIPCONSTITUENTID.Value = Me.REVENUECONSTITUENTID.Value
-	'			Me.SPONSORSHIPCONSTITUENTID.UpdateDisplayText(Me.REVENUECONSTITUENTID.Value)
-	'			If CheckSelectedOpportunity("gift recipient") = CHANGEOPPORTUNITY.YES Then
-	'				HandleChangeGiftRecipient()
-	'			End If
-	'		End If
-	'		_changeEventFired = False
-	'	End If
+	'   If _initialLoadComplete AndAlso Not _changeEventFired Then
+	'           _changeEventFired = True
+	'           If Me.GIFTRECIPIENT.Value Then
+	'                   Me.SPONSORSHIPCONSTITUENTID.Enabled = True
+	'                   Me.SPONSORSHIPCONSTITUENTID.Value = Nothing
+	'                   Me.SPONSORSHIPCONSTITUENTID.UpdateDisplayText()
+	'                   OpportunitySelectionEnableDisable(False)
+	'           Else
+	'                   Me.SPONSORSHIPCONSTITUENTID.Enabled = False
+	'                   Me.SPONSORSHIPCONSTITUENTID.Value = Me.REVENUECONSTITUENTID.Value
+	'                   Me.SPONSORSHIPCONSTITUENTID.UpdateDisplayText(Me.REVENUECONSTITUENTID.Value)
+	'                   If CheckSelectedOpportunity("gift recipient") = CHANGEOPPORTUNITY.YES Then
+	'                           HandleChangeGiftRecipient()
+	'                   End If
+	'           End If
+	'           _changeEventFired = False
+	'   End If
 	'End Sub
 	'Private Sub HandleChangeGiftRecipient()
-	'	If ReadyForOpportunity() Then
-	'		HandleSponsorshipProgram(True, False)
-	'		If MatchValid() Then
-	'			MatchOpportunity()
-	'		ElseIf Not Me.MATCHEDOPPORTUNITYID.Value.Equals(Guid.Empty) Then
-	'			' commented by Memphis so the greatest need search isn't ever disabled:
-	'			'Me.SPONSORSHIPLOCATIONID.Enabled = False
-	'			'Me.SPROPPAGERANGEID.Enabled = False
-	'			'Me.GENDERCODE.Enabled = False
-	'			'Me.ISORPHANEDCODE.Enabled = False
-	'			'Me.ISHIVPOSITIVECODE.Enabled = False
-	'			'Me.HASCONDITIONCODE.Enabled = False
-	'			'Me.SPROPPPROJECTCATEGORYCODEID.Enabled = False
-	'		End If
-	'		SaveKeyValues()
-	'	End If
+	'   If ReadyForOpportunity() Then
+	'           HandleSponsorshipProgram(True, False)
+	'           If MatchValid() Then
+	'                   MatchOpportunity()
+	'           ElseIf Not Me.MATCHEDOPPORTUNITYID.Value.Equals(Guid.Empty) Then
+	'                   ' commented by Memphis so the greatest need search isn't ever disabled:
+	'                   'Me.SPONSORSHIPLOCATIONID.Enabled = False
+	'                   'Me.SPROPPAGERANGEID.Enabled = False
+	'                   'Me.GENDERCODE.Enabled = False
+	'                   'Me.ISORPHANEDCODE.Enabled = False
+	'                   'Me.ISHIVPOSITIVECODE.Enabled = False
+	'                   'Me.HASCONDITIONCODE.Enabled = False
+	'                   'Me.SPROPPPROJECTCATEGORYCODEID.Enabled = False
+	'           End If
+	'           SaveKeyValues()
+	'   End If
 	'End Sub
 
 	Private Sub _sponsorshipprogramid_ValueChanged(ByVal sender As Object, ByVal e As UIModeling.Core.ValueChangedEventArgs) Handles _sponsorshipprogramid.ValueChanged
@@ -483,10 +485,10 @@ Public Class CompleteOrOverridePendingTransferFormUIModel
 	End Sub
 	Private Function ReadyForOpportunity() As Boolean
 		Return _initialLoadComplete AndAlso _
-			Not String.IsNullOrEmpty(Me.REVENUECONSTITUENTID.SearchDisplayText) AndAlso _
-			Not String.IsNullOrEmpty(Me.SPONSORSHIPCONSTITUENTID.SearchDisplayText) AndAlso _
-			Me.SPONSORSHIPPROGRAMID.Enabled AndAlso _
-			Not Me.SPONSORSHIPPROGRAMID.Value.Equals(Guid.Empty)
+				Not String.IsNullOrEmpty(Me.REVENUECONSTITUENTID.SearchDisplayText) AndAlso _
+				Not String.IsNullOrEmpty(Me.SPONSORSHIPCONSTITUENTID.SearchDisplayText) AndAlso _
+				Me.SPONSORSHIPPROGRAMID.Enabled AndAlso _
+				Not Me.SPONSORSHIPPROGRAMID.Value.Equals(Guid.Empty)
 	End Function
 
 	Private Sub SaveKeyValues()
@@ -882,7 +884,7 @@ Public Class CompleteOrOverridePendingTransferFormUIModel
 		End If
 
 		If Not overwriteValues AndAlso Not Me.SPONSORSHIPOPPORTUNITYIDCHILD.Value.Equals(Guid.Empty) _
-				OrElse Not Me.SPONSORSHIPOPPORTUNITYIDPROJECT.Value.Equals(Guid.Empty) Then
+						OrElse Not Me.SPONSORSHIPOPPORTUNITYIDPROJECT.Value.Equals(Guid.Empty) Then
 			If Me.SPONSORSHIPPROGRAMID.Enabled Then
 				OpportunitySelectionEnableDisable(True)
 			Else
@@ -1094,12 +1096,12 @@ Public Class CompleteOrOverridePendingTransferFormUIModel
 
 
 	'Private Sub _removeselectedchild_InvokeAction(ByVal sender As Object, ByVal e As UIModeling.Core.InvokeActionEventArgs) Handles _removeselectedchild.InvokeAction
-	'	'delete the selected child
-	'	Dim childId As Guid = New Guid(Me.CHILDREN.Selection.ActiveRecord.NAME.Value.ToString())
-	'	Me.CHILDREN.Selection.Delete()
-	'	If Not childId = Guid.Empty Then
-	'		DeleteChildSelectionLock(childId)
-	'	End If
+	'   'delete the selected child
+	'   Dim childId As Guid = New Guid(Me.CHILDREN.Selection.ActiveRecord.NAME.Value.ToString())
+	'   Me.CHILDREN.Selection.Delete()
+	'   If Not childId = Guid.Empty Then
+	'           DeleteChildSelectionLock(childId)
+	'   End If
 	'End Sub
 
 	Private Sub ClearMatchedOpportunity()
@@ -1115,7 +1117,7 @@ Public Class CompleteOrOverridePendingTransferFormUIModel
 		Else
 			EnableCriteriaField(Me.SPROPPPROJECTCATEGORYCODEID)
 		End If
-		Me.FINDOPPORTUNITY.Caption = "Find"	'BUTTONLABEL_MATCH"
+		Me.FINDOPPORTUNITY.Caption = "Find"	  'BUTTONLABEL_MATCH"
 		Me.MATCHEDOPPORTUNITYID.Value = Nothing
 		Me.MOPPORTUNITYIMAGE.Visible = True
 		Me.MOPPORTUNITYIMAGE.ValueDisplayStyle = ValueDisplayStyle.WarningImageAndText
@@ -1158,23 +1160,23 @@ Public Class CompleteOrOverridePendingTransferFormUIModel
 
 	Private Sub SponsorshipAddFormUIModel_Saving(ByVal sender As Object, ByVal e As UIModeling.Core.SavingEventArgs) Handles Me.Saving
 		'If _currentForm = CURRENTFORM.REASSIGN Then
-		'	_tempBatchNumber = _batchnumber
-		'	Me.Fields.Remove(_batchnumber)
+		'   _tempBatchNumber = _batchnumber
+		'   Me.Fields.Remove(_batchnumber)
 		'End If
 	End Sub
 
 	'Private Sub SponsorshipAddFormUIModel_Canceling(ByVal sender As Object, ByVal e As UIModeling.Core.CancelingEventArgs) Handles Me.Canceling
-	'	Try
-	'		'need to unlock any children in the children selected list collection field
-	'		'CALL UNLOCK CHILD HERE
-	'		'Memphis 8/23/12: need to unlock the children that are in the selected list, if any
-	'		' so the following method was updated to do that
-	'		UnlockSelectedChildren()
-	'		' Memphis 8/23/12: take out this call, it's been moved to the method above:
-	'		'lockHelper.UnlockOpportunity(GetOpportunity(), Me.GetRequestContext)
-	'	Catch ex As ServiceException
-	'		Throw New ServiceException("unlocked")
-	'	End Try
+	'   Try
+	'           'need to unlock any children in the children selected list collection field
+	'           'CALL UNLOCK CHILD HERE
+	'           'Memphis 8/23/12: need to unlock the children that are in the selected list, if any
+	'           ' so the following method was updated to do that
+	'           UnlockSelectedChildren()
+	'           ' Memphis 8/23/12: take out this call, it's been moved to the method above:
+	'           'lockHelper.UnlockOpportunity(GetOpportunity(), Me.GetRequestContext)
+	'   Catch ex As ServiceException
+	'           Throw New ServiceException("unlocked")
+	'   End Try
 	'End Sub
 
 	Private Sub SponsorshipAddFormUIModel_Validating(ByVal sender As Object, ByVal e As UIModeling.Core.ValidatingEventArgs) Handles Me.Validating
@@ -1190,14 +1192,14 @@ Public Class CompleteOrOverridePendingTransferFormUIModel
 		' Memphis 9/21/12 removed this per requirements from Pamela
 		'FundraiserId is required if there's an Appeal
 		'If (Me.APPEALID.HasValue) AndAlso (Not Me.APPEALID.Value.Equals(Guid.Empty)) Then
-		'	'check for a fundraiserId
-		'	If (Me.FUNDRAISERID.HasValue) AndAlso (Not Me.FUNDRAISERID.Value.Equals(Guid.Empty)) Then
-		'		'ok
-		'	Else
-		'		e.Valid = False
-		'		e.InvalidFieldName = "FUNDRAISER"
-		'		e.InvalidReason = "You must select a Fundraiser if you have selected an Appeal."
-		'	End If
+		'   'check for a fundraiserId
+		'   If (Me.FUNDRAISERID.HasValue) AndAlso (Not Me.FUNDRAISERID.Value.Equals(Guid.Empty)) Then
+		'           'ok
+		'   Else
+		'           e.Valid = False
+		'           e.InvalidFieldName = "FUNDRAISER"
+		'           e.InvalidReason = "You must select a Fundraiser if you have selected an Appeal."
+		'   End If
 		'End If
 	End Sub
 
@@ -1259,56 +1261,56 @@ Public Class CompleteOrOverridePendingTransferFormUIModel
 #Region "Payment Tab"
 
 	'Private Sub UpdatePaymentFieldsEnabled()
-	'	'credit card and direct debit fields are only enabled if auto-paying
+	'   'credit card and direct debit fields are only enabled if auto-paying
 
-	'	Dim b = Me.AUTOPAY.Value AndAlso (Me.REVENUECONSTITUENTID.Value <> Guid.Empty OrElse _currentForm = CURRENTFORM.REASSIGN) AndAlso Not _isAffiliate
+	'   Dim b = Me.AUTOPAY.Value AndAlso (Me.REVENUECONSTITUENTID.Value <> Guid.Empty OrElse _currentForm = CURRENTFORM.REASSIGN) AndAlso Not _isAffiliate
 
-	'	If _currentForm = CURRENTFORM.TRANSFER Then
-	'		b = False
-	'	End If
+	'   If _currentForm = CURRENTFORM.TRANSFER Then
+	'           b = False
+	'   End If
 
-	'	Me.PAYMENTMETHODCODE.Enabled = b
+	'   Me.PAYMENTMETHODCODE.Enabled = b
 
-	'	Me.CREDITTYPECODEID.Enabled = b
-	'	Me.CREDITCARDNUMBER.Enabled = b
-	'	Me.CARDHOLDERNAME.Enabled = b
-	'	Me.EXPIRESON.Enabled = b
+	'   Me.CREDITTYPECODEID.Enabled = b
+	'   Me.CREDITCARDNUMBER.Enabled = b
+	'   Me.CARDHOLDERNAME.Enabled = b
+	'   Me.EXPIRESON.Enabled = b
 
-	'	Me.REFERENCEDATE.Enabled = b
-	'	Me.REFERENCENUMBER.Enabled = b
-	'	Me.CONSTITUENTACCOUNTID.Enabled = b
+	'   Me.REFERENCEDATE.Enabled = b
+	'   Me.REFERENCENUMBER.Enabled = b
+	'   Me.CONSTITUENTACCOUNTID.Enabled = b
 
 	'End Sub
 
 	'Private Sub UpdatePaymentFieldsRequired()
-	'	Dim b = Me.AUTOPAY.Value
+	'   Dim b = Me.AUTOPAY.Value
 
-	'	'Account is required if auto-paying by direct debit
-	'	Me.CONSTITUENTACCOUNTID.Required = (b AndAlso _
-	'	 (Me.PAYMENTMETHODCODE.Value = PledgeAddFormUIModel.PAYMENTMETHODCODES.DirectDebit))
+	'   'Account is required if auto-paying by direct debit
+	'   Me.CONSTITUENTACCOUNTID.Required = (b AndAlso _
+	'    (Me.PAYMENTMETHODCODE.Value = PledgeAddFormUIModel.PAYMENTMETHODCODES.DirectDebit))
 	'End Sub
 
 	'Private Sub UpdatePaymentFieldsVisible()
-	'	Me.CREDITTYPECODEID.Visible = False
-	'	Me.CREDITCARDNUMBER.Visible = False
-	'	Me.CARDHOLDERNAME.Visible = False
-	'	Me.EXPIRESON.Visible = False
-	'	Me.REFERENCEDATE.Visible = False
-	'	Me.REFERENCENUMBER.Visible = False
-	'	Me.CONSTITUENTACCOUNTID.Visible = False
+	'   Me.CREDITTYPECODEID.Visible = False
+	'   Me.CREDITCARDNUMBER.Visible = False
+	'   Me.CARDHOLDERNAME.Visible = False
+	'   Me.EXPIRESON.Visible = False
+	'   Me.REFERENCEDATE.Visible = False
+	'   Me.REFERENCENUMBER.Visible = False
+	'   Me.CONSTITUENTACCOUNTID.Visible = False
 
-	'	Select Case Me.PAYMENTMETHODCODE.Value
-	'		Case PAYMENTMETHODCODES.CreditCard
-	'			Me.CREDITTYPECODEID.Visible = True
-	'			Me.CREDITCARDNUMBER.Visible = True
-	'			Me.CARDHOLDERNAME.Visible = True
-	'			Me.EXPIRESON.Visible = True
+	'   Select Case Me.PAYMENTMETHODCODE.Value
+	'           Case PAYMENTMETHODCODES.CreditCard
+	'                   Me.CREDITTYPECODEID.Visible = True
+	'                   Me.CREDITCARDNUMBER.Visible = True
+	'                   Me.CARDHOLDERNAME.Visible = True
+	'                   Me.EXPIRESON.Visible = True
 
-	'		Case PAYMENTMETHODCODES.DirectDebit
-	'			Me.REFERENCEDATE.Visible = True
-	'			Me.REFERENCENUMBER.Visible = True
-	'			Me.CONSTITUENTACCOUNTID.Visible = True
-	'	End Select
+	'           Case PAYMENTMETHODCODES.DirectDebit
+	'                   Me.REFERENCEDATE.Visible = True
+	'                   Me.REFERENCENUMBER.Visible = True
+	'                   Me.CONSTITUENTACCOUNTID.Visible = True
+	'   End Select
 	'End Sub
 
 	Private Sub UpdatePaymentFieldsValues()
@@ -1331,74 +1333,74 @@ Public Class CompleteOrOverridePendingTransferFormUIModel
 
 	'Private Sub PopulateMarketingFieldsFromSourceCode(ByVal code As String)
 
-	'	Dim request As New DataFormLoadRequest()
-	'	request.FormID = New Guid("A2D70B98-EE76-4812-9DC7-36D4F8E18C65") ' SourceCodeMapSearch.View.xml
-	'	request.RecordID = code
-	'	request.SecurityContext = Me.GetRequestSecurityContext()
+	'   Dim request As New DataFormLoadRequest()
+	'   request.FormID = New Guid("A2D70B98-EE76-4812-9DC7-36D4F8E18C65") ' SourceCodeMapSearch.View.xml
+	'   request.RecordID = code
+	'   request.SecurityContext = Me.GetRequestSecurityContext()
 
-	'	Dim reply As DataFormLoadReply = Nothing
+	'   Dim reply As DataFormLoadReply = Nothing
 
-	'	Try
-	'		Dim svc = New AppFxWebService(Me.GetRequestContext())
-	'		reply = svc.DataFormLoad(request)
-	'	Catch eat As Exception
-	'		' yum!
-	'	End Try
+	'   Try
+	'           Dim svc = New AppFxWebService(Me.GetRequestContext())
+	'           reply = svc.DataFormLoad(request)
+	'   Catch eat As Exception
+	'           ' yum!
+	'   End Try
 
-	'	If Not reply Is Nothing Then
-	'		_sourcecode.Value = code
+	'   If Not reply Is Nothing Then
+	'           _sourcecode.Value = code
 
-	'		reply.DataFormItem.TryGetValue("APPEALID", Me.APPEALID.Value)
-	'		Me.APPEALID.UpdateDisplayText()
+	'           reply.DataFormItem.TryGetValue("APPEALID", Me.APPEALID.Value)
+	'           Me.APPEALID.UpdateDisplayText()
 
-	'		reply.DataFormItem.TryGetValue("SEGMENTATIONID", Me.MAILINGID.Value)
-	'		Me.MAILINGID.UpdateDisplayText()
-	'	End If
+	'           reply.DataFormItem.TryGetValue("SEGMENTATIONID", Me.MAILINGID.Value)
+	'           Me.MAILINGID.UpdateDisplayText()
+	'   End If
 
 	'End Sub
 
 	'Private Sub EnableFieldsForConstituent()
-	'	Dim hasConstituent = (_revenueconstituentid.Value <> Guid.Empty OrElse _currentForm = CURRENTFORM.REASSIGN) AndAlso Not _isAffiliate
+	'   Dim hasConstituent = (_revenueconstituentid.Value <> Guid.Empty OrElse _currentForm = CURRENTFORM.REASSIGN) AndAlso Not _isAffiliate
 
-	'	With Me
-	'		.AMOUNT.Enabled = hasConstituent
-	'		If _currentForm = CURRENTFORM.TRANSFER Then
-	'			.AUTOPAY.Enabled = False
-	'		Else
-	'			.AUTOPAY.Enabled = hasConstituent
-	'		End If
-	'		.FREQUENCYCODE.Enabled = hasConstituent
-	'		.REVENUESCHEDULESTARTDATE.Enabled = hasConstituent
-	'		.SOURCECODE.Enabled = hasConstituent
-	'		.SOURCECODELOOKUP.Enabled = hasConstituent
-	'		.APPEALID.Enabled = hasConstituent
-	'		.MAILINGID.Enabled = hasConstituent
-	'		.CHANNELCODEID.Enabled = hasConstituent
-	'		.REFERENCE.Enabled = hasConstituent
-	'		.CATEGORYCODEID.Enabled = hasConstituent
-	'		.INSTALLMENTS.Enabled = hasConstituent
-	'		.SENDREMINDER.Enabled = hasConstituent
-	'		.CURRENCYACTION.Enabled = hasConstituent
-	'		.BASEAMOUNT.Enabled = hasConstituent
-	'		.DONOTACKNOWLEDGE.Enabled = hasConstituent
-	'		'9/12/12 Memphis added
-	'		'.FUNDRAISERID.Enabled = hasConstituent
-	'	End With
+	'   With Me
+	'           .AMOUNT.Enabled = hasConstituent
+	'           If _currentForm = CURRENTFORM.TRANSFER Then
+	'                   .AUTOPAY.Enabled = False
+	'           Else
+	'                   .AUTOPAY.Enabled = hasConstituent
+	'           End If
+	'           .FREQUENCYCODE.Enabled = hasConstituent
+	'           .REVENUESCHEDULESTARTDATE.Enabled = hasConstituent
+	'           .SOURCECODE.Enabled = hasConstituent
+	'           .SOURCECODELOOKUP.Enabled = hasConstituent
+	'           .APPEALID.Enabled = hasConstituent
+	'           .MAILINGID.Enabled = hasConstituent
+	'           .CHANNELCODEID.Enabled = hasConstituent
+	'           .REFERENCE.Enabled = hasConstituent
+	'           .CATEGORYCODEID.Enabled = hasConstituent
+	'           .INSTALLMENTS.Enabled = hasConstituent
+	'           .SENDREMINDER.Enabled = hasConstituent
+	'           .CURRENCYACTION.Enabled = hasConstituent
+	'           .BASEAMOUNT.Enabled = hasConstituent
+	'           .DONOTACKNOWLEDGE.Enabled = hasConstituent
+	'           '9/12/12 Memphis added
+	'           '.FUNDRAISERID.Enabled = hasConstituent
+	'   End With
 
-	'	UpdatePaymentFieldsEnabled()
+	'   UpdatePaymentFieldsEnabled()
 	'End Sub
 
 	'Private Sub ValidateInstallments()
-	'	Dim lastDate As DateTime = Me.REVENUESCHEDULESTARTDATE.Value
+	'   Dim lastDate As DateTime = Me.REVENUESCHEDULESTARTDATE.Value
 
-	'	For Each installment In Me.INSTALLMENTS.Value
-	'		'make sure that the installments are in date order
-	'		If installment.DATE.Value < lastDate Then
-	'			Throw New Global.Blackbaud.AppFx.UIModeling.Core.InvalidUIModelException("Installment dates are out of sequence.", Me.INSTALLMENTS)
-	'		Else
-	'			lastDate = installment.DATE.Value
-	'		End If
-	'	Next
+	'   For Each installment In Me.INSTALLMENTS.Value
+	'           'make sure that the installments are in date order
+	'           If installment.DATE.Value < lastDate Then
+	'                   Throw New Global.Blackbaud.AppFx.UIModeling.Core.InvalidUIModelException("Installment dates are out of sequence.", Me.INSTALLMENTS)
+	'           Else
+	'                   lastDate = installment.DATE.Value
+	'           End If
+	'   Next
 	'End Sub
 
 	Private Shared Function CreateInstallment(ByVal scheduleDate As Date, ByVal amount As Decimal) As SponsorshipAddFormWrappedINSTALLMENTSUIModel
@@ -1440,7 +1442,7 @@ Public Class CompleteOrOverridePendingTransferFormUIModel
 		request.Parameters.SetValue("FROMCURRENCYID", Me.TRANSACTIONCURRENCYID.Value)
 		request.Parameters.SetValue("TOCURRENCYID", Me.BASECURRENCYID.Value)
 		request.Parameters.SetValue("ENDDATE", Me.STARTDATE.Value)
-		request.Parameters.SetValue("TYPECODE", 1)	'Only look for daily rates.
+		request.Parameters.SetValue("TYPECODE", 1)	  'Only look for daily rates.
 
 		Dim svc = New AppFxWebService(Me.GetRequestContext())
 		Dim reply = svc.DataListLoad(request)
@@ -1455,49 +1457,49 @@ Public Class CompleteOrOverridePendingTransferFormUIModel
 	End Sub
 
 	'Private Sub _appealid_Search(ByVal sender As Object, ByVal e As UIModeling.Core.SearchEventArgs) Handles _appealid.Search
-	'	Dim searchModel = TryCast(e.SearchModel, RevenueAppealSearchUIModel)
-	'	If searchModel IsNot Nothing AndAlso _revenueconstituentid.Value <> Guid.Empty Then
-	'		searchModel.CONSTITUENTID.Value = _revenueconstituentid.Value
-	'	End If
+	'   Dim searchModel = TryCast(e.SearchModel, RevenueAppealSearchUIModel)
+	'   If searchModel IsNot Nothing AndAlso _revenueconstituentid.Value <> Guid.Empty Then
+	'           searchModel.CONSTITUENTID.Value = _revenueconstituentid.Value
+	'   End If
 	'End Sub
 
 	'Private Sub _autopay_ValueChanged(ByVal sender As Object, ByVal e As UIModeling.Core.ValueChangedEventArgs) Handles _autopay.ValueChanged
-	'	UpdatePaymentFieldsEnabled()
-	'	UpdatePaymentFieldsRequired()
+	'   UpdatePaymentFieldsEnabled()
+	'   UpdatePaymentFieldsRequired()
 	'End Sub
 
 	'Private Sub _frequencycode_ValueChanged(ByVal sender As Object, ByVal e As UIModeling.Core.ValueChangedEventArgs) Handles _frequencycode.ValueChanged
-	'	If Not Loading Then
-	'		LoadInstallments()
-	'	End If
+	'   If Not Loading Then
+	'           LoadInstallments()
+	'   End If
 	'End Sub
 
 	'Private Sub _paymentmethodcode_ValueChanged(ByVal sender As Object, ByVal e As UIModeling.Core.ValueChangedEventArgs) Handles _paymentmethodcode.ValueChanged
-	'	If Not Loading Then
-	'		UpdatePaymentFieldsVisible()
-	'		UpdatePaymentFieldsRequired()
-	'		'If e.NewValue.Equals("Credit Card") Then
-	'		'	Me.CREDITCARDSCHEDULECODEID.Visible = True
-	'		'	Me.CREDITCARDSCHEDULECODEID.Enabled = True
-	'		'Else
-	'		'	Me.DIRECTDEBITSCHEDULECODEID.Visible = True
-	'		'	Me.DIRECTDEBITSCHEDULECODEID.Enabled = True
-	'		'End If
-	'	End If
+	'   If Not Loading Then
+	'           UpdatePaymentFieldsVisible()
+	'           UpdatePaymentFieldsRequired()
+	'           'If e.NewValue.Equals("Credit Card") Then
+	'           '   Me.CREDITCARDSCHEDULECODEID.Visible = True
+	'           '   Me.CREDITCARDSCHEDULECODEID.Enabled = True
+	'           'Else
+	'           '   Me.DIRECTDEBITSCHEDULECODEID.Visible = True
+	'           '   Me.DIRECTDEBITSCHEDULECODEID.Enabled = True
+	'           'End If
+	'   End If
 	'End Sub
 
 	'Private Sub _startdate_ValueChanged(ByVal sender As Object, ByVal e As UIModeling.Core.ValueChangedEventArgs) Handles _startdate.ValueChanged
-	'	If Me.TRANSACTIONCURRENCYID.Value <> Guid.Empty AndAlso Me.BASECURRENCYID.Value <> Guid.Empty AndAlso Me.STARTDATE.HasValue() _
-	'	 AndAlso Me.BASEEXCHANGERATEID.Value <> Guid.Empty AndAlso Me.BASEEXCHANGERATEID.Value <> _spotRateID Then
+	'   If Me.TRANSACTIONCURRENCYID.Value <> Guid.Empty AndAlso Me.BASECURRENCYID.Value <> Guid.Empty AndAlso Me.STARTDATE.HasValue() _
+	'    AndAlso Me.BASEEXCHANGERATEID.Value <> Guid.Empty AndAlso Me.BASEEXCHANGERATEID.Value <> _spotRateID Then
 
-	'		SetBaseExchangeRate()
-	'	End If
+	'           SetBaseExchangeRate()
+	'   End If
 	'End Sub
 
 	'Private Sub _revenueschedulestartdate_ValueChanged(ByVal sender As Object, ByVal e As UIModeling.Core.ValueChangedEventArgs) Handles _revenueschedulestartdate.ValueChanged
-	'	If Not Loading Then
-	'		LoadInstallments()
-	'	End If
+	'   If Not Loading Then
+	'           LoadInstallments()
+	'   End If
 	'End Sub
 
 	Private Sub _revenuescheduleenddate_ValueChanged(ByVal sender As Object, ByVal e As UIModeling.Core.ValueChangedEventArgs) Handles _revenuescheduleenddate.ValueChanged
@@ -1508,98 +1510,98 @@ Public Class CompleteOrOverridePendingTransferFormUIModel
 
 	'Private Sub _sourcecode_ValueChanged(ByVal sender As Object, ByVal e As UIModeling.Core.ValueChangedEventArgs) Handles _sourcecode.ValueChanged
 
-	'	If Not String.IsNullOrEmpty(_sourcecode.Value) Then
-	'		Dim request As New SearchListLoadRequest()
-	'		request.SearchListID = New Guid("EF764BB7-FDF0-45C2-A50F-294BF460F200")	' SourceCodeMap.Search.xml
-	'		request.SecurityContext = Me.GetRequestSecurityContext()
-	'		request.Filter = New DataFormItem
-	'		request.Filter.SetValue("SOURCECODE", _sourcecode.Value)
-	'		request.Filter.SetValue("EXACTMATCHONLY", True)
-	'		request.Filter.SetValue("INCLUDEMARKETINGEFFORTCODES", True)
-	'		request.Filter.SetValue("INCLUDEWHITEMAILCODES", True)
-	'		request.Filter.SetValue("INCLUDEINACTIVEWHITEMAILCODES", True)
-	'		request.MaxRecords = 2
+	'   If Not String.IsNullOrEmpty(_sourcecode.Value) Then
+	'           Dim request As New SearchListLoadRequest()
+	'           request.SearchListID = New Guid("EF764BB7-FDF0-45C2-A50F-294BF460F200")       ' SourceCodeMap.Search.xml
+	'           request.SecurityContext = Me.GetRequestSecurityContext()
+	'           request.Filter = New DataFormItem
+	'           request.Filter.SetValue("SOURCECODE", _sourcecode.Value)
+	'           request.Filter.SetValue("EXACTMATCHONLY", True)
+	'           request.Filter.SetValue("INCLUDEMARKETINGEFFORTCODES", True)
+	'           request.Filter.SetValue("INCLUDEWHITEMAILCODES", True)
+	'           request.Filter.SetValue("INCLUDEINACTIVEWHITEMAILCODES", True)
+	'           request.MaxRecords = 2
 
-	'		Dim reply As SearchListLoadReply = SearchListLoad(request, Me.GetRequestContext())
+	'           Dim reply As SearchListLoadReply = SearchListLoad(request, Me.GetRequestContext())
 
-	'		If Not reply Is Nothing AndAlso Not reply.Output Is Nothing AndAlso reply.Output.RowCount = 1 Then
-	'			PopulateMarketingFieldsFromSourceCode(reply.Output.Rows(0).Values(1))
-	'		End If
-	'	End If
+	'           If Not reply Is Nothing AndAlso Not reply.Output Is Nothing AndAlso reply.Output.RowCount = 1 Then
+	'                   PopulateMarketingFieldsFromSourceCode(reply.Output.Rows(0).Values(1))
+	'           End If
+	'   End If
 
 	'End Sub
 
 	'Private Sub _sourcecodelookup_Search(ByVal sender As Object, ByVal e As UIModeling.Core.SearchEventArgs) Handles _sourcecodelookup.Search
 
-	'	With DirectCast(e.SearchModel, SourceCodeMapSearchUIModel)
-	'		.SOURCECODE.Value = _sourcecode.Value
-	'		.CONSTITUENTID.Value = _revenueconstituentid.Value
-	'		.CONSTITUENTID.UpdateDisplayText()
-	'		.NAME.Value = _mailingid.SearchDisplayText
-	'	End With
+	'   With DirectCast(e.SearchModel, SourceCodeMapSearchUIModel)
+	'           .SOURCECODE.Value = _sourcecode.Value
+	'           .CONSTITUENTID.Value = _revenueconstituentid.Value
+	'           .CONSTITUENTID.UpdateDisplayText()
+	'           .NAME.Value = _mailingid.SearchDisplayText
+	'   End With
 
 	'End Sub
 
 	'Private Sub _sourcecodelookup_SearchItemSelected(ByVal sender As Object, ByVal e As UIModeling.Core.SearchItemSelectedEventArgs) Handles _sourcecodelookup.SearchItemSelected
 
-	'	If Not String.IsNullOrEmpty(e.SelectedId) Then
-	'		PopulateMarketingFieldsFromSourceCode(e.SelectedId)
-	'	End If
+	'   If Not String.IsNullOrEmpty(e.SelectedId) Then
+	'           PopulateMarketingFieldsFromSourceCode(e.SelectedId)
+	'   End If
 
 	'End Sub
 
 	'Private Sub _mailingid_SearchItemSelected(ByVal sender As Object, ByVal e As UIModeling.Core.SearchItemSelectedEventArgs) Handles _mailingid.SearchItemSelected
-	'	PaymentHelper.SetAppealIDFromMailingID(e.SelectedId, _appealid, Me.GetRequestSecurityContext, Me.GetRequestContext)
+	'   PaymentHelper.SetAppealIDFromMailingID(e.SelectedId, _appealid, Me.GetRequestSecurityContext, Me.GetRequestContext)
 	'End Sub
 
 	'Private Sub _currencyaction_CustomFormConfirmed(ByVal sender As Object, ByVal e As UIModeling.Core.CustomFormConfirmedEventArgs) Handles _currencyaction.CustomFormConfirmed
-	'	Dim model = TryCast(e.Model, CurrencyFormUIModel)
-	'	If model Is Nothing Then Exit Sub
+	'   Dim model = TryCast(e.Model, CurrencyFormUIModel)
+	'   If model Is Nothing Then Exit Sub
 
-	'	Me.TRANSACTIONCURRENCYID.Value = model.TRANSACTIONCURRENCYID.Value
-	'	Me.BASEEXCHANGERATEID.Value = model.BASEEXCHANGERATEID.Value
-	'	Me.EXCHANGERATE.Value = model.EXCHANGERATE.Value
+	'   Me.TRANSACTIONCURRENCYID.Value = model.TRANSACTIONCURRENCYID.Value
+	'   Me.BASEEXCHANGERATEID.Value = model.BASEEXCHANGERATEID.Value
+	'   Me.EXCHANGERATE.Value = model.EXCHANGERATE.Value
 	'End Sub
 
 	'Private Sub _currencyaction_InvokeAction(ByVal sender As Object, ByVal e As UIModeling.Core.ShowCustomFormEventArgs) Handles _currencyaction.InvokeAction
-	'	Dim model = TryCast(e.Model, CurrencyFormUIModel)
-	'	If model Is Nothing Then Exit Sub
+	'   Dim model = TryCast(e.Model, CurrencyFormUIModel)
+	'   If model Is Nothing Then Exit Sub
 
-	'	model.AMOUNT.Value = Me.AMOUNT.Value
-	'	model.DATE.Value = Me.STARTDATE.Value
-	'	model.BASECURRENCYID.Value = Me.BASECURRENCYID.Value
-	'	model.TRANSACTIONCURRENCYDROPDOWN.Value = Me.TRANSACTIONCURRENCYID.Value
-	'	model.TRANSACTIONCURRENCYDROPDOWN.Required = True
-	'	model.TRANSACTIONCURRENCYLABEL.Visible = False
-	'	model.BASEEXCHANGERATEID.Value = Me.BASEEXCHANGERATEID.Value
-	'	model.EXCHANGERATE.Value = Me.EXCHANGERATE.Value
+	'   model.AMOUNT.Value = Me.AMOUNT.Value
+	'   model.DATE.Value = Me.STARTDATE.Value
+	'   model.BASECURRENCYID.Value = Me.BASECURRENCYID.Value
+	'   model.TRANSACTIONCURRENCYDROPDOWN.Value = Me.TRANSACTIONCURRENCYID.Value
+	'   model.TRANSACTIONCURRENCYDROPDOWN.Required = True
+	'   model.TRANSACTIONCURRENCYLABEL.Visible = False
+	'   model.BASEEXCHANGERATEID.Value = Me.BASEEXCHANGERATEID.Value
+	'   model.EXCHANGERATE.Value = Me.EXCHANGERATE.Value
 
 	'End Sub
 
 	'Private Sub _exchangerate_ValueChanged(ByVal sender As Object, ByVal e As UIModeling.Core.ValueChangedEventArgs) Handles _exchangerate.ValueChanged
-	'	UpdateBaseAmount()
+	'   UpdateBaseAmount()
 	'End Sub
 
 	'Private Sub _transactioncurrencyid_ValueChanged(ByVal sender As Object, ByVal e As UIModeling.Core.ValueChangedEventArgs) Handles _transactioncurrencyid.ValueChanged
-	'	'Pass the selected currency everywhere it's needed to ensure proper formatting.
-	'	Dim transactionCurrencyID As Guid = Me.TRANSACTIONCURRENCYID.Value
+	'   'Pass the selected currency everywhere it's needed to ensure proper formatting.
+	'   Dim transactionCurrencyID As Guid = Me.TRANSACTIONCURRENCYID.Value
 
-	'	For Each installment In Me.INSTALLMENTS.Value
-	'		installment.TRANSACTIONCURRENCYID.Value = transactionCurrencyID
-	'	Next
-	'	Me.INSTALLMENTS.DefaultItem.TRANSACTIONCURRENCYID.Value = transactionCurrencyID
+	'   For Each installment In Me.INSTALLMENTS.Value
+	'           installment.TRANSACTIONCURRENCYID.Value = transactionCurrencyID
+	'   Next
+	'   Me.INSTALLMENTS.DefaultItem.TRANSACTIONCURRENCYID.Value = transactionCurrencyID
 
 	'End Sub
 
 
 	'Private Sub _amount_ValueChanged(ByVal sender As Object, ByVal e As UIModeling.Core.ValueChangedEventArgs) Handles _amount.ValueChanged
-	'	If Not Loading Then
-	'		For Each row In _installments.Value
-	'			row.AMOUNT.Value = _amount.Value
-	'		Next
-	'	End If
+	'   If Not Loading Then
+	'           For Each row In _installments.Value
+	'                   row.AMOUNT.Value = _amount.Value
+	'           Next
+	'   End If
 
-	'	UpdateBaseAmount()
+	'   UpdateBaseAmount()
 	'End Sub
 
 	Private Sub _plannedenddate_ValueChanged(ByVal sender As Object, ByVal e As UIModeling.Core.ValueChangedEventArgs) Handles _plannedenddate.ValueChanged
@@ -1682,12 +1684,12 @@ Public Class CompleteOrOverridePendingTransferFormUIModel
 
 
 	'Private Sub ChildrenSelected_ListChanged(ByVal sender As Object, ByVal e As RemovingItemEventArgs)
-	'	' check if there's a child, or an empty row because the collection field can have an empty row if user escapes out of adding a new one.
-	'	If Not e.Item.Fields("NAME").ValueObject.ToString() = Guid.Empty.ToString() Then
-	'		If DeleteChildSelectionLock(New Guid(e.Item.Fields("NAME").ValueObject.ToString())) Then
-	'			DisplayPrompt("Child lock was removed.")
-	'		End If
-	'	End If
+	'   ' check if there's a child, or an empty row because the collection field can have an empty row if user escapes out of adding a new one.
+	'   If Not e.Item.Fields("NAME").ValueObject.ToString() = Guid.Empty.ToString() Then
+	'           If DeleteChildSelectionLock(New Guid(e.Item.Fields("NAME").ValueObject.ToString())) Then
+	'                   DisplayPrompt("Child lock was removed.")
+	'           End If
+	'   End If
 	'End Sub
 
 	'Private Sub EnhancedRevenueBatchExtensionHandler_EmbeddedGridCellUpdated(ByVal sender As Object, ByVal e As Blackbaud.AppFx.Browser.Batch.BatchEmbeddedGridCellUpdateEventArgs) Handles Me.CollectionFieldChanged
@@ -1721,25 +1723,25 @@ Public Class CompleteOrOverridePendingTransferFormUIModel
 
 	Private Sub DisplayPrompt(ByVal message As String, ByVal buttonStyle As UIPromptButtonStyle)
 		Me.Prompts.Add(New UIPrompt() With { _
-			   .Text = message, _
-			   .ButtonStyle = buttonStyle})
+				   .Text = message, _
+				   .ButtonStyle = buttonStyle})
 	End Sub
 
 	Private Sub DisplayPrompt(ByVal message As String)
 		Me.Prompts.Add(New UIPrompt() With { _
-			   .Text = message, _
-			   .ButtonStyle = UIPromptButtonStyle.Ok})
+				   .Text = message, _
+				   .ButtonStyle = UIPromptButtonStyle.Ok})
 	End Sub
 
 	'Private Sub UnlockSelectedChildren()
-	'	'call the deletelock method for each child in list, if any
-	'	Dim selectedChildren As List(Of SponsorshipAddFormWrappedCHILDRENUIModel) = Me.CHILDREN.Value.ToList()
-	'	For Each child As SponsorshipAddFormWrappedCHILDRENUIModel In selectedChildren
-	'		If child.NAME.HasValue Then
-	'			DeleteChildSelectionLock(New Guid(child.NAME.Value.ToString()))
-	'			lockHelper.UnlockOpportunity(child.NAME.Value.ToString(), Me.GetRequestContext)
-	'		End If
-	'	Next
+	'   'call the deletelock method for each child in list, if any
+	'   Dim selectedChildren As List(Of SponsorshipAddFormWrappedCHILDRENUIModel) = Me.CHILDREN.Value.ToList()
+	'   For Each child As SponsorshipAddFormWrappedCHILDRENUIModel In selectedChildren
+	'           If child.NAME.HasValue Then
+	'                   DeleteChildSelectionLock(New Guid(child.NAME.Value.ToString()))
+	'                   lockHelper.UnlockOpportunity(child.NAME.Value.ToString(), Me.GetRequestContext)
+	'           End If
+	'   Next
 	'End Sub
 
 	Private Sub CancelPromptCallBack(ByVal sender As Object, ByVal e As UIPromptResponseEventArgs)
@@ -1751,105 +1753,105 @@ Public Class CompleteOrOverridePendingTransferFormUIModel
 	End Sub
 
 	'Private Sub ChildrenListVisible(ByVal visible As Boolean)
-	'	'children list panel
-	'	With Me
-	'		.CHILDREN.Visible = visible
-	'		.REMOVESELECTEDCHILD.Visible = visible
-	'	End With
+	'   'children list panel
+	'   With Me
+	'           .CHILDREN.Visible = visible
+	'           .REMOVESELECTEDCHILD.Visible = visible
+	'   End With
 	'End Sub
 
 	'Private Sub ChildrenListEnableDisable(ByVal enabled As Boolean)
-	'	With Me
-	'		.CHILDREN.Enabled = enabled
-	'		.REMOVESELECTEDCHILD.Enabled = enabled
-	'	End With
+	'   With Me
+	'           .CHILDREN.Enabled = enabled
+	'           .REMOVESELECTEDCHILD.Enabled = enabled
+	'   End With
 	'End Sub
 
 	'Private Sub ChildrenSelected_AddingNewRow(ByVal sender As Object, ByVal e As ListChangedEventArgs)
-	'	'lock the newly inserted row if this is an Add
-	'	If e.ListChangedType = ListChangedType.ItemAdded Then
-	'		' check the SourceEvent.PropertyName value for "Value" and get the new child's ID
-	'		' DirectCast(DirectCast(e,Blackbaud.AppFx.UIModeling.Core.CollectionFieldListChangedEventArgs).SourceEvent,
-	'		'Blackbaud.AppFx.UIModeling.Core.UIFieldChangedEventArgs).UIPropertyChangedEventArgs.PropertyName
+	'   'lock the newly inserted row if this is an Add
+	'   If e.ListChangedType = ListChangedType.ItemAdded Then
+	'           ' check the SourceEvent.PropertyName value for "Value" and get the new child's ID
+	'           ' DirectCast(DirectCast(e,Blackbaud.AppFx.UIModeling.Core.CollectionFieldListChangedEventArgs).SourceEvent,
+	'           'Blackbaud.AppFx.UIModeling.Core.UIFieldChangedEventArgs).UIPropertyChangedEventArgs.PropertyName
 
-	'		'After the user selects a Child, then the type will be different:
-	'		If TypeOf (e) Is Blackbaud.AppFx.UIModeling.Core.CollectionFieldListChangedEventArgs Then
-	'			If DirectCast(DirectCast(e, Blackbaud.AppFx.UIModeling.Core.CollectionFieldListChangedEventArgs).SourceEvent, Blackbaud.AppFx.UIModeling.Core.UIFieldChangedEventArgs).UIPropertyChangedEventArgs.PropertyName.ToString() = "Value" Then
-	'				Dim newChildId As Guid = New Guid(DirectCast(DirectCast(e, Blackbaud.AppFx.UIModeling.Core.CollectionFieldListChangedEventArgs).SourceEvent, Blackbaud.AppFx.UIModeling.Core.UIFieldChangedEventArgs).UIPropertyChangedEventArgs.NewValue.ToString())
-	'				LockThisChild(newChildId)
-	'				If Not Me.REMOVESELECTEDCHILD.Enabled Then
-	'					Me.REMOVESELECTEDCHILD.Enabled = True
-	'				End If
-	'			End If
-	'		End If
-	'	Else
-	'		'After the user selects a Child, then the type will be different:
-	'		If TypeOf (e) Is Blackbaud.AppFx.UIModeling.Core.CollectionFieldListChangedEventArgs Then
-	'			If DirectCast(DirectCast(e, Blackbaud.AppFx.UIModeling.Core.CollectionFieldListChangedEventArgs).SourceEvent, Blackbaud.AppFx.UIModeling.Core.UIFieldChangedEventArgs).UIPropertyChangedEventArgs.PropertyName.ToString() = "Value" Then
-	'				Dim newChildId As Guid = New Guid(DirectCast(DirectCast(e, Blackbaud.AppFx.UIModeling.Core.CollectionFieldListChangedEventArgs).SourceEvent, Blackbaud.AppFx.UIModeling.Core.UIFieldChangedEventArgs).UIPropertyChangedEventArgs.NewValue.ToString())
-	'				LockThisChild(newChildId)
-	'				If Not Me.REMOVESELECTEDCHILD.Enabled Then
-	'					Me.REMOVESELECTEDCHILD.Enabled = True
-	'				End If
-	'			End If
-	'		End If
-	'	End If
+	'           'After the user selects a Child, then the type will be different:
+	'           If TypeOf (e) Is Blackbaud.AppFx.UIModeling.Core.CollectionFieldListChangedEventArgs Then
+	'                   If DirectCast(DirectCast(e, Blackbaud.AppFx.UIModeling.Core.CollectionFieldListChangedEventArgs).SourceEvent, Blackbaud.AppFx.UIModeling.Core.UIFieldChangedEventArgs).UIPropertyChangedEventArgs.PropertyName.ToString() = "Value" Then
+	'                           Dim newChildId As Guid = New Guid(DirectCast(DirectCast(e, Blackbaud.AppFx.UIModeling.Core.CollectionFieldListChangedEventArgs).SourceEvent, Blackbaud.AppFx.UIModeling.Core.UIFieldChangedEventArgs).UIPropertyChangedEventArgs.NewValue.ToString())
+	'                           LockThisChild(newChildId)
+	'                           If Not Me.REMOVESELECTEDCHILD.Enabled Then
+	'                                   Me.REMOVESELECTEDCHILD.Enabled = True
+	'                           End If
+	'                   End If
+	'           End If
+	'   Else
+	'           'After the user selects a Child, then the type will be different:
+	'           If TypeOf (e) Is Blackbaud.AppFx.UIModeling.Core.CollectionFieldListChangedEventArgs Then
+	'                   If DirectCast(DirectCast(e, Blackbaud.AppFx.UIModeling.Core.CollectionFieldListChangedEventArgs).SourceEvent, Blackbaud.AppFx.UIModeling.Core.UIFieldChangedEventArgs).UIPropertyChangedEventArgs.PropertyName.ToString() = "Value" Then
+	'                           Dim newChildId As Guid = New Guid(DirectCast(DirectCast(e, Blackbaud.AppFx.UIModeling.Core.CollectionFieldListChangedEventArgs).SourceEvent, Blackbaud.AppFx.UIModeling.Core.UIFieldChangedEventArgs).UIPropertyChangedEventArgs.NewValue.ToString())
+	'                           LockThisChild(newChildId)
+	'                           If Not Me.REMOVESELECTEDCHILD.Enabled Then
+	'                                   Me.REMOVESELECTEDCHILD.Enabled = True
+	'                           End If
+	'                   End If
+	'           End If
+	'   End If
 
-	'	If e.ListChangedType = ListChangedType.ItemDeleted Then
-	'		'check the remove button
-	'		Me.REMOVESELECTEDCHILD.Enabled = Me.CHILDREN.HasValue
-	'	End If
+	'   If e.ListChangedType = ListChangedType.ItemDeleted Then
+	'           'check the remove button
+	'           Me.REMOVESELECTEDCHILD.Enabled = Me.CHILDREN.HasValue
+	'   End If
 
 	'End Sub
 
 	'Private Sub ChildrenSelected_ChildInserted(ByVal sender As Object, ByVal e As ValueChangedEventArgs)
-	'	If Not e.NewValue Is Nothing Then
-	'		Dim newChild As SponsorshipAddFormWrappedCHILDRENUIModel = DirectCast(e.NewValue, SponsorshipAddFormWrappedCHILDRENUIModel)
-	'	End If
+	'   If Not e.NewValue Is Nothing Then
+	'           Dim newChild As SponsorshipAddFormWrappedCHILDRENUIModel = DirectCast(e.NewValue, SponsorshipAddFormWrappedCHILDRENUIModel)
+	'   End If
 
 	'End Sub
 
 	'Private Sub _addselectedchild_InvokeAction(ByVal sender As Object, ByVal e As Blackbaud.AppFx.UIModeling.Core.InvokeActionEventArgs) Handles _addselectedchild.InvokeAction
-	'	'Add the child in the sponsorshipopportunitychild field to the Children list
-	'	If Me.SPONSORSHIPOPPORTUNITYIDCHILD.HasValue Then
-	'		LockThisChild(Me.SPONSORSHIPOPPORTUNITYIDCHILD.Value)
-	'		AddChildToList(Me.SPONSORSHIPOPPORTUNITYIDCHILD.Value())
-	'		Me.SPONSORSHIPOPPORTUNITYIDCHILD.Value = Nothing
-	'		Me.SPONSORSHIPOPPORTUNITYIDCHILD.UpdateDisplayText(String.Empty)
-	'		'Memphis 8/23
-	'		'Me.CLEARSEARCHACTION.Enabled = False
-	'	End If
+	'   'Add the child in the sponsorshipopportunitychild field to the Children list
+	'   If Me.SPONSORSHIPOPPORTUNITYIDCHILD.HasValue Then
+	'           LockThisChild(Me.SPONSORSHIPOPPORTUNITYIDCHILD.Value)
+	'           AddChildToList(Me.SPONSORSHIPOPPORTUNITYIDCHILD.Value())
+	'           Me.SPONSORSHIPOPPORTUNITYIDCHILD.Value = Nothing
+	'           Me.SPONSORSHIPOPPORTUNITYIDCHILD.UpdateDisplayText(String.Empty)
+	'           'Memphis 8/23
+	'           'Me.CLEARSEARCHACTION.Enabled = False
+	'   End If
 	'End Sub
 
 	'Private Sub AddChildToList()
-	'	'try to lock the child first, to ensure that this user can select the child for sponsorshp:
-	'	If Me.MATCHEDOPPORTUNITYID.HasValue Then
-	'		AddChildToList(New Guid(MATCHEDOPPORTUNITYID.Value.ToString()))
-	'		'Dim newChild As New SponsorshipAddFormWrappedCHILDRENUIModel()
-	'		'newChild.ID = New GuidField("ID") 'Guid.NewGuid()
-	'		'newChild.NAME = New SimpleDataListField(Of Guid) 'Me.SPONSORSHIPOPPORTUNITYIDCHILD
-	'		'newChild.NAME.Value =
-	'		'Me.CHILDREN.Value.Add(newChild)
-	'		'Me.REMOVESELECTEDCHILD.Enabled = True
-	'	End If
+	'   'try to lock the child first, to ensure that this user can select the child for sponsorshp:
+	'   If Me.MATCHEDOPPORTUNITYID.HasValue Then
+	'           AddChildToList(New Guid(MATCHEDOPPORTUNITYID.Value.ToString()))
+	'           'Dim newChild As New SponsorshipAddFormWrappedCHILDRENUIModel()
+	'           'newChild.ID = New GuidField("ID") 'Guid.NewGuid()
+	'           'newChild.NAME = New SimpleDataListField(Of Guid) 'Me.SPONSORSHIPOPPORTUNITYIDCHILD
+	'           'newChild.NAME.Value =
+	'           'Me.CHILDREN.Value.Add(newChild)
+	'           'Me.REMOVESELECTEDCHILD.Enabled = True
+	'   End If
 	'End Sub
 
 	'Private Sub AddChildToList(ByVal childId As Guid)
-	'	'try to lock the child first, to ensure that this user can select the child for sponsorshp:
-	'	Dim newChild As New SponsorshipAddFormWrappedCHILDRENUIModel()
-	'	'store the ID of the currently selected programid value
-	'	newChild.ID.Value = New Guid(_programid)  'New GuidField("ID") 'Guid.NewGuid()
-	'	newChild.NAME = New SimpleDataListField(Of Guid) 'Me.SPONSORSHIPOPPORTUNITYIDCHILD
-	'	newChild.LOOKUPID.Value = _lookupid
-	'	newChild.NAME.Value = childId
-	'	Me.CHILDREN.Value.Add(newChild)
-	'	Me.REMOVESELECTEDCHILD.Enabled = True
-	'	'turn on the payment tab
-	'	Me.TAB_PAYMENT.Enabled = True
+	'   'try to lock the child first, to ensure that this user can select the child for sponsorshp:
+	'   Dim newChild As New SponsorshipAddFormWrappedCHILDRENUIModel()
+	'   'store the ID of the currently selected programid value
+	'   newChild.ID.Value = New Guid(_programid)  'New GuidField("ID") 'Guid.NewGuid()
+	'   newChild.NAME = New SimpleDataListField(Of Guid) 'Me.SPONSORSHIPOPPORTUNITYIDCHILD
+	'   newChild.LOOKUPID.Value = _lookupid
+	'   newChild.NAME.Value = childId
+	'   Me.CHILDREN.Value.Add(newChild)
+	'   Me.REMOVESELECTEDCHILD.Enabled = True
+	'   'turn on the payment tab
+	'   Me.TAB_PAYMENT.Enabled = True
 
-	'	'manage the payment fields:
-	'	UpdatePaymentFieldsEnabled()
-	'	EnableFieldsForConstituent()
+	'   'manage the payment fields:
+	'   UpdatePaymentFieldsEnabled()
+	'   EnableFieldsForConstituent()
 
 	'End Sub
 
@@ -1884,26 +1886,26 @@ Public Class CompleteOrOverridePendingTransferFormUIModel
 
 
 	'Private Sub _pfmid_ValueChanged(ByVal sender As Object, ByVal e As Blackbaud.AppFx.UIModeling.Core.ValueChangedEventArgs) Handles _pfmid.ValueChanged
-	'	If _initialLoadComplete AndAlso Not _changeEventFired Then
-	'		_changeEventFired = True
-	'		'If Not Me.GIFTRECIPIENT.Value Then
-	'		'	Me.SPONSORSHIPCONSTITUENTID.Value = Me.REVENUECONSTITUENTID.Value
-	'		'	Me.SPONSORSHIPCONSTITUENTID.UpdateDisplayText(Me.REVENUECONSTITUENTID.Value)
-	'		'End If
-	'		'Me.CONSTITUENTACCOUNTID.Value = Nothing
-	'		'Me.CONSTITUENTACCOUNTID.ResetDataSource()
-	'		''placeholder for when changing opportunity
-	'		'' Commented out by Memphis to turn off the automatic finding of greatest need.
-	'		'' We're forcing the user to click the Find button!
-	'		''If CheckSelectedOpportunity("financial sponsor") = CHANGEOPPORTUNITY.YES Then
-	'		''    HandleChangeFinancialSponsor()
-	'		''End If
-	'		'_changeEventFired = False
-	'	End If
+	'   If _initialLoadComplete AndAlso Not _changeEventFired Then
+	'           _changeEventFired = True
+	'           'If Not Me.GIFTRECIPIENT.Value Then
+	'           '   Me.SPONSORSHIPCONSTITUENTID.Value = Me.REVENUECONSTITUENTID.Value
+	'           '   Me.SPONSORSHIPCONSTITUENTID.UpdateDisplayText(Me.REVENUECONSTITUENTID.Value)
+	'           'End If
+	'           'Me.CONSTITUENTACCOUNTID.Value = Nothing
+	'           'Me.CONSTITUENTACCOUNTID.ResetDataSource()
+	'           ''placeholder for when changing opportunity
+	'           '' Commented out by Memphis to turn off the automatic finding of greatest need.
+	'           '' We're forcing the user to click the Find button!
+	'           ''If CheckSelectedOpportunity("financial sponsor") = CHANGEOPPORTUNITY.YES Then
+	'           ''    HandleChangeFinancialSponsor()
+	'           ''End If
+	'           '_changeEventFired = False
+	'   End If
 	'End Sub
 
 	'Private Sub _appealid_SearchItemSelected(ByVal sender As Object, ByVal e As Blackbaud.AppFx.UIModeling.Core.SearchItemSelectedEventArgs) Handles _appealid.SearchItemSelected
-	'	PopulateFundraiserFromAppeal(e.SelectedId)
+	'   PopulateFundraiserFromAppeal(e.SelectedId)
 	'End Sub
 
 	Private Sub ValidateSponsorConstituency(ByVal constituentId As Guid)
@@ -1931,43 +1933,54 @@ Public Class CompleteOrOverridePendingTransferFormUIModel
 	End Sub
 
 	'Private Sub PopulateFundraiserFromAppeal(ByVal appealId As String)
-	'	' 9/13/12 Memphis moved the implementation to the SponsorshipHelper class:
-	'	If _sponsorshipHelper Is Nothing Then
-	'		_sponsorshipHelper = New SponsorshipHelper
-	'	End If
+	'   ' 9/13/12 Memphis moved the implementation to the SponsorshipHelper class:
+	'   If _sponsorshipHelper Is Nothing Then
+	'           _sponsorshipHelper = New SponsorshipHelper
+	'   End If
 
-	'	'this is where we'll try to find the Fundraiser constituentID for this Appeal:
-	'	Dim constituentId As Guid = _sponsorshipHelper.GetFundraiserForAppealId(New Guid(appealId), _securityContext, Me.GetRequestContext())
-	'	If Not constituentId.Equals(Guid.Empty) Then
-	'		Me.FUNDRAISERID.Value = constituentId
-	'		Me.FUNDRAISERID.UpdateDisplayText()
-	'	End If
+	'   'this is where we'll try to find the Fundraiser constituentID for this Appeal:
+	'   Dim constituentId As Guid = _sponsorshipHelper.GetFundraiserForAppealId(New Guid(appealId), _securityContext, Me.GetRequestContext())
+	'   If Not constituentId.Equals(Guid.Empty) Then
+	'           Me.FUNDRAISERID.Value = constituentId
+	'           Me.FUNDRAISERID.UpdateDisplayText()
+	'   End If
 
 	'End Sub
 
 	Private Sub SetOverrideFields(ByVal visibleEnable As Boolean)
 		Me.SPONSORSHIPOPPORTUNITYIDCHILD.Enabled = visibleEnable
 		Me.SPONSORSHIPOPPORTUNITYIDCHILD.Visible = visibleEnable
-		'Me.CHILDREN.Enabled = visibleEnable
-		'Me.CHILDREN.Visible = visibleEnable
 		Me.TAB_SPONSORSHIP.Enabled = visibleEnable
 		Me.TAB_SPONSORSHIP.Visible = visibleEnable
+
 		Me.SPONSORSHIPCONSTITUENTID.Visible = visibleEnable
-		Me.SPONSORSHIPCONSTITUENTID.Enabled = visibleEnable
+		Me.SPONSORSHIPCONSTITUENTID.Enabled = IIf(visibleEnable, Me.SPONSORSHIPCONSTITUENTID.Enabled, False)
+
 		Me.SPONSORSHIPREASONID.Visible = visibleEnable
-		Me.SPONSORSHIPREASONID.Enabled = visibleEnable
+		Me.SPONSORSHIPREASONID.Enabled = visibleEnable 'IIf(visibleEnable, Me.SPONSORSHIPREASONID.Enabled, False)
+		Me.SPONSORSHIPREASONID.Required = IIf(visibleEnable, Me.SPONSORSHIPREASONID.Required, False)
+
 		Me.REVENUECONSTITUENTID.Visible = visibleEnable
-		Me.REVENUECONSTITUENTID.Enabled = visibleEnable
+		Me.REVENUECONSTITUENTID.Enabled = IIf(visibleEnable, Me.REVENUECONSTITUENTID.Enabled, False)
+
 		Me.STARTDATE.Visible = visibleEnable
-		Me.STARTDATE.Enabled = visibleEnable
+		Me.STARTDATE.Enabled = IIf(visibleEnable, Me.STARTDATE.Enabled, False)
+
 		Me.FINDERNUMBER.Visible = visibleEnable
-		Me.FINDERNUMBER.Enabled = visibleEnable
+		Me.FINDERNUMBER.Enabled = IIf(visibleEnable, Me.FINDERNUMBER.Enabled, False)
+
 		Me.FINDERNUMBERSTRING.Visible = visibleEnable
-		Me.FINDERNUMBERSTRING.Enabled = visibleEnable
+		Me.FINDERNUMBERSTRING.Enabled = IIf(visibleEnable, Me.FINDERNUMBERSTRING.Enabled, False)
+
 		Me.GIFTRECIPIENT.Visible = visibleEnable
-		Me.GIFTRECIPIENT.Enabled = visibleEnable
+		Me.GIFTRECIPIENT.Enabled = IIf(visibleEnable, Me.GIFTRECIPIENT.Enabled, False)
+
 		Me.SPONSORSHIPCONSTITUENTID.Visible = visibleEnable
-		Me.SPONSORSHIPCONSTITUENTID.Enabled = visibleEnable
+		Me.SPONSORSHIPCONSTITUENTID.Enabled = IIf(visibleEnable, Me.SPONSORSHIPCONSTITUENTID.Enabled, False)
+
+		'turn off all child selection fields
+		MatchedOpportunityVisible(visibleEnable)
+		Me.SPONSORSHIPOPPORTUNITYIDCHILD.Visible = visibleEnable
 
 		If visibleEnable Then
 			Me.TAB_SPONSORSHIP.Select()
@@ -1981,6 +1994,8 @@ Public Class CompleteOrOverridePendingTransferFormUIModel
 		If _isoverride.HasValue Then
 			SetOverrideFields(_isoverride.Value)
 			Me.OVERRIDEFLAG.Value = _isoverride.Value
+			Me.SPONSORSHIPREASONID.Required = _isoverride.Value
+			Me.SPONSORSHIPOPPORTUNITYIDCHILD.Required = _isoverride.Value
 		End If
 	End Sub
 
@@ -1991,17 +2006,24 @@ Public Class CompleteOrOverridePendingTransferFormUIModel
 		Me.PAYMENTMETHODCODE.Required = False
 		Me.PAYMENTMETHODCODE.Visible = False
 		Me.CREDITTYPECODEID.Enabled = False
+		Me.CREDITTYPECODEID.Visible = False
 		Me.CREDITCARDNUMBER.Enabled = False
+		Me.CREDITCARDNUMBER.Visible = False
 		Me.CARDHOLDERNAME.Enabled = False
+		Me.CARDHOLDERNAME.Visible = False
 		Me.EXPIRESON.Enabled = False
+		Me.EXPIRESON.Visible = False
 		Me.REFERENCEDATE.Enabled = False
+		Me.REFERENCEDATE.Visible = False
 		Me.REFERENCENUMBER.Enabled = False
+		Me.REFERENCENUMBER.Visible = False
 		Me.CONSTITUENTACCOUNTID.Enabled = False
+		Me.CONSTITUENTACCOUNTID.Visible = False
 		Me.AUTOPAY.Value = False
 		Me.AUTOPAY.Enabled = False
 		Me.AUTOPAY.Visible = False
 		Me.ISFIXEDTERMSPONSORSHIP.Visible = False
-		Me.EXPIRESON.Visible = False
+		Me.ISFIXEDTERMSPONSORSHIP.Enabled = False
 		Me.EXPIRATIONREASONID.Visible = False
 		Me.PLANNEDENDDATE.Visible = False
 	End Sub
