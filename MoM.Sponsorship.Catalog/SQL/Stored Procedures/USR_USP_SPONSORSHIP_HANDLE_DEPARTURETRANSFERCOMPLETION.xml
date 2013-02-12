@@ -15,6 +15,7 @@
 	History:
 	Date            Modified By     Comments
 	30-Jan-2013		Memphis			Initial Version.
+	12-Feb-2013		Memphis			Fogbugz Case 976: wrong subcategory code in workflow doc. changed to 'Child Welcome Letter'
 	-->
 	
 	
@@ -334,7 +335,7 @@ begin try
 		@sponsorhipOpportunityChildID = @transferChildId,		-- The Constituent ID to create the interaction for
 		@summary = 'Transfer sponsorship complete',								-- The summary / objective of the interaction
 		@categoryName = 'Child Letters',							-- Name of the interaction category (not the guid)
-		@subcategoryName = 'Welcome Letter',						-- Name of the interaction subcategory (not the guid)
+		@subcategoryName = 'Child Welcome Letter',						-- Name of the interaction subcategory (not the guid)
 		@expectedDate = @currentDate,									-- Expected Date of the interaction
 		@owner = null,								-- Owner / Fundraiser assigned to the interaction 
 		@contactMethodDesc = 'Mail',						-- Email, Event, Mail, Phone, Task
