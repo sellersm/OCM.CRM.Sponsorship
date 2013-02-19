@@ -1098,7 +1098,7 @@ Partial Public Class [CompleteOrOverridePendingTransferFormUIModel]
 		'
 		_donorcontactcodeid.Name = "DONORCONTACTCODEID"
 		_donorcontactcodeid.Caption = "Donor Contact"
-		_donorcontactcodeid.CodeTableName = "USR_UNAVAILABLE_SPONSORSHIP_CONTACTCODE"
+		_donorcontactcodeid.CodeTableName = "USR_INTERACTIONEXTENSIONLETTERTYPECODE"
 		Me.Fields.Add(_donorcontactcodeid)
 
 		'

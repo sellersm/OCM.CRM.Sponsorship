@@ -16,6 +16,7 @@
 	Date            Modified By     Comments
 	30-Jan-2013		Memphis			Initial Version.
 	12-Feb-2013		Memphis			Fogbugz Case 976: wrong subcategory code in workflow doc. changed to 'Child Welcome Letter'
+	18-Feb-2013		Memphis			Fogbugz Case 977, 978, 979
 	-->
 	
 	
@@ -145,10 +146,12 @@ select @contactCodeDescription = [DESCRIPTION]
 from dbo.USR_INTERACTIONEXTENSIONLETTERTYPECODE
 where ID = @sponsorContactCodeId
 
-if lower(@contactCodeDescription) = lower('Contacted')
-	set @isSponsorContact = 1
-else
+
+-- *** MEMPHIS: LOOK AT THIS FOR THE FOGBUGZ ISSUE ***
+if lower(@contactCodeDescription) like '%not%'
 	set @isSponsorContact = 0
+else
+	set @isSponsorContact = 1
 
 select @contactedLetterTypeCodeId = ID
 from dbo.USR_INTERACTIONEXTENSIONLETTERTYPECODE
@@ -168,6 +171,26 @@ from dbo.USR_INTERACTIONEXTENSIONFULFILLMENTSTATUSCODE
 where LOWER([DESCRIPTION]) = LOWER('Pending')
 
 	begin try
+	
+	-- ensure we have all the values we need:
+	if @sponsorId is null
+		RAISERROR 1000000 'Sponsor is missing! Unable to continue.'
+		
+	if @transferSponsorshipId is null
+		RAISERROR 1000000 'Transfer Sponsorship ID is missing! Unable to continue.'
+		
+	if @departedSponsorshipId is null
+		RAISERROR 1000000 'Departed Sponsorship ID is missing! Unable to continue.'
+		
+	if @transferChildId is null
+		RAISERROR 1000000 'Transfer Child ID is missing! Unable to continue.'
+	
+	if @departedChildId is null
+		RAISERROR 1000000 'Departed Child ID is missing! Unable to continue.'
+		
+	if @sponsorContactCodeId is null
+		RAISERROR 1000000 'Donor Contact Type Code is missing! Unable to continue.'
+	
 	if @sponsoredInitialStatusId is null
 		RAISERROR 1000000 'Unable to locate the Initial Opportunity Sponsorship Status Code of Sponsored'
 		
@@ -225,7 +248,7 @@ where LOWER([DESCRIPTION]) = LOWER('Pending')
 end try
 begin catch
     exec dbo.USP_RAISE_ERROR
-	--return 1	
+	return 1	
 end catch
 	
 begin try
@@ -250,7 +273,38 @@ begin try
 	
 	declare @initialStatusText nvarchar(100) = null;
 	declare @currentStatusText nvarchar(100) = null;
+
+	-- fogbugz case 977: set the current sponsorship status of the departed child
+	-- Sponsored = Formerly  Sponsored
+	-- Unpaid Sponsored = Formerly Unpaid Sponsored
+	-- Prospect Sponsored = Formerly Prospect Sponsored
+	-- get the current sponsorship status of the departed child's sponsorship record:
+	declare @newDepartedCurrentSponsorshipStatusId uniqueidentifier;
+	declare @departedCurrentSponsorshipStatusId uniqueidentifier;
+	set @departedCurrentSponsorshipStatusId = dbo.USR_UFN_SPONSORSHIP_GETCURRENTOPPORTUNITYSTATUSCODEID(@departedSponsorshipId)
 	
+	-- figure out which status it is and then set the new one:
+	if @departedCurrentSponsorshipStatusId is not null
+		begin
+			-- check for Prospect Sponsored current status
+			if @departedCurrentSponsorshipStatusId = @prospectSponsoredCurrentStatusId
+				set @newDepartedCurrentSponsorshipStatusId = dbo.USR_UFN_CURRENTOPPORTUNITYSPONSORSHIPSTATUSCODE_GETID_FORDESCRIPTION('Formerly Prospect Sponsored')
+			
+			-- check for Unpaid Sponsored current status
+			if @departedCurrentSponsorshipStatusId = @unpaidSponsoredCurrentStatusId
+				set @newDepartedCurrentSponsorshipStatusId = dbo.USR_UFN_CURRENTOPPORTUNITYSPONSORSHIPSTATUSCODE_GETID_FORDESCRIPTION('Formerly Unpaid Sponsored')
+			
+			-- check for Sponsored current status
+			if @departedCurrentSponsorshipStatusId = @sponsoredCurrentStatusId
+				set @newDepartedCurrentSponsorshipStatusId = dbo.USR_UFN_CURRENTOPPORTUNITYSPONSORSHIPSTATUSCODE_GETID_FORDESCRIPTION('Formerly Sponsored')
+				
+			-- perform the update
+			update dbo.USR_SPONSORSHIPEXTENSION
+			set CURRENTOPPORTUNITYSPONSORSHIPSTATUSCODEID = @newDepartedCurrentSponsorshipStatusId
+			where ID = @departedSponsorshipId
+						
+		end
+
 	if @sponsorshipExtensionId is null
 		begin
 			-- set the opportunity status values:
@@ -325,10 +379,15 @@ begin try
 	- Status: Pending
 	- Contact Method: Mail
 	- Expected Date: today's date (getdate())
+	-- Fogbugz Case 979, from Pamela:
+	--  The child's interaction "Child Welcome Letter" needs to have an expected date of 2 months and last day of that month from today.
+	--  For example, if today is 2/13/13 then the expected date needs to be 4/30/13.
 	- Sponsor ID:  sponsor lookup id
 	*/
 	declare @childWelcomeLetterInteractionId uniqueidentifier;
 	declare @currentDate date = getdate();
+	declare @futureExpectedDate date;
+	select @futureExpectedDate = cast(DATEADD(s,-1,DATEADD(mm, DATEDIFF(m,0,GETDATE())+3,0)) as date);
 
 	exec dbo.USR_USP_INTERACTION_CHILDLETTER_ADD_PENDING
 		@id = @childWelcomeLetterInteractionId output,								-- This returns the ID of the interaction created
@@ -336,7 +395,7 @@ begin try
 		@summary = 'Transfer sponsorship complete',								-- The summary / objective of the interaction
 		@categoryName = 'Child Letters',							-- Name of the interaction category (not the guid)
 		@subcategoryName = 'Child Welcome Letter',						-- Name of the interaction subcategory (not the guid)
-		@expectedDate = @currentDate,									-- Expected Date of the interaction
+		@expectedDate = @futureExpectedDate,  --  @currentDate, Expected Date of the interaction
 		@owner = null,								-- Owner / Fundraiser assigned to the interaction 
 		@contactMethodDesc = 'Mail',						-- Email, Event, Mail, Phone, Task
 		@comment = 'Complete pending transfer',								-- Comment
@@ -414,7 +473,7 @@ begin try
 	declare @isPaidAhead bit = 0;
 
 	-- function returns a 1 if paid ahead, 0 if not:
-	set @isPaidAhead = dbo.USR_UFN_ISSPONSORSHIP_PAIDAHEAD('C42F9B97-CD0F-4278-9586-0C87DA6A6890') --@transferSponsorshipId)
+	set @isPaidAhead = dbo.USR_UFN_ISSPONSORSHIP_PAIDAHEAD(@departedSponsorshipId)
 
 	/* TESTING ONLY 
 	if @isPaidAhead = 1
@@ -443,10 +502,19 @@ begin try
 	if LOWER(@giftStatus) <> 'held'
 		begin
 			-- update the transfer recurring gift status to Active
-			--  *** FINISH THIS ***:
 			update dbo.REVENUESCHEDULE 
 			set STATUSCODE = 0 -- Active
 			where ID = @transferFinancialTransactionId
+			
+			-- Fogbugz Case 981:
+			-- remove the 'Held Recurring Gift' attribute for this record:
+			update dbo.ATTRIBUTE58705B2A658B4396A8F1BBC9003B9DCA
+			set ENDDATE = getdate()
+			where REVENUEID = @transferFinancialTransactionId -- @revenueId
+			and BOOLEANCODE = 1
+			and COMMENT = 'Departure hold'
+			--and ((STARTDATE is null) or (STARTDATE < GETDATE()))
+			--and ((ENDDATE is null) or (ENDDATE > GETDATE()))
 		end
 
 	/*
@@ -456,11 +524,6 @@ begin try
 	  - IF SPONSOR:
 		- Use the appropriate Subcategory letter, from workflow chart
 	*/
-
-
-	select *
-	from dbo.USR_CHILDDEPARTURE
-
 
 	select 
 		@DEPARTURE_DEATHOFCHILD = DEPARTURE_DEATHOFCHILD
@@ -489,7 +552,6 @@ begin try
 	declare @departureCheckDone bit = 0;
 	declare @deathOfChild bit = 0;
 	declare @adminDeparture bit = 0;
-
 
 	-- check for the easy cases first:
 	if @DEPARTURE_DEATHOFCHILD = 1
@@ -633,7 +695,7 @@ begin try
 	set @expectedDate = @currentDate;
 
 
-	declare @letterSubcategoryDesc nvarchar(100) = ''  -- holds the letter type description, set in the case below
+	declare @letterSubcategoryDesc nvarchar(100) = null  -- holds the letter type description, set in the case below
 
 	-- set the letter subcategory based on the rules from the workflow document:
 	select @letterSubcategoryDesc = 
@@ -642,6 +704,7 @@ begin try
 				when @isProspect = 1 and @adminDeparture = 1 then @letterType_ProjectClosure_Prospect
 				when @isProspect = 1 and @ISPROGRAMCOMPLETION = 1 then @letterType_ChildTransfer_Prospect
 				when @isProspect = 1 and @DEPARTURETYPECODE = 0 and @deathOfChild = 0 then @letterType_ChildTransfer_Prospect
+				when @isProspect = 1 and @adminDeparture = 1 and @ADMINISTRATIVECODEID <> @adminProjectClosureId then @letterType_ChildTransfer_Prospect
 				when @isProspect = 0 and @DEPARTURETYPECODE = 0 and @deathOfChild = 0 and @isPaidAhead = 1 then @letterType_ChildTransfer
 				when @isProspect = 0 and @DEPARTURETYPECODE = 0 and @deathOfChild = 0 and @isPaidAhead = 0 then @letterType_ChildTransfer_Unpaid
 				when @isProspect = 0 and @ISPROGRAMCOMPLETION = 1  and @isPaidAhead = 1 then @letterType_ProgramCompletion
@@ -652,9 +715,20 @@ begin try
 				when @isProspect = 0 and @deathOfChild = 1 and @isPaidAhead = 0 then @letterType_ChildTransfer_Unpaid 
 				when @isProspect = 0 and @adminDeparture = 1 and @ADMINISTRATIVECODEID <> @adminProjectClosureId and @isPaidAhead = 1 then @letterType_ChildTransfer
 				when @isProspect = 0 and @adminDeparture = 1 and @ADMINISTRATIVECODEID <> @adminProjectClosureId and @isPaidAhead = 0 then @letterType_ChildTransfer_Unpaid
-				when @isProspect = 1 and @adminDeparture = 1 and @ADMINISTRATIVECODEID <> @adminProjectClosureId then @letterType_ChildTransfer_Prospect
+				else @letterType_ChildTransfer
 			end)
 
+	if @letterSubcategoryDesc is null
+		RAISERROR 1000000 'Unable to set the correct Interaction Subcategory name. Unable to continue.'
+
+	-- Fogbugz 978: left out of workflow doc, 
+	-- if Autopay (eft) then eftBrochure Code is No, else Yes
+	declare @eftBrochureCode bit = 0;
+	
+	if dbo.USR_UFN_SPONSORSHIP_ISEFT(@departedSponsorshipId) = 1
+		set @eftBrochureCode = 0;
+	else
+		set @eftBrochureCode = 1;
 
 	--Use this to create the Sponsor interaction stuff:
 	exec dbo.USR_USP_INTERACTION_SPONSOR_ADD_PENDING 
@@ -669,7 +743,7 @@ begin try
 		@comment = 'Sponsorship transfer completed.',	
 		@letterTypeDesc = @letterTypeDesc,
 		@fulfillmentStatusDesc = 'Pending',
-		@eftBrochureCode = 0,
+		@eftBrochureCode = @eftBrochureCode,			
 		@resendCode = 0,
 		@changeAgentID = @changeAgentID			
 
@@ -701,12 +775,12 @@ begin try
 
 	return 0;
 
-	end try
+end try
 
-	begin catch
-		exec dbo.USP_RAISE_ERROR
-		return 1;
-	end catch
+begin catch
+	exec dbo.USP_RAISE_ERROR
+	return 1;
+end catch
 			
 
 end

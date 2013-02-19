@@ -1996,6 +1996,8 @@ Public Class CompleteOrOverridePendingTransferFormUIModel
 			Me.OVERRIDEFLAG.Value = _isoverride.Value
 			Me.SPONSORSHIPREASONID.Required = _isoverride.Value
 			Me.SPONSORSHIPOPPORTUNITYIDCHILD.Required = _isoverride.Value
+		Else
+			Me.OVERRIDEFLAG.Value = False
 		End If
 	End Sub
 
@@ -2028,4 +2030,9 @@ Public Class CompleteOrOverridePendingTransferFormUIModel
 		Me.PLANNEDENDDATE.Visible = False
 	End Sub
 
+	Private Sub _donorcontactcodeid_ValueChanged(ByVal sender As Object, ByVal e As Blackbaud.AppFx.UIModeling.Core.ValueChangedEventArgs) Handles _donorcontactcodeid.ValueChanged
+		If _donorcontactcodeid.HasValue Then
+			Me.DONORCONTACTCODEID.Value = _donorcontactcodeid.Value
+		End If
+	End Sub
 End Class
