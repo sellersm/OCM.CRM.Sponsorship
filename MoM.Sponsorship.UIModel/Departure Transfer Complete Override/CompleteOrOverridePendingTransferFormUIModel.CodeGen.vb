@@ -1104,17 +1104,18 @@ Partial Public Class [CompleteOrOverridePendingTransferFormUIModel]
 		'
 		'_isoverride
 		'
-		_isoverride.Name = "ISOVERRIDE"
-		_isoverride.Caption = "Override transfer"
-		_isoverride.DBReadOnly = True
-		Me.Fields.Add(_isoverride)
+		'_isoverride.Name = "ISOVERRIDE"
+		'_isoverride.Caption = "Override transfer"
+		'_isoverride.DBReadOnly = True
+		'Me.Fields.Add(_isoverride)
 
 		'
 		'_overrideflag
 		'
 		_overrideflag.Name = "OVERRIDEFLAG"
-		_overrideflag.Caption = "Override flag"
-		_overrideflag.DBReadOnly = True
+		_overrideflag.Caption = "Override transfer"
+		_overrideflag.Value = False
+		'_overrideflag.DBReadOnly = True
 		Me.Fields.Add(_overrideflag)
 
 		OnCreated()
