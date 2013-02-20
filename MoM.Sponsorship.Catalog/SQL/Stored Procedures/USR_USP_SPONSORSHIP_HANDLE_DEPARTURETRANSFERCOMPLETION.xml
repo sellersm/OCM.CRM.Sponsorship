@@ -17,6 +17,8 @@
 	30-Jan-2013		Memphis			Initial Version.
 	12-Feb-2013		Memphis			Fogbugz Case 976: wrong subcategory code in workflow doc. changed to 'Child Welcome Letter'
 	18-Feb-2013		Memphis			Fogbugz Case 977, 978, 979
+	19-Feb-2013		Memphis			Fogbugz Case 985, 987.
+	20-Feb-2013		Memphis			Fogbugz Case 988, 989, 990, 991
 	-->
 	
 	
@@ -116,7 +118,8 @@ declare @unpaidSponsoredCurrentStatusId uniqueidentifier = null; -- current 'Unp
 declare @prospectTransferInitialStatusId uniqueidentifier = null; -- initial 'Prospect Transfer'
 declare @prospectSponsoredCurrentStatusId uniqueidentifier = null; -- current 'Prospect Sponsored'
 declare @isPaidAheadOrActiveEFT bit = 0;
-
+declare @isEFTSponsorship bit = 0;
+declare @isPaidAhead bit = 0;
 
 -- letter types vars:
 declare @letterType_ChildTransfer_Prospect nvarchar(100) = 'Child Transfer Letter - Prospect'
@@ -132,7 +135,9 @@ declare @letterType_ProgramCompletion_Unpaid nvarchar(100) = 'Program Completion
 
 -- use this UFN to get the current status ID values: dbo.USR_UFN_CURRENTOPPORTUNITYSPONSORSHIPSTATUSCODE_GETID_FORDESCRIPTION
 -- use this UFN to get the initial status ID values: dbo.USR_UFN_INITIALOPPORTUNITYSPONSORSHIPSTATUSCODE_GETID_FORDESCRIPTION
-set @sponsoredInitialStatusId  = dbo.USR_UFN_INITIALOPPORTUNITYSPONSORSHIPSTATUSCODE_GETID_FORDESCRIPTION('Sponsored')
+--set @sponsoredInitialStatusId  = dbo.USR_UFN_INITIALOPPORTUNITYSPONSORSHIPSTATUSCODE_GETID_FORDESCRIPTION('Sponsored')
+-- Fogbugz Case 985: make the initial status to be 'Paid transfer' if this is paid:
+set @sponsoredInitialStatusId  = dbo.USR_UFN_INITIALOPPORTUNITYSPONSORSHIPSTATUSCODE_GETID_FORDESCRIPTION('Paid transfer')
 set @sponsoredCurrentStatusId = dbo.USR_UFN_CURRENTOPPORTUNITYSPONSORSHIPSTATUSCODE_GETID_FORDESCRIPTION('Sponsored')
 set @unpaidTransferInitialStatusId = dbo.USR_UFN_INITIALOPPORTUNITYSPONSORSHIPSTATUSCODE_GETID_FORDESCRIPTION('Unpaid Transfer')
 set @unpaidSponsoredCurrentStatusId = dbo.USR_UFN_CURRENTOPPORTUNITYSPONSORSHIPSTATUSCODE_GETID_FORDESCRIPTION('Unpaid Sponsored')
@@ -304,6 +309,23 @@ begin try
 			where ID = @departedSponsorshipId
 						
 		end
+		
+	-- Fogbugz 985: not correctly determining if this is a PaidAhead or an Active EFT sponsorship.
+	-- must use the departed sponsorshipID because the payment info is copied to the transferred (new) sponsorship:
+	set @isEFTSponsorship = dbo.USR_UFN_SPONSORSHIP_ISEFT(@departedSponsorshipId)
+	
+	-- to determine paid ahead, look at the past due amount, should be 0, ignore the NTD!
+	-- use this UFN:  USR_UFN_ISSPONSORSHIP_PAIDAHEAD(sponsorshipId)
+	-- function returns a 1 if paid ahead, 0 if not:
+	set @isPaidAhead = dbo.USR_UFN_ISSPONSORSHIP_PAIDAHEAD(@departedSponsorshipId)
+
+	-- for determining if this is paid ahead OR an active EFT
+	-- if this is paid ahead, don't do anything else, if it isn't, check if it's an active eft
+	if @isPaidAhead = 0
+		set @isPaidAheadOrActiveEFT = @isEFTSponsorship;
+	else
+		set @isPaidAheadOrActiveEFT = @isPaidAhead;
+	
 
 	if @sponsorshipExtensionId is null
 		begin
@@ -389,18 +411,22 @@ begin try
 	declare @futureExpectedDate date;
 	select @futureExpectedDate = cast(DATEADD(s,-1,DATEADD(mm, DATEDIFF(m,0,GETDATE())+3,0)) as date);
 
-	exec dbo.USR_USP_INTERACTION_CHILDLETTER_ADD_PENDING
-		@id = @childWelcomeLetterInteractionId output,								-- This returns the ID of the interaction created
-		@sponsorhipOpportunityChildID = @transferChildId,		-- The Constituent ID to create the interaction for
-		@summary = 'Transfer sponsorship complete',								-- The summary / objective of the interaction
-		@categoryName = 'Child Letters',							-- Name of the interaction category (not the guid)
-		@subcategoryName = 'Child Welcome Letter',						-- Name of the interaction subcategory (not the guid)
-		@expectedDate = @futureExpectedDate,  --  @currentDate, Expected Date of the interaction
-		@owner = null,								-- Owner / Fundraiser assigned to the interaction 
-		@contactMethodDesc = 'Mail',						-- Email, Event, Mail, Phone, Task
-		@comment = 'Complete pending transfer',								-- Comment
-		@sponsorID = @sponsorId,							-- Constituent ID of the sponsor the child is to write to
-		@changeAgentID = null	
+	-- Fogbugz case 987: only create child welcome letter for sponsor (not prospect sponsor):
+	if @isSponsor = 1
+		begin	
+			exec dbo.USR_USP_INTERACTION_CHILDLETTER_ADD_PENDING
+				@id = @childWelcomeLetterInteractionId output,								-- This returns the ID of the interaction created
+				@sponsorhipOpportunityChildID = @transferChildId,		-- The Constituent ID to create the interaction for
+				@summary = 'Transfer sponsorship complete',								-- The summary / objective of the interaction
+				@categoryName = 'Child Letters',							-- Name of the interaction category (not the guid)
+				@subcategoryName = 'Child Welcome Letter',						-- Name of the interaction subcategory (not the guid)
+				@expectedDate = @futureExpectedDate,  --  @currentDate, Expected Date of the interaction
+				@owner = null,								-- Owner / Fundraiser assigned to the interaction 
+				@contactMethodDesc = 'Mail',						-- Email, Event, Mail, Phone, Task
+				@comment = 'Complete pending transfer',								-- Comment
+				@sponsorID = @sponsorId,							-- Constituent ID of the sponsor the child is to write to
+				@changeAgentID = null	
+		end
 
 	/*
 	- Child have open reservation key?
@@ -467,20 +493,6 @@ begin try
 		end     
 
 
-	-- to determine paid ahead, look at the past due amount, should be 0, ignore the NTD!
-	-- use this dbo.UFN_RECURRINGGIFT_GETPASTDUEAMOUNT (f_trans.ID, getdate())
-	-- pass in the revenue id, and past due amount as of today 
-	declare @isPaidAhead bit = 0;
-
-	-- function returns a 1 if paid ahead, 0 if not:
-	set @isPaidAhead = dbo.USR_UFN_ISSPONSORSHIP_PAIDAHEAD(@departedSponsorshipId)
-
-	/* TESTING ONLY 
-	if @isPaidAhead = 1
-		print 'Paid ahead!';
-	else
-		print 'Not paid ahead';
-	*/
 
 	/*
 	4. UPdate recurring gift:
@@ -552,6 +564,7 @@ begin try
 	declare @departureCheckDone bit = 0;
 	declare @deathOfChild bit = 0;
 	declare @adminDeparture bit = 0;
+	declare @adminProjectClosure bit = 0;
 
 	-- check for the easy cases first:
 	if @DEPARTURE_DEATHOFCHILD = 1
@@ -568,11 +581,13 @@ begin try
 			if @adminProjectClosureId = @ADMINISTRATIVECODEID
 				begin		
 					set @adminDeparture = 1;
+					set @adminProjectClosure = 1;
 					set @departureCheckDone = 1;
 				end
 			else
 				begin
 					-- per Pamela, set the DepartureReason to DR16 – Other and DepartureReasonOther of “Administrative”
+					set @adminDeparture = 1;
 					set @departureReasonCodeText = 'DR16 - other'
 					set @DEPARTURE_OTHER = 'Administrative'
 					set @departureCheckDone = 1;  -- might need to set this to 0 so it's checked below?
@@ -701,20 +716,20 @@ begin try
 	select @letterSubcategoryDesc = 
 			(case 
 				when @isProspect = 1 and @deathOfChild = 1 then @letterType_ChildTransfer_Prospect 
-				when @isProspect = 1 and @adminDeparture = 1 then @letterType_ProjectClosure_Prospect
+				when @isProspect = 1 and @adminDeparture = 1 and @adminProjectClosure = 1 then @letterType_ProjectClosure_Prospect
 				when @isProspect = 1 and @ISPROGRAMCOMPLETION = 1 then @letterType_ChildTransfer_Prospect
 				when @isProspect = 1 and @DEPARTURETYPECODE = 0 and @deathOfChild = 0 then @letterType_ChildTransfer_Prospect
-				when @isProspect = 1 and @adminDeparture = 1 and @ADMINISTRATIVECODEID <> @adminProjectClosureId then @letterType_ChildTransfer_Prospect
+				when @isProspect = 1 and @adminDeparture = 1 and @adminProjectClosure = 0 then @letterType_ChildTransfer_Prospect
 				when @isProspect = 0 and @DEPARTURETYPECODE = 0 and @deathOfChild = 0 and @isPaidAhead = 1 then @letterType_ChildTransfer
 				when @isProspect = 0 and @DEPARTURETYPECODE = 0 and @deathOfChild = 0 and @isPaidAhead = 0 then @letterType_ChildTransfer_Unpaid
 				when @isProspect = 0 and @ISPROGRAMCOMPLETION = 1  and @isPaidAhead = 1 then @letterType_ProgramCompletion
 				when @isProspect = 0 and @ISPROGRAMCOMPLETION = 1  and @isPaidAhead = 0 then @letterType_ProgramCompletion_Unpaid
-				when @isProspect = 0 and @adminDeparture = 1 and @isPaidAhead = 1 then @letterType_ProjectClosure
-				when @isProspect = 0 and @adminDeparture = 1 and @isPaidAhead = 0 then @letterType_ProjectClosure_Unpaid
+				when @isProspect = 0 and @adminDeparture = 1 and @adminProjectClosure = 1 and @isPaidAhead = 1 then @letterType_ProjectClosure
+				when @isProspect = 0 and @adminDeparture = 1 and @adminProjectClosure = 1 and @isPaidAhead = 0 then @letterType_ProjectClosure_Unpaid
 				when @isProspect = 0 and @deathOfChild = 1 and @isPaidAhead = 1 then @letterType_ChildTransfer 
 				when @isProspect = 0 and @deathOfChild = 1 and @isPaidAhead = 0 then @letterType_ChildTransfer_Unpaid 
-				when @isProspect = 0 and @adminDeparture = 1 and @ADMINISTRATIVECODEID <> @adminProjectClosureId and @isPaidAhead = 1 then @letterType_ChildTransfer
-				when @isProspect = 0 and @adminDeparture = 1 and @ADMINISTRATIVECODEID <> @adminProjectClosureId and @isPaidAhead = 0 then @letterType_ChildTransfer_Unpaid
+				when @isProspect = 0 and @adminDeparture = 1 and @adminProjectClosure = 0 and @isPaidAhead = 1 then @letterType_ChildTransfer
+				when @isProspect = 0 and @adminDeparture = 1 and @adminProjectClosure = 0 and @isPaidAhead = 0 then @letterType_ChildTransfer_Unpaid
 				else @letterType_ChildTransfer
 			end)
 
@@ -724,8 +739,8 @@ begin try
 	-- Fogbugz 978: left out of workflow doc, 
 	-- if Autopay (eft) then eftBrochure Code is No, else Yes
 	declare @eftBrochureCode bit = 0;
-	
-	if dbo.USR_UFN_SPONSORSHIP_ISEFT(@departedSponsorshipId) = 1
+
+	if @isEFTSponsorship = 1
 		set @eftBrochureCode = 0;
 	else
 		set @eftBrochureCode = 1;
@@ -772,6 +787,20 @@ begin try
 				@sponsorshipOpportunityChildID = @transferChildId,
 				@changeAgentID = @changeAgentID 
 		end	
+
+	declare @financialTransactionId uniqueidentifier;
+
+	set @financialTransactionId = dbo.USR_UFN_GETFINANCIALTRANSACTIONID_FORSPONSORSHIP(@departedSponsorshipId)
+
+	-- Fogbugz Case 990: remove the Revenue Reference from the recurring gift, it's a not null varchar, 
+	--  so have to set it to an empty string:
+	if @financialTransactionId is not null
+		begin
+			update dbo.REVENUE_EXT
+			set REFERENCE = ''
+			where ID = @financialTransactionId
+		end
+
 
 	return 0;
 

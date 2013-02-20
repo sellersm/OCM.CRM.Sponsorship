@@ -180,8 +180,8 @@ Public Class CompleteOrOverridePendingTransferFormUIModel
 		_currentForm = CURRENTFORM.TRANSFER
 
 		'turn off the override, make user select it by choice:
-		Me.ISOVERRIDE.Value = False
-		_isoverride.Value = False
+		'Me.ISOVERRIDE.Value = False
+		'_isoverride.Value = False
 		_overrideflag.Value = False
 		Me.OVERRIDEFLAG.Value = False
 
@@ -1989,17 +1989,17 @@ Public Class CompleteOrOverridePendingTransferFormUIModel
 	End Sub
 
 
-	Private Sub _isoverride_ValueChanged(ByVal sender As Object, ByVal e As Blackbaud.AppFx.UIModeling.Core.ValueChangedEventArgs) Handles _isoverride.ValueChanged
-		'turn on or off the override fields based on checkbox value:
-		If _isoverride.HasValue Then
-			SetOverrideFields(_isoverride.Value)
-			Me.OVERRIDEFLAG.Value = _isoverride.Value
-			Me.SPONSORSHIPREASONID.Required = _isoverride.Value
-			Me.SPONSORSHIPOPPORTUNITYIDCHILD.Required = _isoverride.Value
-		Else
-			Me.OVERRIDEFLAG.Value = False
-		End If
-	End Sub
+	'Private Sub _isoverride_ValueChanged(ByVal sender As Object, ByVal e As Blackbaud.AppFx.UIModeling.Core.ValueChangedEventArgs) Handles _isoverride.ValueChanged
+	'	'turn on or off the override fields based on checkbox value:
+	'	If _isoverride.HasValue Then
+	'		SetOverrideFields(_isoverride.Value)
+	'		Me.OVERRIDEFLAG.Value = _isoverride.Value
+	'		Me.SPONSORSHIPREASONID.Required = _isoverride.Value
+	'		Me.SPONSORSHIPOPPORTUNITYIDCHILD.Required = _isoverride.Value
+	'	Else
+	'		Me.OVERRIDEFLAG.Value = False
+	'	End If
+	'End Sub
 
 	Private Sub TurnOffPaymentFields()
 		'Me.TAB_PAYMENT.Visible = False
@@ -2033,6 +2033,13 @@ Public Class CompleteOrOverridePendingTransferFormUIModel
 	Private Sub _donorcontactcodeid_ValueChanged(ByVal sender As Object, ByVal e As Blackbaud.AppFx.UIModeling.Core.ValueChangedEventArgs) Handles _donorcontactcodeid.ValueChanged
 		If _donorcontactcodeid.HasValue Then
 			Me.DONORCONTACTCODEID.Value = _donorcontactcodeid.Value
+		End If
+	End Sub
+
+	Private Sub _overrideflag_ValueChanged(ByVal sender As Object, ByVal e As Blackbaud.AppFx.UIModeling.Core.ValueChangedEventArgs) Handles _overrideflag.ValueChanged
+		If _overrideflag.HasValue Then
+			SetOverrideFields(_overrideflag.Value)
+			Me.OVERRIDEFLAG.Value = _overrideflag.Value
 		End If
 	End Sub
 End Class
