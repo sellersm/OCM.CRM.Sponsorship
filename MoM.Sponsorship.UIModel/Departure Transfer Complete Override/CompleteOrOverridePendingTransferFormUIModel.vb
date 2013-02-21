@@ -1072,6 +1072,11 @@ Public Class CompleteOrOverridePendingTransferFormUIModel
 				_lookupid = Me.MOPPORTUNITYLOOKUPID.Value.ToString()
 				'set the programid
 				_programid = Me.SPONSORSHIPPROGRAMID.Value.ToString()
+				' *MEMPHIS* 2/20/13 Fogbugz Case 993 to put matched child into "Override Child" search field:
+				Me.SPONSORSHIPOPPORTUNITYIDCHILD.Value = Me.MATCHEDOPPORTUNITYID.Value
+				_sponsorshipopportunityidchild.Value = Me.MATCHEDOPPORTUNITYID.Value
+				Me.SPONSORSHIPOPPORTUNITYIDCHILD.UpdateDisplayText()
+
 				'AddChildToList()
 			Else
 				DisplayPrompt("Unable to lock this selected child!")
@@ -1812,15 +1817,15 @@ Public Class CompleteOrOverridePendingTransferFormUIModel
 	'End Sub
 
 	'Private Sub _addselectedchild_InvokeAction(ByVal sender As Object, ByVal e As Blackbaud.AppFx.UIModeling.Core.InvokeActionEventArgs) Handles _addselectedchild.InvokeAction
-	'   'Add the child in the sponsorshipopportunitychild field to the Children list
-	'   If Me.SPONSORSHIPOPPORTUNITYIDCHILD.HasValue Then
-	'           LockThisChild(Me.SPONSORSHIPOPPORTUNITYIDCHILD.Value)
-	'           AddChildToList(Me.SPONSORSHIPOPPORTUNITYIDCHILD.Value())
-	'           Me.SPONSORSHIPOPPORTUNITYIDCHILD.Value = Nothing
-	'           Me.SPONSORSHIPOPPORTUNITYIDCHILD.UpdateDisplayText(String.Empty)
-	'           'Memphis 8/23
-	'           'Me.CLEARSEARCHACTION.Enabled = False
-	'   End If
+	'	'Add the child in the sponsorshipopportunitychild field to the Children list
+	'	If Me.SPONSORSHIPOPPORTUNITYIDCHILD.HasValue Then
+	'		LockThisChild(Me.SPONSORSHIPOPPORTUNITYIDCHILD.Value)
+	'		AddChildToList(Me.SPONSORSHIPOPPORTUNITYIDCHILD.Value())
+	'		Me.SPONSORSHIPOPPORTUNITYIDCHILD.Value = Nothing
+	'		Me.SPONSORSHIPOPPORTUNITYIDCHILD.UpdateDisplayText(String.Empty)
+	'		'Memphis 8/23
+	'		'Me.CLEARSEARCHACTION.Enabled = False
+	'	End If
 	'End Sub
 
 	'Private Sub AddChildToList()
@@ -1950,6 +1955,9 @@ Public Class CompleteOrOverridePendingTransferFormUIModel
 	Private Sub SetOverrideFields(ByVal visibleEnable As Boolean)
 		Me.SPONSORSHIPOPPORTUNITYIDCHILD.Enabled = visibleEnable
 		Me.SPONSORSHIPOPPORTUNITYIDCHILD.Visible = visibleEnable
+		' if overriding, they must select a child!
+		Me.SPONSORSHIPOPPORTUNITYIDCHILD.Required = IIf(visibleEnable, True, False)
+
 		Me.TAB_SPONSORSHIP.Enabled = visibleEnable
 		Me.TAB_SPONSORSHIP.Visible = visibleEnable
 
@@ -1958,7 +1966,8 @@ Public Class CompleteOrOverridePendingTransferFormUIModel
 
 		Me.SPONSORSHIPREASONID.Visible = visibleEnable
 		Me.SPONSORSHIPREASONID.Enabled = visibleEnable 'IIf(visibleEnable, Me.SPONSORSHIPREASONID.Enabled, False)
-		Me.SPONSORSHIPREASONID.Required = IIf(visibleEnable, Me.SPONSORSHIPREASONID.Required, False)
+		'if overriding, they must select a Reason!
+		Me.SPONSORSHIPREASONID.Required = IIf(visibleEnable, True, False)
 
 		Me.REVENUECONSTITUENTID.Visible = visibleEnable
 		Me.REVENUECONSTITUENTID.Enabled = IIf(visibleEnable, Me.REVENUECONSTITUENTID.Enabled, False)
@@ -1974,9 +1983,6 @@ Public Class CompleteOrOverridePendingTransferFormUIModel
 
 		Me.GIFTRECIPIENT.Visible = visibleEnable
 		Me.GIFTRECIPIENT.Enabled = IIf(visibleEnable, Me.GIFTRECIPIENT.Enabled, False)
-
-		Me.SPONSORSHIPCONSTITUENTID.Visible = visibleEnable
-		Me.SPONSORSHIPCONSTITUENTID.Enabled = IIf(visibleEnable, Me.SPONSORSHIPCONSTITUENTID.Enabled, False)
 
 		'turn off all child selection fields
 		MatchedOpportunityVisible(visibleEnable)
