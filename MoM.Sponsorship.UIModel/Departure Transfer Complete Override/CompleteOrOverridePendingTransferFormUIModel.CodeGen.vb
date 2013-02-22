@@ -467,7 +467,7 @@ Partial Public Class [CompleteOrOverridePendingTransferFormUIModel]
 		'_sponsorshipopportunityidchild
 		'
 		_sponsorshipopportunityidchild.Name = "SPONSORSHIPOPPORTUNITYIDCHILD"
-		_sponsorshipopportunityidchild.Caption = "Child"
+		_sponsorshipopportunityidchild.Caption = "Override Child"
 		'we're now calling our own custom child search form with ID=f9183b88-9f54-40de-848e-c8fbacf92e79
 		_sponsorshipopportunityidchild.SearchListId = New Guid("f9183b88-9f54-40de-848e-c8fbacf92e79") ' New Guid("ab076868-114a-4696-afe9-8d590677708c") -- this is the OOB Search form
 		_sponsorshipopportunityidchild.EnableQuickFind = False ' True - changed by Memphis to test
@@ -1298,9 +1298,9 @@ Partial Public Class [CompleteOrOverridePendingTransferFormUIModel]
 	''' <summary>
 	''' Child
 	''' </summary>
-	<System.ComponentModel.Description("Child")> _
-	<System.CodeDom.Compiler.GeneratedCodeAttribute("BBUIModelLibrary", "2.93.2034.0")> _
-	Public ReadOnly Property [SPONSORSHIPOPPORTUNITYIDCHILD]() As Global.Blackbaud.AppFx.UIModeling.Core.SearchListField(Of Guid)
+	<System.ComponentModel.Description("Override Child")> _
+ <System.CodeDom.Compiler.GeneratedCodeAttribute("BBUIModelLibrary", "2.93.2034.0")> _
+ Public ReadOnly Property [SPONSORSHIPOPPORTUNITYIDCHILD]() As Global.Blackbaud.AppFx.UIModeling.Core.SearchListField(Of Guid)
 		Get
 			Return _sponsorshipopportunityidchild
 		End Get

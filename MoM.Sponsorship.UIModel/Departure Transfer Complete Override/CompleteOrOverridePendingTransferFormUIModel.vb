@@ -199,6 +199,10 @@ Public Class CompleteOrOverridePendingTransferFormUIModel
 		'donor contact is always required:
 		Me.DONORCONTACTCODEID.Required = True
 
+		''TESTING THE REQUIRED OVERRIDE CHILD FIELD:
+		'Me.SPONSORSHIPOPPORTUNITYIDCHILD.UpdateDisplayText()
+		'' END OF TESTING
+
 
 	End Sub
 
@@ -1956,7 +1960,7 @@ Public Class CompleteOrOverridePendingTransferFormUIModel
 		Me.SPONSORSHIPOPPORTUNITYIDCHILD.Enabled = visibleEnable
 		Me.SPONSORSHIPOPPORTUNITYIDCHILD.Visible = visibleEnable
 		' if overriding, they must select a child!
-		Me.SPONSORSHIPOPPORTUNITYIDCHILD.Required = IIf(visibleEnable, True, False)
+		Me.SPONSORSHIPOPPORTUNITYIDCHILD.Required = visibleEnable
 
 		Me.TAB_SPONSORSHIP.Enabled = visibleEnable
 		Me.TAB_SPONSORSHIP.Visible = visibleEnable
@@ -1967,7 +1971,7 @@ Public Class CompleteOrOverridePendingTransferFormUIModel
 		Me.SPONSORSHIPREASONID.Visible = visibleEnable
 		Me.SPONSORSHIPREASONID.Enabled = visibleEnable 'IIf(visibleEnable, Me.SPONSORSHIPREASONID.Enabled, False)
 		'if overriding, they must select a Reason!
-		Me.SPONSORSHIPREASONID.Required = IIf(visibleEnable, True, False)
+		Me.SPONSORSHIPREASONID.Required = visibleEnable
 
 		Me.REVENUECONSTITUENTID.Visible = visibleEnable
 		Me.REVENUECONSTITUENTID.Enabled = IIf(visibleEnable, Me.REVENUECONSTITUENTID.Enabled, False)
@@ -1990,6 +1994,8 @@ Public Class CompleteOrOverridePendingTransferFormUIModel
 
 		If visibleEnable Then
 			Me.TAB_SPONSORSHIP.Select()
+			'if this is an override, then ensure there's no override child value left over from the transferred child:
+			Me.SPONSORSHIPOPPORTUNITYIDCHILD.Value = Nothing
 		End If
 
 	End Sub
