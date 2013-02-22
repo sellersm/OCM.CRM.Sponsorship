@@ -310,6 +310,16 @@ begin try
 						
 		end
 		
+	-- Determine the PREDEPARTUREGIFTSTATUS value of the departed sponsorship
+	declare @transferFinancialTransactionId uniqueidentifier;
+	declare @departedFinancialTransactionId uniqueidentifier;
+
+	set @transferFinancialTransactionId = dbo.USR_UFN_GETFINANCIALTRANSACTIONID_FORSPONSORSHIP(@transferSponsorshipId)
+	set @departedFinancialTransactionId = dbo.USR_UFN_GETFINANCIALTRANSACTIONID_FORSPONSORSHIP(@departedSponsorshipId)
+
+	declare @preDepartureGiftStatus nvarchar(10);
+	set @preDepartureGiftStatus = dbo.USR_UFN_GET_PREDEPARTUREGIFTSTATUS(@departedFinancialTransactionId)
+
 	-- Fogbugz 985: not correctly determining if this is a PaidAhead or an Active EFT sponsorship.
 	-- must use the departed sponsorshipID because the payment info is copied to the transferred (new) sponsorship:
 	set @isEFTSponsorship = dbo.USR_UFN_SPONSORSHIP_ISEFT(@departedSponsorshipId)
@@ -323,6 +333,13 @@ begin try
 	-- if this is paid ahead, don't do anything else, if it isn't, check if it's an active eft
 	if @isPaidAhead = 0
 		set @isPaidAheadOrActiveEFT = @isEFTSponsorship;
+		if @isPaidAheadOrActiveEFT = 1
+			begin
+				-- 2/21/13 Memphis: need to check the predeparturegiftstatus and if it's Held
+				-- then set @isPaidAheadOrActiveEFT to 0
+				if lower(@preDepartureGiftStatus) = 'held'
+					set @isPaidAheadOrActiveEFT = 0;
+			end
 	else
 		set @isPaidAheadOrActiveEFT = @isPaidAhead;
 	
@@ -500,33 +517,20 @@ begin try
 		- YES:  leave the gift status alone
 		- NO:   change the gift status to Active
 	*/
-	declare @transferFinancialTransactionId uniqueidentifier;
-	declare @departedFinancialTransactionId uniqueidentifier;
 
-	set @transferFinancialTransactionId = dbo.USR_UFN_GETFINANCIALTRANSACTIONID_FORSPONSORSHIP(@transferSponsorshipId)
-	set @departedFinancialTransactionId = dbo.USR_UFN_GETFINANCIALTRANSACTIONID_FORSPONSORSHIP(@departedSponsorshipId)
-
-	declare @giftStatus nvarchar(10);
-	select @giftStatus = PREDEPARTUREGIFTSTATUS
-	from dbo.USR_FINANCIALTRANSACTION_EXTENSION
-	where ID = @departedFinancialTransactionId;
-
-	if LOWER(@giftStatus) <> 'held'
+	if LOWER(@preDepartureGiftStatus) <> 'held'
 		begin
 			-- update the transfer recurring gift status to Active
-			update dbo.REVENUESCHEDULE 
-			set STATUSCODE = 0 -- Active
-			where ID = @transferFinancialTransactionId
+			-- 2/21/13 Memphis removed this since we don't set it 
+			--update dbo.REVENUESCHEDULE 
+			--set STATUSCODE = 0 -- Active
+			--where ID = @transferFinancialTransactionId
 			
 			-- Fogbugz Case 981:
 			-- remove the 'Held Recurring Gift' attribute for this record:
-			update dbo.ATTRIBUTE58705B2A658B4396A8F1BBC9003B9DCA
-			set ENDDATE = getdate()
+			-- 2/21/13 Memphis: delete the record, not set end date!
+			delete dbo.ATTRIBUTE58705B2A658B4396A8F1BBC9003B9DCA
 			where REVENUEID = @transferFinancialTransactionId -- @revenueId
-			and BOOLEANCODE = 1
-			and COMMENT = 'Departure hold'
-			--and ((STARTDATE is null) or (STARTDATE < GETDATE()))
-			--and ((ENDDATE is null) or (ENDDATE > GETDATE()))
 		end
 
 	/*
