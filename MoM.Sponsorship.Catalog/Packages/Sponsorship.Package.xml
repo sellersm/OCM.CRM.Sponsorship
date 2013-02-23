@@ -82,6 +82,7 @@
 									USR_USP_SET_ISMOSTRECENTCOMMITMENTFLAG_FOR_SPONSORSHIP.xml
 									SetIsMostRecentCommitment.RecordOperation.xml
 	21-Feb-2013		Memphis			Added new UFN:  USR_UFN_GET_PREDEPARTUREGIFTSTATUS.xml
+	21-Feb-2013		CMayeda			Added RecurringGift.PreDepartureGiftStatus.Edit.xml
 -->
 
 	<!-- Note:  the order of the items listed here is important.  For example, you won't be able to load a data form that references 
@@ -253,6 +254,7 @@
 		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.SponsorshipExtension.Edit.xml" />
 		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.CopyCreditCard.Add.xml" />
 		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.CompleteOrOverridePendingTransfer.Edit.xml" />
+		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="RecurringGift.PreDepartureGiftStatus.Edit.xml" />
 
 		<!-- Query Views -->
 		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.SponsorshipExtension.Query.xml" />
