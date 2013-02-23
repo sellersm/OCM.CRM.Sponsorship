@@ -19,6 +19,7 @@
 	18-Feb-2013		Memphis			Fogbugz Case 977, 978, 979
 	19-Feb-2013		Memphis			Fogbugz Case 985, 987.
 	20-Feb-2013		Memphis			Fogbugz Case 988, 989, 990, 991
+	23-Feb-2013		Memphis			Fogbugz Case 1005: need to check the isPaidAheadOrActiveEFT variable instead of just isPaidAhead
 	-->
 	
 	
@@ -704,8 +705,8 @@ begin try
 	-- set the values that aren't dependent upon the departure reason type:
 	set @summary = (case 
 					when @isProspect = 1 then 'Child prospect transfer complete'
-					when @isSponsor = 1 and @isPaidAhead = 1 then 'Child paid transfer complete'
-					when @isSponsor = 1 and @isPaidAhead = 0 then 'Child unpaid transfer complete'
+					when @isSponsor = 1 and @isPaidAheadOrActiveEFT = 1 then 'Child paid transfer complete'
+					when @isSponsor = 1 and @isPaidAheadOrActiveEFT = 0 then 'Child unpaid transfer complete'
 					else 'Child transfer complete'
 					end);
 	set @categoryName = 'Sponsorship Transfers';
@@ -724,16 +725,16 @@ begin try
 				when @isProspect = 1 and @ISPROGRAMCOMPLETION = 1 then @letterType_ChildTransfer_Prospect
 				when @isProspect = 1 and @DEPARTURETYPECODE = 0 and @deathOfChild = 0 then @letterType_ChildTransfer_Prospect
 				when @isProspect = 1 and @adminDeparture = 1 and @adminProjectClosure = 0 then @letterType_ChildTransfer_Prospect
-				when @isProspect = 0 and @DEPARTURETYPECODE = 0 and @deathOfChild = 0 and @isPaidAhead = 1 then @letterType_ChildTransfer
-				when @isProspect = 0 and @DEPARTURETYPECODE = 0 and @deathOfChild = 0 and @isPaidAhead = 0 then @letterType_ChildTransfer_Unpaid
-				when @isProspect = 0 and @ISPROGRAMCOMPLETION = 1  and @isPaidAhead = 1 then @letterType_ProgramCompletion
-				when @isProspect = 0 and @ISPROGRAMCOMPLETION = 1  and @isPaidAhead = 0 then @letterType_ProgramCompletion_Unpaid
-				when @isProspect = 0 and @adminDeparture = 1 and @adminProjectClosure = 1 and @isPaidAhead = 1 then @letterType_ProjectClosure
-				when @isProspect = 0 and @adminDeparture = 1 and @adminProjectClosure = 1 and @isPaidAhead = 0 then @letterType_ProjectClosure_Unpaid
-				when @isProspect = 0 and @deathOfChild = 1 and @isPaidAhead = 1 then @letterType_ChildTransfer 
-				when @isProspect = 0 and @deathOfChild = 1 and @isPaidAhead = 0 then @letterType_ChildTransfer_Unpaid 
-				when @isProspect = 0 and @adminDeparture = 1 and @adminProjectClosure = 0 and @isPaidAhead = 1 then @letterType_ChildTransfer
-				when @isProspect = 0 and @adminDeparture = 1 and @adminProjectClosure = 0 and @isPaidAhead = 0 then @letterType_ChildTransfer_Unpaid
+				when @isProspect = 0 and @DEPARTURETYPECODE = 0 and @deathOfChild = 0 and @isPaidAheadOrActiveEFT = 1 then @letterType_ChildTransfer
+				when @isProspect = 0 and @DEPARTURETYPECODE = 0 and @deathOfChild = 0 and @isPaidAheadOrActiveEFT = 0 then @letterType_ChildTransfer_Unpaid
+				when @isProspect = 0 and @ISPROGRAMCOMPLETION = 1  and @isPaidAheadOrActiveEFT = 1 then @letterType_ProgramCompletion
+				when @isProspect = 0 and @ISPROGRAMCOMPLETION = 1  and @isPaidAheadOrActiveEFT = 0 then @letterType_ProgramCompletion_Unpaid
+				when @isProspect = 0 and @adminDeparture = 1 and @adminProjectClosure = 1 and @isPaidAheadOrActiveEFT = 1 then @letterType_ProjectClosure
+				when @isProspect = 0 and @adminDeparture = 1 and @adminProjectClosure = 1 and @isPaidAheadOrActiveEFT = 0 then @letterType_ProjectClosure_Unpaid
+				when @isProspect = 0 and @deathOfChild = 1 and @isPaidAheadOrActiveEFT = 1 then @letterType_ChildTransfer 
+				when @isProspect = 0 and @deathOfChild = 1 and @isPaidAheadOrActiveEFT = 0 then @letterType_ChildTransfer_Unpaid 
+				when @isProspect = 0 and @adminDeparture = 1 and @adminProjectClosure = 0 and @isPaidAheadOrActiveEFT = 1 then @letterType_ChildTransfer
+				when @isProspect = 0 and @adminDeparture = 1 and @adminProjectClosure = 0 and @isPaidAheadOrActiveEFT = 0 then @letterType_ChildTransfer_Unpaid
 				else @letterType_ChildTransfer
 			end)
 
