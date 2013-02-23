@@ -82,7 +82,7 @@
 									USR_USP_SET_ISMOSTRECENTCOMMITMENTFLAG_FOR_SPONSORSHIP.xml
 									SetIsMostRecentCommitment.RecordOperation.xml
 	21-Feb-2013		Memphis			Added new UFN:  USR_UFN_GET_PREDEPARTUREGIFTSTATUS.xml
-	21-Feb-2013		CMayeda			Added RecurringGift.PreDepartureGiftStatus.Edit.xml
+	21-Feb-2013		CMayeda			Added RecurringGift.PreDepartureGiftStatus.Edit.xml FogBugz Case 1004
 -->
 
 	<!-- Note:  the order of the items listed here is important.  For example, you won't be able to load a data form that references 
