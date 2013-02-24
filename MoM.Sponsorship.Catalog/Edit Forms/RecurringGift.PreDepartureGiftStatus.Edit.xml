@@ -38,7 +38,6 @@ as
 	-- be sure to set these, in case the select returns no rows
 	set @DATALOADED = 1
 	set @TSLONG = 0
-	set @PREDEPARTUREGIFTSTATUS = ''
 	
 	-- populate the output parameters, which correspond to fields on the form.  Note that
 	-- we set @DATALOADED = 1 to indicate that the load was successful.  Otherwise, the system
