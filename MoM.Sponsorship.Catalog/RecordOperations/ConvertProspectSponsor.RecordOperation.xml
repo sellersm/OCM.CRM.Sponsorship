@@ -1,0 +1,40 @@
+﻿<RecordOperationSpec 
+	xmlns="bb_appfx_recordoperation"
+	xmlns:common="bb_appfx_commontypes" 
+	ID="111fcd26-7526-4564-8cec-5cc3ba4b020d" 
+	Name="Convert prospect sponsor record operation" 
+	Description="Launches the stored procedure to convert the given prospect sponsor."
+	Author="Memphis Sellers"
+	OperationType="Update"
+	RecordType="Sponsorship"
+	common:SecurityUIFolder="Sponsorship"
+	>
+
+	<SPRecord>
+		<SPOperationImplementation SPName="USR_USP_EXECUTE_PROSPECTSPONSOR_CONVERSION">
+			<common:CreateProcedureSQL>
+				<![CDATA[
+create procedure dbo.USR_USP_EXECUTE_PROSPECTSPONSOR_CONVERSION
+(
+	@ID uniqueidentifier,
+	@CHANGEAGENTID uniqueidentifier
+)
+as begin
+	-- call the sproc
+	exec dbo.USR_USP_CONVERT_PROSPECT_SPONSOR
+		@sponsorId = @ID
+		
+	return 0;
+	
+end
+				]]>
+			</common:CreateProcedureSQL>
+		</SPOperationImplementation>
+	</SPRecord>
+
+	<!-- optionally, offer a prompt before executing the record operation -->
+	<Prompt>
+		<StandardPrompt Text="Are you sure you want to convert this Prospect Sponsor?" />
+	</Prompt>
+
+</RecordOperationSpec>

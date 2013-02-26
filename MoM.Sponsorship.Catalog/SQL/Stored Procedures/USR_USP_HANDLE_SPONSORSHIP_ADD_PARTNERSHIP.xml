@@ -1,0 +1,227 @@
+﻿<SQLStoredProcedureSpec
+	xmlns="bb_appfx_sqlstoredprocedure"
+	xmlns:common="bb_appfx_commontypes" 
+	ID="a577d6c4-7157-4c4b-a90f-0f388bd2b29c"
+	Name="USR_USP_HANDLE_SPONSORSHIP_ADD_PARTNERSHIP"
+	Description="Handles adding the partnership relationship for the given constituent info."
+	Author="Memphis Sellers"
+	SPName="USR_USP_HANDLE_SPONSORSHIP_ADD_PARTNERSHIP"
+	>
+
+	<!-- 
+	Remarks:    Adds a relationship for the given partnership info. Called from all the Add sponsorship forms if there's a partnership org selected.
+				FogBugz 813:
+				-If the staff selects a record with the constituent code "Partner - Church" then the sponsor will receive the constituency code 
+				  of "Church Partnership", relationship will be created, if not already with "Church/Church Member" relations, and DO NOT SOFT CREDIT.  
+				-If the staff selects a record with the constituent code "Partner - Group" then the sponsor will receive the constituency code 
+				  of "Group Partnership", relationship will be created, if not already with "Church/Church Member" relations and DO NOT SOFT CREDIT.
+	History:
+	Date            Modified By     Comments
+	04-Oct-2012		Memphis			Initial Version
+	08-Oct-2012		Memphis			FogBugz Case 813:  fix to add the correct partner code of "Church Partnership"
+	-->	
+
+	<CreateProcedureSQL>
+		<![CDATA[
+create procedure dbo.USR_USP_HANDLE_SPONSORSHIP_ADD_PARTNERSHIP (
+	@PFMID uniqueidentifier,
+	@CONSTITUENTID uniqueidentifier,
+	@CHANGEAGENTID uniqueidentifier
+)
+as
+begin
+	declare  @CONSTITUENCYCODEID uniqueidentifier
+	declare  @DATEFROM datetime = getdate()
+	declare  @DATETO datetime
+	declare  @RELATIONSHIPSTARTDATE datetime
+	declare  @COMMENTS nvarchar(256) = ''
+	declare  @PRIMARYSOFTCREDITRELATIONSHIPEXISTS bit = 1
+	declare  @PRIMARYSOFTCREDITMATCHFACTOR decimal(5,2) = 100
+	declare  @RECIPROCALSOFTCREDITRELATIONSHIPEXISTS bit = 0
+	declare  @RECIPROCALSOFTCREDITMATCHFACTOR decimal(5,2) = 100
+	declare  @PRIMARYRECOGNITIONTYPECODEID uniqueidentifier = null
+	declare  @RECIPROCALRECOGNITIONTYPECODEID uniqueidentifier = null
+	declare  @CURRENTDATE datetime = getdate()
+	declare  @ISCONTACT bit = 0
+	declare  @ISPRIMARYCONTACT bit = 0
+	declare  @CONTACTTYPECODEID uniqueidentifier = null
+	declare  @RELATIONSHIPENDDATE datetime = null
+	declare	 @ISPRIMARYBUSINESS bit = 0
+	declare  @ISMATCHINGGIFTRELATIONSHIP bit = 0
+	declare  @RECIPROCALCONSTITUENTID uniqueidentifier = null
+	declare  @RECIPROCALTYPECODEID uniqueidentifier = null
+	declare  @RELATIONSHIPTYPECODEID uniqueidentifier = null
+	declare  @ID uniqueidentifier = null
+			
+	-- get the constituency code of the Partner Org:
+	declare @CodesTable table (
+		[CodeDescription] nvarchar(100),
+		[CodeCount] int)
+
+	insert into @CodesTable select 
+		[CodeDescription],
+		[CodeCount] 
+	from dbo.USR_UFN_GET_PARTNERCONSTITUENCYCODES_TABLE_FORCONSTITUENT(@PFMID)
+
+	declare @counter int = 0;
+
+	-- check for the 'Church - Partner' code:
+	select @counter = count(*)
+	from @CodesTable
+	--where CodeDescription = 'Church - Partner'
+
+	if @counter > 0
+	begin
+		-- define variables that will get set if there's a partner code
+		declare @relationshipDescription nvarchar(100) = null;
+		declare @reciprocalDescription nvarchar(100) = null;
+		declare @code nvarchar(100) = null;
+		declare @isSoftCredit bit = 1;
+		declare @constituentCodeToCreate nvarchar(100) = null;
+		
+		-- set all the variables according to the partner constituency code;
+		declare codeCursor cursor fast_forward for 
+		select CodeDescription
+		from @CodesTable 
+
+		open codeCursor 
+		fetch next from codeCursor into @code
+		while @@FETCH_STATUS = 0		
+		begin
+			if lower(@code) = 'partner - church'
+			begin
+				set @relationshipDescription = 'Church Member'
+				set @reciprocalDescription = 'Church'			
+				set @isSoftCredit = 0
+				set @constituentCodeToCreate = 'Church Partnership'
+			end
+		
+			if lower(@code) = 'partner - group'
+			begin
+				set @relationshipDescription = 'Church Member'
+				set @reciprocalDescription = 'Church'			
+				set @isSoftCredit = 0
+				set @constituentCodeToCreate = 'Group Partnership'
+			end
+		
+			if lower(@code) = 'partnership for mercy - partner'
+			begin
+				set @relationshipDescription = 'Church Member'
+				set @reciprocalDescription = 'Church'			
+				set @isSoftCredit = 1
+				set @constituentCodeToCreate = 'Partnership for Mercy'
+			end
+		
+			fetch next from codeCursor into @code
+		end
+	end
+	else
+		RAISERROR 1000000 'No rows returned from temp table!'
+	
+	-- set the values & call the create relationship sproc
+	set @RECIPROCALCONSTITUENTID = @PFMID				-- this is the PFM ID the user selected
+	
+	-- be sure we have some relationship codes to look for:
+	if (@reciprocalDescription is null) or (@relationshipDescription is null)
+		RAISERROR 1000000 'Either the @reciprocalDescription or @relationshipDescription is Null!'
+		
+	-- this is the code of the 'CHURCH' relationship type, which describes the reciprocal/PFM org: 
+	set @reciprocalDescription = lower(@reciprocalDescription);
+	set @RECIPROCALTYPECODEID = (select ID
+								from dbo.RELATIONSHIPTYPECODE
+								where lower(DESCRIPTION) = @reciprocalDescription
+								and ACTIVE = 1)     
+	
+	-- this is the code of the 'Church Member' relationship type, which describes the constituent relationship
+	set @relationshipDescription = LOWER(@relationshipDescription);
+	set @RELATIONSHIPTYPECODEID = (select ID
+									from dbo.RELATIONSHIPTYPECODE
+									where lower(DESCRIPTION) = @relationshipDescription
+									and ACTIVE = 1)
+			
+	-- make sure we have the ID values or we can't continue
+	if (@RECIPROCALTYPECODEID is null) or (@RELATIONSHIPTYPECODEID is null)
+		RAISERROR 1000000 'Could not find either the @reciprocalDescription or @relationshipDescription Relationship Type code!'
+	else
+	begin								
+		set @RELATIONSHIPSTARTDATE = getdate()   -- date the relationship started
+		set @COMMENTS = N'created by adding a new sponsorship'
+		set @PRIMARYSOFTCREDITRELATIONSHIPEXISTS = @isSoftCredit -- 1
+		set @PRIMARYSOFTCREDITMATCHFACTOR = CASE @isSoftCredit WHEN 1 then 100 else 0 end;
+		set @RECIPROCALSOFTCREDITRELATIONSHIPEXISTS = 0;
+		set @RECIPROCALSOFTCREDITMATCHFACTOR = 0;
+		set @RECIPROCALRECOGNITIONTYPECODEID = NULL
+		if @CHANGEAGENTID is null  
+			exec dbo.USP_CHANGEAGENT_GETORCREATECHANGEAGENT @CHANGEAGENTID output
+			
+		exec dbo.USR_USP_CREATE_PARTNERSHIP_RELATIONSHIP_WITH_SPONSOR
+			 @ID OUTPUT
+			,@CHANGEAGENTID
+			,@CONSTITUENTID
+			,@RECIPROCALCONSTITUENTID
+			,@RECIPROCALTYPECODEID
+			,@RELATIONSHIPTYPECODEID
+			,@RELATIONSHIPSTARTDATE
+			,@COMMENTS
+			,@PRIMARYSOFTCREDITRELATIONSHIPEXISTS
+			,@PRIMARYSOFTCREDITMATCHFACTOR
+			,@RECIPROCALSOFTCREDITRELATIONSHIPEXISTS
+			,@RECIPROCALSOFTCREDITMATCHFACTOR				  
+			,@RECIPROCALRECOGNITIONTYPECODEID
+			,@CURRENTDATE
+			,@ISCONTACT
+			,@ISPRIMARYCONTACT
+			,@CONTACTTYPECODEID
+			,@RELATIONSHIPENDDATE
+			,@ISPRIMARYBUSINESS
+			,@ISMATCHINGGIFTRELATIONSHIP
+	end   -- @RECIPROCALTYPECODEID is not null
+		
+	-- now add the constituency code of 'Partnership for mercy' to sponsor if not there:
+		
+	-- get the constituency code id for Partnership for mercy
+	select @CONSTITUENCYCODEID = dbo.USR_UFN_CONSTITUENT_GETID_FORCODE (@constituentCodeToCreate)
+
+	/*
+	select @CONSTITUENCYCODEID = ID
+	from dbo.CONSTITUENCYCODE
+	where lower([DESCRIPTION]) = lower(@constituentCodeToCreate)
+	--where lower([DESCRIPTION]) = lower('Partnership for Mercy')
+	*/
+
+	if @CONSTITUENCYCODEID is null
+		RAISERROR 1000000 'Could not find the partnership constituency code!'
+			
+	-- check now for the given constituency code for the given constituent
+	declare @ISPARTNER bit = 0;
+	declare @churchConstituencyCodeId uniqueidentifier = null;
+	
+	
+	select @ISPARTNER = dbo.USR_UFN_CONSTITUENT_HAS_CONSTITUENCYCODE (@CONSTITUENTID, @CONSTITUENCYCODEID)
+	
+	if @ISPARTNER = 0
+	begin
+		--check for the church member code:
+		select @churchConstituencyCodeId = dbo.USR_UFN_CONSTITUENT_GETID_FORCODE ('Church')
+		select @ISPARTNER = dbo.USR_UFN_CONSTITUENT_HAS_CONSTITUENCYCODE (@CONSTITUENTID, @churchConstituencyCodeId)
+	end
+	
+	-- 0 means it isn't present, 1 means it was found:
+	if @ISPARTNER = 0
+	begin
+		set @DATEFROM = getdate()
+		-- finally add the code
+		exec dbo.USR_USP_ADD_CONSTITUENT_CONSTITUENCYCODE
+				@ID OUTPUT
+				,@CHANGEAGENTID
+				,@CONSTITUENTID
+				,@CONSTITUENCYCODEID
+				,@DATEFROM
+				,@DATETO			  
+	end
+end
+
+		]]>
+	</CreateProcedureSQL>
+
+</SQLStoredProcedureSpec>

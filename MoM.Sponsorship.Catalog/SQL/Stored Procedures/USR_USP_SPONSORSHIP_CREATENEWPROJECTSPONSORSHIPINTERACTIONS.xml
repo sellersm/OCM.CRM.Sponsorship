@@ -1,0 +1,176 @@
+﻿<SQLStoredProcedureSpec
+	xmlns="bb_appfx_sqlstoredprocedure"
+	xmlns:common="bb_appfx_commontypes" 
+	ID="5a33de22-a122-4683-ad2f-2572f5d14985"
+	Name="USR_USP_SPONSORSHIP_CREATENEWPROJECTSPONSORSHIPINTERACTIONS"
+	Description="Creates the interactions pertaining to a new project sponsorship (includes prospects)"
+	Author="Cary Mayeda"
+	SPName="USR_USP_SPONSORSHIP_CREATENEWPROJECTSPONSORSHIPINTERACTIONS"
+	>
+	<!-- 
+	Remarks:    This sproc is used by the Add a Project Sponsorship form to create the appropriate interactions on the financial sponsor.
+
+	History:
+	Date            Modified By     Comments
+	30-Sep-2012		CMayeda			Initial Version
+	-->
+
+
+	<CreateProcedureSQL>
+		<![CDATA[
+create procedure dbo.USR_USP_SPONSORSHIP_CREATENEWPROJECTSPONSORSHIPINTERACTIONS (
+	@sponsorshipID uniqueidentifier = null,				-- The sponsorship that the interactions will pertain to.  
+														-- This is used to pull the financial sponsor and correspondent, and to determine if the recurring gift is on EFT
+												 		-- However, it is not used for the child information
+	@sponsorshipOpportunityID uniqueidentifier = null,	-- The sponsorship opportunity that was sponsored
+	@interactionTypeCodeID uniqueidentifier = null,		-- The ID of the Interaction Type that the user selected (Project Sponsorship Thank You Letter, Project Sponsorship Thank You Letter & Profile, ...)
+	@isProspect bit = 0,								-- Is this a prospect sponsorship.  0=Not Prospect, 1=Prospect
+	@changeAgentID uniqueidentifier = null				-- Used to specify change agent for CHANGEDBYID and ADDEDBYID fields.  USP_CHANGEAGENT_GETORCREATECHANGEAGENT is called if it's null
+)
+as
+begin
+	if @changeAgentID is null  
+		exec dbo.USP_CHANGEAGENT_GETORCREATECHANGEAGENT @changeAgentID output
+	
+	
+	-- Constants
+	
+	declare @interactionSummary nvarchar(100) = ''
+	
+	if @isProspect = 0
+		set @interactionSummary = 'New project sponsorship complete'
+	else
+		set @interactionSummary = 'New prospect project sponsorship complete'
+
+	
+	-- Interaction Category / Subcategory Names used in creating the interactions
+	declare @interactionCategoryDesc_ProjectSponsorship nvarchar(100) = 'Project Sponsorship'	-- The category used for all interactions
+
+	declare @interactionSubcategoryDesc_ProjSponsorshipThankYouLetter nvarchar(100) = 'Project Sponsorship Thank You Letter'
+	declare @interactionSubcategoryDesc_ProjSponsorshipThankYouLetterAndProfile nvarchar(100) = 'Project Sponsorship Thank You Letter & Profile'
+	declare @interactionSubcategoryDesc_ProspectProjSponsorshipReminderLetter nvarchar(100) = 'Project Sponsorship Reminder Letter - Prospect'
+	declare @interactionSubcategoryDesc_ProspectProjSponsorshipReminderLetterAndProfile nvarchar(100) = 'Project Sponsorship Reminder Letter and Profile - Prospect'
+
+
+	-- Contact Method descriptions
+	declare @contactMethodDesc_Mail nvarchar (100) = 'Mail'
+	declare @contactMethodDesc_Email nvarchar (100) = 'Email'
+
+	
+	-- These are used to lookup the interactionTypeCodeIDs from USR_NEWSPONSORSHIPINTERACTIONTYPECODE
+	-- This is what the user selected on the form
+	declare @interactionTypeCodeDesc_ThankYouLetter nvarchar(100) = 'Thank You Letter'
+	declare @interactionTypeCodeDesc_ThankYouLetterAndProfile nvarchar(100) = 'Thank You Letter & Profile'
+	
+	declare @interactionTypeCodeDesc_ReminderLetter nvarchar(100) = 'Reminder Letter'
+	declare @interactionTypeCodeDesc_ReminderLetterAndProfile nvarchar(100) = 'Reminder Letter & Profile'
+	
+
+	-- This are used to determine what interaction type the user selected
+	declare @interactionTypeCodeID_ThankYouLetter uniqueidentifier = null
+	declare @interactionTypeCodeID_ThankYouLetterAndProfile uniqueidentifier = null
+	
+	declare @interactionTypeCodeID_ReminderLetter uniqueidentifier = null
+	declare @interactionTypeCodeID_ReminderLetterAndProfile uniqueidentifier = null
+	
+	
+	-- Error messages if the interaction type code couldn't be found
+	declare @interactionTypeCodeErrorMsg_ThankYouLetter  nvarchar(255) = 'Could not find ' + @interactionTypeCodeDesc_ThankYouLetter + ' in code table USR_PAIDPROJECTSPONSORSHIPINTERACTIONTYPECODE'
+	declare @interactionTypeCodeErrorMsg_ThankYouLetterAndProfile  nvarchar(255) = 'Could not find ' + @interactionTypeCodeDesc_ThankYouLetterAndProfile + ' in code table USR_PAIDPROJECTSPONSORSHIPINTERACTIONTYPECODE'
+	
+	declare @interactionTypeCodeErrorMsg_ReminderLetter  nvarchar(255) = 'Could not find ' + @interactionTypeCodeDesc_ReminderLetter + ' in code table USR_PROSPECTPROJECTSPONSORSHIPINTERACTIONTYPECODE'
+	declare @interactionTypeCodeErrorMsg_ReminderLetterAndProfile nvarchar(255) = 'Could not find ' + @interactionTypeCodeDesc_ReminderLetterAndProfile + ' in code table USR_PROSPECTPROJECTSPONSORSHIPINTERACTIONTYPECODE'
+	
+
+	begin try
+		select @interactionTypeCodeID_ThankYouLetter = ID from dbo.USR_PAIDPROJECTSPONSORSHIPINTERACTIONTYPECODE where lower (DESCRIPTION) = lower (@interactionTypeCodeDesc_ThankYouLetter)
+		if @interactionTypeCodeID_ThankYouLetter is null
+			raiserror 100000 @interactionTypeCodeErrorMsg_ThankYouLetter
+		
+		select @interactionTypeCodeID_ThankYouLetterAndProfile = ID from dbo.USR_PAIDPROJECTSPONSORSHIPINTERACTIONTYPECODE where lower (DESCRIPTION) = lower (@interactionTypeCodeDesc_ThankYouLetterAndProfile)
+		if @interactionTypeCodeID_ThankYouLetterAndProfile is null
+			raiserror 100000 @interactionTypeCodeErrorMsg_ThankYouLetterAndProfile
+			
+		select @interactionTypeCodeID_ReminderLetter = ID from dbo.USR_PROSPECTPROJECTSPONSORSHIPINTERACTIONTYPECODE where lower (DESCRIPTION) = lower (@interactionTypeCodeDesc_ReminderLetter)
+		if @interactionTypeCodeID_ReminderLetter is null
+			raiserror 100000 @interactionTypeCodeErrorMsg_ReminderLetter
+
+		select @interactionTypeCodeID_ReminderLetterAndProfile = ID from dbo.USR_PROSPECTPROJECTSPONSORSHIPINTERACTIONTYPECODE where lower (DESCRIPTION) = lower (@interactionTypeCodeDesc_ReminderLetterAndProfile)
+		if @interactionTypeCodeID_ReminderLetterAndProfile is null
+			raiserror 100000 @interactionTypeCodeErrorMsg_ReminderLetterAndProfile
+	
+	end try
+	begin catch
+		exec dbo.USP_RAISE_ERROR
+		return 1	
+	end catch
+
+
+	declare @financialSponsorID uniqueidentifier = null
+	set @financialSponsorID = dbo.USR_UFN_SPONSORSHIP_GETFINANCIALSPONSOR (@sponsorshipID)
+
+
+	declare @mailSubcategoryDesc nvarchar (100) = ''
+
+	-- Create mail interactions on Financial Sponsor (one for every unvavailable / transfer child pair
+	if @isProspect = 0
+		set @mailSubcategoryDesc = case	
+										when @interactionTypeCodeID = @interactionTypeCodeID_ThankYouLetter then @interactionSubcategoryDesc_ProjSponsorshipThankYouLetter
+										when @interactionTypeCodeID = @interactionTypeCodeID_ThankYouLetterAndProfile then @interactionSubcategoryDesc_ProjSponsorshipThankYouLetterAndProfile
+									end
+	else
+		set @mailSubcategoryDesc = case	
+										when @interactionTypeCodeID = @interactionTypeCodeID_ReminderLetter then @interactionSubcategoryDesc_ProspectProjSponsorshipReminderLetter
+										when @interactionTypeCodeID = @interactionTypeCodeID_ReminderLetterAndProfile then @interactionSubcategoryDesc_ProspectProjSponsorshipReminderLetterAndProfile
+									end
+
+	declare @interactionID uniqueidentifier = null
+	declare @currentDate date = getdate()
+	declare @contactMethodDesc nvarchar (100) = ''
+	declare @eftBrochureCode bit = 0
+	
+	if dbo.USR_UFN_CONSTITUENT_GETVALIDPRIMARYEMAILADDRESS(@financialSponsorID) <> ''
+		set @contactMethodDesc = @contactMethodDesc_Email
+	else
+	begin
+		set @contactMethodDesc = @contactMethodDesc_Mail
+		set @eftBrochureCode = ~ dbo.USR_UFN_SPONSORSHIP_ISEFT (@sponsorshipID) 
+	end	
+	
+	
+	exec dbo.USR_USP_INTERACTION_SPONSOR_ADD_PENDING 
+		@id = @interactionID output,
+		@constituentID = @financialSponsorID,
+		@summary = @interactionSummary,
+		@categoryName = @interactionCategoryDesc_ProjectSponsorship,
+		@subcategoryName = @mailSubcategoryDesc,
+		@expectedDate = @currentDate,
+		@owner = null,						
+		@contactMethodDesc = @contactMethodDesc,
+		@comment = '',						
+		@letterTypeDesc = '',
+		@fulfillmentStatusDesc = '', 
+		@eftBrochureCode = @eftBrochureCode,
+		@resendCode = 0,
+		@changeAgentID = @changeAgentID				
+			
+		if @interactionID is not null
+		begin		
+			exec dbo.USR_USP_INTERACTION_SPONSOR_SETSPONSOREDPROJECTID
+				@interactionID = @interactionID,
+				@sponsorshipOpportunityID = @sponsorshipOpportunityID,
+				@changeAgentID = @changeAgentID
+
+				
+		end	
+	
+
+	return 0
+end
+
+
+
+		]]>
+	</CreateProcedureSQL>
+
+</SQLStoredProcedureSpec>

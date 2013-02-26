@@ -1,0 +1,33 @@
+﻿<SQLFunctionSpec
+	xmlns="bb_appfx_sqlfunction"
+	xmlns:common="bb_appfx_commontypes" 
+	ID="2cad5980-1d91-46bd-b65d-142023e9c984"
+	Name="USR_UFN_UNAVAILABLECHILDREN_FOR_TRANSFERSPONSORSHIP_FROMITEMLISTXML"
+	Description="Returns the paired list of unavailable children selected for a transfer/substitute Sponsorship, list is in XML"
+	Author="Memphis Sellers"
+	DBFunctionName="USR_UFN_UNAVAILABLECHILDREN_FOR_TRANSFERSPONSORSHIP_FROMITEMLISTXML"
+	>
+
+	<CreateFunctionSQL>
+		<![CDATA[
+create function dbo.USR_UFN_UNAVAILABLECHILDREN_FOR_TRANSFERSPONSORSHIP_FROMITEMLISTXML
+(
+	@ITEMLISTXML xml 
+)
+RETURNS 
+TABLE 
+AS
+RETURN (
+SELECT
+T.c.value('(ID)[1]','uniqueidentifier') AS 'PROGRAMID',
+T.c.value('(NAME)[1]','nvarchar(100)') AS 'UNAVAILABLECHILDNAME',
+T.c.value('(LOOKUPID)[1]','nvarchar(50)') AS 'UNAVAILABLELOOKUPID',
+T.c.value('(TRANSFERCHILDNAME)[1]','nvarchar(100)') AS 'TRANSFERCHILDNAME',
+T.c.value('(TRANSFERLOOKUPID)[1]','nvarchar(50)') AS 'TRANSFERLOOKUPID',
+T.c.value('(TRANSFERCHILDID)[1]','uniqueidentifier') AS 'TRANSFERCHILDID'
+FROM @ITEMLISTXML.nodes('/CHILDREN/ITEM') T(c)
+)
+		]]>
+	</CreateFunctionSQL>
+
+</SQLFunctionSpec>

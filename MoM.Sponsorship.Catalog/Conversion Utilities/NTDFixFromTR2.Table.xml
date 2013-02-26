@@ -1,0 +1,21 @@
+﻿<TableSpec 
+	xmlns="bb_appfx_table"
+	xmlns:common="bb_appfx_commontypes" 
+	ID="642E4B68-89AC-4C8B-8DE4-0331E7350DD8"
+	Name="NTD Fixes From TR2"
+	Description="Used to fix the NTDs and installments from data conversion"
+	Author="Cary Mayeda"
+	Tablename="USR_MOM_BBEC_NTD_FIXES"		   
+	>
+
+	<!-- define fields on the table -->
+	<Fields>
+		<TextField Name="REVENUESCHEDULEID" Length="255"/>
+		<DateField Name="STARTDATE"/>
+		<DateField Name="NEXTTRANSACTIONDATE"/>
+		<DateField Name="SCHEDULESEEDDATE"/>
+		<TextField Name="ADDEDBY" Length="255"/>
+	</Fields>
+
+
+</TableSpec>

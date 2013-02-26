@@ -1,0 +1,118 @@
+﻿<PageDefinitionSpec 
+    xmlns="bb_appfx_pagedefinition" 
+    xmlns:common="bb_appfx_commontypes"
+    ID="4bc759e5-a32c-467b-9785-ffd96f7f5b72"
+    Name="Alter Sponsorship Page"
+    Description="Alters Sponsorship page to change the Tasks actions for cancelling an Active and or Pending sponsorship"
+    Author="Memphis Sellers"
+    ContextRecordType="Sponsorship"	
+    >
+
+	<!-- Note:  A page can optionally have a view form associated with it as the "Expression form".  While implemented as a view data form,
+	this form has no UI in this context, and is simply used as a way of loading additional information associated with the page.  The fields
+	returned by the expression form can be used as expressions in various properties throughout the page.  To specify an expression form for this
+	page, add the following attribute:		ExpressionDataFormID="<some guid>"-->
+
+	<!-- define how the page header should appear -->
+	<PageHeader Caption="REPLACE_WITH_CAPTION" ImageKey="REPLACE_WITH_IMAGEKEY" />
+
+	<AlterExistingPages>
+		<AlterPages>
+			<AlterPage PageID="428f040a-eb45-4171-8c52-a030b9992d65">
+				<AlterPageActionGroups>
+					<AlterPageActionGroup PageActionGroupID="6abcf84a-7235-4fdf-b14c-95fd9b088e5e">
+						<AlterActions>
+							<AddAction>
+								<Action ID="ca7de4e4-09b4-4f5a-bd12-4167869c0876" Caption="Cancel active sponsorship" ImageKey="RES:do_not_symbol" Visible="=Page.Fields!STATUS=&quot;Active&quot;" Enabled="=Not CBool(Page.Fields!ISPENDING)" CaptionResourceKey="$$cancel_sponsorship">
+									<ShowDataForm DataFormID="3e5de54f-e0f7-4187-bdd1-0bfff1156e2d" xmlns="bb_appfx_commontypes">
+										<ActionContext>
+											<PageContextID />
+										</ActionContext>
+										<PostActionEvent>
+											<RefreshPage />
+										</PostActionEvent>
+									</ShowDataForm>
+									<HelpKey>SPSponsorshipPageCancelSponsorship.html</HelpKey>
+								</Action>
+							</AddAction>
+							<AddAction>
+								<Action ID="40129053-3509-4614-bda4-c74df330104a" Caption="Cancel pending sponsorship" ImageKey="RES:do_not_symbol" Visible="=Fields!STATUS=&quot;Active (Transfer pending)&quot; OrElse Fields!STATUS=&quot;Pending&quot;" Enabled="=Not CBool(Page.Fields!ISPENDING)" CaptionResourceKey="$$cancel_sponsorship">
+									<ShowDataForm DataFormID="edde2945-0141-4677-8155-bbc3a80eb66b" xmlns="bb_appfx_commontypes">
+										<ActionContext>
+											<PageContextID />
+										</ActionContext>
+										<PostActionEvent>
+											<RefreshPage />
+										</PostActionEvent>
+									</ShowDataForm>
+									<HelpKey>SPSponsorshipPageCancelSponsorship.html</HelpKey>
+								</Action>
+							</AddAction>
+							<AddAction>
+								<Action ID="cf560209-da28-4b50-9422-5b4c5203b104" Caption="Add Sponsorship Extension" Visible="= Not Page.Fields!HASEXTENSION">
+									<ShowAddDataForm DataFormID="50815777-9e09-4f2b-8b88-59c8bd6b2741" xmlns="bb_appfx_commontypes">
+										<ActionContext>
+											<PageContextID />
+										</ActionContext>
+										<PostActionEvent>
+											<RefreshPage />
+										</PostActionEvent>
+									</ShowAddDataForm>
+								</Action>
+							</AddAction>
+							<AddAction>
+								<Action ID="87da4d6a-f100-4667-bb10-8834fa8ce3e9" Caption="Edit sponsorship extension" Visible="=Page.Fields!HASEXTENSION">
+									<ShowDataForm DataFormID="23753c8b-6cd7-4216-b212-c1368b0fe945" xmlns="bb_appfx_commontypes">
+										<ActionContext>
+											<PageContextID />
+										</ActionContext>
+										<PostActionEvent>
+											<RefreshPage />
+										</PostActionEvent>
+									</ShowDataForm>
+								</Action>
+							</AddAction>
+							<AddAction>
+								<Action ID="b84dcde5-751b-4228-927e-9302fc3cea3a" Caption="Set Most Recent Commitment">
+									<ExecuteRecordOperation RecordOperationID="4a813b71-b39f-4f4f-abf0-c3dc72b691d2" xmlns="bb_appfx_commontypes">
+										<ActionContext>
+											<PageContextID />
+										</ActionContext>
+										<PostActionEvent>
+											<RefreshPage />
+										</PostActionEvent>
+									</ExecuteRecordOperation>
+								</Action>
+							</AddAction>
+							<RemoveShowDataFormAction ActionID="fd694771-f6a9-46dd-b110-24a7f9566c63" DataFormID="cf6ed8e2-d7b0-454d-b495-49d766252df6"/>
+						</AlterActions>
+						
+					</AlterPageActionGroup>
+
+					<AlterPageActionGroup PageActionGroupID="e16e22d3-d782-4c7c-bff3-04c0a72ca74b">
+
+						<AlterActions>
+							<AddAction>
+								<Action ID="fd694771-f6a9-46dd-b110-24a7f9566c63" Caption="Complete/Override Transfer (custom)" Visible="=Fields!STATUS=&quot;Active (Transfer pending)&quot; OrElse Fields!STATUS=&quot;Pending&quot;" CaptionResourceKey="$$override_transfer">
+									<ShowDataForm DataFormID="cf6ed8e2-d7b0-454d-b495-49d766252df6" xmlns="bb_appfx_commontypes">
+										<ActionContext>
+											<PageContextID />
+										</ActionContext>
+										<PostActionEvent>
+											<RefreshPage />
+										</PostActionEvent>
+									</ShowDataForm>
+									<HelpKey>SPOverrideTransfer.html</HelpKey>
+								</Action>
+							</AddAction>
+							<!--<RemoveShowDataFormAction ActionID="fd694771-f6a9-46dd-b110-24a7f9566c63" DataFormID="cf6ed8e2-d7b0-454d-b495-49d766252df6"/>-->
+						</AlterActions>
+					</AlterPageActionGroup>
+					
+				</AlterPageActionGroups>
+				
+			</AlterPage>
+		</AlterPages>
+	</AlterExistingPages>
+	
+</PageDefinitionSpec>
