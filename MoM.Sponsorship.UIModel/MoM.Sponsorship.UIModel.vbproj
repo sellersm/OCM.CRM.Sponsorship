@@ -209,6 +209,9 @@
     <None Include="..\MoM.Sponsorship.Catalog\Edit Forms\CompleteOrOverridePendingTransfer.Edit.xml">
       <Link>LinkedSpecs\CompleteOrOverridePendingTransfer.Edit.xml</Link>
     </None>
+    <EmbeddedResource Include="DataLists\SponsorshipAddIns.PackageVersion.DataList.xml">
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
     <Content Include="Departure Transfer Complete Override\CompleteOrOverridePendingTransferFormUIModel.xml">
       <DependentUpon>CompleteOrOverridePendingTransferFormUIModel.vb</DependentUpon>
     </Content>
