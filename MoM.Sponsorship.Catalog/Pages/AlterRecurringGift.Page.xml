@@ -5,8 +5,17 @@
     Name="AlterRecurringGift Page"
     Description="Alters the Revenue Transaction Page page."
     Author="Memphis Sellers"
-    ContextRecordType="Revenue"	
-    >
+    ContextRecordType="Revenue"	>
+	
+	<!-- 
+	Remarks:    
+
+	History:
+	Date            Modified By     Comments
+	23-Feb-2013		CMayeda			Added "Edit Predeparture Gift Status" task - FogBugz 1004
+	-->
+
+	
 
 	<!-- Note:  A page can optionally have a view form associated with it as the "Expression form".  While implemented as a view data form,
 	this form has no UI in this context, and is simply used as a way of loading additional information associated with the page.  The fields
@@ -83,6 +92,20 @@
 										<RefreshPage />
 									</PostActionEvent>
 								</ShowAddDataForm>
+							</Action>
+						</AddAction>
+					</AlterOrAddPageActionGroup>
+					<AlterOrAddPageActionGroup Caption="Tasks" CaptionResourceKey="$$tasks" ID="6edc3707-736f-441f-8871-5fa6467e1d9b" >
+						<AddAction>
+							<Action ID="0cfb8071-ee87-43a6-8f46-6048bfc97248" Caption="Edit Predeparture Gift Status">
+								<ShowDataForm DataFormID="a2570cc3-6ccc-47a2-90d4-297b0eac4101" xmlns="bb_appfx_commontypes">
+									<ActionContext>
+										<PageContextID />
+									</ActionContext>
+									<PostActionEvent>
+										<RefreshPage />
+									</PostActionEvent>
+								</ShowDataForm>
 							</Action>
 						</AddAction>
 					</AlterOrAddPageActionGroup>

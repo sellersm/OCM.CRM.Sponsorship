@@ -1,0 +1,41 @@
+﻿<SQLFunctionSpec
+	xmlns="bb_appfx_sqlfunction"
+	xmlns:common="bb_appfx_commontypes" 
+	ID="aaf6fb25-d761-4f99-b8c4-9a2e19cac90e"
+	Name="USR_UFN_GET_PREDEPARTUREGIFTSTATUS"
+	Description="Gets the PREDEPARTUREGIFTSTATUS value for a given revenueid."
+	Author="Memphis Sellers"
+	DBFunctionName="USR_UFN_GET_PREDEPARTUREGIFTSTATUS"
+	>
+
+	<!--	
+	Remarks:	Gets the PREDEPARTUREGIFTSTATUS value for a given revenueid.
+				NOTE: FinancialTransactionID and RevenueID are the same thing.
+
+	History:
+	Date            Modified By     Comments
+	21-Feb-2013		Memphis			Initial Version
+	
+	-->	
+	
+	
+	<CreateFunctionSQL>
+		<![CDATA[
+create function dbo.USR_UFN_GET_PREDEPARTUREGIFTSTATUS(
+	@revenueID uniqueidentifier
+)
+returns nvarchar(10)
+with execute as caller
+as begin
+	declare @giftStatus nvarchar(10);
+	
+	select @giftStatus = PREDEPARTUREGIFTSTATUS
+	from dbo.USR_FINANCIALTRANSACTION_EXTENSION
+	where ID = @revenueID;
+
+	return @giftStatus;
+end
+		]]>
+	</CreateFunctionSQL>
+
+</SQLFunctionSpec>

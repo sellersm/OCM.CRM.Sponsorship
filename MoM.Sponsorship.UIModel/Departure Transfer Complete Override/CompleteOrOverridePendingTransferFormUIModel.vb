@@ -180,8 +180,8 @@ Public Class CompleteOrOverridePendingTransferFormUIModel
 		_currentForm = CURRENTFORM.TRANSFER
 
 		'turn off the override, make user select it by choice:
-		Me.ISOVERRIDE.Value = False
-		_isoverride.Value = False
+		'Me.ISOVERRIDE.Value = False
+		'_isoverride.Value = False
 		_overrideflag.Value = False
 		Me.OVERRIDEFLAG.Value = False
 
@@ -198,6 +198,10 @@ Public Class CompleteOrOverridePendingTransferFormUIModel
 
 		'donor contact is always required:
 		Me.DONORCONTACTCODEID.Required = True
+
+		''TESTING THE REQUIRED OVERRIDE CHILD FIELD:
+		'Me.SPONSORSHIPOPPORTUNITYIDCHILD.UpdateDisplayText()
+		'' END OF TESTING
 
 
 	End Sub
@@ -1072,6 +1076,11 @@ Public Class CompleteOrOverridePendingTransferFormUIModel
 				_lookupid = Me.MOPPORTUNITYLOOKUPID.Value.ToString()
 				'set the programid
 				_programid = Me.SPONSORSHIPPROGRAMID.Value.ToString()
+				' *MEMPHIS* 2/20/13 Fogbugz Case 993 to put matched child into "Override Child" search field:
+				Me.SPONSORSHIPOPPORTUNITYIDCHILD.Value = Me.MATCHEDOPPORTUNITYID.Value
+				_sponsorshipopportunityidchild.Value = Me.MATCHEDOPPORTUNITYID.Value
+				Me.SPONSORSHIPOPPORTUNITYIDCHILD.UpdateDisplayText()
+
 				'AddChildToList()
 			Else
 				DisplayPrompt("Unable to lock this selected child!")
@@ -1812,15 +1821,15 @@ Public Class CompleteOrOverridePendingTransferFormUIModel
 	'End Sub
 
 	'Private Sub _addselectedchild_InvokeAction(ByVal sender As Object, ByVal e As Blackbaud.AppFx.UIModeling.Core.InvokeActionEventArgs) Handles _addselectedchild.InvokeAction
-	'   'Add the child in the sponsorshipopportunitychild field to the Children list
-	'   If Me.SPONSORSHIPOPPORTUNITYIDCHILD.HasValue Then
-	'           LockThisChild(Me.SPONSORSHIPOPPORTUNITYIDCHILD.Value)
-	'           AddChildToList(Me.SPONSORSHIPOPPORTUNITYIDCHILD.Value())
-	'           Me.SPONSORSHIPOPPORTUNITYIDCHILD.Value = Nothing
-	'           Me.SPONSORSHIPOPPORTUNITYIDCHILD.UpdateDisplayText(String.Empty)
-	'           'Memphis 8/23
-	'           'Me.CLEARSEARCHACTION.Enabled = False
-	'   End If
+	'	'Add the child in the sponsorshipopportunitychild field to the Children list
+	'	If Me.SPONSORSHIPOPPORTUNITYIDCHILD.HasValue Then
+	'		LockThisChild(Me.SPONSORSHIPOPPORTUNITYIDCHILD.Value)
+	'		AddChildToList(Me.SPONSORSHIPOPPORTUNITYIDCHILD.Value())
+	'		Me.SPONSORSHIPOPPORTUNITYIDCHILD.Value = Nothing
+	'		Me.SPONSORSHIPOPPORTUNITYIDCHILD.UpdateDisplayText(String.Empty)
+	'		'Memphis 8/23
+	'		'Me.CLEARSEARCHACTION.Enabled = False
+	'	End If
 	'End Sub
 
 	'Private Sub AddChildToList()
@@ -1950,6 +1959,9 @@ Public Class CompleteOrOverridePendingTransferFormUIModel
 	Private Sub SetOverrideFields(ByVal visibleEnable As Boolean)
 		Me.SPONSORSHIPOPPORTUNITYIDCHILD.Enabled = visibleEnable
 		Me.SPONSORSHIPOPPORTUNITYIDCHILD.Visible = visibleEnable
+		' if overriding, they must select a child!
+		Me.SPONSORSHIPOPPORTUNITYIDCHILD.Required = visibleEnable
+
 		Me.TAB_SPONSORSHIP.Enabled = visibleEnable
 		Me.TAB_SPONSORSHIP.Visible = visibleEnable
 
@@ -1958,7 +1970,8 @@ Public Class CompleteOrOverridePendingTransferFormUIModel
 
 		Me.SPONSORSHIPREASONID.Visible = visibleEnable
 		Me.SPONSORSHIPREASONID.Enabled = visibleEnable 'IIf(visibleEnable, Me.SPONSORSHIPREASONID.Enabled, False)
-		Me.SPONSORSHIPREASONID.Required = IIf(visibleEnable, Me.SPONSORSHIPREASONID.Required, False)
+		'if overriding, they must select a Reason!
+		Me.SPONSORSHIPREASONID.Required = visibleEnable
 
 		Me.REVENUECONSTITUENTID.Visible = visibleEnable
 		Me.REVENUECONSTITUENTID.Enabled = IIf(visibleEnable, Me.REVENUECONSTITUENTID.Enabled, False)
@@ -1975,31 +1988,30 @@ Public Class CompleteOrOverridePendingTransferFormUIModel
 		Me.GIFTRECIPIENT.Visible = visibleEnable
 		Me.GIFTRECIPIENT.Enabled = IIf(visibleEnable, Me.GIFTRECIPIENT.Enabled, False)
 
-		Me.SPONSORSHIPCONSTITUENTID.Visible = visibleEnable
-		Me.SPONSORSHIPCONSTITUENTID.Enabled = IIf(visibleEnable, Me.SPONSORSHIPCONSTITUENTID.Enabled, False)
-
 		'turn off all child selection fields
 		MatchedOpportunityVisible(visibleEnable)
 		Me.SPONSORSHIPOPPORTUNITYIDCHILD.Visible = visibleEnable
 
 		If visibleEnable Then
 			Me.TAB_SPONSORSHIP.Select()
+			'if this is an override, then ensure there's no override child value left over from the transferred child:
+			Me.SPONSORSHIPOPPORTUNITYIDCHILD.Value = Nothing
 		End If
 
 	End Sub
 
 
-	Private Sub _isoverride_ValueChanged(ByVal sender As Object, ByVal e As Blackbaud.AppFx.UIModeling.Core.ValueChangedEventArgs) Handles _isoverride.ValueChanged
-		'turn on or off the override fields based on checkbox value:
-		If _isoverride.HasValue Then
-			SetOverrideFields(_isoverride.Value)
-			Me.OVERRIDEFLAG.Value = _isoverride.Value
-			Me.SPONSORSHIPREASONID.Required = _isoverride.Value
-			Me.SPONSORSHIPOPPORTUNITYIDCHILD.Required = _isoverride.Value
-		Else
-			Me.OVERRIDEFLAG.Value = False
-		End If
-	End Sub
+	'Private Sub _isoverride_ValueChanged(ByVal sender As Object, ByVal e As Blackbaud.AppFx.UIModeling.Core.ValueChangedEventArgs) Handles _isoverride.ValueChanged
+	'	'turn on or off the override fields based on checkbox value:
+	'	If _isoverride.HasValue Then
+	'		SetOverrideFields(_isoverride.Value)
+	'		Me.OVERRIDEFLAG.Value = _isoverride.Value
+	'		Me.SPONSORSHIPREASONID.Required = _isoverride.Value
+	'		Me.SPONSORSHIPOPPORTUNITYIDCHILD.Required = _isoverride.Value
+	'	Else
+	'		Me.OVERRIDEFLAG.Value = False
+	'	End If
+	'End Sub
 
 	Private Sub TurnOffPaymentFields()
 		'Me.TAB_PAYMENT.Visible = False
@@ -2033,6 +2045,13 @@ Public Class CompleteOrOverridePendingTransferFormUIModel
 	Private Sub _donorcontactcodeid_ValueChanged(ByVal sender As Object, ByVal e As Blackbaud.AppFx.UIModeling.Core.ValueChangedEventArgs) Handles _donorcontactcodeid.ValueChanged
 		If _donorcontactcodeid.HasValue Then
 			Me.DONORCONTACTCODEID.Value = _donorcontactcodeid.Value
+		End If
+	End Sub
+
+	Private Sub _overrideflag_ValueChanged(ByVal sender As Object, ByVal e As Blackbaud.AppFx.UIModeling.Core.ValueChangedEventArgs) Handles _overrideflag.ValueChanged
+		If _overrideflag.HasValue Then
+			SetOverrideFields(_overrideflag.Value)
+			Me.OVERRIDEFLAG.Value = _overrideflag.Value
 		End If
 	End Sub
 End Class

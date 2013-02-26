@@ -20,6 +20,7 @@
         Date            Modified By     Comments
         30-Jan-2013     Memphis         Initial Version
 		18-Feb-2013		Memphis			Fogbugz Case 977, 978, 979
+		20-Feb-2013		Memphis			Fogbugz Case 985, 987, 988, 989, 990, 991
         -->
 
 	<common:DependencyList>
@@ -305,14 +306,15 @@
 
                 begin try
 
-					exec dbo.USP_GETPENDINGTRANSFERSPONSORSHIPS
-							@ID,
-							@FROMSPONSORSHIPID output,
-							@TOSPONSORSHIPID output
 
                     -- if this is not an override, then just complete the transfer
                     if @OVERRIDEFLAG = 0 or @OVERRIDEFLAG is null
 						begin																			
+							exec dbo.USP_GETPENDINGTRANSFERSPONSORSHIPS
+								@ID,
+								@FROMSPONSORSHIPID output,
+								@TOSPONSORSHIPID output
+
 							if @FROMSPONSORSHIPID is not null and @TOSPONSORSHIPID is not null
 								exec dbo.USP_SPONSORSHIP_COMPLETETRANSFER
 									@TOSPONSORSHIPID,
@@ -365,13 +367,11 @@
                             if @FINDERNUMBER is null
                                 set @FINDERNUMBER = 0
 
-							/*
-							  -- moved this up above so it's not duplicated
+							-- moved this up above so it's not duplicated
                             exec dbo.USP_GETPENDINGTRANSFERSPONSORSHIPS
                                 @ID,
                                 @FROMSPONSORSHIPID output,
                                 @TOSPONSORSHIPID output
-							*/
 
                             if @FROMSPONSORSHIPID is not null and @TOSPONSORSHIPID is not null
                                 begin
@@ -939,7 +939,7 @@
 			<common:FormField FieldID="UPDATERECOGNITIONOPTION" DataType="Boolean" Hidden="true" AvailableToClient="false" />
 			<common:FormField FieldID="DONOTACKNOWLEDGE" DataType="Boolean" Caption="Do not acknowledge" CaptionResourceKey="$$do_not_acknowledge" />
 
-			<common:FormField FieldID="OVERRIDEFLAG" Caption="Override" DataType="Boolean" Hidden="true" />
+			<common:FormField FieldID="OVERRIDEFLAG" Caption="Override" DataType="Boolean"  />
 
 			<common:FormField FieldID="SPONSORID" Caption="Sponsor" DataType="Guid" ReadOnly="true">
 				<common:SearchList SearchListID="23c5c603-d7d8-4106-aecc-65392b563887" />
