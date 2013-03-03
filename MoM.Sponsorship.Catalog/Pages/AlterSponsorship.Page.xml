@@ -108,6 +108,20 @@
 							<!--<RemoveShowDataFormAction ActionID="fd694771-f6a9-46dd-b110-24a7f9566c63" DataFormID="cf6ed8e2-d7b0-454d-b495-49d766252df6"/>-->
 						</AlterActions>
 					</AlterPageActionGroup>
+
+					<AlterPageActionGroup PageActionGroupID="1f2e8f93-4909-4dbd-997e-ced1465dc819">
+						<AlterActions>
+							<AddAction>
+								<Action ID="5eadf6db-8daa-417b-ad04-5c30c253fed4" Caption="View sponsorship detail" ImageKey="CATALOG:Blackbaud.AppFx.BBNC.Catalog,Blackbaud.AppFx.BBNC.Catalog.forms_20.png">
+								<ShowDataForm DataFormID="2accdfea-fd90-4ba6-b0ee-9498368caa53" xmlns="bb_appfx_commontypes">
+									<ActionContext>
+										<PageContextID />
+									</ActionContext>
+								</ShowDataForm>
+							</Action>
+							</AddAction>
+						</AlterActions>
+					</AlterPageActionGroup>
 					
 				</AlterPageActionGroups>
 				
