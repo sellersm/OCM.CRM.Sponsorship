@@ -120,6 +120,28 @@
 								</ShowDataForm>
 							</Action>
 							</AddAction>
+							<AddAction>
+								<Action ID="31d7e347-1ff1-462a-9b31-cb8a4267f843" Caption="Associate recurring gift with sponsorship">
+									<ShowAddDataForm DataFormID="d120a8f5-fec5-40df-842f-c2a5dc364eca" xmlns="bb_appfx_commontypes">
+										<ActionContext>
+											<PageContextID />
+										</ActionContext>
+										<PostActionEvent>
+											<RefreshPage />
+										</PostActionEvent>
+									</ShowAddDataForm>
+								</Action>								
+							</AddAction>
+							<AddAction>
+								<Action ID="05c3a548-476e-4bff-85e1-e93d9d410a7f" Caption="Remove associated recurring gift">
+									<ExecuteRecordOperation RecordOperationID="ed6200ad-7ff2-4e51-bdfa-56a1b2168042" xmlns="bb_appfx_commontypes">
+										<PostActionEvent>
+											<RefreshPage />
+										</PostActionEvent>
+									</ExecuteRecordOperation>
+								</Action>
+							</AddAction>
+
 						</AlterActions>
 					</AlterPageActionGroup>
 					
