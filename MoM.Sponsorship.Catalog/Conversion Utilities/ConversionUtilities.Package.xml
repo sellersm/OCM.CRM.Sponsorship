@@ -14,7 +14,7 @@
 	Date            Modified By     Comments
 	26-Oct-2012		CMayeda			Added Sponsorship.NoSponsorshipExtensionRow.DataList.xml, RecurringGiftConversionIssues.DataList.xml
 	27-Oct-2012		Memphis			Added ReassignOrphanRecurringGift.Add.xml
-	04-Mar-2013		CMayeda			Added AssignRecurringGift.Add.xml, Sponsorship.SetRevenueSplitIDToNull.RecordOperation.xml, FinancialSponsor.SponsorDateRange.Edit.xml
+	04-Mar-2013		CMayeda			Added AssignRecurringGift.Add.xml, Sponsorship.SetRevenueSplitIDToNull.RecordOperation.xml, FinancialSponsor.SponsorDateRange.Edit.xml, Sponsorship.DeleteWithoutSPOpReactivate.RecordOperation.xml
 
 	-->
 
@@ -68,7 +68,8 @@
 		<!-- Record Operations -->
 		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.RunSponsorshipExtensionPopulation.RecordOperation.xml" />
 		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.Sponsorship.SetRevenueSplitIDToNull.RecordOperation.xml" />
-		
+		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.Sponsorship.DeleteWithoutSPOpReactivate.RecordOperation.xml" />
+
 		<!-- DataLists -->
 		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.Sponsorship.NoSponsorshipExtensionRow.DataList.xml" />
 		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.RecurringGiftConversionIssues.DataList.xml" />

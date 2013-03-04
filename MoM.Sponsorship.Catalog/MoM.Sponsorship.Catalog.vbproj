@@ -399,6 +399,9 @@
   <ItemGroup>
     <EmbeddedResource Include="Conversion Utilities\FinancialSponsor.SponsorDateRange.Edit.xml" />
   </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Conversion Utilities\Sponsorship.DeleteWithoutSPOpReactivate.RecordOperation.xml" />
+  </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.VisualBasic.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
