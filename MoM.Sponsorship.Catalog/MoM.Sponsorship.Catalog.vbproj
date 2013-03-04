@@ -390,6 +390,15 @@
   <ItemGroup>
     <EmbeddedResource Include="View Forms\ViewSponsorshipDetails.View.xml" />
   </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Conversion Utilities\AssignRecurringGift.Add.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Conversion Utilities\Sponsorship.SetRevenueSplitIDToNull.RecordOperation.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Conversion Utilities\FinancialSponsor.SponsorDateRange.Edit.xml" />
+  </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.VisualBasic.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
