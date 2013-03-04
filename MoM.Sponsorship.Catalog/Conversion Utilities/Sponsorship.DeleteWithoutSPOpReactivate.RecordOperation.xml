@@ -1,0 +1,266 @@
+﻿<RecordOperationSpec 
+	xmlns="bb_appfx_recordoperation"
+	xmlns:common="bb_appfx_commontypes" 
+	ID="316004bc-8ea9-4b70-87dd-099618e85481" 
+	Name="Sponsorship: Delete without Sponsorship Opportunity Reactivate" 
+	Description="Delete a sponsorship. Copied from OOB Sponsorship: Delete"
+	Author="Cary Mayeda"
+	OperationType="Delete"
+	RecordType="Sponsorship"
+	common:SecurityUIFolder="OCM Admin Action Tasks" 	>
+
+	<!-- 
+	Remarks:	Copied from OBB "Sponsorship: Delete", ID="c3348715-f46e-4103-98a2-7623d7a09fb8"
+				Added check for 
+
+	History:
+	Date            Modified By     Comments
+	04-Mar-2013		CMayeda			Initial Version
+	-->
+
+	
+	
+	<common:DependencyList>
+			<common:Dependency CatalogAssembly="Blackbaud.AppFx.Fundraising.Catalog.dll" CatalogItem="Blackbaud.AppFx.Fundraising.Catalog.RevenueDelete.RecordOperation.xml" />
+		</common:DependencyList>
+		<common:InstalledProductList>
+			<common:InstalledProduct ID="3117D2C8-7F46-42F2-ABEB-B654F2F63046" />
+		</common:InstalledProductList>
+		<ResourceFile AssemblyName="Blackbaud.AppFx.Sponsorship.Catalog.dll" ClassName="Blackbaud.AppFx.Sponsorship.Catalog.Sponsorship.Delete" />
+		<SPRecord>
+			<SPOperationImplementation SPName="USR_USP_SPONSORSHIP_DELETE_NOREACTIVATE">
+				<common:CreateProcedureSQL>
+					<![CDATA[					
+				
+create procedure dbo.USR_USP_SPONSORSHIP_DELETE_NOREACTIVATE
+					(
+					@ID uniqueidentifier,
+					@CHANGEAGENTID uniqueidentifier
+					)
+as begin
+	-- Cannot delete a sponsorship if there are payments made against it
+	if (select count(SPONSORSHIP.ID)
+		from dbo.SPONSORSHIP
+		inner join dbo.REVENUESPLIT on REVENUESPLIT.ID = SPONSORSHIP.REVENUESPLITID
+		inner join dbo.RECURRINGGIFTACTIVITY on RECURRINGGIFTACTIVITY.SOURCEREVENUEID = REVENUESPLIT.REVENUEID
+		where SPONSORSHIP.ID = @ID
+		and RECURRINGGIFTACTIVITY.TYPECODE = 0) > 0
+	begin
+		raiserror('There are payments made against this sponsorship. Delete those payments before deleting this sponsorship.', 13, 1);
+		return 1;
+	end
+
+	-- only do this if sponsorship has recurring additional gift
+	if (select count(*) from dbo.SPONSORSHIPRECURRINGADDITIONALGIFT where SPONSORSHIPID = @ID) > 0
+	begin
+		declare @REVENUEPAIDCOUNT int;
+
+		select @REVENUEPAIDCOUNT = count(*)
+		from dbo.SPONSORSHIPRECURRINGADDITIONALGIFT SPRAG
+		where SPRAG.SPONSORSHIPID = @ID
+		and exists(select 'x'
+		from dbo.RECURRINGGIFTACTIVITY RGA
+		where SPRAG.REVENUEID = RGA.SOURCEREVENUEID
+		and RGA.TYPECODE = 0);
+
+		if @REVENUEPAIDCOUNT > 0
+		begin
+			declare @STR nvarchar(256);
+			set @STR = 'There are ' +  convert(nvarchar(100),@REVENUEPAIDCOUNT) + ' sponsorship recurring additional gift with payments.  Delete those payments before deleting this sponsorship.';
+			raiserror(@STR,13, 1);
+			return 1;
+		end
+		else -- none have been paid
+		begin
+			declare @REVENUEIDTABLE table (REVENUEID uniqueidentifier);
+			declare @REVID uniqueidentifier;
+
+			insert into @REVENUEIDTABLE (REVENUEID)
+			select REVENUEID
+			from dbo.SPONSORSHIPRECURRINGADDITIONALGIFT
+			where SPONSORSHIPID = @ID;
+
+			declare REVENUE_CURSOR cursor local fast_forward for
+			select REVENUEID
+			from @REVENUEIDTABLE;
+
+			open REVENUE_CURSOR;
+			fetch next from REVENUE_CURSOR into @REVID;
+
+			while (@@FETCH_STATUS = 0)
+			begin
+				exec dbo.USP_REVENUE_DELETE @REVID, @CHANGEAGENTID
+
+				fetch next from REVENUE_CURSOR into @REVID;
+			end
+			close REVENUE_CURSOR;
+			deallocate REVENUE_CURSOR;
+		end
+	end -- has sponsorship recurring gift
+
+	declare @CURRENTDATE datetime
+	set @CURRENTDATE = getdate()
+
+	declare @SPONSORSHIPOPPORTUNITYID uniqueidentifier;
+	declare @CONSTITUENTID uniqueidentifier;
+	declare @STARTDATE datetime;
+	declare @ENDDATE datetime;
+	declare @COMMITMENTID uniqueidentifier;
+	declare @COMMITMENTSEQUENCE smallint;
+	declare @REVENUEID uniqueidentifier;
+	declare @REVENUECONSTITUENTID uniqueidentifier;
+	declare @STATUSCODE tinyint;
+	declare @CONSTITUENTSTAB table (CONSTITUENTID uniqueidentifier,
+	SPONSORTYPECODE tinyint,
+	STARTDATE date,
+	ENDDATE date);
+
+	select @SPONSORSHIPOPPORTUNITYID = SPONSORSHIP.SPONSORSHIPOPPORTUNITYID,
+	@CONSTITUENTID = SPONSORSHIP.CONSTITUENTID,
+	@STARTDATE = SPONSORSHIP.STARTDATE,
+	@ENDDATE = SPONSORSHIP.ENDDATE,
+	@COMMITMENTID = SPONSORSHIP.SPONSORSHIPCOMMITMENTID,
+	@COMMITMENTSEQUENCE = SPONSORSHIPCOMMITMENT.COMMITMENTSEQUENCE,
+	@REVENUEID = REVENUE.ID,
+	@REVENUECONSTITUENTID = REVENUE.CONSTITUENTID,
+	@STATUSCODE = SPONSORSHIP.STATUSCODE
+	from dbo.SPONSORSHIP
+	inner join dbo.SPONSORSHIPCOMMITMENT on SPONSORSHIPCOMMITMENT.ID = SPONSORSHIP.SPONSORSHIPCOMMITMENTID
+	left outer join dbo.REVENUESPLIT on REVENUESPLIT.ID = SPONSORSHIP.REVENUESPLITID
+	left outer join dbo.REVENUE on REVENUE.ID = REVENUESPLIT.REVENUEID
+	where SPONSORSHIP.ID = @ID;
+
+	-- cache all constituency date ranges for this sponsorship for later updating
+	insert into @CONSTITUENTSTAB
+	select CONSTITUENTID, SPONSORTYPECODE, STARTDATE, ENDDATE
+	from dbo.V_QUERY_FINANCIALSPONSORSHIPDATERANGE
+	where ID = @ID;
+
+	begin try
+		-----------------------------------------------------------
+		-- delete all sponsorshiptransaction rows for this sponsorship
+		declare @CONTEXTCACHE varbinary(128);
+		set @CONTEXTCACHE = CONTEXT_INFO();
+		if @CHANGEAGENTID is not null
+			set CONTEXT_INFO @CHANGEAGENTID
+
+		-- delete all future sponsordaterange
+		delete from dbo.SPONSORSHIPTRANSACTION
+		where @ID in(CONTEXTSPONSORSHIPID,TARGETSPONSORSHIPID)
+
+		-- restore cached context
+		if not @CONTEXTCACHE is null
+			set CONTEXT_INFO @CONTEXTCACHE
+
+		-----------------------------------------------------------
+		-- delete the sponsorship
+		exec dbo.USP_SPONSORSHIP_DELETEBYID_WITHCHANGEAGENTID @ID, @CHANGEAGENTID
+
+		-----------------------------------------------------------
+		-- delete the commitment if it should be deleted
+		-- csm - added UFN_SPONSORSHIP_DELETEALLOWED check
+		if dbo.UFN_SPONSORSHIP_DELETEALLOWED (@ID) = 1
+			exec dbo.USP_SPONSORSHIPCOMMITMENT_DELETEBYID_WITHCHANGEAGENTID @COMMITMENTID, @CHANGEAGENTID
+
+		-- update other commitment sequences for the sponsor
+		update dbo.SPONSORSHIPCOMMITMENT
+		set COMMITMENTSEQUENCE = COMMITMENTSEQUENCE - 1,
+		DATECHANGED = @CURRENTDATE,
+		CHANGEDBYID = @CHANGEAGENTID
+		where CONSTITUENTID = @CONSTITUENTID
+		and COMMITMENTSEQUENCE > @COMMITMENTSEQUENCE
+
+		-----------------------------------------------------------
+		-- delete the recurring gift
+		if @REVENUEID is not null
+			exec dbo.USP_REVENUE_DELETE @REVENUEID, @CHANGEAGENTID
+
+		-----------------------------------------------------------
+		-- SPONSORDATERANGE
+		-----------------------------------------------------------
+		declare @SDR_CONSTITUENTID uniqueidentifier;
+		declare @SPONSORTYPECODE tinyint;
+		declare @SDR_STARTDATE date;
+		declare @SDR_ENDDATE date;
+
+		declare SPONSOR_CURSOR cursor local fast_forward for
+		select CONSTITUENTID, SPONSORTYPECODE, STARTDATE, ENDDATE
+		from @CONSTITUENTSTAB;
+
+		open SPONSOR_CURSOR;
+		fetch next from SPONSOR_CURSOR into @SDR_CONSTITUENTID, @SPONSORTYPECODE, @SDR_STARTDATE, @SDR_ENDDATE;
+
+		while (@@FETCH_STATUS = 0)
+		begin
+			exec dbo.USP_SPONSORSHIPDELETE_UPDATESPONSORDATERANGE
+			@SDR_CONSTITUENTID,
+			@SPONSORTYPECODE,
+			@SDR_STARTDATE,
+			@SDR_ENDDATE,
+			@CHANGEAGENTID,
+			@CURRENTDATE
+
+			fetch next from SPONSOR_CURSOR into @SDR_CONSTITUENTID, @SPONSORTYPECODE, @SDR_STARTDATE, @SDR_ENDDATE;
+		end
+		close SPONSOR_CURSOR;
+		deallocate SPONSOR_CURSOR;
+
+		-----------------------------------------------------------
+		-- reactivate opportunity
+		if @STATUSCODE in(0,1)
+		begin
+			-- CSM - Commented out because data conversion caused the statuscode to be incorrect.
+			/* update dbo.SPONSORSHIPOPPORTUNITY
+			set AVAILABILITYCODE = 0,
+			DATECHANGED = @CURRENTDATE,
+			CHANGEDBYID = @CHANGEAGENTID
+			where ID = @SPONSORSHIPOPPORTUNITYID
+			and AVAILABILITYCODE = 2;
+			*/
+
+			update dbo.SPONSORSHIPOPPORTUNITYLOCK
+			set SPONSORCOUNT = SPONSORCOUNT - 1,
+			DATECHANGED = @CURRENTDATE,
+			CHANGEDBYID = @CHANGEAGENTID
+			where ID = @SPONSORSHIPOPPORTUNITYID;
+		end
+	end try
+	begin catch
+		exec dbo.USP_RAISE_ERROR;
+		return 1;
+	end catch
+
+	return 0;
+
+end
+
+					]]>
+				</common:CreateProcedureSQL>
+			</SPOperationImplementation>
+			<ExpectedOperationDBExceptions>
+				<common:Constraints>
+					<common:Constraint Name="FK_SPONSORSHIP_SPONSORSHIPOPPORTUNITYID" Type="ForeignKey">
+						<common:CustomErrorMsg>This sponsorship opportunity is being referenced by one or more sponsorships and therefore cannot be deleted.</common:CustomErrorMsg>
+					</common:Constraint>
+					<common:Constraint Name="FK_BATCHSPONSORSHIP_SPONSORSHIPOPPORTUNITYID" Type="ForeignKey">
+						<common:CustomErrorMsg>This sponsorship opportunity is being referenced in a batch and therefore cannot be deleted.</common:CustomErrorMsg>
+					</common:Constraint>
+					<common:Constraint Name="FK_MKTSPONSORSHIPMAILINGTEMPLATEACTIVATED_SPONSORSHIPID" Type="ForeignKey">
+						<common:CustomErrorMsg>This sponsorship is part of an activated sponsorship effort and therefore cannot be deleted.</common:CustomErrorMsg>
+					</common:Constraint>
+					<common:Constraint Name="FK_SPONSORSHIPRECURRINGADDITIONALGIFT_SPONSORSHIPID" Type="ForeignKey">
+						<common:CustomErrorMsg>This sponsorship is linked to one or more recurring additional gift.  Delete the recurring additional gift(s) before deleting this sponsorship.</common:CustomErrorMsg>
+					</common:Constraint>
+				</common:Constraints>
+				<common:CustomExceptions>
+					<common:Exception SearchText="There are payments made against this sponsorship. Delete those payments before deleting this sponsorship">
+						<common:CustomErrorMsg>There are payments made against this sponsorship. Delete those payments before deleting this sponsorship.</common:CustomErrorMsg>
+					</common:Exception>
+				</common:CustomExceptions>
+			</ExpectedOperationDBExceptions>
+		</SPRecord>
+		<!-- optionally, offer a prompt before executing the record operation -->
+		<Prompt>
+			<StandardPrompt Text="Are you sure you want to delete this Sponsorship?" TextResourceKey="$$are_you_sure_you_want_to_delete_this_sponsorship?" />
+		</Prompt>
+	</RecordOperationSpec>
