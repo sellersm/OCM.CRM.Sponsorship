@@ -1,22 +1,23 @@
 ﻿<AddDataFormTemplateSpec 
 	xmlns="bb_appfx_adddataformtemplate"
 	xmlns:common="bb_appfx_commontypes" 
-	ID="dc6fa54c-3487-462d-8180-43654e9b4f0b" 
-	Name="Replace Credit Card No Constituent Check Add Data Form"
+	ID="a08bb6b2-5fd5-49bb-b26c-ab602b489151" 
+	Name="ReplaceCCNoValidation Add Data Form"
 	Description="Replace credit card with no constituent check" 
 	Author="Memphis Sellers"
-	DataFormInstanceID="a86e598f-90ff-445f-8b0b-879a4be4953d" 
+	DataFormInstanceID="0417749b-c386-4c2b-b842-c2320ca056e9" 
 	RecordType="Revenue"
 	common:SecurityUIFolder="Revenue"
-	FormHeader="Replace Credit Card NO Constituent Check!"
+	FormHeader="Replace Credit Card NO Validation!"
 	>
+
 
 	<SPDataForm>
 		<!-- describe the save SP -->
-		<SaveImplementation SPName="USR_USP_DATAFORMTEMPLATE_ADD_COPYCREDITCARD_NOCONSTITUENTCHECK">
+		<SaveImplementation SPName="USR_USP_DATAFORMTEMPLATE_ADD_COPYCREDITCARD_NOVALIDATION">
 			<common:CreateProcedureSQL>
 				<![CDATA[
-create procedure dbo.USR_USP_DATAFORMTEMPLATE_ADD_COPYCREDITCARD_NOCONSTITUENTCHECK
+create procedure dbo.USR_USP_DATAFORMTEMPLATE_ADD_COPYCREDITCARD_NOVALIDATION
 (
     @ID uniqueidentifier = null output,
 	@CONTEXTID uniqueidentifier,
@@ -69,5 +70,5 @@ return 0
 			<common:FormField FieldID="REVENUELOOKUPID" Caption="Revenue lookup Id of replacement card" DataType="String" MaxLength="100" Required="true" />
 		</common:FormFields>
 	</common:FormMetaData>
-
+	
 </AddDataFormTemplateSpec>
