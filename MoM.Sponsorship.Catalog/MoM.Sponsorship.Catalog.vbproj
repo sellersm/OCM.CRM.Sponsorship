@@ -359,9 +359,6 @@
     <EmbeddedResource Include="Copy Credit Card\USR_USP_COPYCREDITCARD.xml" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Copy Credit Card\ReplaceCreditCardNoConstituentCheck.Add.xml" />
-  </ItemGroup>
-  <ItemGroup>
     <EmbeddedResource Include="Edit Forms\CompleteOrOverridePendingTransfer.Edit.xml">
       <SubType>Designer</SubType>
     </EmbeddedResource>
@@ -401,6 +398,9 @@
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Conversion Utilities\Sponsorship.DeleteWithoutSPOpReactivate.RecordOperation.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Copy Credit Card\ReplaceCCNoValidation.Add.xml" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.VisualBasic.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

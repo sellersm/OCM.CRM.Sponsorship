@@ -84,6 +84,7 @@
 	21-Feb-2013		Memphis			Added new UFN:  USR_UFN_GET_PREDEPARTUREGIFTSTATUS.xml
 	21-Feb-2013		CMayeda			Added RecurringGift.PreDepartureGiftStatus.Edit.xml FogBugz Case 1004
 	03-Mar-2013		Memphis			Added ViewSponsorshipDetails.View.xml for fix of correspondent/financial sponsor conversion issue.
+	04-Mar-2013		Memphis			Added ReplaceCCNoValidation.Add.xml to copy credit cards without constituent validation.
 -->
 
 	<!-- Note:  the order of the items listed here is important.  For example, you won't be able to load a data form that references 
@@ -257,6 +258,7 @@
 		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.CompleteOrOverridePendingTransfer.Edit.xml" />
 		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.RecurringGift.PreDepartureGiftStatus.Edit.xml" />
 		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.ViewSponsorshipDetails.View.xml" />
+		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.ReplaceCCNoValidation.Add.xml" />
 
 		<!-- Query Views -->
 		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.SponsorshipExtension.Query.xml" />
