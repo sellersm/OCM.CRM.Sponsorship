@@ -1,6 +1,6 @@
 ﻿<SQLStoredProcedureSpec
 	xmlns="bb_appfx_sqlstoredprocedure"
-	xmlns:common="bb_appfx_commontypes" 
+	xmlns:common="bb_appfx_commontypes"
 	ID="756ecec0-975c-4418-ab8f-26360a48b41a"
 	Name="USR_USP_SPONSORSHIP_HANDLE_DEPARTURETRANSFERCOMPLETION"
 	Description="Performs all the custom process for completing a departure transfer and/or override."
@@ -20,9 +20,10 @@
 	19-Feb-2013		Memphis			Fogbugz Case 985, 987.
 	20-Feb-2013		Memphis			Fogbugz Case 988, 989, 990, 991
 	23-Feb-2013		Memphis			Fogbugz Case 1005: need to check the isPaidAheadOrActiveEFT variable instead of just isPaidAhead
+	27-Feb-2013		Memphis			Fogbugz Case 1013: don't populate the departure reason/other if admin type but not project closure
 	-->
-	
-	
+
+
 	<CreateProcedureSQL>
 		<![CDATA[
 create procedure dbo.USR_USP_SPONSORSHIP_HANDLE_DEPARTURETRANSFERCOMPLETION
@@ -588,6 +589,7 @@ begin try
 					set @adminDeparture = 1;
 					set @adminProjectClosure = 1;
 					set @departureCheckDone = 1;
+          set @DEPARTURE_OTHER = NULL;  -- force this to NULL so it's not used in the update below
 				end
 			else
 				begin
@@ -698,9 +700,19 @@ begin try
 	-- then update the interactionextension DEPARTUREREASONCODEID field
 	-- if there's a DEPARTURE_OTHER field value, then update the DEPARTUREREASONOTHERDESCRIPTION field
 
-	select @departureReasonCodeID = ID
-	from dbo.USR_INTERACTIONEXTENSIONDEPARTUREREASONCODE
-	where LOWER([DESCRIPTION]) = LOWER(@departureReasonCodeText);
+  -- Fogbugz Case 1013: only set departure reasons if NOT project closure:
+  if @adminProjectClosure = 0
+    begin
+	    select @departureReasonCodeID = ID
+	    from dbo.USR_INTERACTIONEXTENSIONDEPARTUREREASONCODE
+	    where LOWER([DESCRIPTION]) = LOWER(@departureReasonCodeText);
+    end
+  else
+    begin
+      -- set these values to NULL so they don't get used in the update down below
+      set @departureReasonCodeID = null;
+      set @DEPARTURE_OTHER = null;
+    end
 
 	-- set the values that aren't dependent upon the departure reason type:
 	set @summary = (case 
