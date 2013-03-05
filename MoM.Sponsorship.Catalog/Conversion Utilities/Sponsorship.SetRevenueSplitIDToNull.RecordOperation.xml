@@ -1,0 +1,60 @@
+﻿<RecordOperationSpec
+	xmlns="bb_appfx_recordoperation"
+	xmlns:common="bb_appfx_commontypes"
+	ID="ed6200ad-7ff2-4e51-bdfa-56a1b2168042"
+	Name="Remove Recurring Gift from Sponsorship"
+	Description="This is used to help fix a data conversion issue with finanacial sponsors"
+	Author="Cary Mayeda"
+	OperationType="Update"
+	RecordType="SPONSORSHIP"
+	common:SecurityUIFolder="OCM Admin Action Tasks" >
+
+	<!-- 
+	Remarks:    
+
+	History:
+	Date            Modified By     Comments
+	04-Mar-2013		CMayeda			Initial Version
+	-->
+
+	<SPRecord>
+		<SPOperationImplementation SPName="USR_USP_SPONSORSHIP_REMOVEREVENUESPLITID_UPDATE">
+			<common:CreateProcedureSQL>
+				<![CDATA[
+create procedure dbo.USR_USP_SPONSORSHIP_REMOVEREVENUESPLITID_UPDATE
+(
+	@ID uniqueidentifier,
+	@CHANGEAGENTID uniqueidentifier
+)
+as begin
+
+	if @CHANGEAGENTID is null  
+		exec dbo.USP_CHANGEAGENT_GETORCREATECHANGEAGENT @CHANGEAGENTID output
+
+	begin try
+		update dbo.SPONSORSHIP
+	       set REVENUESPLITID = null,
+		   	   DATECHANGED = getdate(),
+		       CHANGEDBYID =  @CHANGEAGENTID		   
+
+		 where ID = @ID
+		 
+		return 0
+	end try
+	begin catch
+		exec dbo.USP_RAISE_ERROR
+		return 1
+	end catch
+	
+end
+				]]>
+			</common:CreateProcedureSQL>
+		</SPOperationImplementation>
+	</SPRecord>
+
+	<!-- optionally, offer a prompt before executing the record operation -->
+	<Prompt>
+		<StandardPrompt Text="Are you sure you want to remove the Recurring Gift form this sponsorship?" />
+	</Prompt>
+
+</RecordOperationSpec>

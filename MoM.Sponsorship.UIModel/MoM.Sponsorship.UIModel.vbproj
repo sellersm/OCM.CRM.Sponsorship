@@ -187,6 +187,10 @@
       <DependentUpon>UnavailableSubstitutionSponsorshipAddDataFormUIModel.vb</DependentUpon>
     </Compile>
     <Compile Include="UnavailableSubstitutionSponsorshipAddDataFormUIModel.vb" />
+    <Compile Include="ViewSponsorshipDetailsViewFormUIModel.CodeGen.vb">
+      <DependentUpon>ViewSponsorshipDetailsViewFormUIModel.vb</DependentUpon>
+    </Compile>
+    <Compile Include="ViewSponsorshipDetailsViewFormUIModel.vb" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="htmlforms\mom.sponsorship\" />
@@ -196,6 +200,13 @@
     <None Include="postbuild.bat" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="..\MoM.Sponsorship.Catalog\View Forms\ViewSponsorshipDetails.View.xml">
+      <Link>LinkedSpecs\ViewSponsorshipDetails.View.xml</Link>
+    </None>
+    <Content Include="htmlforms\ViewSponsorshipDetailsViewForm.html" />
+    <Content Include="ViewSponsorshipDetailsViewFormUIModel.xml">
+      <DependentUpon>ViewSponsorshipDetailsViewFormUIModel.vb</DependentUpon>
+    </Content>
     <None Include="..\MoM.Sponsorship.Catalog\Add Forms\UnavailableSubstitutionSponsorship.Add.xml">
       <Link>LinkedSpecs\UnavailableSubstitutionSponsorship.Add.xml</Link>
     </None>
