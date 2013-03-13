@@ -85,6 +85,9 @@
 	21-Feb-2013		CMayeda			Added RecurringGift.PreDepartureGiftStatus.Edit.xml FogBugz Case 1004
 	03-Mar-2013		Memphis			Added ViewSponsorshipDetails.View.xml for fix of correspondent/financial sponsor conversion issue.
 	04-Mar-2013		Memphis			Added ReplaceCCNoValidation.Add.xml to copy credit cards without constituent validation.
+	12-Mar-2013		Memphis			Added items for Cancel Pending Transfer feature: Fogbugz Case 1017
+										USR_USP_CANCELPENDINGTRANSFER.xml
+										CancelPendingTransfer.RecordOperation.xml
 -->
 
 	<!-- Note:  the order of the items listed here is important.  For example, you won't be able to load a data form that references 
@@ -209,6 +212,7 @@
 		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.USR_USP_SPONSORSHIP_HANDLE_DEPARTURETRANSFERCOMPLETION.xml" />
 		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.USR_USP_SET_ISMOSTRECENTCOMMITMENTFLAG_FOR_SPONSORSHIP.xml" />
 		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.USR_UFN_GET_PREDEPARTUREGIFTSTATUS.xml" />
+		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.USR_USP_CANCELPENDINGTRANSFER.xml" />
 
 		<!-- Smart Fields -->
 		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.NextTransactionDateDelinquency.SmartField.xml" />
@@ -220,6 +224,7 @@
 		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.DeleteFinancialTransactionExtensionRecord.RecordOperation.xml" />
 		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.ConvertProspectSponsor.RecordOperation.xml" />
 		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.SetIsMostRecentCommitment.RecordOperation.xml" />
+		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.CancelPendingTransfer.RecordOperation.xml" />
 
 		<!-- DataLists -->
 		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.ChildrenToSponsor.SimpleList.xml" />

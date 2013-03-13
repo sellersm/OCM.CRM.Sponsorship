@@ -141,6 +141,20 @@
 									</ExecuteRecordOperation>
 								</Action>
 							</AddAction>
+							<AddAction>
+								<Action ID="c9663809-feeb-468b-8dc2-81c6ea996161" Caption="Cancel pending transfer" ImageKey="RES:delete">
+									<ExecuteRecordOperation RecordOperationID="2ab3244b-0e42-4159-a954-873c7337e369" xmlns="bb_appfx_commontypes">
+										<ActionContext>
+											<PageContextID />
+										</ActionContext>
+										<PostActionEvent>
+											<GoToPage>
+												<PreviousPage />
+											</GoToPage>
+										</PostActionEvent>
+									</ExecuteRecordOperation>
+								</Action>
+							</AddAction>
 
 						</AlterActions>
 					</AlterPageActionGroup>
