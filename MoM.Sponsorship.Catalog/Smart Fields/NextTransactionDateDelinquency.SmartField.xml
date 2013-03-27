@@ -1,0 +1,47 @@
+﻿<SmartFieldSpec
+	xmlns="bb_appfx_smartfield"
+	xmlns:common="bb_appfx_commontypes" 
+	ID="aeadd1b8-ee3b-4e74-93ab-0ed3fa4b8ec9"
+	Name="Next Transaction Date Delinquency Smart Field"
+	Description="Gets the number of days delinquent based on next transaction date."
+	Author="Memphis Sellers"
+	SPName="USR_USP_SMARTFIELD_NTD_DAYS_DELINQUENT"
+	DataType="Integer" 
+	RecordType="Sponsorship" 
+	DisplayName="NTD Delinquency Smart Field" 
+	SmartFieldFolder="Sponsorship"
+	>
+
+	<!-- describe the SP used to calculate the smart field values -->
+	<CreateProcedureSQL>
+		<![CDATA[
+create procedure dbo.USR_USP_SMARTFIELD_NTD_DAYS_DELINQUENT
+(	
+	@ASOF datetime 
+)
+as
+	-- write sql to calculate the smart field values based on the parameters and ASOF date
+	select 
+		s.ID,
+		dbo.USR_UFN_CALCULATE_NTD_DELINQUENCY(CONVERT(Date,dbo.USR_UFN_SPONSORSHIP_GET_NEXT_TRANSACTIONDATE_BY_SPONSORSHIPID(s.ID))) as DaysDelinquent
+	from dbo.SPONSORSHIP s
+	--join dbo.SPONSORSHIPOPPORTUNITYCHILD soc on soc.ID = s.SPONSORSHIPOPPORTUNITYID
+
+		]]>
+	</CreateProcedureSQL>
+
+	<!-- describe any parameters (other than the ASOF date) defined on the SP -->
+	<!--<common:FormMetaData>
+		<common:FormFields>
+			<common:FormField Caption="Parameter 1" FieldID="PARAMETER1" DataType="Integer"/>
+			<common:FormField Caption="Parameter 2" FieldID="PARAMETER2" DataType="Money"/>
+		</common:FormFields>
+
+		--><!-- optionally indicate the client-side component for the user interface --><!--
+		<common:FormUIComponent FormUIComponentType="CustomComponent">
+			<common:CustomComponentID AssemblyName="REPLACE_WITH_ASSEMBLYNAME" ClassName="REPLACE_WITH_FULLCLASSNAME" />
+		</common:FormUIComponent>
+
+	</common:FormMetaData>-->
+
+</SmartFieldSpec>

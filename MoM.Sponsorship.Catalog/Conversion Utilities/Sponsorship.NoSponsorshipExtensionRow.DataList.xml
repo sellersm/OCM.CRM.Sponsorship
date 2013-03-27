@@ -1,0 +1,51 @@
+﻿<DataListSpec 
+	xmlns="bb_appfx_datalist"
+	xmlns:common="bb_appfx_commontypes" 
+	ID="dd02c995-b011-4b8d-8839-cb168ef8100c" 
+	Name="Sponsorship Validation Data List"
+	Description="Sponsorship with No Sponsorship Extension Row" 
+	Author="Cary Mayeda"
+	common:SecurityUIFolder="REPLACE_WITH_SECURITYUIFOLDER">
+
+	<!-- define the SP that returns the data for the datalist -->
+	<SPDataList SPName="USP_DATALIST_SPONSORSHIPWITHNOEXTENSIONROW">
+		<common:CreateProcedureSQL>
+			<![CDATA[
+create procedure dbo.USP_DATALIST_SPONSORSHIPWITHNOEXTENSIONROW(@CONTEXTID uniqueidentifier)
+as
+	set nocount on;
+
+select ID, SPONSORSHIPCOMMITMENTID, CONSTITUENTID, (select NAME from dbo.UFN_CONSTITUENT_DISPLAYNAME (CONSTITUENTID)) as CONSTITUENTNAME, DATEADDED 
+  from dbo.SPONSORSHIP 
+where not exists (select s_ext.ID from dbo.USR_SPONSORSHIPEXTENSION s_ext where s_ext.ID = SPONSORSHIP.ID)
+  and STATUSCODE = 1
+  
+			]]>
+		</common:CreateProcedureSQL>
+	</SPDataList>
+
+	<!-- describe the context ID parameter for the SP (if applicable)-->
+	<Context ContextRecordType="REPLACE_WITH_RECORDTYPE" RecordIDParameter="CONTEXTID"/>
+
+	<!-- describe any parameters (other than the context ID) defined on the SP
+	<Parameters>
+		<common:FormMetaData>
+			<common:FormFields>
+				<common:FormField FieldID="PARAMETER1" Caption="Paramter1" DataType="REPLACE_WITH_DATATYPE"/>
+			</common:FormFields>
+		</common:FormMetaData>
+	</Parameters>-->
+
+	<!-- define the output fields in the list -->
+	<Output>
+		<OutputFields>
+			<OutputField FieldID="ID" Caption="ID" DataType="Guid" IsHidden="true" />
+			<OutputField FieldID="SPONSORSHIPCOMMITMENTID" Caption="Commitment ID" DataType="Guid" />
+			<OutputField FieldID="CONSTITUENTID" Caption="Constituent ID" DataType="Guid" />
+			<OutputField FieldID="CONSTITUENTNAME" Caption="Constituent Name" DataType="String" />
+			<OutputField FieldID="DATEADDED" Caption="Date Added" DataType="Date" />
+
+		</OutputFields>
+	</Output>
+
+</DataListSpec>

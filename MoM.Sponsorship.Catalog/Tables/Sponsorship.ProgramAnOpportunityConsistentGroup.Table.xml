@@ -1,0 +1,30 @@
+﻿<TableSpec 
+	xmlns="bb_appfx_table"
+	xmlns:common="bb_appfx_commontypes" 
+	ID="986ba851-4ec8-4fac-901a-203182bd5e59"
+	Name="Sponsorship"
+	Description="This is used to manage the exceptions for the function UFN_SPONSORSHIP_PROGRAMANDOPPORTUNITYCONSISTENT in order to allow transfers between Indvidual Child Sponsorship and Reserved Child Sponsorship programs"
+	Author="Cary Mayeda"
+	Tablename="USR_SPONSORSHIP_PROGRAMANDOPPORTUNITYCONSISTENT_GROUP"		   
+	>
+
+	<!-- 
+	Remarks:    This table is used for the tempoary fix of UFN_SPONSORSHIP_PROGRAMANDOPPORTUNITYCONSISTENT
+				See the spec for more details.
+				
+				Note:  Only SPONSORSHIPPROGRAMID is used.  SPONSORSHIPPROGRAMNAME is really just used to make it easier to review.
+
+	History:
+	Date            Modified By     Comments
+	19-Aug-2012		CMayeda			Initial Version
+-->
+	
+	
+	<!-- define fields on the table -->
+	<Fields>
+		<GuidField Name="SPONSORSHIPPROGRAMID" Description="The sponsorship program id to include in the group"/>
+		<TextField Name="SPONSORSHIPPROGRAMNAME" Description="The sponsorship program name associated with the SPONSORSHIPPROGRAMID" Length="100"/>
+	</Fields>
+
+	
+</TableSpec>

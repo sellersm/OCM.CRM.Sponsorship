@@ -1,0 +1,10 @@
+﻿<UIModelWizardMetadata>
+  <SpecFileName>CompleteOrOverridePendingTransfer.Edit.xml</SpecFileName>
+  <Namespace></Namespace>
+  <ClassName>CompleteOrOverridePendingTransferFormUIModel</ClassName>
+  <HtmlInfo GenerateHtml="true">
+    <HtmlFile>CompleteOrOverridePendingTransferForm.html</HtmlFile>
+    <HtmlFolder>htmlforms\</HtmlFolder>
+  </HtmlInfo>
+  <GenerateFromDatabase>true</GenerateFromDatabase>
+</UIModelWizardMetadata>

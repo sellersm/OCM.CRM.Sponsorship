@@ -1,0 +1,37 @@
+﻿<TableSpec 
+	xmlns="bb_appfx_table"
+	xmlns:common="bb_appfx_commontypes" 
+	ID="6f3f1b0f-8b9c-4a80-baab-8694c2b40917"
+	Name="NTD Fix Validation"
+	Description="Holds the results of the validation query for the NTD and installment fixes"
+	Author="Cary Mayeda"
+	Tablename="USR_NTDFIX_VALIDATION"		   
+	>
+
+	<!-- define fields on the table -->
+	<Fields>
+		<GuidField Name="REVENUEID"/>
+		<TextField Name="REVENUELOOKUPID" Length="50" Required="false"/>
+		<DateField Name="ORIGINALNEXTTRANSACTIONDATE" Required="false"/>
+		<NumberField Name="NUMBEROFPAYMENTS" Type="int" />
+		<NumberField Name="NUMBEROFWRITEOFFS" Type="int" />
+		<DateField Name="CALCULATEDNEXTTRANSACTIONDATE" Required="false"/>
+		<DateField Name="ACTUALNEXTTRANSACTIONDATE" Required="false"/>
+		<TextField Name="FREQUENCY" Length="50" Required="false"/>
+		<BooleanField Name="ISINCLUDEDINOTHERNTDSCRIPT"/>
+		<MoneyField Name ="CALCULATEDAMOUNTDUE" Required="false"/>
+		<MoneyField Name ="ACTUALAMOUNTDUE" Required="false"/>
+		<NumberField Name="NUMBEROFCORRECTIONWRITEOFFS" Type="int" />
+
+	</Fields>
+
+	<!-- define any indexes on the table -->
+	<Indexes>
+		<Index IsUnique="true">
+			<IndexFields>
+				<IndexField Name="REVENUEID"/>
+			</IndexFields>
+		</Index>
+	</Indexes>
+		
+</TableSpec>

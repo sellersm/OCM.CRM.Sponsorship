@@ -1,0 +1,95 @@
+﻿<SQLStoredProcedureSpec
+	xmlns="bb_appfx_sqlstoredprocedure"
+	xmlns:common="bb_appfx_commontypes" 
+	ID="68316503-9e78-4992-b8a9-108e6d12460d"
+	Name="USR_USP_MOVE_RECURRING_GIFT"
+	Description="Sproc to reassign an orphaned recurring gift to the correct sponsorship."
+	Author="Memphis Sellers"
+	SPName="USR_USP_MOVE_RECURRING_GIFT"
+	>
+
+	<CreateProcedureSQL>
+		<![CDATA[
+create procedure dbo.USR_USP_MOVE_RECURRING_GIFT(
+	@lookupId nvarchar(100),			-- lookupid of the recurring gift which user enters into form
+	@sponsorshipId uniqueidentifier		-- id of the sponsorship which user is viewing
+)
+as
+begin
+begin try
+	declare @orphanRevenueSplitId uniqueidentifier;
+	declare @orphanRevenueId uniqueidentifier;
+	declare @activeRevenueSplitId uniqueidentifier;
+	declare @activeRevenueId uniqueidentifier;
+	declare @revenueConstituentId uniqueidentifier;
+	declare @sponsorConstituentId uniqueidentifier;
+	-- this will be passed into the sproc
+	--declare @lookupId nvarchar(100) = 'rev-10210434'
+	-- this will be passed into the sproc
+	--declare @sponsorshipId uniqueidentifier = 'AB72529B-E26B-4CE6-8033-740A9412876A'
+	declare @isOrphan bit = 0;
+	declare @orphanTestId uniqueidentifier;
+
+	select @orphanRevenueId = rs.REVENUEID, 
+		   @orphanRevenueSplitId = rs.ID, 
+		   @revenueConstituentId = r.CONSTITUENTID
+	from dbo.REVENUE r
+	join dbo.REVENUESPLIT rs on rs.REVENUEID = r.ID
+	where r.LOOKUPID = @lookupId
+	--order by rs.REVENUEID
+
+	-- make sure this is an orphan revenuesplitID
+	select @orphanTestId = r.ID
+	from dbo.REVENUESPLIT rs
+	join dbo.REVENUE r on rs.REVENUEID = r.id
+	left join dbo.SPONSORSHIP s on s.REVENUESPLITID = rs.ID
+	where (r.ID = @orphanRevenueId 
+	and ((s.ID is null) OR (s.ID is not null and s.ID <> @sponsorshipId)))
+
+	if @orphanTestId is not null
+		begin
+			-- make sure this gift is related to this sponsor
+			select @sponsorConstituentId = CONSTITUENTID
+			from dbo.SPONSORSHIP
+			where ID = @sponsorshipId
+		
+			if @sponsorConstituentId = @revenueConstituentId
+				begin
+					-- gift is associated with the correct sponsor, 
+					--  so find the gift that's getting replaced with the orphaned one
+					select @activeRevenueId = rs.REVENUEID, 
+						   @activeRevenueSplitId = rs.ID
+					from dbo.REVENUE r
+					join dbo.REVENUESPLIT rs on rs.REVENUEID = r.ID
+					join dbo.sponsorship s on s.revenuesplitid = rs.ID
+					and s.ID = @sponsorshipId;
+
+					-- now update the sponsorship's revenuesplitid with the orphan revenue split id
+					update dbo.sponsorship
+						set REVENUESPLITID = @orphanRevenueSplitId
+					where ID = @sponsorshipId
+					and REVENUESPLITID = @activeRevenueSplitId
+				end
+			else
+				begin
+					RAISERROR 1000000 'This recurring gift is in use with another sponsorship!'
+				end
+		end
+	else
+		begin
+			RAISERROR 1000000 'Unable to locate recurring gift, or it is not an orphan gift!'
+			--print 'Not an orphan';
+		end
+end try
+  begin catch
+    exec dbo.USP_RAISE_ERROR;
+    return 1;
+  end catch
+
+	return 0;
+end
+
+		]]>
+	</CreateProcedureSQL>
+
+</SQLStoredProcedureSpec>

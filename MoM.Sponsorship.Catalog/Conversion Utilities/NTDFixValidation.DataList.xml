@@ -1,0 +1,73 @@
+﻿<DataListSpec 
+	xmlns="bb_appfx_datalist"
+	xmlns:common="bb_appfx_commontypes" 
+	ID="dd041e88-2d62-4818-b79a-e04c06342381" 
+	Name="NTDFixValidation Data List"
+	Description="Used to call the sproc tha popluates USR_NTDFIX_VALIDATION" 
+	Author="Cary Mayeda"
+	common:SecurityUIFolder="REPLACE_WITH_SECURITYUIFOLDER">
+
+	<!-- define the SP that returns the data for the datalist -->
+	<SPDataList SPName="USP_DATALIST_POPULATE_NTDFIX_VALIDATIONTABLE">
+		<common:CreateProcedureSQL>
+			<![CDATA[
+create procedure dbo.USP_DATALIST_POPULATE_NTDFIX_VALIDATIONTABLE(@CONTEXTID uniqueidentifier)
+as
+	set nocount on;
+	
+exec dbo.USR_USP_POPULATE_NTDFIX_VALIDATIONTABLE
+
+select	top 100
+		base.RevenueID
+		,base.RevenueLookupID
+		,base.OriginalNextTransactionDate 
+		,base.NumberOfPayments 
+		,base.NumberOfWriteoffs
+		,base.CalculatedNextTransactionDate 
+		,base.ActualNextTransactionDate 
+		,base.Frequency 
+		,base.CalculatedAmountDue 
+		,base.ActualAmountDue 
+		,base.NumberOfCorrectionWriteoffs 
+		,base.ActualAmountDue - CalculatedAmountDue as ActualVsCalculatedDifference
+		,ft.TRANSACTIONAMOUNT
+  from	dbo.USR_NTDFIX_VALIDATION base
+  join	dbo.FINANCIALTRANSACTION ft on ft.ID = base.RevenueID	
+
+			]]>
+		</common:CreateProcedureSQL>
+	</SPDataList>
+
+	<!-- describe the context ID parameter for the SP (if applicable)-->
+	<Context ContextRecordType="Revenue" RecordIDParameter="CONTEXTID"/>
+
+	<!-- describe any parameters (other than the context ID) defined on the SP
+	<Parameters>
+		<common:FormMetaData>
+			<common:FormFields>
+				<common:FormField FieldID="PARAMETER1" Caption="Paramter1" DataType="REPLACE_WITH_DATATYPE"/>
+			</common:FormFields>
+		</common:FormMetaData>
+	</Parameters>-->
+
+	<!-- define the output fields in the list -->
+	<Output>
+		<OutputFields>			
+			<OutputField Caption="RevenueID" FieldID="RevenueID" DataType="Guid"/>
+			<OutputField FieldID="RevenuRevenueLookupIDeID" Caption="RevenueLookupID" DataType="String" />
+			<OutputField FieldID="OriginalNextTransactionDate" Caption="OriginalNextTransactionDate" DataType="Date" />
+			<OutputField FieldID="NumberOfPayments" Caption="NumberOfPayments" DataType="Integer" />
+			<OutputField FieldID="NumberOfWriteoffs" Caption="NumberOfWriteoffs" DataType="Integer" />
+			<OutputField FieldID="CalculatedNextTransactionDate" Caption="CalculatedNextTransactionDate" DataType="Date" />
+			<OutputField FieldID="ActualNextTransactionDate" Caption="ActualNextTransactionDate" DataType="Date" />
+			<OutputField FieldID="Frequency" Caption="Frequency" DataType="Integer" />
+			<OutputField FieldID="CalculatedAmountDue" Caption="CalculatedAmountDue" DataType="Money" />
+			<OutputField FieldID="ActualAmountDue" Caption="ActualAmountDue" DataType="Money" />
+			<OutputField FieldID="NumberOfCorrectionWriteoffs" Caption="NumberOfCorrectionWriteoffs" DataType="Integer" />
+			<OutputField FieldID="ActualVsCalculatedDifference" Caption="ActualVsCalculatedDifference" DataType="Money" />
+			<OutputField FieldID="TRANSACTIONAMOUNT" Caption="TRANSACTIONAMOUNT" DataType="Money" />
+
+		</OutputFields>
+	</Output>
+
+</DataListSpec>

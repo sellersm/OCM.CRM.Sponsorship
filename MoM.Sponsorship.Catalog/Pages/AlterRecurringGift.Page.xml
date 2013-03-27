@@ -1,0 +1,118 @@
+﻿<PageDefinitionSpec 
+    xmlns="bb_appfx_pagedefinition" 
+    xmlns:common="bb_appfx_commontypes"
+    ID="10b7f72c-4f14-4164-9882-d05f6b2a7e9e"
+    Name="AlterRecurringGift Page"
+    Description="Alters the Revenue Transaction Page page."
+    Author="Memphis Sellers"
+    ContextRecordType="Revenue"	>
+	
+	<!-- 
+	Remarks:    
+
+	History:
+	Date            Modified By     Comments
+	23-Feb-2013		CMayeda			Added "Edit Predeparture Gift Status" task - FogBugz 1004
+	-->
+
+	
+
+	<!-- Note:  A page can optionally have a view form associated with it as the "Expression form".  While implemented as a view data form,
+	this form has no UI in this context, and is simply used as a way of loading additional information associated with the page.  The fields
+	returned by the expression form can be used as expressions in various properties throughout the page.  To specify an expression form for this
+	page, add the following attribute:		ExpressionDataFormID="<some guid>"-->
+
+	<!-- define how the page header should appear -->
+	<PageHeader Caption="REPLACE_WITH_CAPTION" ImageKey="REPLACE_WITH_IMAGEKEY" />
+	
+	<AlterExistingPages>
+		<AlterPages>
+			<AlterPage PageID="387f861b-6c03-486c-9ff5-9cc5bb7a5275">
+				<AlterTabs>
+					<AlterTab TabID="7bbf6797-c043-49d7-8a36-74cf675340ed">
+						<AlterSections>
+							<AlterDataFormSection DataFormID="bafca6f5-4cdb-4173-aece-113713d38bfb" SectionID="e88ccbda-5f94-4f31-a58a-b46036cec17b" >
+								<AlterActions>
+									<AddAction>
+										<Action ID="f9e9b276-c7ff-4d67-9439-0a77d4060f6d" Caption="Edit Payment Schedule" ImageKey="res:Edit" Visible="=(Fields!AUTOPAY &lt;&gt; 0)" CaptionResourceKey="$$edit">
+											<ShowDataForm DataFormID="87a0ccbe-4869-460e-8949-825cde917df5" xmlns="bb_appfx_commontypes">
+												<ActionContext>
+													<Expression>=Page.Fields!REVENUEID</Expression>
+												</ActionContext>
+												<PostActionEvent>
+													<RefreshPage />
+												</PostActionEvent>
+											</ShowDataForm>
+										</Action>
+									</AddAction>
+								</AlterActions>
+							</AlterDataFormSection>
+						</AlterSections>
+					</AlterTab>					
+				</AlterTabs>
+				<AlterOrAddPageActionGroups>
+					<AlterOrAddPageActionGroup Caption="Tasks" CaptionResourceKey="$$tasks" ID="6edc3707-736f-441f-8871-5fa6467e1d9b" >
+						<AddAction>
+							<Action ID="a361d6ce-93e3-47b5-ae5d-4d2f251df57c" Caption="Delete Payment Schedule Extension" ImageKey="Res:delete">
+								<ExecuteRecordOperation RecordOperationID="f02e2841-fb37-403b-a3aa-50206b4c0bb0" xmlns="bb_appfx_commontypes">
+									<ActionContext>
+										<PageExpressionField>REVENUEID</PageExpressionField>
+									</ActionContext>
+									<PostActionEvent>
+										<RefreshPage />
+									</PostActionEvent>
+								</ExecuteRecordOperation>
+							</Action>
+						</AddAction>
+					</AlterOrAddPageActionGroup>
+
+					<AlterOrAddPageActionGroup Caption="Tasks" CaptionResourceKey="$$tasks" ID="6edc3707-736f-441f-8871-5fa6467e1d9b" >
+						<AddAction>
+							<Action ID="fdf4a20c-c824-4131-9fef-3186cbdd6c0d" Caption="Replace this credit card" ImageKey="RES:rename">
+						<ShowAddDataForm DataFormID="bd828943-d6c3-4fd3-99ea-e86b9fea1266" xmlns="bb_appfx_commontypes">
+							<ActionContext>
+								<PageContextID />
+							</ActionContext>
+							<PostActionEvent>
+								<RefreshPage />
+							</PostActionEvent>
+						</ShowAddDataForm>
+					</Action>
+						</AddAction>
+					</AlterOrAddPageActionGroup>
+
+					<AlterOrAddPageActionGroup Caption="Tasks" CaptionResourceKey="$$tasks" ID="6edc3707-736f-441f-8871-5fa6467e1d9b" >
+						<AddAction>
+							<Action ID="dc8b44a0-7904-4d58-9464-f430a3b9e2cb" Caption="Replace credit card-NO constituent check" ImageKey="RES:rename">
+								<ShowAddDataForm DataFormID="0417749b-c386-4c2b-b842-c2320ca056e9" xmlns="bb_appfx_commontypes">
+									<ActionContext>
+										<PageContextID />
+									</ActionContext>
+									<PostActionEvent>
+										<RefreshPage />
+									</PostActionEvent>
+								</ShowAddDataForm>
+							</Action>
+						</AddAction>
+					</AlterOrAddPageActionGroup>
+					<AlterOrAddPageActionGroup Caption="Tasks" CaptionResourceKey="$$tasks" ID="6edc3707-736f-441f-8871-5fa6467e1d9b" >
+						<AddAction>
+							<Action ID="0cfb8071-ee87-43a6-8f46-6048bfc97248" Caption="Edit Predeparture Gift Status">
+								<ShowDataForm DataFormID="a2570cc3-6ccc-47a2-90d4-297b0eac4101" xmlns="bb_appfx_commontypes">
+									<ActionContext>
+										<PageContextID />
+									</ActionContext>
+									<PostActionEvent>
+										<RefreshPage />
+									</PostActionEvent>
+								</ShowDataForm>
+							</Action>
+						</AddAction>
+					</AlterOrAddPageActionGroup>
+
+				</AlterOrAddPageActionGroups>
+			</AlterPage>
+		</AlterPages>
+	</AlterExistingPages>	
+	
+</PageDefinitionSpec>

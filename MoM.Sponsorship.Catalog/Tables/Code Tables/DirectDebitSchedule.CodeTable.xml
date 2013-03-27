@@ -1,0 +1,11 @@
+﻿<CodeTableSpec 
+	xmlns="bb_appfx_codetable" 
+	xmlns:common="bb_appfx_commontypes"
+	ID="f0e06b34-1abe-4166-9415-fca31c8a6293" 
+	Name="USR_DIRECTDEBITSCHEDULECODE"
+	Description="Direct debit schedule code table values, used for sponsorship payment."
+	Author="memphis-PC\Administrator"
+	DBTablename="USR_DIRECTDEBITSCHEDULECODE"
+	Category="Sponsorship"
+	SortMethod="UserDefined"
+/>

@@ -1,0 +1,22 @@
+﻿<CodeTableSpec 
+	xmlns="bb_appfx_codetable" 
+	xmlns:common="bb_appfx_commontypes"
+	ID="2FD3695B-2D57-437D-80DC-6A0C2FB811E3" 
+	Name="Sponsorship Performance status"
+	Description="Used in both Child Project and Country Performance Status"
+	Author="Cary Mayeda"
+	DBTablename="USR_SPONSORSHIPPERFORMANCECODE"
+	Category="Sponsorship"
+	SortMethod="UserDefined"
+
+/>
+
+	<!-- 
+	Remarks:	This replaces USR_CHILDPROJECTPERFORMANCECODE and USR_CHILDPROJECTCOUNTRYPERFORMANCECODE.
+				Since this is a shared code table between child project and country, it made sense to move it to Sponsorship
+
+	History:
+	Date            Modified By     Comments
+	19-Jul-2012		CMayeda			Initial Version
+
+	-->

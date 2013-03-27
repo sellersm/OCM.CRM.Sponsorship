@@ -1,0 +1,110 @@
+﻿<SQLStoredProcedureSpec
+	xmlns="bb_appfx_sqlstoredprocedure"
+	xmlns:common="bb_appfx_commontypes"
+	ID="f6a0c3ae-3dba-4f14-a77e-31571bfed695"
+	Name="USR_USP_CANCELPENDINGTRANSFER"
+	Description="Removes (undoes) the replacement child for a departure transfer before transfer is completed."
+	Author="Memphis Sellers"
+	SPName="USR_USP_CANCELPENDINGTRANSFER"
+	>
+
+	<!-- 
+	Remarks:    This sproc is used to cancel (undo) a pending departure transfer. Removes the pending (replacement) child's sponsorship and clean up.
+
+	History:
+	Date            Modified By     Comments
+	12-Mar-2013		Memphis			Initial Version.
+	-->
+
+	
+	<CreateProcedureSQL>
+		<![CDATA[
+create procedure dbo.USR_USP_CANCELPENDINGTRANSFER (
+	@TRANSFERSPONSORSHIPID uniqueidentifier,		-- sponsorshipId of the replacement
+	@CHANGEAGENTID uniqueidentifier = null			-- changeagentid, if null gets set below
+)
+as
+begin
+	declare @commitmentId uniqueidentifier;
+	declare @CURRENTDATE date = getdate();
+	declare @SPONSORSHIPOPPORTUNITYID uniqueidentifier;
+	declare @sponsorId uniqueidentifier;
+	declare @departedChildId uniqueidentifier;
+
+
+	begin try
+		if @CHANGEAGENTID is null
+		  exec dbo.USP_CHANGEAGENT_GETORCREATECHANGEAGENT @CHANGEAGENTID output;
+
+		-- if user is on the trxfer (replacement) child, then we can get the sponsorshipId passed in via page Context:
+
+		select @commitmentId = SPONSORSHIPCOMMITMENTID,
+			   @SPONSORSHIPOPPORTUNITYID = SPONSORSHIPOPPORTUNITYID,
+			   @sponsorId = CONSTITUENTID
+		from dbo.SPONSORSHIP
+		where ID = @TRANSFERSPONSORSHIPID;
+
+		-- All the following are for the PENDING TRXFER CHILD
+		-- remove the sponsorshiptransaction row
+		delete
+		dbo.SPONSORSHIPTRANSACTION
+		where ACTIONCODE = 6 and SPONSORSHIPCOMMITMENTID = @commitmentId;
+
+		-- remove the sponsorship
+		delete
+		dbo.SPONSORSHIP
+		where ID = @TRANSFERSPONSORSHIPID;
+
+		--(case [AVAILABILITYCODE] when (0) then N'Available' when (1) then N'Reserved' when (2) then N'Unavailable'  end)
+		-- update the pending trxfer child back to available:
+		update dbo.SPONSORSHIPOPPORTUNITY
+		set AVAILABILITYCODE = 0,
+			CHANGEDBYID = @CHANGEAGENTID,
+			DATECHANGED = @CURRENTDATE,
+			RESERVATIONKEYID = null
+		where ID = @SPONSORSHIPOPPORTUNITYID;
+
+		-- update the lock
+		exec dbo.USP_SPONSORSHIPOPPORTUNITY_UNLOCK @SPONSORSHIPOPPORTUNITYID, 1, @CHANGEAGENTID;
+
+		-- to find the departed child, get all the sponsorship records for this commitment
+		-- and then find the active sponsorship:
+		select @departedChildId = SPONSORSHIPOPPORTUNITYID
+		from dbo.sponsorship
+		where SPONSORSHIPCOMMITMENTID = @commitmentId
+		and STATUSCODE = 1
+
+		if @departedChildId is not null
+			begin
+
+				-- Any interaction with a Category of “Sponsorship Transfers” needs to be cancelled if Status is Pending for the departed child.
+				update dbo.interaction
+				-- need to canel any pending interactions for the sponsor, that are related to the departed child (reactivated)
+				-- that have the category of 'Sponsorship Transfers'.
+				-- set the statuscode to 4 'Cancelled' where it's 1 Pending
+	
+				set STATUSCODE = 4
+				where INTERACTIONSUBCATEGORYID IN (select ID from dbo.INTERACTIONSUBCATEGORY where INTERACTIONCATEGORYID in 
+						(select ID from dbo.INTERACTIONCATEGORY where lower(NAME) = lower('Sponsorship Transfers')))
+				and CONSTITUENTID = @sponsorId
+				and STATUSCODE = 1  -- pending
+				and ID in (select ID from dbo.USR_INTERACTIONEXTENSION where DEPARTEDCHILDID = @departedChildId)
+			end
+		else
+			RAISERROR 1000000 'Unable to find the Child ID of the Departed child. Unable to cancel interactions and continue.'
+
+	end try
+
+  begin catch
+    exec dbo.USP_RAISE_ERROR
+    return 1;
+  end catch
+  
+  return 0;
+
+end
+
+		]]>
+	</CreateProcedureSQL>
+
+</SQLStoredProcedureSpec>

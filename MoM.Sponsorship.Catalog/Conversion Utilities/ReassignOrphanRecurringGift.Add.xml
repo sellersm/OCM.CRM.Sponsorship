@@ -1,0 +1,72 @@
+﻿<AddDataFormTemplateSpec 
+	xmlns="bb_appfx_adddataformtemplate"
+	xmlns:common="bb_appfx_commontypes" 
+	ID="ab8bce25-fb27-406c-922c-7437d3e29a50" 
+	Name="ReassignOrphanRecurringGift Add Data Form"
+	Description="Form to allow user to reassign an orphaned recurring gift." 
+	Author="Memphis Sellers"
+	DataFormInstanceID="7ab31706-0174-4fb3-8201-63c80ccc932f" 
+	RecordType="SPONSORSHIP"
+	common:SecurityUIFolder="OCM Admin Action Tasks"
+	>
+
+	<SPDataForm>
+		<!-- describe the save SP -->
+		<SaveImplementation SPName="USR_USP_DATAFORMTEMPLATE_ADD_REASSIGN_ORPHAN_RECURRINGGIFT">
+			<common:CreateProcedureSQL>
+				<![CDATA[
+create procedure dbo.USR_USP_DATAFORMTEMPLATE_ADD_REASSIGN_ORPHAN_RECURRINGGIFT	
+(
+    @ID uniqueidentifier = null output,
+	@CONTEXTID uniqueidentifier,				-- SPONSORSHIPID of the sponsorship user is viewing
+    @CHANGEAGENTID uniqueidentifier = null,
+	@GIFTLOOKUPID nvarchar(100) = ''			-- recurring gift lookup id user enters into form
+)
+as
+
+set nocount on;
+
+if @ID is null
+    set @ID = newid()
+
+if @CHANGEAGENTID is null  
+    exec dbo.USP_CHANGEAGENT_GETORCREATECHANGEAGENT @CHANGEAGENTID output
+
+declare @CURRENTDATE datetime
+set @CURRENTDATE = getdate()
+
+begin try
+	-- ensure we have a sponsorship id:
+	if @CONTEXTID is null
+		RAISERROR 1000000 'No sponsorship ID was given. Something went wrong, be sure you have a Sponsorship selected.'
+		
+	-- call the sproc to perform the work:
+	exec dbo.USR_USP_MOVE_RECURRING_GIFT
+		@lookupId = @GIFTLOOKUPID,
+		@sponsorshipId  = @CONTEXTID
+	
+end try
+
+begin catch
+    exec dbo.USP_RAISE_ERROR
+    return 1
+end catch
+
+return 0				
+				]]>
+			</common:CreateProcedureSQL>
+		</SaveImplementation>
+	</SPDataForm>
+
+	<!-- describe the context ID for this form (if applicable), which corresponds to a parameter in the SP. -->
+	<Context ContextRecordType="SPONSORSHIP" RecordIDParameter="CONTEXTID"/>
+
+	<!-- describe fields on the form, which correspond to parameters on the SP.  Note that system parameters 
+	like the context @ID, @CONTEXTID, and @CURRENTAPPUSERID need not be listed. -->
+	<common:FormMetaData FixedDialog="true">
+		<common:FormFields>
+			<common:FormField FieldID="GIFTLOOKUPID" Caption="Orphan Gift Lookup ID" DataType="String" MaxLength="100" />
+		</common:FormFields>		
+	</common:FormMetaData>
+
+</AddDataFormTemplateSpec>

@@ -1,0 +1,59 @@
+﻿<DataListSpec 
+	xmlns="bb_appfx_datalist"
+	xmlns:common="bb_appfx_commontypes" 
+	ID="4436ed8a-279b-437e-9ba3-d0a01c3106f4" 
+	Name="Does Sponsor Have Constituency Code Data List"
+	Description="Called from the Unavailabe sponsorship add form to check if sponsor has given constituency code." 
+	Author="Memphis Sellers"
+	common:SecurityUIFolder="Sponsorship">
+
+	<!-- define the SP that returns the data for the datalist -->
+	<SPDataList SPName="USR_USP_DATALIST_DOES_SPONSOR_HAVE_CONSTITUENCY_CODE">
+		<common:CreateProcedureSQL>
+			<![CDATA[
+create procedure dbo.USR_USP_DATALIST_DOES_SPONSOR_HAVE_CONSTITUENCY_CODE(
+	@CONSTITUENTID uniqueidentifier,
+	@CONSTITUENCYCODE nvarchar(100)
+)
+as
+	-- get the ID of the given CONSTITUENCYCODE text value:
+	declare @CONSTITUENCYCODEID uniqueidentifier;
+	
+	select @CONSTITUENCYCODEID = ID
+	from dbo.CONSTITUENCYCODE
+	where LOWER ([DESCRIPTION]) = LOWER(@CONSTITUENCYCODE);
+
+	if @CONSTITUENCYCODEID is not null
+		begin
+			-- call the function to see if sponsor has this code or not: 0 is False, 1 is True
+			select dbo.USR_UFN_CONSTITUENT_HAS_CONSTITUENCYCODE (@CONSTITUENTID, @CONSTITUENCYCODEID) as HASCODE
+		end
+	else
+		select 0 as HASCODE
+
+			]]>
+		</common:CreateProcedureSQL>
+	</SPDataList>
+
+	<!-- describe the context ID parameter for the SP (if applicable)-->
+	<!--<Context ContextRecordType="REPLACE_WITH_RECORDTYPE" RecordIDParameter="CONTEXTID"/>-->
+
+	<!-- describe any parameters (other than the context ID) defined on the SP-->
+	<Parameters>
+		<common:FormMetaData>
+			<common:FormFields>
+				<common:FormField FieldID="CONSTITUENTID" Caption="CONSTITUENTID" DataType="Guid" />
+				<common:FormField FieldID="CONSTITUENCYCODE" Caption="CONSTITUENCYCODE" DataType="String" />
+				<!--<common:FormField FieldID="HASCODE" Caption="HASCODE" DataType="Integer" />-->
+			</common:FormFields>
+		</common:FormMetaData>
+	</Parameters>
+
+	<!-- define the output fields in the list -->
+	<Output>
+		<OutputFields>
+			<OutputField FieldID="HASCODE" Caption="HASCODE" DataType="Boolean" />
+		</OutputFields>
+	</Output>
+
+</DataListSpec>

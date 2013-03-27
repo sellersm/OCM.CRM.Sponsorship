@@ -1,0 +1,100 @@
+﻿<SQLStoredProcedureSpec
+	xmlns="bb_appfx_sqlstoredprocedure"
+	xmlns:common="bb_appfx_commontypes" 
+	ID="c5042829-290b-44ef-80be-12ad5b6fb74c"
+	Name="USR_USP_SPONSORSHIP_MATCHPROJECTOPPORTUNITY_OCMCUSTOM"
+	Description="Custom procedure to match projects for greatest need when creating sponsorship."
+	Author="Memphis Sellers"
+	SPName="USR_USP_SPONSORSHIP_MATCHPROJECTOPPORTUNITY_OCMCUSTOM"
+	>
+
+	<CreateProcedureSQL>
+		<![CDATA[
+create procedure dbo.USR_USP_SPONSORSHIP_MATCHPROJECTOPPORTUNITY_OCMCUSTOM (
+	@MATCHEDOPPORTUNITYID uniqueidentifier output,
+	@SPONSORSHIPPROGRAMID uniqueidentifier,
+	@MATCHRULE tinyint = 0,		-- 0=Greatest need, 1=Nearest location
+	@SPONSORSHIPLOCATIONID uniqueidentifier = null,
+	@GENDERCODE tinyint = 0,
+	@SPROPPAGERANGEID uniqueidentifier = null,
+	@ISHIVPOSITIVECODE tinyint = 0,
+	@HASCONDITIONCODE tinyint = 0,
+	@ISORPHANEDCODE tinyint = 0,
+	@SPROPPPROJECTCATEGORYCODEID uniqueidentifier = null,
+	@SPONSORID uniqueidentifier = null,
+	@ISSOLESPONSORSHIP bit = 0,
+	@EXCLUDEOPPORTUNITYID uniqueidentifier = null,
+	@ORIGINALLOCATIONID uniqueidentifier = null,
+	@REVENUECONSTITUENTID uniqueidentifier = null
+)
+as
+begin
+set nocount on;
+	
+	declare @SQLSTRING nvarchar(400)
+	declare @PARAMS nvarchar(500)
+	
+	-- the custom part is the hardcoded function name in the dynamic sql below: USR_UFN_SPONSORSHIP_MATCHEDOPPORTUNITY_PROJECTSPONSORSHIP
+	-- doesn't really need to be dynamic, but it is for now.
+	
+	select @SQLSTRING = N'select @SPONSORSHIPOPPORTUNITYID = dbo.' +
+							  N'USR_UFN_SPONSORSHIP_MATCHEDOPPORTUNITY_PROJECTSPONSORSHIP' +
+							  N'(@SPONSORSHIPPROGRAMID,' +
+							  N'@MATCHRULE,' +
+							  N'@SPONSORSHIPLOCATIONID,' +
+							  N'@GENDERCODE,' +
+							  N'@SPROPPAGERANGEID,' +
+							  N'@ISHIVPOSITIVECODE,' +
+							  N'@HASCONDITIONCODE,' +
+							  N'@ISORPHANEDCODE,' +
+							  N'@SPROPPPROJECTCATEGORYCODEID,' +
+							  N'@SPONSORID,' +
+							  N'@ISSOLESPONSORSHIP,' +
+							  N'@EXCLUDEOPPORTUNITYID,' +
+							  N'@ORIGINALLOCATIONID,' +
+							  N'@REVENUECONSTITUENTID)'
+	from dbo.SPONSORSHIPPROGRAM
+	inner join dbo.SQLFUNCTIONCATALOG on SQLFUNCTIONCATALOG.ID = SPONSORSHIPPROGRAM.MATCHFUNCTIONID
+	where SPONSORSHIPPROGRAM.ID = @SPONSORSHIPPROGRAMID
+	
+	set @PARAMS = N'@SPONSORSHIPOPPORTUNITYID uniqueidentifier output,' +
+	              N'@SPONSORSHIPPROGRAMID uniqueidentifier,' +
+	              N'@MATCHRULE tinyint,' +
+	              N'@SPONSORSHIPLOCATIONID uniqueidentifier,' +
+	              N'@GENDERCODE tinyint,' +
+	              N'@SPROPPAGERANGEID uniqueidentifier,' +
+	              N'@ISHIVPOSITIVECODE tinyint,' +
+	              N'@HASCONDITIONCODE tinyint,' +
+	              N'@ISORPHANEDCODE tinyint,' +
+	              N'@SPROPPPROJECTCATEGORYCODEID uniqueidentifier,' +
+	              N'@SPONSORID uniqueidentifier,' +
+	              N'@ISSOLESPONSORSHIP bit,' +
+	              N'@EXCLUDEOPPORTUNITYID uniqueidentifier,' +
+	              N'@ORIGINALLOCATIONID uniqueidentifier,' +
+	              N'@REVENUECONSTITUENTID uniqueidentifier';
+	
+	exec sp_executesql @SQLSTRING,
+					   @PARAMS,
+					   @MATCHEDOPPORTUNITYID output,
+					   @SPONSORSHIPPROGRAMID,
+					   @MATCHRULE,
+					   @SPONSORSHIPLOCATIONID,
+					   @GENDERCODE,
+					   @SPROPPAGERANGEID,
+					   @ISHIVPOSITIVECODE,
+					   @HASCONDITIONCODE,
+					   @ISORPHANEDCODE,
+					   @SPROPPPROJECTCATEGORYCODEID,
+					   @SPONSORID,
+					   @ISSOLESPONSORSHIP,
+					   @EXCLUDEOPPORTUNITYID,
+					   @ORIGINALLOCATIONID,
+					   @REVENUECONSTITUENTID;
+
+  return 0;
+end
+
+		]]>
+	</CreateProcedureSQL>
+
+</SQLStoredProcedureSpec>
