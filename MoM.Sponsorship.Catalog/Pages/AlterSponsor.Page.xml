@@ -215,10 +215,23 @@
 					<AlterTab TabID="416dc73b-1209-4a0b-a939-c367f54b4f1d">
 						<AlterSections>
 							<!-- replace the datalist with the custom one -->
-							<AlterDataListSection DataListID="b87f9b24-91e9-40c2-b54a-f6fbcc09f6f0" SectionID="08adb764-c56e-452b-bea6-4b7d65c4791f">
-								<ReplaceDataList NewDataListID="8987c59d-90ed-43d7-93d4-67c2acefe3a2"/>
+							<AlterDataListSection DataListID="bb24aaa6-e00f-47b6-a4fe-a85e7098cfd9" SectionID="08adb764-c56e-452b-bea6-4b7d65c4791f">
+               <!--<DataList ID="bb24aaa6-e00f-47b6-a4fe-a85e7098cfd9" AutoDisplayFilters="true">-->
+                  <!--<ReplaceDataList NewDataListID="8987c59d-90ed-43d7-93d4-67c2acefe3a2"/>-->
 								<AlterActions>
-									<AddAction>
+                  <AddAction>
+                    <Action ID="b2416e10-a163-413d-a472-ed783a7254cf" Caption="Update reason" ToolTipText="Update sponsorship reason" Enabled="=Fields!REASON &lt;&gt; &quot;&quot;&#xA;">
+                      <ShowDataForm DataFormID="068023d8-b2b8-4ffc-a2c1-d5435a5bc5c1" xmlns="bb_appfx_commontypes">
+                        <ActionContext>
+                          <SectionField>SPONSORSHIPID</SectionField>
+                        </ActionContext>
+                        <PostActionEvent>
+                          <RefreshSection />
+                        </PostActionEvent>
+                      </ShowDataForm>
+                    </Action>
+                  </AddAction>
+                  <AddAction>
 										<Action ID="003b14b1-c88e-4102-853d-6238bd5ad8e1" Caption="Cancel active sponsorship" ImageKey="RES:do_not_symbol" Visible="=Fields!STATUS.StartsWith(&quot;Active&quot;) AndAlso Fields!STATUS&lt;&gt;&quot;Active (Transfer pending)&quot;" CaptionResourceKey="$$cancel">
 											<ShowDataForm DataFormID="3e5de54f-e0f7-4187-bdd1-0bfff1156e2d" xmlns="bb_appfx_commontypes">
 												<ActionContext>
@@ -244,7 +257,7 @@
 											<HelpKey>SPSponsorPageCancel.html</HelpKey>
 										</Action>
 									</AddAction>
-								</AlterActions>
+                </AlterActions>
 
 							</AlterDataListSection>
 						</AlterSections>
