@@ -1,0 +1,61 @@
+﻿<ViewDataFormTemplateSpec
+	xmlns="bb_appfx_viewdataformtemplate"
+	xmlns:common="bb_appfx_commontypes"
+	ID="643396c4-4ec5-4600-b935-6ee6af090591"
+	Name="Prospect conversion business process page expression"
+	Description="Prospect conversion business process page expression"
+	Author="Memphis Sellers"
+	DataFormInstanceID="ca691f58-9a2e-481e-a2e9-8d3b1878aaee"
+	RecordType="Sponsorship"
+	common:SecurityUIFolder="Sponsorship"
+	>
+
+	<!-- define the SP that returns the data used by the form -->
+	<SPDataForm SPName="USR_USP_DATAFORMTEMPLATE_VIEW_PROSPECTCONVERSION_BUSINESSPROCESS_PAGEEXPRESSION">
+		<common:CreateProcedureSQL>
+			<![CDATA[
+create procedure dbo.USR_USP_DATAFORMTEMPLATE_VIEW_PROSPECTCONVERSION_BUSINESSPROCESS_PAGEEXPRESSION
+(
+	@ID uniqueidentifier,								-- The Parameter Set ID that corresponds to the status page that we're on
+	@PARAMETERSID uniqueidentifier = null output,		-- The reason this is set as an output parm is so that it can be used in expressions
+	@NAME nvarchar(100) = NULL output,					-- Name of the Parameter Set
+	@DESCRIPTION nvarchar(255) = NULL output,			-- Description of the Parameter Set
+	@DATALOADED bit = 0 output							-- Used to tell the form that data was retreived (set to 1 in the sql select)
+)
+as
+begin
+	set nocount on;
+
+	-- be sure to set this, in case the select returns no rows
+	set @DATALOADED = 0;
+
+	-- populate the output parameters, which correspond to fields on the form.  Note that
+	-- we set @DATALOADED = 1 to indicate that the load was successful.  Otherwise, the system
+	-- will display a "no data loaded" message.
+
+	select  @DATALOADED	  = 1,
+			@PARAMETERSID = ID,
+			@NAME		  = NAME,
+			@DESCRIPTION  = DESCRIPTION
+	from  dbo.USR_PROSPECTSPONSOR_CONVERSION_BUSINESSPROCESS
+	where  ID = 'E893C10B-4E01-496F-9657-0E64CF1B895F'
+
+
+	return 0
+end
+]]>
+		</common:CreateProcedureSQL>
+	</SPDataForm>
+	<common:FormMetaData FixedDialog="true">
+		<common:FormFields>
+			<common:FormField FieldID="PARAMETERSID" DataType="Guid" Hidden="true" Caption="PARAMETERSID" />
+			<common:FormField FieldID="NAME" MaxLength="100" Caption="Name" />
+			<common:FormField FieldID="DESCRIPTION" MaxLength="255" Caption="Description" />
+		</common:FormFields>
+		<common:WebUIComponent>
+			<common:WebUI>
+				<common:DefaultWebUI />
+			</common:WebUI>
+		</common:WebUIComponent>
+	</common:FormMetaData>
+</ViewDataFormTemplateSpec>

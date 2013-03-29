@@ -72,6 +72,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="My Project\AssemblyInfo.vb" />
+    <Compile Include="Prospect Conversion Business Process\ProspectConversion.BusinessProcess.vb" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Global Changes\" />
@@ -414,6 +415,48 @@
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="RecordOperations\CancelPendingTransfer.RecordOperation.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Prospect Conversion Business Process\USR_USP_PROSPECT_CONVERSION_BUSINESSPROCESS.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Prospect Conversion Business Process\ProspectConversion.BusinessProcess.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Prospect Conversion Business Process\USR_USP_CONVERT_PROSPECTSPONSOR_FORBUSINESSPROCESS.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Prospect Conversion Business Process\ProspectConversionBusinessProcess.Package.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Prospect Conversion Business Process\ProspectConversionProcessResults.Table.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Prospect Conversion Business Process\ProspectConversionBusinessProcess.Page.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Prospect Conversion Business Process\ProspectConversionBusinessProcess.View.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Prospect Conversion Business Process\ProspectConversionBusinessProcessStatusReport.Page.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Prospect Conversion Business Process\ProspectConversionBusinessProcess.StatusReport.DataList.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Prospect Conversion Business Process\ProspectConversion.BusinessProcess.Table.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Prospect Conversion Business Process\ProspectConversion.BusinessProcess.PageExpression.View.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Prospect Conversion Business Process\ProspectConversionBusinessProcess.Task.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Prospect Conversion Business Process\ProspectConversion.BusinessProcessResults.DataList.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Prospect Conversion Business Process\ProspectConversion.BusinessProcess.Errors.DataList.xml" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.VisualBasic.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
