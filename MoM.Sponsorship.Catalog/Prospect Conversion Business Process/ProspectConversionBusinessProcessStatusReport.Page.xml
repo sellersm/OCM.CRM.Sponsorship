@@ -1,0 +1,82 @@
+﻿<PageDefinitionSpec 
+    xmlns="bb_appfx_pagedefinition" 
+    xmlns:common="bb_appfx_commontypes"
+    ID="e44d4ccf-02a0-409d-ad40-ebc8c0c3b051"
+    Name="Prospect Conversion Business Process Results Page"
+    Description="Displays the results of the Prospect sponsor conversion business processes."
+    Author="Memphis Sellers"
+    ContextRecordType="Sponsorship"	
+    >
+
+	<!-- Note:  A page can optionally have a view form associated with it as the "Expression form".  While implemented as a view data form,
+	this form has no UI in this context, and is simply used as a way of loading additional information associated with the page.  The fields
+	returned by the expression form can be used as expressions in various properties throughout the page.  To specify an expression form for this
+	page, add the following attribute:		ExpressionDataFormID="<some guid>"-->
+
+	<!-- define how the page header should appear -->
+	<PageHeader Caption="Prospect Conversion Business Process Results" ImageKey="" />
+
+	<!-- define the tabs for the page - note that if only one tab is present, then that tab's sections are promoted to the page level (ie., the tab
+	itself isn't shown -->
+	<Tabs>
+		<Tab ID="97f28162-afcd-4b09-83c7-42ca05b598be" Caption="Prospect Sponsors Converted">
+
+			<!-- define the sections for this tab -->
+			<Sections>
+				<Section ID="7462c563-3b8a-4160-8bdc-65763abfbe34" Caption="Prospect conversions">
+					<DataList ID="e3557d30-04a2-4b90-ae28-5de7e3149c61">
+						<RenderStyle>
+							<StandardView/>
+						</RenderStyle>
+					</DataList>
+
+					<!-- define the section-level actions -->
+					<!--<Actions>
+						<Action ID="f6fc3416-12ea-495c-ae8e-52298fb74fa6" Caption="Section action caption" ImageKey="res:newitem">
+							<common:ShowPage PageID="REPLACE_WITH_PAGEID" />
+						</Action>
+					</Actions>-->
+					
+				</Section>
+			</Sections>
+		</Tab>
+
+		<Tab ID="8148ee65-3c49-4959-9871-769dfa6936b0" Caption="Prospect Sponsors Not Converted">
+
+			<!-- define the sections for this tab -->
+			<Sections>
+				<Section ID="499602b5-f36c-4025-b61f-7d5f50c9bf55" Caption="Prospects not converted">
+					<DataList ID="dfc5aa3a-c2e8-4385-a80d-4fa1c759987a">
+						<RenderStyle>
+							<StandardView/>
+						</RenderStyle>
+					</DataList>
+
+					<!-- define the section-level actions -->
+					<!--<Actions>
+						<Action ID="f6fc3416-12ea-495c-ae8e-52298fb74fa6" Caption="Section action caption" ImageKey="res:newitem">
+							<common:ShowPage PageID="REPLACE_WITH_PAGEID" />
+						</Action>
+					</Actions>-->
+
+				</Section>
+			</Sections>
+		</Tab>
+
+	</Tabs>
+
+	<!-- define page-level actions groups which appear in the explorer bar area of the shell -->
+	<!--<PageActionGroups>
+		
+		<PageActionGroup ID="453d1420-187e-4997-a5ff-ee9d5d500b47" Caption="Tasks" ImageKey="RES:Tasks">
+			--><!-- for this action group, define the list of actions --><!--
+			<Actions>
+				<Action ID="b4e721a9-a3ee-43e9-8c13-fdc0aede4821" Caption="Action caption" ImageKey="res:newitem">
+					<common:ShowPage PageID="REPLACE_WITH_PAGEID" />
+				</Action>
+			</Actions>
+		</PageActionGroup>
+		
+	</PageActionGroups>-->
+	
+</PageDefinitionSpec>

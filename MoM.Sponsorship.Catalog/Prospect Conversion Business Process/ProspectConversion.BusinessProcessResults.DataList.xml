@@ -1,0 +1,67 @@
+﻿<DataListSpec 
+	xmlns="bb_appfx_datalist"
+	xmlns:common="bb_appfx_commontypes" 
+	ID="e3557d30-04a2-4b90-ae28-5de7e3149c61" 
+	Name="Prospect Conversion Results Data List"
+	Description="List of the successful prospect conversions from business process." 
+	Author="Memphis Sellers"
+	common:SecurityUIFolder="Sponsorship">
+
+	<!-- define the SP that returns the data for the datalist -->
+	<SPDataList SPName="USR_USP_DATALIST_PROSPECTCONVERSION_BUSINESSPROCESS_SUCCESSFULRESULTS">
+		<common:CreateProcedureSQL>
+			<![CDATA[
+create procedure dbo.USR_USP_DATALIST_PROSPECTCONVERSION_BUSINESSPROCESS_SUCCESSFULRESULTS(@CONTEXTID uniqueidentifier)
+as
+	set nocount on;
+
+	--declare @contextID uniqueidentifier = 'dbbf5927-df46-4ba3-8241-9a50400519c9';
+    
+	declare @tablePrefix nvarchar(255) = 'dbo.USR_PROSPECTSPONSOR_CONVERSION_BUSINESSPROCESS_'					-- This is the name of part of the success table name created by the business process (without the guid)
+	declare @tableGUIDString nvarchar(50) = replace (convert (nvarchar(50),@contextID), '-', '_')	-- Convert the guid to have underscores instead of dashes
+
+	declare @selectSuccessSQL as nvarchar(max)
+	set @selectSuccessSQL =	'select SPONSORLOOKUPID,NUMBERSPONSORSHIPCONVERSIONS,CONVERSIONDATE,CONVERSIONRESULT,EXCEPTIONMESSAGE' +
+						' from ' + @tablePrefix + @tableGUIDString  
+
+	create table #prospectConversionProcessResults(SPONSORLOOKUPID nvarchar(10), NUMBERSPONSORSHIPCONVERSIONS int, CONVERSIONDATE date, CONVERSIONRESULT nvarchar(7), EXCEPTIONMESSAGE nvarchar(max))
+	insert into #prospectConversionProcessResults
+	exec (@selectSuccessSQL)
+
+	select SPONSORLOOKUPID
+		  ,NUMBERSPONSORSHIPCONVERSIONS
+		  ,CONVERSIONDATE
+		  ,CONVERSIONRESULT
+		  ,EXCEPTIONMESSAGE
+	
+	from	#prospectConversionProcessResults cq
+	order by CONVERSIONDATE desc
+  
+			]]>
+		</common:CreateProcedureSQL>
+	</SPDataList>
+
+	<!-- describe the context ID parameter for the SP (if applicable)-->
+	<Context ContextRecordType="Sponsorship" RecordIDParameter="CONTEXTID"/>
+
+	<!-- describe any parameters (other than the context ID) defined on the SP
+	<Parameters>
+		<common:FormMetaData>
+			<common:FormFields>
+				<common:FormField FieldID="PARAMETER1" Caption="Paramter1" DataType="REPLACE_WITH_DATATYPE"/>
+			</common:FormFields>
+		</common:FormMetaData>
+	</Parameters>-->
+
+	<!-- define the output fields in the list -->
+	<Output>
+		<OutputFields>
+			<OutputField FieldID="SPONSORLOOKUPID" Caption="Sponsor lookup Id" DataType="String" />
+			<OutputField FieldID="NUMBERSPONSORSHIPCONVERSIONS" Caption="Number converted" DataType="Integer" />
+			<OutputField FieldID="CONVERSIONDATE" Caption="Conversion date" DataType="Date" />
+			<OutputField FieldID="CONVERSIONRESULT" Caption="Result" DataType="String" />
+			<OutputField FieldID="EXCEPTIONMESSAGE" Caption="Error" DataType="String" />
+		</OutputFields>
+	</Output>
+
+</DataListSpec>
