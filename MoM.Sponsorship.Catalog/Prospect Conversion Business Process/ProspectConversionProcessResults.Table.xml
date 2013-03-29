@@ -1,0 +1,43 @@
+﻿<TableSpec 
+	xmlns="bb_appfx_table"
+	xmlns:common="bb_appfx_commontypes" 
+	ID="45f11886-4538-4c2c-8704-d4895d8305d9"
+	Name="Prospect Conversion Process Results"
+	Description="Holds results of the prospect sponsor conversion business process"
+	Author="Memphis Sellers"
+	Tablename="USR_PROSPECTCONVERSION_BUSINESSPROCESS_RESULTS"		   	
+	>
+
+	<!-- 
+	Remarks:    This Table holds the result of converting a prospect sponsor when called from the business process. 
+
+	History:
+	Date            Modified By     Comments
+	26-Mar-2013		Memphis			Initial Version.
+	-->	
+
+	<!-- define fields on the table -->
+	<Fields>
+		<TextField Name="SPONSORLOOKUPID" Description="Sponsor Lookup ID" Length="10" Required="true"/>
+		<NumberField Name="NUMBERSPONSORSHIPCONVERSIONS" Description="Number of sponsorships converted" Type="int" />
+		<DateField Name="CONVERSIONDATE" Description="Date of conversion" IncludeTime="false" Required="true"/>
+		<TextField Name="CONVERSIONRESULT" Description="Result of conversion (Fail/Success)" Length="7" Required="true"/>
+		<TextField Name="EXCEPTIONMESSAGE" Description="Error message if failed" DefaultValue="" Length="4000" Required="false" />
+	</Fields>
+
+	<!-- define any additional check constraints on the table -->
+	<!--<CheckConstraints>
+
+	</CheckConstraints>-->
+
+	<!-- define any indexes on the table -->
+	<!--<Indexes>
+
+	</Indexes>-->
+		
+	<!-- define any triggers on the table -->
+	<!--<Triggers>
+
+	</Triggers>-->
+
+</TableSpec>
