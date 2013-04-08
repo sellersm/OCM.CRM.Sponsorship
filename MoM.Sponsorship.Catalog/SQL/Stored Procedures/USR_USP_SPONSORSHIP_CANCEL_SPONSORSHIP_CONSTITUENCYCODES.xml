@@ -8,6 +8,16 @@
 	SPName="USR_USP_SPONSORSHIP_CANCEL_SPONSORSHIP_CONSTITUENCYCODES"
 	>
 
+	<!-- 
+	Remarks:    Sets the DATETO field value for Prospect Sponsor and Sponsor constituency codes where there isn't a DATETO value.
+
+	History:
+	Date            Modified By     Comments
+	30-Sep-2012		Memphis			Initial Version
+	08-Apr-2013		Memphis			Fogbugz Case 1053
+	-->
+	
+	
 	<CreateProcedureSQL>
 		<![CDATA[
 create procedure dbo.USR_USP_SPONSORSHIP_CANCEL_SPONSORSHIP_CONSTITUENCYCODES (
@@ -24,6 +34,7 @@ begin
 		select ID from dbo.CONSTITUENCYCODE 
 		where LOWER([Description]) IN (LOWER('Prospect Sponsor'), LOWER('Sponsor'))
 		) 
+	and DATETO is NULL
 
 end
 
