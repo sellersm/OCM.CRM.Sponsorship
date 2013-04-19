@@ -1,0 +1,54 @@
+﻿<SQLFunctionSpec
+	xmlns="bb_appfx_sqlfunction"
+	xmlns:common="bb_appfx_commontypes" 
+	ID="39334320-a40d-4302-b118-7fd78c5d9e5d"
+	Name="USR_UFN_GETACTIVE_FINANCIALCOMMITMENTS_BYSPONSOR"
+	Description="Table function to return active financial commitment sponsorships for the given sponsor."
+	Author="Memphis Sellers"
+	DBFunctionName="USR_UFN_GETACTIVE_FINANCIALCOMMITMENTS_BYSPONSOR"
+	>
+
+	<!-- 
+	Remarks:    UFN to return table of Active Financial Child Commitments by the sponsor.
+				This query came from Blackbaud's Financial Commitment list on the sponsorship page.
+
+	History:
+	Date            Modified By     Comments
+	19-Apr-2013		Memphis			Initial Version
+
+	-->
+
+	<CreateFunctionSQL>
+		<![CDATA[
+create function dbo.USR_UFN_GETACTIVE_FINANCIALCOMMITMENTS_BYSPONSOR(
+	@FINANCIALSPONSORID uniqueidentifier		-- this is the constituentid of the financial sponsor
+)
+returns @CommitmentList TABLE 
+(
+	-- Add the column definitions for the TABLE variable here
+	childId uniqueidentifier
+)
+with execute as caller
+as begin
+	declare @SHOWHISTORY bit = 0;   -- this determines whether or not to retrieve the cancelled ones as well. we only want active.
+	
+	-- do work here and return a value
+	insert @CommitmentList
+	select
+		ACTIVESPONSORSHIP.SPONSORSHIPOPPORTUNITYID
+	from dbo.SPONSORSHIPTRANSACTION GIFTSTART
+	inner join dbo.SPONSORSHIPCOMMITMENT on SPONSORSHIPCOMMITMENT.ID = GIFTSTART.SPONSORSHIPCOMMITMENTID
+	left join dbo.SPONSORSHIPTRANSACTION GIFTEND on GIFTEND.SPONSORSHIPCOMMITMENTID = GIFTSTART.SPONSORSHIPCOMMITMENTID and GIFTEND.TRANSACTIONSEQUENCE = (select min(MINSEQ.TRANSACTIONSEQUENCE) from dbo.SPONSORSHIPTRANSACTION MINSEQ where MINSEQ.SPONSORSHIPCOMMITMENTID = GIFTSTART.SPONSORSHIPCOMMITMENTID and MINSEQ.TRANSACTIONSEQUENCE > GIFTSTART.TRANSACTIONSEQUENCE and MINSEQ.ACTIONCODE in(2,3,5,9))
+	left join dbo.SPONSORSHIP GIFTENDSPONSORSHIP on GIFTENDSPONSORSHIP.ID = GIFTEND.CONTEXTSPONSORSHIPID
+	left join dbo.SPONSORSHIP ACTIVESPONSORSHIP on ACTIVESPONSORSHIP.SPONSORSHIPCOMMITMENTID = GIFTSTART.SPONSORSHIPCOMMITMENTID and ACTIVESPONSORSHIP.STATUSCODE = 1
+	--left join dbo.SPONSORSHIPPROGRAM on SPONSORSHIPPROGRAM.ID = isnull(GIFTENDSPONSORSHIP.SPONSORSHIPPROGRAMID,ACTIVESPONSORSHIP.SPONSORSHIPPROGRAMID)
+	--outer apply dbo.UFN_CONSTITUENT_DISPLAYNAME(SPONSORSHIPCOMMITMENT.CONSTITUENTID) SPONSOR_NF
+	where GIFTSTART.GIFTFINANCIALSPONSORID = @FINANCIALSPONSORID
+	and (@SHOWHISTORY = 1 or GIFTEND.ID is null)
+
+	return
+end
+		]]>
+	</CreateFunctionSQL>
+
+</SQLFunctionSpec>
