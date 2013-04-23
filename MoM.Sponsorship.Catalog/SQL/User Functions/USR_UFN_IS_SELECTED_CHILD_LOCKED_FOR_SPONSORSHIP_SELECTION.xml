@@ -19,6 +19,7 @@ create FUNCTION USR_UFN_IS_SELECTED_CHILD_LOCKED_FOR_SPONSORSHIP_SELECTION
 	@OPPORTUNITYID uniqueidentifier
 )
 returns bit
+with execute as caller
 as
 begin
 	-- Declare the return variable here

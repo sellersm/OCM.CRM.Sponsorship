@@ -90,6 +90,7 @@
 										CancelPendingTransfer.RecordOperation.xml
 	26-Mar-2013		JFoster			Added items for update sponsorship reason feature: Fogbugz Case 1007
 	19-Apr-2013		Memphis			Added USR_UFN_GETACTIVE_FINANCIALCOMMITMENTS_BYSPONSOR.xml
+	19-Apr-2013		Memphis			Added this missing UFN:  USR_UFN_SPONSORSHIP_MATCHEDOPPORTUNITY_PROJECTSPONSORSHIP
 -->
 
 	<!-- Note:  the order of the items listed here is important.  For example, you won't be able to load a data form that references 
@@ -216,6 +217,7 @@
 		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.USR_UFN_GET_PREDEPARTUREGIFTSTATUS.xml" />
 		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.USR_USP_CANCELPENDINGTRANSFER.xml" />
 		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.USR_UFN_GETACTIVE_FINANCIALCOMMITMENTS_BYSPONSOR.xml" />
+		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.USR_UFN_SPONSORSHIP_MATCHEDOPPORTUNITY_PROJECTSPONSORSHIP" />
 
 		<!-- Smart Fields -->
 		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.NextTransactionDateDelinquency.SmartField.xml" />
