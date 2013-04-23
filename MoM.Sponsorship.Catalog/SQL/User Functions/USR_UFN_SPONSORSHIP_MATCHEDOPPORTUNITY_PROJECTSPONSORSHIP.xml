@@ -6,6 +6,7 @@
 	Description="Custom function to match OCM projects for sponsorship, used by custom greatest need project search"
 	Author="Memphis Sellers"
 	DBFunctionName="USR_UFN_SPONSORSHIP_MATCHEDOPPORTUNITY_PROJECTSPONSORSHIP"
+	GrantServiceRolePermission="true"	
 	>
 
 	<CreateFunctionSQL>
@@ -27,6 +28,7 @@ create function dbo.USR_UFN_SPONSORSHIP_MATCHEDOPPORTUNITY_PROJECTSPONSORSHIP(
   @REVENUECONSTITUENTID uniqueidentifier = null
 )
 returns uniqueidentifier
+with execute as caller
 as begin
   declare @SPONSORSHIPOPPORTUNITYID uniqueidentifier
   

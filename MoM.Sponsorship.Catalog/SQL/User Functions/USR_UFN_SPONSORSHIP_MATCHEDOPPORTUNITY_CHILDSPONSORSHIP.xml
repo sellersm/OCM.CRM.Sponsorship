@@ -32,6 +32,7 @@ CREATE function dbo.USR_UFN_SPONSORSHIP_MATCHEDOPPORTUNITY_CHILDSPONSORSHIP
   @REVENUECONSTITUENTID uniqueidentifier = null
 )
 returns uniqueidentifier
+with execute as caller
 as begin
   declare @SPONSORSHIPOPPORTUNITYID uniqueidentifier
   
