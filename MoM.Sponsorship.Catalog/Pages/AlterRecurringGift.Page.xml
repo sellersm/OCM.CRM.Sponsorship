@@ -95,6 +95,24 @@
 							</Action>
 						</AddAction>
 					</AlterOrAddPageActionGroup>
+
+
+					<AlterOrAddPageActionGroup Caption="Tasks" CaptionResourceKey="$$tasks" ID="6edc3707-736f-441f-8871-5fa6467e1d9b" >
+						<AddAction>
+							<Action ID="3edab33c-94e4-4e3b-a6e8-168abcec8334" Caption="Edit batch number" ImageKey="RES:edit">
+						<ShowDataForm DataFormID="f7a8911b-af20-475a-9d44-9e104bbc5c14" xmlns="bb_appfx_commontypes">
+							<ActionContext>
+								<PageContextID />
+							</ActionContext>
+							<PostActionEvent>
+								<RefreshPage />
+							</PostActionEvent>
+						</ShowDataForm>
+					</Action>
+						</AddAction>
+					</AlterOrAddPageActionGroup>
+
+
 					<AlterOrAddPageActionGroup Caption="Tasks" CaptionResourceKey="$$tasks" ID="6edc3707-736f-441f-8871-5fa6467e1d9b" >
 						<AddAction>
 							<Action ID="0cfb8071-ee87-43a6-8f46-6048bfc97248" Caption="Edit Predeparture Gift Status">
