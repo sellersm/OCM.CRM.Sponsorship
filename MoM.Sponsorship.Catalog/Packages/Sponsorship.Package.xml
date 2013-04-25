@@ -91,6 +91,7 @@
 	26-Mar-2013		JFoster			Added items for update sponsorship reason feature: Fogbugz Case 1007
 	19-Apr-2013		Memphis			Added USR_UFN_GETACTIVE_FINANCIALCOMMITMENTS_BYSPONSOR.xml
 	19-Apr-2013		Memphis			Added this missing UFN:  USR_UFN_SPONSORSHIP_MATCHEDOPPORTUNITY_PROJECTSPONSORSHIP
+	25-Apr-2013		Memphis			Added UpdateBatchNumber.Edit.xml
 -->
 
 	<!-- Note:  the order of the items listed here is important.  For example, you won't be able to load a data form that references 
@@ -269,8 +270,9 @@
 		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.CompleteOrOverridePendingTransfer.Edit.xml" />
 		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.RecurringGift.PreDepartureGiftStatus.Edit.xml" />
 		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.ViewSponsorshipDetails.View.xml" />
-    <common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.ReplaceCCNoValidation.Add.xml" />
-    <common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.Sponsorship.UpdateReason.Edit.xml" />
+		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.ReplaceCCNoValidation.Add.xml" />
+		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.Sponsorship.UpdateReason.Edit.xml" />
+		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.UpdateBatchNumber.Edit.xml" />
 
 		<!-- Query Views -->
 		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.SponsorshipExtension.Query.xml" />
