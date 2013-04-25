@@ -471,6 +471,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="DataLists\Sponsorship.Reasons.DataList.xml" />
+    <EmbeddedResource Include="Replace Batch Number\UpdateBatchNumber.Edit.xml" />
     <EmbeddedResource Include="SQL\User Functions\USR_UFN_GETACTIVE_FINANCIALCOMMITMENTS_BYSPONSOR.xml" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.VisualBasic.targets" />
