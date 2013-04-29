@@ -1,0 +1,43 @@
+﻿<SQLFunctionSpec
+	xmlns="bb_appfx_sqlfunction"
+	xmlns:common="bb_appfx_commontypes" 
+	ID="debd688d-88cb-4239-a905-2b0c0a03eab6"
+	Name="USR_UFN_CHECK_RECURRINGGIFT_ISHELD"
+	Description="Checks to see if the recurring gift is being held."
+	Author="Memphis Sellers"
+	DBFunctionName="USR_UFN_CHECK_RECURRINGGIFT_ISHELD"
+	>
+
+	<!-- 
+	Remarks:  This checks to see if this gift is being held, based on the Hold Recurring Gift attribute.
+			  Returns 0 if no, 1 if yes.
+
+	History:
+	Date            Modified By     Comments
+	28-Apr-2013		Memphis			Initial Version
+	-->
+	
+	<CreateFunctionSQL>
+		<![CDATA[
+create function dbo.USR_UFN_CHECK_RECURRINGGIFT_ISHELD(
+	@REVENUESPLITID uniqueidentifier
+)
+returns bit
+with execute as caller
+as begin
+	-- do work here and return a value
+	declare @isHeld bit = 0;  -- default to No
+	if exists (select 1
+		from dbo.ATTRIBUTE58705B2A658B4396A8F1BBC9003B9DCA
+		where (REVENUEID = (select REVENUEID from dbo.REVENUESPLIT where ID = @REVENUESPLITID)
+		and ENDDATE is null
+		and BOOLEANCODE = 1)
+		)
+		set @isHeld = 1;
+	
+	return @isHeld;
+end
+		]]>
+	</CreateFunctionSQL>
+
+</SQLFunctionSpec>
