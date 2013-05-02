@@ -9,8 +9,10 @@
 	SmallImageKey="RES:goto_round" 
 	FunctionalAreaID="9ea48d9c-7e2d-42e6-91cc-210792618017" 
 	TaskGroup="Administration" 
-	Sequence="99" 
-	xmlns="bb_appfx_task">
+	Sequence="99"
+	DisplayAsAction="true"
+	xmlns="bb_appfx_task"
+	>
 	
 	<ShowPage PageID="d57eca89-234a-4255-8501-4310e1072500" TabID="5e129367-8350-4a3b-9fbe-6f017c07ad07" xmlns="bb_appfx_commontypes" >
 		<ActionContext>
