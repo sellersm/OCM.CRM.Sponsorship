@@ -1,0 +1,21 @@
+﻿<TaskSpec 
+	xmlns:xsd="http://www.w3.org/2001/XMLSchema" 
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+	ID="7eb4cf3f-eb73-4ca0-9339-1955000a7291" 
+	Name="D2 Campaign Business Process" 
+	Description="View the D2 Campaign Business Process page" 
+	Author="Memphis Sellers" 
+	ImageKey="RES:goto_round" 
+	SmallImageKey="RES:goto_round" 
+	FunctionalAreaID="9ea48d9c-7e2d-42e6-91cc-210792618017" 
+	TaskGroup="Administration" 
+	Sequence="99" 
+	xmlns="bb_appfx_task">
+	
+	<ShowPage PageID="d57eca89-234a-4255-8501-4310e1072500" TabID="5e129367-8350-4a3b-9fbe-6f017c07ad07" xmlns="bb_appfx_commontypes" >
+		<ActionContext>
+			<Expression>D180E31A-B7E2-4E0D-A4FD-76195EA8BD42</Expression>
+		</ActionContext>
+	</ShowPage>
+
+</TaskSpec>

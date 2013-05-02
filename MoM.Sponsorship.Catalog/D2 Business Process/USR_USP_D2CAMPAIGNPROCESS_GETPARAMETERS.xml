@@ -1,0 +1,32 @@
+﻿<SQLStoredProcedureSpec
+	xmlns="bb_appfx_sqlstoredprocedure"
+	xmlns:common="bb_appfx_commontypes" 
+	ID="bef0d278-9c04-4880-b1f5-b88624aa0eb1"
+	Name="USR_USP_D2CAMPAIGNPROCESS_GETPARAMETERS"
+	Description="Defines a stored procedure that is used 
+  within the business process .NET CLR code to retrieve the instance parameters 
+  for a given id. See D2CampaignBusinessProcess.vb"
+	Author="Memphis Sellers"
+	SPName="USR_USP_D2CAMPAIGNPROCESS_GETPARAMETERS"
+	>
+
+	<CreateProcedureSQL>
+		<![CDATA[
+create procedure dbo.USR_USP_D2CAMPAIGNPROCESS_GETPARAMETERS (
+	@ID uniqueidentifier
+)
+as
+begin
+	-- do work
+	select
+		CAMPAIGNTYPE
+	from
+		dbo.USR_D2_CAMPAIGN_BUSINESSPROCESS
+	where
+		ID = @ID	
+end
+
+		]]>
+	</CreateProcedureSQL>
+
+</SQLStoredProcedureSpec>
