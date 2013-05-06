@@ -63,7 +63,7 @@ return 0
 			<common:FormField FieldID="NAME" Caption="Name" DataType="String" MaxLength="100" />
 			<common:FormField FieldID="DESCRIPTION" Caption="Description" DataType="String" MaxLength="100" />
 			<common:FormField FieldID="CAMPAIGNTYPE" Caption="Campaign Type" DataType="TinyInt" >
-				<common:ValueList UseRadioButtons="true" >
+				<common:ValueList UseRadioButtons="false" >
 					<common:Items>
 						<common:Item>
 							<common:Value>0</common:Value>
