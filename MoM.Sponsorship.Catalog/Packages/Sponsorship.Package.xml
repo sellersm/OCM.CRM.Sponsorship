@@ -93,6 +93,7 @@
 	19-Apr-2013		Memphis			Added this missing UFN:  USR_UFN_SPONSORSHIP_MATCHEDOPPORTUNITY_PROJECTSPONSORSHIP
 	25-Apr-2013		Memphis			Added UpdateBatchNumber.Edit.xml
 	06-May-2013		Memphis			Added USR_UFN_GET_PAYMENTMETHODCODE_BY_REVENUESPLITID.xml used in D2 Campaign biz process
+										  USR_UFN_CHECK_RECURRINGGIFT_ISHELD.xml
 -->
 
 	<!-- Note:  the order of the items listed here is important.  For example, you won't be able to load a data form that references 
@@ -221,6 +222,7 @@
 		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.USR_UFN_GETACTIVE_FINANCIALCOMMITMENTS_BYSPONSOR.xml" />
 		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.USR_UFN_SPONSORSHIP_MATCHEDOPPORTUNITY_PROJECTSPONSORSHIP" />
 		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.USR_UFN_GET_PAYMENTMETHODCODE_BY_REVENUESPLITID.xml" />
+		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.USR_UFN_CHECK_RECURRINGGIFT_ISHELD.xml" />
 
 		<!-- Smart Fields -->
 		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.NextTransactionDateDelinquency.SmartField.xml" />
