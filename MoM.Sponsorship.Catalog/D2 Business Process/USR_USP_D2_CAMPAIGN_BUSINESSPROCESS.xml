@@ -287,6 +287,7 @@ begin
 			join dbo.USR_CURRENTOPPORTUNITYSPONSORSHIPSTATUSCODE statusCode on statusCode.ID = se.CURRENTOPPORTUNITYSPONSORSHIPSTATUSCODEID and statusCode.DESCRIPTION = 'Sponsored'
 			where (CONSTITUENTID IN (select sponsorId from D2SponsorList)
 			and STATUSCODE = 1   -- status of 'Active'
+			and dbo.UFN_SPONSORSHIP_GIFTFINANCIALSPONSORID(dbo.SPONSORSHIP.ID) is null		-- filter out correspondent kids and sponsorships
 			)
 		)
 		-- ************   I THINK this is where we filter out the records based on the campaign type passed in! *********************
@@ -336,20 +337,20 @@ begin
 		while (@@FETCH_STATUS = 0)
 			begin			
 				-- make sure this sponsor is NOT the corresponding sponsor for this sponsorship!
-				select @giftFinancialSponsorId = st.GIFTFINANCIALSPONSORID
-				from dbo.SPONSORSHIP s
-				join dbo.SPONSORSHIPTRANSACTION st on s.SPONSORSHIPCOMMITMENTID = st.SPONSORSHIPCOMMITMENTID
-				where s.ID = @sponsorshipId;
+				--select @giftFinancialSponsorId = st.GIFTFINANCIALSPONSORID
+				--from dbo.SPONSORSHIP s
+				--join dbo.SPONSORSHIPTRANSACTION st on s.SPONSORSHIPCOMMITMENTID = st.SPONSORSHIPCOMMITMENTID
+				--where s.ID = @sponsorshipId;
 				
-				if @giftFinancialSponsorId is not null
-					begin
-						-- this is a corresponding sponsor, so do not continue with this sponsorship!
-						set @isCorrespondent = 1;
-					end
-				else
-					set @isCorrespondent = 0;
+				--if @giftFinancialSponsorId is not null
+				--	begin
+				--		-- this is a corresponding sponsor, so do not continue with this sponsorship!
+				--		set @isCorrespondent = 1;
+				--	end
+				--else
+				--	set @isCorrespondent = 0;
 
-				if @isNewSponsor = 1 and @isCorrespondent = 0
+				if @isNewSponsor = 1 --and @isCorrespondent = 0
 					begin					
 						--print 'new sponsor is: ' + cast(@sponsorId as nvarchar(100));
 						set @createInteractions = 0;
@@ -414,6 +415,7 @@ begin
 							set @childrenExistForSponsor = 0;
 				
 						begin transaction d2CampaignTransaction;
+						
 				
 						--print 'new sponsor trxaction started...';
 
@@ -463,7 +465,7 @@ begin
 					end
 		
 
-				if @childrenExistForSponsor = 1 and @isCorrespondent = 0
+				if @childrenExistForSponsor = 1 --and @isCorrespondent = 0
 					begin			
 						-- check if sponsor has valid primary email address:
 						if dbo.USR_UFN_CONSTITUENT_HASVALID_PRIMARY_EMAIL(@sponsorId) = 1
@@ -609,7 +611,7 @@ begin
 													@expectedDate = @expectedDate,
 													@owner = @interactionOwner,
 													@contactMethodDesc = @contactMethodDesc,
-													@comment = '',                                                                      
+													@comment = 'D2 Campaign',                                                                      
 													@letterTypeDesc = '',
 													@fulfillmentStatusDesc = '',
 													@eftBrochureCode = 0,
@@ -780,7 +782,8 @@ begin
 				
 						delete from @childIDList;
 				
-						commit transaction d2CampaignTransaction;
+						--if @isCorrespondent = 0
+							commit transaction d2CampaignTransaction;
 						--rollback transaction d2CampaignTransaction;
 				
 						--print 'sponsor transaction committed';
@@ -792,7 +795,8 @@ begin
 		
 			end
 
-		commit transaction d2CampaignTransaction;
+		--if @isCorrespondent = 0
+			commit transaction d2CampaignTransaction;
 		--rollback transaction d2CampaignTransaction;
 		--print 'last transaction committed!';
 
