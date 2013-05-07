@@ -60,7 +60,7 @@
 
 		<!-- Forms -->
 		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.D2CampaignBusinessProcessParameters.Add.xml" />
-		<!--<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.D2CampaignBusinessPreProcess.Edit.xml" />-->
+		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.D2CampaignBusinessProcessParameters.Edit.xml" />
 
 		<!-- Data Lists -->
 		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.D2CampaignBusinessProcess.StatusReport.DataList.xml" />
@@ -72,6 +72,8 @@
 		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.D2CampaignBusinessProcess.Summary.View.xml" />
 		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.D2CampaignBusinessProcess.PageExpression.View.xml" />
 
+		<!-- Record Operations -->
+		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.D2CampaignBusinessProcess.DeleteParameterSet.RecordOperation.xml" />
 
 		<!-- Pages -->
 		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.D2CampaignBusinessProcessResults.Page.xml" />

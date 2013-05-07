@@ -198,8 +198,8 @@ begin
 		(
 			select distinct dbo.SPONSORSHIP.CONSTITUENTID
 			from dbo.SPONSORSHIP
-			inner join dbo.CONSTITUENTSOLICITCODE on dbo.CONSTITUENTSOLICITCODE.CONSTITUENTID = dbo.SPONSORSHIP.CONSTITUENTID and (SOLICITCODEID <> @doNotContactSolicitCodeId and (dbo.CONSTITUENTSOLICITCODE.ENDDATE is null or dbo.CONSTITUENTSOLICITCODE.ENDDATE < GETDATE()))
-			inner join dbo.CONSTITUENCY on dbo.CONSTITUENCY.CONSTITUENTID = dbo.SPONSORSHIP.CONSTITUENTID and (dbo.CONSTITUENCY.CONSTITUENCYCODEID <> @affiliateOfficeId and (dbo.CONSTITUENCY.DATETO is null or dbo.CONSTITUENCY.DATETO < GETDATE()))
+			left join dbo.CONSTITUENTSOLICITCODE on dbo.CONSTITUENTSOLICITCODE.CONSTITUENTID = dbo.SPONSORSHIP.CONSTITUENTID and ((SOLICITCODEID is not null and SOLICITCODEID <> @doNotContactSolicitCodeId) and (dbo.CONSTITUENTSOLICITCODE.ENDDATE is null or dbo.CONSTITUENTSOLICITCODE.ENDDATE < GETDATE()))
+			left join dbo.CONSTITUENCY on dbo.CONSTITUENCY.CONSTITUENTID = dbo.SPONSORSHIP.CONSTITUENTID and ((dbo.CONSTITUENCY.CONSTITUENCYCODEID is not null and dbo.CONSTITUENCY.CONSTITUENCYCODEID <> @affiliateOfficeId) and (dbo.CONSTITUENCY.DATETO is null or dbo.CONSTITUENCY.DATETO < GETDATE()))
 			where not exists (select 1
 				from dbo.INTERACTION
 				where (dbo.INTERACTION.INTERACTIONSUBCATEGORYID in (select ID from dbo.INTERACTIONSUBCATEGORY where dbo.INTERACTIONSUBCATEGORY.INTERACTIONCATEGORYID IN 
@@ -378,8 +378,8 @@ begin
 							begin
 								set @childrenExistForSponsor = 1;
 								--print 'these are the children for this sponsor: '+ cast(@sponsorId as nvarchar(100));	
-								select *
-								from @childIDList;
+								--select *
+								--from @childIDList;
 							end
 						else
 							set @childrenExistForSponsor = 0;

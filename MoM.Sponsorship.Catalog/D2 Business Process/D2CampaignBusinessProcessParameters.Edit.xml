@@ -1,11 +1,11 @@
 ﻿<EditDataFormTemplateSpec 
 	xmlns="bb_appfx_editdataformtemplate"
 	xmlns:common="bb_appfx_commontypes" 
-	ID="82755726-7527-46d2-93ce-1fb9dd7b2be9" 
-	Name="D2 Campaign Business PreProcess Edit Data Form"
-	Description="Pre process form for the D2 Campaign business process." 
+	ID="305b67ae-7c66-4182-b8ff-fc1c0d321fb8" 
+	Name="D2 Campaign Business Process Parameters Edit Data Form"
+	Description="Form to edit the D2 Campaign business process parameters." 
 	Author="Memphis Sellers"
-	DataFormInstanceID="5a51ed1a-7b5a-451b-a74c-41561a470bd9" 
+	DataFormInstanceID="55ff7080-0d30-42a0-9d87-c729cae79149" 
 	RecordType="D2 Campaign Business Process Results"
 	common:SecurityUIFolder="Sponsorship"
 	>
@@ -13,15 +13,16 @@
 	<SPDataForm>
 
 		<!-- define the edit load SP, which is used to load the data for the form -->
-		<LoadImplementation SPName="USR_USP_DATAFORMTEMPLATE_EDITLOAD_D2CAMPAIGN_PREPROCESS">
+		<LoadImplementation SPName="USR_USP_DATAFORMTEMPLATE_EDITLOAD_D2CAMPAIGN_BUSINESSPROCESS_PARAMETERS">
 			<common:CreateProcedureSQL>
 				<![CDATA[
-create procedure dbo.USR_USP_DATAFORMTEMPLATE_EDITLOAD_D2CAMPAIGN_PREPROCESS(
+create procedure dbo.USR_USP_DATAFORMTEMPLATE_EDITLOAD_D2CAMPAIGN_BUSINESSPROCESS_PARAMETERS(
     @ID uniqueidentifier,
     @DATALOADED bit = 0 output,
     @TSLONG bigint = 0 output,
 	@NAME nvarchar(100) = null output,
-	@DESCRIPTION nvarchar(100) = null output
+	@DESCRIPTION nvarchar(100) = null output,
+	@CAMPAIGNTYPE tinyint = null output
 )
 as
 
@@ -38,25 +39,30 @@ as
 	select
 		@DATALOADED = 1,
 		@TSLONG = TSLONG,
-		@NAME = NAME,		
-		@DESCRIPTION = DESCRIPTION
+		@ID = ID, 
+		@NAME = NAME, 
+		@DESCRIPTION = DESCRIPTION, 
+		@CAMPAIGNTYPE = CAMPAIGNTYPE
 	from dbo.USR_D2_CAMPAIGN_BUSINESSPROCESS
-	where ID = @ID;
+	where ID = @ID
 
 	return 0;
 				]]>
 			</common:CreateProcedureSQL>
 		</LoadImplementation>
 
-		<SaveImplementation SPName="USR_USP_DATAFORMTEMPLATE_EDIT_D2CAMPAIGN_PREPROCESS">
+		<SaveImplementation SPName="USR_USP_DATAFORMTEMPLATE_EDIT_D2CAMPAIGN_BUSINESSPROCESS_PARAMETERS">
 			<common:CreateProcedureSQL>
 				<![CDATA[
-create procedure dbo.USR_USP_DATAFORMTEMPLATE_EDIT_D2CAMPAIGN_PREPROCESS (
+create procedure dbo.USR_USP_DATAFORMTEMPLATE_EDIT_D2CAMPAIGN_BUSINESSPROCESS_PARAMETERS (
 	@ID uniqueidentifier,
 	@CHANGEAGENTID uniqueidentifier = null,
+	@NAME nvarchar(100),
+	@DESCRIPTION nvarchar(100),
 	@CAMPAIGNTYPE tinyint
 )
 as
+
 	set nocount on;
 
 	if @CHANGEAGENTID is null  
@@ -68,7 +74,9 @@ as
 	begin try
 		-- handle updating the data
 		update dbo.USR_D2_CAMPAIGN_BUSINESSPROCESS set
-			CAMPAIGNTYPE = @CAMPAIGNTYPE,
+			NAME = @NAME, 
+			DESCRIPTION = @DESCRIPTION, 
+			CAMPAIGNTYPE = @CAMPAIGNTYPE, 
 			CHANGEDBYID = @CHANGEAGENTID,
 			DATECHANGED = @CURRENTDATE
 		where ID = @ID
@@ -85,14 +93,16 @@ return 0;
 
 	</SPDataForm>
 
+	
+	
 	<!-- describe fields on the form, which correspond to parameters on the SP.  Note that system paramters 
 	like the record ID, DATALOADED, TSLONG, and CURRENTAPPUSERID need not be listed. -->
 	<common:FormMetaData FixedDialog="true">
 		<common:FormFields>
-			<common:FormField FieldID="NAME" Caption="Name" DataType="String" MaxLength="100" ReadOnly="true"/>
-			<common:FormField FieldID="DESCRIPTION" Caption="Description" DataType="String" MaxLength="100" ReadOnly="true"/>
-			<common:FormField FieldID="CAMPAIGNTYPE" Caption="Campaign Type" DataType="TinyInt" >
-				<common:ValueList UseRadioButtons="true" >
+			<common:FormField FieldID="NAME" Caption="Name" DataType="String" MaxLength="100" Required="true"/>
+			<common:FormField FieldID="DESCRIPTION" Caption="Description" DataType="String" MaxLength="100" />
+			<common:FormField FieldID="CAMPAIGNTYPE" Caption="Campaign Type" DataType="TinyInt" Required="true" >
+				<common:ValueList UseRadioButtons="false" >
 					<common:Items>
 						<common:Item>
 							<common:Value>0</common:Value>
