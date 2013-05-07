@@ -66,13 +66,6 @@
 						</RenderStyle>
 					</DataList>
 					<Actions>
-						<Action ID="5ab0ad2e-8620-47b7-8517-eb49f58b9213" Caption="Add" ImageKey="RES:newitem">
-							<ShowAddDataForm DataFormID="ef5a35bc-807c-4f03-a8b6-d2528557b385" xmlns="bb_appfx_commontypes">
-								<PostActionEvent>
-									<RefreshSection />
-								</PostActionEvent>
-							</ShowAddDataForm>
-						</Action>
 						<Action ID="7078ca70-9573-4048-a7cb-a6ce3408c58d" Caption="Start D2 Campaign" ImageKey="RES:businessprocessspec">
 							<StartBusinessProcess BusinessProcessID="d180e31a-b7e2-4e0d-a4fd-76195ea8bd42" StatusPageID="d57eca89-234a-4255-8501-4310e1072500" StatusTabID="00000000-0000-0000-0000-000000000000" PreprocessEditFormID="00000000-0000-0000-0000-000000000000" xmlns="bb_appfx_commontypes">
 								<ActionContext>
@@ -80,6 +73,34 @@
 								</ActionContext>
 							</StartBusinessProcess>
 						</Action>
+						<Action ID="5ab0ad2e-8620-47b7-8517-eb49f58b9213" Caption="Add" ImageKey="RES:newitem">
+							<ShowAddDataForm DataFormID="ef5a35bc-807c-4f03-a8b6-d2528557b385" xmlns="bb_appfx_commontypes">
+								<PostActionEvent>
+									<RefreshSection />
+								</PostActionEvent>
+							</ShowAddDataForm>
+						</Action>
+						<Action ID="797adc77-33a3-45b6-82c7-200608f77b1b" Caption="Edit" ImageKey="RES:edit">
+							<ShowDataForm DataFormID="55ff7080-0d30-42a0-9d87-c729cae79149" xmlns="bb_appfx_commontypes">
+								<ActionContext>
+									<SectionField>ID</SectionField>
+								</ActionContext>
+								<PostActionEvent>
+									<RefreshSection />
+								</PostActionEvent>
+							</ShowDataForm>
+						</Action>
+						<Action ID="1ff7b2a6-ff1c-47b6-8374-6ff4c668b366" Caption="Delete" ImageKey="RES:delete">
+							<ExecuteRecordOperation RecordOperationID="fcba65ac-3d7a-4ce1-912e-ab49c980d43d" xmlns="bb_appfx_commontypes">
+								<ActionContext>
+									<SectionField>ID</SectionField>
+								</ActionContext>
+								<PostActionEvent>
+									<RefreshSection />
+								</PostActionEvent>
+							</ExecuteRecordOperation>
+						</Action>
+
 					</Actions>
 				</Section>
 			</Sections>

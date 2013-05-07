@@ -6,7 +6,7 @@
 	Description="Displays the parameterset information for D2 Campaign biz process."
 	Author="Memphis Sellers"
 	DataFormInstanceID="be01ca6a-38e9-4edd-a05e-ab8967086774" 
-	RecordType="Sponsorship"
+	RecordType="D2 Campaign Business Process Results"
 	common:SecurityUIFolder="Sponsorship"
 	>
 

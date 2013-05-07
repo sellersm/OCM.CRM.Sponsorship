@@ -6,7 +6,7 @@
 	Description="Adds parameters for the D2 Campaign Business Process." 
 	Author="Memphis Sellers"
 	DataFormInstanceID="ef5a35bc-807c-4f03-a8b6-d2528557b385" 
-	RecordType="Sponsorship"
+	RecordType="D2 Campaign Business Process Results"
 	common:SecurityUIFolder="Sponsorship"
 	>
 
@@ -60,9 +60,9 @@ return 0
 	like the context @ID, @CONTEXTID, and @CURRENTAPPUSERID need not be listed. -->
 	<common:FormMetaData FixedDialog="true">
 		<common:FormFields>
-			<common:FormField FieldID="NAME" Caption="Name" DataType="String" MaxLength="100" />
+			<common:FormField FieldID="NAME" Caption="Name" DataType="String" MaxLength="100" Required="true" />
 			<common:FormField FieldID="DESCRIPTION" Caption="Description" DataType="String" MaxLength="100" />
-			<common:FormField FieldID="CAMPAIGNTYPE" Caption="Campaign Type" DataType="TinyInt" >
+			<common:FormField FieldID="CAMPAIGNTYPE" Caption="Campaign Type" DataType="TinyInt" Required="true" >
 				<common:ValueList UseRadioButtons="false" >
 					<common:Items>
 						<common:Item>
