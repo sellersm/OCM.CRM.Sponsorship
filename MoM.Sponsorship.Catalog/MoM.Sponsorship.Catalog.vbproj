@@ -488,6 +488,8 @@
     <EmbeddedResource Include="D2 Business Process\D2CampaignBusinessProcess.Page.xml" />
     <EmbeddedResource Include="D2 Business Process\D2CampaignBusinessProcessResults.Page.xml" />
     <EmbeddedResource Include="D2 Business Process\D2CampaignBusinessProcess.Task.xml" />
+    <EmbeddedResource Include="D2 Business Process\D2CampaignBusinessProcessParameters.Edit.xml" />
+    <EmbeddedResource Include="D2 Business Process\D2CampaignBusinessProcess.DeleteParameterSet.RecordOperation.xml" />
     <Content Include="DataLists\Sponsorship.Reasons.DataList.xml" />
     <EmbeddedResource Include="SQL\User Functions\USR_UFN_CHECK_RECURRINGGIFT_ISHELD.xml" />
     <EmbeddedResource Include="SQL\User Functions\USR_UFN_GET_PAYMENTMETHODCODE_BY_REVENUESPLITID.xml" />
