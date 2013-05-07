@@ -122,6 +122,39 @@ begin
 
 	declare @expectedDate date = cast(getdate() as date);
 
+
+	declare @solicitCodeList table (CODEDESCRIPTION nvarchar(100))
+	declare @isNoEmailOrLetters bit = 0;
+	declare @isNoCalls bit = 0;
+
+	declare @interactionSummary nvarchar(100);		-- holds the value of the interaction objective, based on payment type
+	declare @interactionContactMethod nvarchar(100);-- holds the contact method which is based on solicit code
+	declare @interactionSubcategory nvarchar(100);	-- holds the subcategory which is based on payment type & held or not
+
+	declare @sponsorshipPayMethod nvarchar(100);	-- holds whether this is Cash or EFT
+	declare @eftType tinyint = 0;					-- holds whether this is CC (1) or Direct Debit (2), compare agains the constant values instead of the literal 1 or 2
+	declare @CREDITCARD_EFTTYPE tinyint = 1;		-- constant value for CC eft type of 1, used for checking @eftTYPE values
+	declare @DIRECTDEBIT_EFTTYPE tinyint = 2;		-- constant value for DirectDebit eft type of 2, used for checking @eftTYPE values
+	declare @CASH_PAYMETHOD nvarchar(100) = 'CASH'	-- constant value for the CASH payment method type used for @sponsorshipPayMethod
+	declare @EFT_PAYMETHOD nvarchar(100) = 'EFT'	--constant value for the EFT payment method type used for @sponsorshipPayMethod
+
+	declare @statusCode_Pending tinyint = 1;		-- this is the one we use in the interactions created in this biz process
+	declare @statusCode_Completed tinyint = 2
+	declare @statusCode_Unsuccessful tinyint = 3
+	declare @statusCode_Cancelled tinyint = 4
+	declare @statusCode_Declined tinyint = 5
+
+	declare @isNewSponsor bit = 0;					-- flag to keep track of when sponsor changes
+	declare @currentSponsorId uniqueidentifier;		-- holds the sponsorid that was just looped in the cursor, used to identify when sponsorId changes in the cursor loop
+	declare @doPhoneProcess bit = 0;				-- flag that says to perform the phone interaction workflow
+	declare @createInteractions bit = 0;			-- flag to identify to create the interactions or not
+
+	declare @childrenExistForSponsor bit = 0;		-- flag identifying if this sponsor has kids for the given campaign type:
+	declare @giftFinancialSponsorId uniqueidentifier = null;  -- used to ensure this isn't a corresponding sponsor
+	declare @isCorrespondent bit = 0;				-- flag to identify if correspondent sponsorship
+
+
+
 	-- Response Category descriptions
 	declare @interactionResponseCategory_DonorContact nvarchar(100) = 'Donor Contact'
 	declare @interactionResponseCategory_LeftMessage nvarchar(100) = 'Left Message'
@@ -135,6 +168,7 @@ begin
 
 	declare @callCenterManagerConstituentID uniqueidentifier = 'B25168DC-4DD4-46ED-B4DD-C5A26A965667';	-- This constituent is hard coded via a script
 	declare @sponsorInteractionId uniqueidentifier;
+
 
 	begin try
 		if @doNotContactSolicitCodeId is null
@@ -171,8 +205,18 @@ begin
 		----print @firstDayPreviousMonth;
 		----print @secondDayTwoMonthsAgo;
 
-		declare @d2ResultsTable table (CHILDID uniqueidentifier, REVENUESPLITID uniqueidentifier, SPONSORID uniqueidentifier, NTD date, PAYMETHOD tinyint, SPONSORSHIPREVENUEID uniqueidentifier, ISHELD bit);
-		declare @childId uniqueidentifier, @revenueSplitId uniqueidentifier, @sponsorId uniqueidentifier, @NTD date, @payMethod tinyint, @sponsorshipRevenueId uniqueidentifier, @isHeld bit;
+		declare @d2ResultsTable table (
+				CHILDID uniqueidentifier, 
+				REVENUESPLITID uniqueidentifier, 
+				SPONSORID uniqueidentifier, 
+				SPONSORSHIPID uniqueidentifier,
+				NTD date, 
+				PAYMETHOD tinyint, 
+				SPONSORSHIPREVENUEID uniqueidentifier, 
+				ISHELD bit);
+		
+		declare @childId uniqueidentifier, @revenueSplitId uniqueidentifier, @sponsorId uniqueidentifier, @sponsorshipId uniqueidentifier;
+		declare @NTD date, @payMethod tinyint, @sponsorshipRevenueId uniqueidentifier, @isHeld bit;
 
 		set @payMethod = 99;  -- default to neither cash nor eft
 
@@ -200,10 +244,9 @@ begin
 			from dbo.SPONSORSHIP
 			left join dbo.CONSTITUENTSOLICITCODE on dbo.CONSTITUENTSOLICITCODE.CONSTITUENTID = dbo.SPONSORSHIP.CONSTITUENTID and ((SOLICITCODEID is not null and SOLICITCODEID <> @doNotContactSolicitCodeId) and (dbo.CONSTITUENTSOLICITCODE.ENDDATE is null or dbo.CONSTITUENTSOLICITCODE.ENDDATE < GETDATE()))
 			left join dbo.CONSTITUENCY on dbo.CONSTITUENCY.CONSTITUENTID = dbo.SPONSORSHIP.CONSTITUENTID and ((dbo.CONSTITUENCY.CONSTITUENCYCODEID is not null and dbo.CONSTITUENCY.CONSTITUENCYCODEID <> @affiliateOfficeId) and (dbo.CONSTITUENCY.DATETO is null or dbo.CONSTITUENCY.DATETO < GETDATE()))
-			where not exists (select 1
-				from dbo.INTERACTION
-				where (dbo.INTERACTION.INTERACTIONSUBCATEGORYID in (select ID from dbo.INTERACTIONSUBCATEGORY where dbo.INTERACTIONSUBCATEGORY.INTERACTIONCATEGORYID IN 
-					(select ID from dbo.INTERACTIONCATEGORY where LOWER(NAME) = LOWER('Sponsorship Delinquency')))
+			where not exists (select 1 from dbo.INTERACTION
+					where (dbo.INTERACTION.INTERACTIONSUBCATEGORYID in (select ID from dbo.INTERACTIONSUBCATEGORY 
+							where dbo.INTERACTIONSUBCATEGORY.INTERACTIONCATEGORYID = @interactionCategoryId)
 				and (dbo.INTERACTION.CONSTITUENTID = dbo.SPONSORSHIP.CONSTITUENTID
 				and (DATEPART(m, EXPECTEDDATE) = DATEPART(m, DATEADD(m, -1, getdate()))
 				AND YEAR(EXPECTEDDATE) = YEAR(DATEADD(m, -1, getdate())))))
@@ -229,13 +272,13 @@ begin
 
 
 		-- then get the children for each sponsor that meet 1.4-1.6
-		, D2ChildrenList (childId, revenueSplitId, sponsorId, payMethod, sponsorshipRevenueId, isHeld)
+		, D2ChildrenList (childId, revenueSplitId, sponsorId, sponsorshipId, payMethod, sponsorshipRevenueId, isHeld)
 		as
 		(
 			select dbo.SPONSORSHIP.SPONSORSHIPOPPORTUNITYID,
 				   dbo.SPONSORSHIP.REVENUESPLITID,
 				   dbo.SPONSORSHIP.CONSTITUENTID,
-				   -- *** INSERT THE NEW UFN FOR GETTING THE PAYMETHOD OF THE SPONSORSHIP ***:
+				   dbo.SPONSORSHIP.ID,
 				   dbo.USR_UFN_GET_PAYMENTMETHODCODE_BY_REVENUESPLITID(dbo.SPONSORSHIP.REVENUESPLITID) as PAYMETHOD,
 				   (select REVENUEID from dbo.REVENUESPLIT where ID = dbo.SPONSORSHIP.REVENUESPLITID) as SPONSORSHIPREVENUEID,
 				   dbo.USR_UFN_CHECK_RECURRINGGIFT_ISHELD(dbo.SPONSORSHIP.REVENUESPLITID) as ISHELD  -- 0 false, 1 true
@@ -251,6 +294,7 @@ begin
 		select childId
 			   , revenueSplitId
 			   , sponsorId
+			   , sponsorshipId
 			   , case when REVENUESCHEDULE.NEXTTRANSACTIONDATE > REVENUESCHEDULE.ENDDATE then null else REVENUESCHEDULE.NEXTTRANSACTIONDATE end as 'NTD'
 			   , payMethod
 			   , sponsorshipRevenueId
@@ -272,35 +316,6 @@ begin
 
 
 
-		declare @solicitCodeList table (CODEDESCRIPTION nvarchar(100))
-		declare @isNoEmailOrLetters bit = 0;
-		declare @isNoCalls bit = 0;
-
-		declare @interactionSummary nvarchar(100);		-- holds the value of the interaction objective, based on payment type
-		declare @interactionContactMethod nvarchar(100);-- holds the contact method which is based on solicit code
-		declare @interactionSubcategory nvarchar(100);	-- holds the subcategory which is based on payment type & held or not
-
-		declare @sponsorshipPayMethod nvarchar(100);	-- holds whether this is Cash or EFT
-		declare @eftType tinyint = 0;					-- holds whether this is CC (1) or Direct Debit (2), compare agains the constant values instead of the literal 1 or 2
-		declare @CREDITCARD_EFTTYPE tinyint = 1;		-- constant value for CC eft type of 1, used for checking @eftTYPE values
-		declare @DIRECTDEBIT_EFTTYPE tinyint = 2;		-- constant value for DirectDebit eft type of 2, used for checking @eftTYPE values
-		declare @CASH_PAYMETHOD nvarchar(100) = 'CASH'	-- constant value for the CASH payment method type used for @sponsorshipPayMethod
-		declare @EFT_PAYMETHOD nvarchar(100) = 'EFT'	--constant value for the EFT payment method type used for @sponsorshipPayMethod
-
-		declare @statusCode_Pending tinyint = 1;		-- this is the one we use in the interactions created in this biz process
-		declare @statusCode_Completed tinyint = 2
-		declare @statusCode_Unsuccessful tinyint = 3
-		declare @statusCode_Cancelled tinyint = 4
-		declare @statusCode_Declined tinyint = 5
-
-		declare @isNewSponsor bit = 0;					-- flag to keep track of when sponsor changes
-		declare @currentSponsorId uniqueidentifier;		-- holds the sponsorid that was just looped in the cursor, used to identify when sponsorId changes in the cursor loop
-		declare @doPhoneProcess bit = 0;				-- flag that says to perform the phone interaction workflow
-		declare @createInteractions bit = 0;			-- flag to identify to create the interactions or not
-
-		declare @childrenExistForSponsor bit = 0;		-- flag identifying if this sponsor has kids for the given campaign type:
-
-
 		-- put the results into a cursor so we can create the necessary interactions, one-by-one and do all the various pieces of work required
 		declare d2resultsCursor cursor local fast_forward for
 		select *
@@ -309,7 +324,7 @@ begin
 
 		open d2resultsCursor;
 							
-		fetch next from d2resultsCursor into @childId, @revenueSplitId, @sponsorId, @NTD, @payMethod, @sponsorshipRevenueId, @isHeld;
+		fetch next from d2resultsCursor into @childId, @revenueSplitId, @sponsorId, @sponsorshipId, @NTD, @payMethod, @sponsorshipRevenueId, @isHeld;
 
 		-- set the new sponsor flag for the first sponsor
 		set @isNewSponsor = 1;
@@ -317,11 +332,25 @@ begin
 		-- set flag identifying if this sponsor has kids for the given campaign type:
 		set @childrenExistForSponsor = 0;
 
-		-- for each Sponsor we have: 
+		-- for each Sponsorship we have: 
 		while (@@FETCH_STATUS = 0)
-			begin
-				if @isNewSponsor = 1
+			begin			
+				-- make sure this sponsor is NOT the corresponding sponsor for this sponsorship!
+				select @giftFinancialSponsorId = st.GIFTFINANCIALSPONSORID
+				from dbo.SPONSORSHIP s
+				join dbo.SPONSORSHIPTRANSACTION st on s.SPONSORSHIPCOMMITMENTID = st.SPONSORSHIPCOMMITMENTID
+				where s.ID = @sponsorshipId;
+				
+				if @giftFinancialSponsorId is not null
 					begin
+						-- this is a corresponding sponsor, so do not continue with this sponsorship!
+						set @isCorrespondent = 1;
+					end
+				else
+					set @isCorrespondent = 0;
+
+				if @isNewSponsor = 1 and @isCorrespondent = 0
+					begin					
 						--print 'new sponsor is: ' + cast(@sponsorId as nvarchar(100));
 						set @createInteractions = 0;
 				
@@ -434,7 +463,7 @@ begin
 					end
 		
 
-				if @childrenExistForSponsor = 1
+				if @childrenExistForSponsor = 1 and @isCorrespondent = 0
 					begin			
 						-- check if sponsor has valid primary email address:
 						if dbo.USR_UFN_CONSTITUENT_HASVALID_PRIMARY_EMAIL(@sponsorId) = 1
@@ -537,151 +566,157 @@ begin
 					
 							if @createInteractions = 1
 								begin
-									-- create the interactions here
-									--print '****'
-									--print 'going to create the interactions now...';
-									-- set the subcategory name based on payment method if this is eft held:
-									-- (2) ='Credit card' (3) ='Direct debit' 
-									if @campaignType = 2
-										set @subcategoryName = case when @payMethod = 3 then @heldEFTDirectDebitSubcategoryName
-																	when @payMethod = 2 then @heldEFTCreditCardSubcategoryName
-															   end;
-							
-									exec dbo.USR_USP_INTERACTION_GETSUBCATEGORYID @subcategoryID output, @categoryName, @subcategoryName, @raiseErrorIfNotFound_True
-								
-									--print @interactionSummary;
-									--print @subcategoryID;
-							
-									if @doPhoneProcess = 1
-										set @contactMethodDesc = @contactMethodDesc_Phone;
-									else
-										set @contactMethodDesc = @contactMethodDesc_Email;
-							
-									if @doPhoneProcess = 1
-										-- the owner is needed for the interaction
-										set @interactionOwner = @callCenterManagerConstituentID;
-									else
-										set @interactionOwner = null;
-							
-									exec dbo.USR_USP_INTERACTION_SPONSOR_ADD_PENDING 
-											@id = @sponsorInteractionId output,
-											@constituentID = @sponsorId,
-											@summary = @interactionSummary,
-											@categoryName = @categoryName,
-											@subcategoryName = @subcategoryName,
-											@expectedDate = @expectedDate,
-											@owner = @interactionOwner,
-											@contactMethodDesc = @contactMethodDesc,
-											@comment = '',                                                                      
-											@letterTypeDesc = '',
-											@fulfillmentStatusDesc = '',
-											@eftBrochureCode = 0,
-											@resendCode = 0,
-											@changeAgentID = @CHANGEAGENTID  
-							
-									-- add the delinquent children to the interaction just created:
-									if @sponsorInteractionId  is not null
-										begin
-											exec dbo.USR_USP_INTERACTION_SPONSOR_ADDCHILDREN 
-												@interactionID = @sponsorInteractionId,
-												@childIDList = @childIDList,
-												@changeAgentID = null
-												
-											--increment the successcounter
-											set @successCount = @successCount + 1;
-
-											select @sponsorLookupId = LOOKUPID
-											from dbo.CONSTITUENT
-											where ID = @sponsorId;
-				
-											if @sponsorLookupId is not null
-												begin
-													insert into dbo.USR_D2_CAMPAIGN_BUSINESSPROCESS_RESULTS 
-														(SPONSORLOOKUPID
-														, D2CAMPAIGNDATE
-														, CAMPAIGNTYPE
-														, D2INTERACTIONSTATUS
-														, ADDEDBYID
-														, DATEADDED
-														, CHANGEDBYID
-														, DATECHANGED
-														)
-													values 
-														(@sponsorLookupId
-														, CAST(GETDATE() as date)
-														, @CAMPAIGNTYPE
-														, @contactMethodDesc + ' interaction created'
-														, @changeAgentID
-														, @currentDate
-														, @changeAgentID
-														, @currentDate
-														);
-												end
-										end
-							
-									-- if this is a Phone type of interaction, add the responses:
-									/*
-									Interaction Responses:
-										Donor Contact = No
-										EFT Received = No
-										Left Message = No
-										Message Type = None
-										Cancelled = No
-									*/
-									if @doPhoneProcess = 1
-										begin
-											--print '';
-											--print 'Phone call interaction so adding responses...';
+									-- prevent this from creating multiple sponsor interactions per child
+									if not exists (select 1 from dbo.INTERACTION
+										where (dbo.INTERACTION.INTERACTIONSUBCATEGORYID in (select ID from dbo.INTERACTIONSUBCATEGORY 
+												where dbo.INTERACTIONSUBCATEGORY.INTERACTIONCATEGORYID = @interactionCategoryId)
+										and dbo.INTERACTION.CONSTITUENTID = @sponsorId
+										and Cast(EXPECTEDDATE as date) = CAST(getdate() as DATE)
+										and OBJECTIVE = @interactionSummary))
+										begin									
+											-- create the interactions here
+											--print '****'
+											--print 'going to create the interactions now...';
+											-- set the subcategory name based on payment method if this is eft held:
+											-- (2) ='Credit card' (3) ='Direct debit' 
+											if @campaignType = 2
+												set @subcategoryName = case when @payMethod = 3 then @heldEFTDirectDebitSubcategoryName
+																			when @payMethod = 2 then @heldEFTCreditCardSubcategoryName
+																	   end;
 									
-											-- add responses:
+											exec dbo.USR_USP_INTERACTION_GETSUBCATEGORYID @subcategoryID output, @categoryName, @subcategoryName, @raiseErrorIfNotFound_True
+										
+											--print @interactionSummary;
+											--print @subcategoryID;
+									
+											if @doPhoneProcess = 1
+												set @contactMethodDesc = @contactMethodDesc_Phone;
+											else
+												set @contactMethodDesc = @contactMethodDesc_Email;
+									
+											if @doPhoneProcess = 1
+												-- the owner is needed for the interaction
+												set @interactionOwner = @callCenterManagerConstituentID;
+											else
+												set @interactionOwner = null;
+									
+											exec dbo.USR_USP_INTERACTION_SPONSOR_ADD_PENDING 
+													@id = @sponsorInteractionId output,
+													@constituentID = @sponsorId,
+													@summary = @interactionSummary,
+													@categoryName = @categoryName,
+													@subcategoryName = @subcategoryName,
+													@expectedDate = @expectedDate,
+													@owner = @interactionOwner,
+													@contactMethodDesc = @contactMethodDesc,
+													@comment = '',                                                                      
+													@letterTypeDesc = '',
+													@fulfillmentStatusDesc = '',
+													@eftBrochureCode = 0,
+													@resendCode = 0,
+													@changeAgentID = @CHANGEAGENTID  
+									
+											-- add the delinquent children to the interaction just created:
 											if @sponsorInteractionId  is not null
 												begin
-													-- NOTE: the child will be added in the children cursor loop below, based on the createWelcomeGreetingInteraction bit flag!
+													exec dbo.USR_USP_INTERACTION_SPONSOR_ADDCHILDREN 
+														@interactionID = @sponsorInteractionId,
+														@childIDList = @childIDList,
+														@changeAgentID = null
+														
+													--increment the successcounter
+													set @successCount = @successCount + 1;
+
+													select @sponsorLookupId = LOOKUPID
+													from dbo.CONSTITUENT
+													where ID = @sponsorId;
+						
+													if @sponsorLookupId is not null
+														begin
+															insert into dbo.USR_D2_CAMPAIGN_BUSINESSPROCESS_RESULTS 
+																(SPONSORLOOKUPID
+																, D2CAMPAIGNDATE
+																, CAMPAIGNTYPE
+																, D2INTERACTIONSTATUS
+																, ADDEDBYID
+																, DATEADDED
+																, CHANGEDBYID
+																, DATECHANGED
+																)
+															values 
+																(@sponsorLookupId
+																, CAST(GETDATE() as date)
+																, @CAMPAIGNTYPE
+																, @contactMethodDesc + ' interaction created'
+																, @changeAgentID
+																, @currentDate
+																, @changeAgentID
+																, @currentDate
+																);
+														end
+												end
+									
+											-- if this is a Phone type of interaction, add the responses:
+											/*
+											Interaction Responses:
+												Donor Contact = No
+												EFT Received = No
+												Left Message = No
+												Message Type = None
+												Cancelled = No
+											*/
+											if @doPhoneProcess = 1
+												begin
+													--print '';
+													--print 'Phone call interaction so adding responses...';
 											
-													exec dbo.USR_USP_INTERACTION_ADDRESPONSE 
-																	@interactionId = @sponsorInteractionId,
-																	@responseCategoryName = @interactionResponseCategory_DonorContact,
-																	@response = @interactionResponse_No,
-																	@responseDate = null,                  
-																	@changeAgentID = @changeAgentID
+													-- add responses:
+													if @sponsorInteractionId  is not null
+														begin
+															-- NOTE: the child will be added in the children cursor loop below, based on the createWelcomeGreetingInteraction bit flag!
+													
+															exec dbo.USR_USP_INTERACTION_ADDRESPONSE 
+																			@interactionId = @sponsorInteractionId,
+																			@responseCategoryName = @interactionResponseCategory_DonorContact,
+																			@response = @interactionResponse_No,
+																			@responseDate = null,                  
+																			@changeAgentID = @changeAgentID
 
-													exec dbo.USR_USP_INTERACTION_ADDRESPONSE 
-																	@interactionId = @sponsorInteractionId,
-																	@responseCategoryName = @interactionResponseCategory_EFTReceived,
-																	@response = @interactionResponse_No,
-																	@responseDate = null,                  
-																	@changeAgentID = @changeAgentID
+															exec dbo.USR_USP_INTERACTION_ADDRESPONSE 
+																			@interactionId = @sponsorInteractionId,
+																			@responseCategoryName = @interactionResponseCategory_EFTReceived,
+																			@response = @interactionResponse_No,
+																			@responseDate = null,                  
+																			@changeAgentID = @changeAgentID
 
-													exec dbo.USR_USP_INTERACTION_ADDRESPONSE 
-																	@interactionId = @sponsorInteractionId,
-																	@responseCategoryName = @interactionResponseCategory_LeftMessage,
-																	@response = @interactionResponse_No,
-																	@responseDate = null,                  
-																	@changeAgentID = @changeAgentID
+															exec dbo.USR_USP_INTERACTION_ADDRESPONSE 
+																			@interactionId = @sponsorInteractionId,
+																			@responseCategoryName = @interactionResponseCategory_LeftMessage,
+																			@response = @interactionResponse_No,
+																			@responseDate = null,                  
+																			@changeAgentID = @changeAgentID
 
-													exec dbo.USR_USP_INTERACTION_ADDRESPONSE 
-																	@interactionId = @sponsorInteractionId,
-																	@responseCategoryName = @interactionResponseCategory_MessageType,
-																	@response = @interactionResponse_None,
-																	@responseDate = null,                  
-																	@changeAgentID = @changeAgentID
-					                    
-													exec dbo.USR_USP_INTERACTION_ADDRESPONSE 
-																	@interactionId = @sponsorInteractionId,
-																	@responseCategoryName = @interactionResponseCategory_Cancelled,
-																	@response = @interactionResponse_No,
-																	@responseDate = null,    
-																	@changeAgentID = @changeAgentID
+															exec dbo.USR_USP_INTERACTION_ADDRESPONSE 
+																			@interactionId = @sponsorInteractionId,
+																			@responseCategoryName = @interactionResponseCategory_MessageType,
+																			@response = @interactionResponse_None,
+																			@responseDate = null,                  
+																			@changeAgentID = @changeAgentID
+							                    
+															exec dbo.USR_USP_INTERACTION_ADDRESPONSE 
+																			@interactionId = @sponsorInteractionId,
+																			@responseCategoryName = @interactionResponseCategory_Cancelled,
+																			@response = @interactionResponse_No,
+																			@responseDate = null,    
+																			@changeAgentID = @changeAgentID
+
+														end
 
 												end
-
-											end
-							
-							
-							
-							
-								end
-					end
+									
+										end  -- if this interaction doesn't exist
+								end  -- if @createInteractions = 1
+					end  -- if @childrenExistForSponsor = 1
 
 				if @writeToExceptionLog = 1
 					begin
@@ -723,7 +758,7 @@ begin
 					end
 			
 	
-				fetch next from d2resultsCursor into @childId, @revenueSplitId, @sponsorId, @NTD, @payMethod, @sponsorshipRevenueId, @isHeld;
+				fetch next from d2resultsCursor into @childId, @revenueSplitId, @sponsorId, @sponsorshipId, @NTD, @payMethod, @sponsorshipRevenueId, @isHeld;
 		
 				-- check for a different sponsor
 				if @currentSponsorId <> @sponsorId
