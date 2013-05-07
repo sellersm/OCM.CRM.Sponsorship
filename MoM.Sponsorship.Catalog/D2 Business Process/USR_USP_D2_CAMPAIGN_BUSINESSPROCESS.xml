@@ -224,7 +224,7 @@ begin
 		declare @CASHPAYMENT_VALUE tinyint = 0;
 		declare @EFTPAYMENT_VALUE tinyint = 1;
 
-
+		declare @SHOWHISTORY bit = 0;
 		-- ******************** A. Get qualifying sponsors  **********************************
 
 		/*
@@ -287,8 +287,32 @@ begin
 			join dbo.USR_CURRENTOPPORTUNITYSPONSORSHIPSTATUSCODE statusCode on statusCode.ID = se.CURRENTOPPORTUNITYSPONSORSHIPSTATUSCODEID and statusCode.DESCRIPTION = 'Sponsored'
 			where (CONSTITUENTID IN (select sponsorId from D2SponsorList)
 			and STATUSCODE = 1   -- status of 'Active'
-			and dbo.UFN_SPONSORSHIP_GIFTFINANCIALSPONSORID(dbo.SPONSORSHIP.ID) is null		-- filter out correspondent kids and sponsorships
+			and (dbo.UFN_SPONSORSHIP_GIFTFINANCIALSPONSORID(dbo.SPONSORSHIP.ID) is null	
+				 or dbo.UFN_SPONSORSHIP_GIFTFINANCIALSPONSORID(dbo.SPONSORSHIP.ID) = CONSTITUENTID)	-- filter out correspondent kids and sponsorships
 			)
+			union
+			-- This is the logic from the USR_UFN_GETACTIVE_FINANCIALCOMMITMENTS_BYSPONSOR, 
+			-- to get the children for which this sponsor is a financial sponsor, then join with the above select:
+			select
+				ACTIVESPONSORSHIP.SPONSORSHIPOPPORTUNITYID,
+				ACTIVESPONSORSHIP.REVENUESPLITID,
+				ACTIVESPONSORSHIP.CONSTITUENTID,
+				ACTIVESPONSORSHIP.ID,
+				dbo.USR_UFN_GET_PAYMENTMETHODCODE_BY_REVENUESPLITID(ACTIVESPONSORSHIP.REVENUESPLITID) as PAYMETHOD,
+				(select REVENUEID from dbo.REVENUESPLIT where ID = ACTIVESPONSORSHIP.REVENUESPLITID) as SPONSORSHIPREVENUEID,
+				dbo.USR_UFN_CHECK_RECURRINGGIFT_ISHELD(ACTIVESPONSORSHIP.REVENUESPLITID) as ISHELD  -- 0 false, 1 true
+			from dbo.SPONSORSHIPTRANSACTION GIFTSTART
+			inner join dbo.SPONSORSHIPCOMMITMENT on SPONSORSHIPCOMMITMENT.ID = GIFTSTART.SPONSORSHIPCOMMITMENTID
+			left join dbo.SPONSORSHIPTRANSACTION GIFTEND on GIFTEND.SPONSORSHIPCOMMITMENTID = GIFTSTART.SPONSORSHIPCOMMITMENTID and GIFTEND.TRANSACTIONSEQUENCE = (select min(MINSEQ.TRANSACTIONSEQUENCE) from dbo.SPONSORSHIPTRANSACTION MINSEQ where MINSEQ.SPONSORSHIPCOMMITMENTID = GIFTSTART.SPONSORSHIPCOMMITMENTID and MINSEQ.TRANSACTIONSEQUENCE > GIFTSTART.TRANSACTIONSEQUENCE and MINSEQ.ACTIONCODE in(2,3,5,9))
+			left join dbo.SPONSORSHIP GIFTENDSPONSORSHIP on GIFTENDSPONSORSHIP.ID = GIFTEND.CONTEXTSPONSORSHIPID
+			left join dbo.SPONSORSHIP ACTIVESPONSORSHIP on ACTIVESPONSORSHIP.SPONSORSHIPCOMMITMENTID = GIFTSTART.SPONSORSHIPCOMMITMENTID and ACTIVESPONSORSHIP.STATUSCODE = 1
+			join dbo.USR_SPONSORSHIPEXTENSION se on se.ID = ACTIVESPONSORSHIP.ID
+			join dbo.USR_CURRENTOPPORTUNITYSPONSORSHIPSTATUSCODE statusCode on statusCode.ID = se.CURRENTOPPORTUNITYSPONSORSHIPSTATUSCODEID and statusCode.DESCRIPTION = 'Sponsored'
+			left outer join dbo.SPONSORSHIPOPPORTUNITYCHILD on  dbo.SPONSORSHIPOPPORTUNITYCHILD.ID = ACTIVESPONSORSHIP.SPONSORSHIPOPPORTUNITYID  -- this will help us identify only children commitments
+			where (GIFTSTART.GIFTFINANCIALSPONSORID IN (select sponsorId from D2SponsorList)
+			and ACTIVESPONSORSHIP.STATUSCODE = 1   -- status of 'Active'
+			and (@SHOWHISTORY = 1 or GIFTEND.ID is null)
+			and dbo.SPONSORSHIPOPPORTUNITYCHILD.ID is not null)  -- filter out project sponsorships
 		)
 		-- ************   I THINK this is where we filter out the records based on the campaign type passed in! *********************
 		insert into @d2ResultsTable
@@ -817,8 +841,6 @@ begin
 			exec sp_executesql @countSuccessSQL, @countSuccessSQLParms, @successCount=@successCount output
 			exec sp_executesql @countExceptionSQL, @countExceptionSQLParms, @exceptionCount=@exceptionCount output
 
-
-
 	end try
 
 	begin catch
@@ -826,10 +848,7 @@ begin
 		return 1;
 	end catch
 
-
-
 end
-
 		]]>
 	</CreateProcedureSQL>
 
