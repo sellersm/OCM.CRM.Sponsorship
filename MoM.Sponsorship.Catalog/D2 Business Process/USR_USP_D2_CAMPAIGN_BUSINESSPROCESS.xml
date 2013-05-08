@@ -249,11 +249,12 @@ begin
 			select distinct dbo.SPONSORSHIP.CONSTITUENTID
 			from dbo.SPONSORSHIP
 			left join dbo.CONSTITUENTSOLICITCODE on dbo.CONSTITUENTSOLICITCODE.CONSTITUENTID = dbo.SPONSORSHIP.CONSTITUENTID 
-			and ((SOLICITCODEID is null) or ((SOLICITCODEID is not null and SOLICITCODEID <> @doNotContactSolicitCodeId) 
-			and (dbo.CONSTITUENTSOLICITCODE.ENDDATE is null or dbo.CONSTITUENTSOLICITCODE.ENDDATE < GETDATE())))
+			and ((SOLICITCODEID is null) or (((SOLICITCODEID is not null and SOLICITCODEID <> @doNotContactSolicitCodeId) 
+			and (dbo.CONSTITUENTSOLICITCODE.ENDDATE is null or dbo.CONSTITUENTSOLICITCODE.ENDDATE > GETDATE()))))
 			left join dbo.CONSTITUENCY on dbo.CONSTITUENCY.CONSTITUENTID = dbo.SPONSORSHIP.CONSTITUENTID 
-			and ((dbo.CONSTITUENCY.CONSTITUENCYCODEID is null) or ((dbo.CONSTITUENCY.CONSTITUENCYCODEID is not null and dbo.CONSTITUENCY.CONSTITUENCYCODEID <> @affiliateOfficeId) 
-			and (dbo.CONSTITUENCY.DATETO is null or dbo.CONSTITUENCY.DATETO < GETDATE())))
+			and ((dbo.CONSTITUENCY.CONSTITUENCYCODEID is null) or 
+			(((dbo.CONSTITUENCY.CONSTITUENCYCODEID is not null and dbo.CONSTITUENCY.CONSTITUENCYCODEID <> @affiliateOfficeId) 
+			and (dbo.CONSTITUENCY.DATETO is null or dbo.CONSTITUENCY.DATETO > GETDATE()))))
 			where not exists (select 1 from dbo.INTERACTION
 					where (dbo.INTERACTION.INTERACTIONSUBCATEGORYID in (select ID from dbo.INTERACTIONSUBCATEGORY 
 							where dbo.INTERACTIONSUBCATEGORY.INTERACTIONCATEGORYID = @interactionCategoryId)
@@ -261,7 +262,7 @@ begin
 				and (DATEPART(m, EXPECTEDDATE) = DATEPART(m, DATEADD(m, -1, getdate()))
 				AND YEAR(EXPECTEDDATE) = YEAR(DATEADD(m, -1, getdate())))))
 				)
-		)
+		)	
 		/*
 			1.4
 			 Has child sponsorship one of “Active”, “Active (transfer pending)” or “Active (reassign)”
