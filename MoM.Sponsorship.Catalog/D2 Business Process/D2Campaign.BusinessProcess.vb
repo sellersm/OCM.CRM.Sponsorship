@@ -89,9 +89,9 @@ Public NotInheritable Class D2CampaignBusinessProcess
 		GetParameters(RequestArgs.ParameterSetID, Me.RequestContext)
 		'GetParameters(RequestArgs.DataItem.Values.Item("ID").Value, Me.RequestContext)
 
-		If _campaignType = Nothing Then
-			Throw New Exception("No parameters found with the given parameter")
-		End If
+		'If _campaignType = Nothing Then
+		'	Throw New Exception("No parameters found with the given parameter")
+		'End If
 	End Sub
 
 
