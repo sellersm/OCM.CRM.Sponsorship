@@ -18,12 +18,22 @@ create procedure dbo.USR_USP_D2CAMPAIGNPROCESS_GETPARAMETERS (
 as
 begin
 	-- do work
-	select
-		CAMPAIGNTYPE
-	from
-		dbo.USR_D2_CAMPAIGN_BUSINESSPROCESS
-	where
-		ID = @ID	
+	begin try
+		if @ID is null
+			raiserror 100000 'The Campaign Type parameter value is empty! Unable to continue.'
+		
+		select
+			CAMPAIGNTYPE
+		from
+			dbo.USR_D2_CAMPAIGN_BUSINESSPROCESS
+		where
+			ID = @ID	
+	end try
+	
+	begin catch
+		exec dbo.USP_RAISE_ERROR
+		return 1;
+	end catch	
 end
 
 		]]>

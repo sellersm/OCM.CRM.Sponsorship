@@ -60,6 +60,12 @@ begin
 
 	declare @childIDList dbo.USR_UDT_CHILDIDLIST;
 
+	declare @successCounter int = 0;
+	declare @exceptionCounter int = 0;
+
+	set @successCount = 0;
+	set @exceptionCount = 0;
+
 	-- **** NOTE: THIS IS FOR TESTING ONLY ****
 	declare @constituentId uniqueidentifier = '3AEA7B94-DE6F-483A-A29C-00279FDD4922';				
 	declare @doNotContactSolicitCodeId uniqueidentifier;
@@ -242,8 +248,12 @@ begin
 		(
 			select distinct dbo.SPONSORSHIP.CONSTITUENTID
 			from dbo.SPONSORSHIP
-			left join dbo.CONSTITUENTSOLICITCODE on dbo.CONSTITUENTSOLICITCODE.CONSTITUENTID = dbo.SPONSORSHIP.CONSTITUENTID and ((SOLICITCODEID is not null and SOLICITCODEID <> @doNotContactSolicitCodeId) and (dbo.CONSTITUENTSOLICITCODE.ENDDATE is null or dbo.CONSTITUENTSOLICITCODE.ENDDATE < GETDATE()))
-			left join dbo.CONSTITUENCY on dbo.CONSTITUENCY.CONSTITUENTID = dbo.SPONSORSHIP.CONSTITUENTID and ((dbo.CONSTITUENCY.CONSTITUENCYCODEID is not null and dbo.CONSTITUENCY.CONSTITUENCYCODEID <> @affiliateOfficeId) and (dbo.CONSTITUENCY.DATETO is null or dbo.CONSTITUENCY.DATETO < GETDATE()))
+			left join dbo.CONSTITUENTSOLICITCODE on dbo.CONSTITUENTSOLICITCODE.CONSTITUENTID = dbo.SPONSORSHIP.CONSTITUENTID 
+			and ((SOLICITCODEID is null) or ((SOLICITCODEID is not null and SOLICITCODEID <> @doNotContactSolicitCodeId) 
+			and (dbo.CONSTITUENTSOLICITCODE.ENDDATE is null or dbo.CONSTITUENTSOLICITCODE.ENDDATE < GETDATE())))
+			left join dbo.CONSTITUENCY on dbo.CONSTITUENCY.CONSTITUENTID = dbo.SPONSORSHIP.CONSTITUENTID 
+			and ((dbo.CONSTITUENCY.CONSTITUENCYCODEID is null) or ((dbo.CONSTITUENCY.CONSTITUENCYCODEID is not null and dbo.CONSTITUENCY.CONSTITUENCYCODEID <> @affiliateOfficeId) 
+			and (dbo.CONSTITUENCY.DATETO is null or dbo.CONSTITUENCY.DATETO < GETDATE())))
 			where not exists (select 1 from dbo.INTERACTION
 					where (dbo.INTERACTION.INTERACTIONSUBCATEGORYID in (select ID from dbo.INTERACTIONSUBCATEGORY 
 							where dbo.INTERACTIONSUBCATEGORY.INTERACTIONCATEGORYID = @interactionCategoryId)
@@ -325,14 +335,9 @@ begin
 			   , sponsorshipRevenueId
 			   , isHeld
 		from D2ChildrenList
-		--join dbo.REVENUESPLIT rs on rs.ID = revenueSplitId
-		--join dbo.REVENUE on dbo.REVENUE.ID = rs.REVENUEID
 		inner join dbo.REVENUESCHEDULE on REVENUESCHEDULE.ID = sponsorshipRevenueId --REVENUE.ID
 		where ((case when REVENUESCHEDULE.NEXTTRANSACTIONDATE > REVENUESCHEDULE.ENDDATE then null else REVENUESCHEDULE.NEXTTRANSACTIONDATE end) 
 			between @secondDayTwoMonthsAgo and @firstDayPreviousMonth
-		--and payMethod = (case when @campaignType = 0 then @CASHPAYMENT_VALUE
-		--					 when @campaignType = 1 or @campaignType = 2 then @EFTPAYMENT_VALUE
-		--				end)
 		and isHeld = case when @campaignType in (0,1) then 0 else 1 end
 		)
 		order by NTD;
@@ -356,11 +361,20 @@ begin
 
 		-- set flag identifying if this sponsor has kids for the given campaign type:
 		set @childrenExistForSponsor = 0;
-
+		
 		-- for each Sponsorship we have: 
-		while (@@FETCH_STATUS = 0)
+		while (@@FETCH_STATUS = 0) 
 			begin			
-				-- make sure this sponsor is NOT the corresponding sponsor for this sponsorship!
+				 --make sure this sponsor is NOT the corresponding sponsor for this sponsorship!
+				select @giftFinancialSponsorId = dbo.UFN_SPONSORSHIP_GIFTFINANCIALSPONSORID(@sponsorshipId);
+								
+				-- compare this sponsorship id with the gift financial sponsor id and throw it out if it doesn't matches:
+				if @giftFinancialSponsorId is not null
+					begin
+						-- we don't want to process this because this is the corresponding sponsor for this sponsorship
+						GOTO SKIP_THIS_RECORD;
+					end
+
 				--select @giftFinancialSponsorId = st.GIFTFINANCIALSPONSORID
 				--from dbo.SPONSORSHIP s
 				--join dbo.SPONSORSHIPTRANSACTION st on s.SPONSORSHIPCOMMITMENTID = st.SPONSORSHIPCOMMITMENTID
@@ -398,6 +412,47 @@ begin
 
 						--  *** B. Build a list of the delinquent children for each sponsor  ***
 						--         but only do this ONCE per Sponsor!
+						/*
+						if @campaignType = 0  -- CASH: 3rd priority
+							begin
+								if not exists (select 1 from @d2ResultsTable where (PAYMETHOD in (2,3) and SPONSORID = @sponsorId))
+									begin
+										-- insert all the kids
+										insert @childIDList 
+										select CHILDID
+										from @d2ResultsTable 
+										where SPONSORID = @sponsorId	
+									end
+							end
+				
+						if @campaignType = 1  -- EFT Active: 2nd priority
+							begin
+								if not exists (select 1 from @d2ResultsTable where (PAYMETHOD in (2,3) and SPONSORID = @sponsorId and ISHELD = 1))
+									begin
+										if exists (select 1 from @d2ResultsTable where (PAYMETHOD in (2,3) and SPONSORID = @sponsorId))
+											begin
+												-- add all the kids for this sponsor											
+												insert @childIDList 
+												select CHILDID
+												from @d2ResultsTable 
+												where SPONSORID = @sponsorId
+											end
+									end
+							end
+					
+						if @campaignType = 2  -- EFT Held: top priority
+							begin
+								if exists (select 1 from @d2ResultsTable where (PAYMETHOD in (2,3) and SPONSORID = @sponsorId and ISHELD = 1))
+									begin
+										-- add all the kids 
+										insert @childIDList 
+										select CHILDID
+										from @d2ResultsTable 
+										where SPONSORID = @sponsorId
+									end
+							end
+						*/
+
 						if @campaignType = 0  -- CASH
 							begin
 								insert @childIDList 
@@ -426,6 +481,7 @@ begin
 								and PAYMETHOD in (2,3)
 								and ISHELD = 1)
 							end
+
 				
 						-- this sponsor may not have children for this campaigntype, so see if there are any kids in the list:
 						if exists (select 1 from @childIDList)
@@ -438,7 +494,7 @@ begin
 						else
 							set @childrenExistForSponsor = 0;
 				
-						begin transaction d2CampaignTransaction;
+						--begin transaction d2CampaignTransaction;
 						
 				
 						--print 'new sponsor trxaction started...';
@@ -499,7 +555,7 @@ begin
 								if @isNoEmailOrLetters = 1
 									begin
 										--print 'do not email this sponsor, check for phone call process...';
-										set @doPhoneProcess = 1;
+										set @doPhoneProcess = 1;										
 										set @createInteractions = 0;
 									end
 								else
@@ -577,8 +633,13 @@ begin
 										set @interactionContactMethodId = @phoneContactMethodID;
 
 										--print @interactionSummary;
-								
-										set @createInteractions = 1;
+										
+										--**** 5/8/13: *****
+										-- For now, turning off the creation of interactions for phone calls
+										--  and only creating interactions when the contact type is email.
+										-- Will need to be refactored after we deliver this to the customer for 1st May run.
+										-- set @createInteractions = 1;
+										set @createInteractions = 0;
 										set @writeToExceptionLog = 0;
 									end
 								else
@@ -651,7 +712,7 @@ begin
 														@changeAgentID = null
 														
 													--increment the successcounter
-													set @successCount = @successCount + 1;
+													set @successCounter = @successCounter + 1;
 
 													select @sponsorLookupId = LOOKUPID
 													from dbo.CONSTITUENT
@@ -779,11 +840,11 @@ begin
 									);
 							end
 						
-						set @exceptionCount = @exceptionCount + 1;
+						set @exceptionCounter = @exceptionCounter + 1;
 				
 					end
 			
-	
+				SKIP_THIS_RECORD:
 				fetch next from d2resultsCursor into @childId, @revenueSplitId, @sponsorId, @sponsorshipId, @NTD, @payMethod, @sponsorshipRevenueId, @isHeld;
 		
 				-- check for a different sponsor
@@ -807,7 +868,8 @@ begin
 						delete from @childIDList;
 				
 						--if @isCorrespondent = 0
-							commit transaction d2CampaignTransaction;
+						--if @@TRANCOUNT > 0 
+							--commit transaction d2CampaignTransaction;
 						--rollback transaction d2CampaignTransaction;
 				
 						--print 'sponsor transaction committed';
@@ -819,27 +881,46 @@ begin
 		
 			end
 
-		--if @isCorrespondent = 0
-			commit transaction d2CampaignTransaction;
+		--if @@TRANCOUNT > 0   
+			--commit transaction d2CampaignTransaction;
+
 		--rollback transaction d2CampaignTransaction;
 		--print 'last transaction committed!';
 
 		close d2resultsCursor;
 		deallocate d2resultsCursor;
 
-		-- populate the counts from the output table
-		--declare @countSuccessSQL nvarchar(max) = 'select @successCount=count(*) from ' + @outputTableName + ' where lower(D2INTERACTIONSTATUS) not like ''%not%'' and D2CAMPAIGNDATE = Cast(GETDATE() as Date)'
-		declare @countSuccessSQL nvarchar(max) = 'select @successCount=count(*) from dbo.USR_D2_CAMPAIGN_BUSINESSPROCESS_RESULTS where lower(D2INTERACTIONSTATUS) not like ''%not%'' and D2CAMPAIGNDATE = Cast(GETDATE() as Date)'
-		declare @countSuccessSQLParms nvarchar(255) = '@successCount int output'
+		---- populate the counts from the output table
+		----declare @countSuccessSQL nvarchar(max) = 'select @successCount=count(*) from ' + @outputTableName + ' where lower(D2INTERACTIONSTATUS) not like ''%not%'' and D2CAMPAIGNDATE = Cast(GETDATE() as Date)'
+		--declare @countSuccessSQL nvarchar(max) = 'select @successCount=count(*) from dbo.USR_D2_CAMPAIGN_BUSINESSPROCESS_RESULTS where lower(D2INTERACTIONSTATUS) not like ''%not%'' and D2CAMPAIGNDATE = Cast(GETDATE() as Date)'
+		--declare @countSuccessSQLParms nvarchar(255) = '@successCount int output'
 
-		-- Used to get the count of exceptions
-		-- declare @countExceptionSQL nvarchar(max) = 'select @exceptionCount=count(*) from ' + @outputTableName + ' where lower(D2INTERACTIONSTATUS) like ''%not%'' and D2CAMPAIGNDATE = Cast(GETDATE() as Date)'
-		declare @countExceptionSQL nvarchar(max) = 'select @exceptionCount=count(*) from dbo.USR_D2_CAMPAIGN_BUSINESSPROCESS_RESULTS where lower(D2INTERACTIONSTATUS) like ''%not%'' and D2CAMPAIGNDATE = Cast(GETDATE() as Date)'
-		declare @countExceptionSQLParms nvarchar(255) = '@exceptionCount int output'
+		---- Used to get the count of exceptions
+		---- declare @countExceptionSQL nvarchar(max) = 'select @exceptionCount=count(*) from ' + @outputTableName + ' where lower(D2INTERACTIONSTATUS) like ''%not%'' and D2CAMPAIGNDATE = Cast(GETDATE() as Date)'
+		--declare @countExceptionSQL nvarchar(max) = 'select @exceptionCount=count(*) from dbo.USR_D2_CAMPAIGN_BUSINESSPROCESS_RESULTS where lower(D2INTERACTIONSTATUS) like ''%not%'' and D2CAMPAIGNDATE = Cast(GETDATE() as Date)'
+		--declare @countExceptionSQLParms nvarchar(255) = '@exceptionCount int output'
 
-		if @outputTableName <> ''
-			exec sp_executesql @countSuccessSQL, @countSuccessSQLParms, @successCount=@successCount output
-			exec sp_executesql @countExceptionSQL, @countExceptionSQLParms, @exceptionCount=@exceptionCount output
+		--if @outputTableName <> ''
+		--	exec sp_executesql @countSuccessSQL, @countSuccessSQLParms, @successCount=@successCount output
+		--	exec sp_executesql @countExceptionSQL, @countExceptionSQLParms, @exceptionCount=@exceptionCount output
+
+
+
+		----declare @countSuccessSQL nvarchar(max) = 'select @successCount=count(*) from ' + @outputTableName + ' where lower(D2INTERACTIONSTATUS) not like ''%not%'' and D2CAMPAIGNDATE = Cast(GETDATE() as Date)'
+		--declare @countSuccessSQL nvarchar(max) = 'select @successCount = @successCounter'
+		--declare @countSuccessSQLParms nvarchar(255) = '@successCount int output'
+
+		---- Used to get the count of exceptions
+		---- declare @countExceptionSQL nvarchar(max) = 'select @exceptionCount=count(*) from ' + @outputTableName + ' where lower(D2INTERACTIONSTATUS) like ''%not%'' and D2CAMPAIGNDATE = Cast(GETDATE() as Date)'
+		--declare @countExceptionSQL nvarchar(max) = 'select @exceptionCount = @exceptionCounter'
+		--declare @countExceptionSQLParms nvarchar(255) = '@exceptionCount int output'
+
+		--if @outputTableName <> ''
+		--	exec sp_executesql @countSuccessSQL, @countSuccessSQLParms, @successCount=@successCount output
+		--	exec sp_executesql @countExceptionSQL, @countExceptionSQLParms, @exceptionCount=@exceptionCount output
+
+		set @successCount = @successCounter;
+		set @exceptionCount = @exceptionCounter;
 
 	end try
 
@@ -849,6 +930,8 @@ begin
 	end catch
 
 end
+
+
 		]]>
 	</CreateProcedureSQL>
 
