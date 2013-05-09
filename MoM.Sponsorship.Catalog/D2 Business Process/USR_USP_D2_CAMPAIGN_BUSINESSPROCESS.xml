@@ -65,7 +65,8 @@ begin
 
 	select @doNotContactSolicitCodeId = ID
 	from dbo.SOLICITCODE
-	where LOWER([DESCRIPTION]) = LOWER('do not solicit') -- lower('Do not contact')
+	where LOWER([DESCRIPTION]) = LOWER('Do not contact')
+
 
 	-- Try to lookup ids
 	--exec dbo.USR_USP_INTERACTION_GETSUBCATEGORYID @subcategoryID output, @categoryName, @subcategoryName, @raiseErrorIfNotFound_True
