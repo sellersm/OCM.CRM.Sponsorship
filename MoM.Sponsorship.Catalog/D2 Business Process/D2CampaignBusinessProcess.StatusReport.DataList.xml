@@ -7,6 +7,8 @@
 	Author="Memphis Sellers"
 	common:SecurityUIFolder="Sponsorship">
 
+	<!--   0=Email Cash, 1=Email EFT Active, 2=Email EFT Held Credit Card, 3=Email EFT Held Direct Debit, 4=Phone -->
+	
 	<!-- define the SP that returns the data for the datalist -->
 	<SPDataList SPName="USR_USP_DATALIST_D2CAMPAIGNBUSINESSPROCESS_RESULTSLIST">
 		<common:CreateProcedureSQL>
@@ -18,9 +20,12 @@ as
 	select  ID
 			, SPONSORLOOKUPID
 			, D2CAMPAIGNDATE
-			, (case when CAMPAIGNTYPE = 0 then 'Cash'
-				when CAMPAIGNTYPE = 1 then 'EFT Active'
-				when CAMPAIGNTYPE = 2 then 'EFT Held' end) as 'TYPE'
+			, (case when CAMPAIGNTYPE = 0 then 'Email Cash'
+				when CAMPAIGNTYPE = 1 then 'Email EFT Active'
+				when CAMPAIGNTYPE = 2 then 'Email EFT Held Credit Card' 
+				when CAMPAIGNTYPE = 3 then 'Email EFT Held Direct Debit'
+				when CAMPAIGNTYPE = 4 then 'Phone'
+				end) as 'TYPE'
 			, D2INTERACTIONSTATUS
 	from dbo.USR_D2_CAMPAIGN_BUSINESSPROCESS_RESULTS
 	where D2CAMPAIGNDATE = Cast(@CONTEXTID as Date)
@@ -45,10 +50,10 @@ as
 	<Output>
 		<OutputFields>
 			<OutputField FieldID="ID" Caption="ID" IsHidden="true" DataType="Guid" DisplaySequence="1" />
-			<OutputField FieldID="SPONSORLOOKUPID" Caption="Sponsor" DataType="String"  DisplaySequence="2" />
-			<OutputField FieldID="D2CAMPAIGNDATE" Caption="Campaign Date" DataType="Date"  DisplaySequence="4" />
-			<OutputField FieldID="TYPE" Caption="Campaign Type" DataType="String" DisplaySequence="5" />
-			<OutputField FieldID="D2INTERACTIONSTATUS" Caption="Result" DataType="String" DisplaySequence="6" />
+			<OutputField FieldID="SPONSORLOOKUPID" Caption="Sponsor" DataType="String"  DisplaySequence="3" />
+			<OutputField FieldID="D2CAMPAIGNDATE" Caption="Campaign Date" DataType="Date"  DisplaySequence="5" />
+			<OutputField FieldID="TYPE" Caption="Campaign Type" DataType="String" DisplaySequence="2" />
+			<OutputField FieldID="D2INTERACTIONSTATUS" Caption="Result" DataType="String" DisplaySequence="4" />
 		</OutputFields>
 	</Output>
 
