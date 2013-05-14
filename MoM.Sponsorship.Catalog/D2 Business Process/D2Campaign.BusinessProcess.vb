@@ -6,6 +6,7 @@ Public NotInheritable Class D2CampaignBusinessProcess
 	Inherits AppCatalog.AppBusinessProcess
 
 	Private _campaignType As Integer = Nothing
+	Private _parameterSetId As Guid = Guid.Empty
 
 	'Public CAMPAIGNTYPE As Integer = Nothing
 
@@ -36,7 +37,16 @@ Public NotInheritable Class D2CampaignBusinessProcess
 						.Transaction = Transaction
 
 						.CommandType = CommandType.StoredProcedure
-						.CommandText = "dbo.USR_USP_D2_CAMPAIGN_BUSINESSPROCESS"
+						'there are two sprocs used for this business process: one for phone, one for email
+						'   0=Email Cash, 1=Email EFT Active, 2=Email EFT Held Credit Card, 3=Email EFT Held Direct Debit, 4=Phone
+						If _campaignType = 4 Then
+							'call the Phone sproc
+							.CommandText = "dbo.USR_USP_D2_CAMPAIGN_BUSINESSPROCESS"
+						Else
+							'call the Email sproc
+							.CommandText = "dbo.USR_USP_D2_CAMPAIGN_BUSINESSPROCESS_EMAIL"
+						End If
+
 						.CommandTimeout = Me.ProcessCommandTimeout
 						.Parameters.AddWithValue("@CAMPAIGNTYPE", _campaignType)
 						.Parameters.AddWithValue("changeAgentID", DBNull.Value)				' The sproc will get the Change Agent ID if we pass in null
@@ -107,6 +117,7 @@ Public NotInheritable Class D2CampaignBusinessProcess
 		columns.Add(New AppCatalog.TableColumn("D2INTERACTIONSTATUS", SqlDbType.NVarChar, 50))
 		columns.Add(New AppCatalog.TableColumn("INTERACTIONCREATEDCOUNT", SqlDbType.Int))
 		columns.Add(New AppCatalog.TableColumn("NOINTERACTIONCOUNT", SqlDbType.Int))
+		columns.Add(New AppCatalog.TableColumn("D2SESSIONID", SqlDbType.UniqueIdentifier))
 		Return columns
 
 	End Function
@@ -124,6 +135,7 @@ Public NotInheritable Class D2CampaignBusinessProcess
 		Using con As SqlConnection = New SqlConnection(requestContext.AppDBConnectionString)
 			Using command As SqlCommand = con.CreateCommand()
 				Try
+					_parameterSetId = parameterSetID
 					command.CommandText = "USR_USP_D2CAMPAIGNPROCESS_GETPARAMETERS"
 					command.CommandType = CommandType.StoredProcedure
 					command.Parameters.AddWithValue("@ID", parameterSetID)

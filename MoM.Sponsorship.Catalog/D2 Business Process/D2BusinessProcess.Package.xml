@@ -56,6 +56,7 @@
 		
 		<!-- SQL -->
 		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.USR_USP_D2_CAMPAIGN_BUSINESSPROCESS.xml" />
+		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.USR_USP_D2_CAMPAIGN_BUSINESSPROCESS_EMAIL.xml" />
 		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.USR_USP_D2CAMPAIGNPROCESS_GETPARAMETERS.xml" />
 
 		<!-- Forms -->

@@ -16,6 +16,7 @@
 		<TextField Name="D2INTERACTIONSTATUS" Description="D2 campaign results" Length="50" Required="true"/>
 		<NumberField Name="INTERACTIONCREATEDCOUNT" Description="Number of delinquent sponsors" Type="int"  />
 		<NumberField Name="NOINTERACTIONCOUNT" Description="D2 sponsors unable to contact" Type="int" />
+		<GuidField Name="D2SESSIONID" Description="D2 Session Id" Required="false"/>
 	</Fields>
 
 	<!-- define any additional check constraints on the table -->
