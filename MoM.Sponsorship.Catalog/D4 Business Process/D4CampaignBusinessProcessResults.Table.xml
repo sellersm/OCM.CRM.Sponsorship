@@ -1,0 +1,44 @@
+﻿<TableSpec 
+	xmlns="bb_appfx_table"
+	xmlns:common="bb_appfx_commontypes" 
+	ID="F64FC4F2-63EF-44E6-8DFE-32DE237C2ED5"
+	Name="D4 Campaign Business Process Results"
+	Description="Stores Sponsors that had no interactions created during D4 campaign."
+	Author="Cary Mayeda"
+	Tablename="USR_D4_CAMPAIGN_BUSINESSPROCESS_RESULTS"		   
+	>
+
+	<!-- 
+	Remarks:    
+
+	History:
+	Date            Modified By     Comments
+	14-May-2013		CMayeda			Initial Version copied from Memphis' D2 Campaign Business Process Results
+	-->
+
+	<!-- define fields on the table -->
+	<Fields>
+		<TextField Name="SPONSORLOOKUPID" Description="Sponsor Lookup ID" Length="10" Required="true"/>
+		<DateField Name="D4CAMPAIGNDATE" DefaultValue="GETDATE()" IncludeTime="false" Description="Campaign Date" Required="true" />
+		<NumberField Name="CAMPAIGNTYPE" Description="Campaign Type" Type="tinyint" />
+		<TextField Name="D4INTERACTIONSTATUS" Description="D4 campaign results" Length="50" Required="true"/>
+		<NumberField Name="INTERACTIONCREATEDCOUNT" Description="Number of delinquent sponsors" Type="int"  />
+		<NumberField Name="NOINTERACTIONCOUNT" Description="D4 sponsors unable to contact" Type="int" />
+	</Fields>
+
+	<!-- define any additional check constraints on the table -->
+	<!--<CheckConstraints>
+
+	</CheckConstraints>-->
+
+	<!-- define any indexes on the table -->
+	<!--<Indexes>
+
+	</Indexes>-->
+		
+	<!-- define any triggers on the table -->
+	<!--<Triggers>
+
+	</Triggers>-->
+
+</TableSpec>
