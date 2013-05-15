@@ -72,6 +72,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="D2 Business Process\D2Campaign.BusinessProcess.vb" />
+    <Compile Include="D4 Business Process\D4Campaign.BusinessProcess.vb" />
     <Compile Include="My Project\AssemblyInfo.vb" />
     <Compile Include="Prospect Conversion Business Process\ProspectConversion.BusinessProcess.vb" />
   </ItemGroup>
@@ -491,6 +492,25 @@
     <EmbeddedResource Include="D2 Business Process\D2CampaignBusinessProcessParameters.Edit.xml" />
     <EmbeddedResource Include="D2 Business Process\D2CampaignBusinessProcess.DeleteParameterSet.RecordOperation.xml" />
     <EmbeddedResource Include="D2 Business Process\USR_USP_D2_CAMPAIGN_BUSINESSPROCESS_EMAIL.xml" />
+    <EmbeddedResource Include="D4 Business Process\D4BusinessProcess.Package.xml" />
+    <EmbeddedResource Include="D4 Business Process\D4Campaign.BusinessProcess.xml" />
+    <EmbeddedResource Include="D4 Business Process\D4CampaignBusinessPreProcess.Edit.xml" />
+    <EmbeddedResource Include="D4 Business Process\D4CampaignBusinessProcess.DeleteParameterSet.RecordOperation.xml" />
+    <EmbeddedResource Include="D4 Business Process\D4CampaignBusinessProcess.Page.xml" />
+    <EmbeddedResource Include="D4 Business Process\D4CampaignBusinessProcess.PageExpression.View.xml" />
+    <EmbeddedResource Include="D4 Business Process\D4CampaignBusinessProcess.StatusReport.DataList.xml" />
+    <EmbeddedResource Include="D4 Business Process\D4CampaignBusinessProcess.Summary.View.xml" />
+    <EmbeddedResource Include="D4 Business Process\D4CampaignBusinessProcess.Table.xml" />
+    <EmbeddedResource Include="D4 Business Process\D4CampaignBusinessProcess.Task.xml" />
+    <EmbeddedResource Include="D4 Business Process\D4CampaignBusinessProcess.View.xml" />
+    <EmbeddedResource Include="D4 Business Process\D4CampaignBusinessProcessParameters.Add.xml" />
+    <EmbeddedResource Include="D4 Business Process\D4CampaignBusinessProcessParameters.DataList.xml" />
+    <EmbeddedResource Include="D4 Business Process\D4CampaignBusinessProcessParameters.Edit.xml" />
+    <EmbeddedResource Include="D4 Business Process\D4CampaignBusinessProcessResults.Page.xml" />
+    <EmbeddedResource Include="D4 Business Process\D4CampaignBusinessProcessResults.Table.xml" />
+    <EmbeddedResource Include="D4 Business Process\D4CampaignBusinessProcessStatus.DataList.xml" />
+    <EmbeddedResource Include="D4 Business Process\USR_USP_D4CAMPAIGNPROCESS_GETPARAMETERS.xml" />
+    <EmbeddedResource Include="D4 Business Process\USR_USP_D4_CAMPAIGN_BUSINESSPROCESS.xml" />
     <Content Include="DataLists\Sponsorship.Reasons.DataList.xml" />
     <EmbeddedResource Include="SQL\User Functions\USR_UFN_CHECK_RECURRINGGIFT_ISHELD.xml" />
     <EmbeddedResource Include="SQL\User Functions\USR_UFN_GET_PAYMENTMETHODCODE_BY_REVENUESPLITID.xml" />

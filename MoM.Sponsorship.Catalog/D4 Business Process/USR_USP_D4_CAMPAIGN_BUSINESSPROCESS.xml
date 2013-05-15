@@ -1,0 +1,445 @@
+﻿<SQLStoredProcedureSpec
+	xmlns="bb_appfx_sqlstoredprocedure"
+	xmlns:common="bb_appfx_commontypes" 
+	ID="5A311DE5-4F74-4EA9-B1E4-151CD3947F79"
+	Name="USR_USP_D4_CAMPAIGN_BUSINESSPROCESS"
+	Description="D4 Campaign stored procedure used for the business process."
+	Author="Cary Mayeda"
+	SPName="USR_USP_D4_CAMPAIGN_BUSINESSPROCESS"
+	GrantServiceRolePermission="true"
+	>
+
+	<!-- 
+	Remarks:    
+
+	History:
+	Date            Modified By     Comments
+	14-May-2013		CMayeda			Initial Version copied from Memphis' USR_USP_D2_CAMPAIGN_BUSINESSPROCESS
+	-->
+
+	<CreateProcedureSQL>
+		<![CDATA[
+
+create procedure dbo.USR_USP_D4_CAMPAIGN_BUSINESSPROCESS (
+	@campaignType tinyint,
+	@changeAgentID uniqueidentifier,
+	@outputTableName nvarchar(100),
+	@successCount int = 0 output,
+	@exceptionCount int = 0 output
+)
+as
+begin
+	-- do work
+	if @changeAgentID is null
+		exec dbo.USP_CHANGEAGENT_GETORCREATECHANGEAGENT @changeAgentID output;
+
+	declare @currentDate date = Cast(GETDATE() as date)
+
+
+	declare @interactionContactMethodId uniqueidentifier;
+	declare @mailContactMethodID uniqueidentifier;
+	declare @emailContactMethodID uniqueidentifier;
+	declare @phoneContactMethodID uniqueidentifier;
+
+	-- Mail
+	select @mailContactMethodID = ID from dbo.INTERACTIONTYPECODE where lower(DESCRIPTION) = lower('Mail')
+	-- Email
+	select @emailContactMethodID = ID from dbo.INTERACTIONTYPECODE where lower(DESCRIPTION) = lower('Email')
+
+	select @phoneContactMethodID = ID from dbo.INTERACTIONTYPECODE where lower(DESCRIPTION) = lower('Phone')
+
+
+	declare @categoryName nvarchar(100) = 'Sponsorship Delinquency'
+	declare @subcategoryName nvarchar(100) = 'Delinquent 4 Month - Cancellation Letter'
+	declare @raiseErrorIfNotFound_True bit = 1
+	declare @interactionCategoryId uniqueidentifier;
+	declare @subcategoryID uniqueidentifier;
+
+	select @interactionCategoryId = ID from dbo.INTERACTIONCATEGORY where lower(NAME) = lower(@categoryName)
+																				
+	declare @statusCode_Pending tinyint = 1;		-- this is the one we use in the interactions created in this biz process
+	declare @statusCode_Completed tinyint = 2
+	declare @statusCode_Unsuccessful tinyint = 3
+	declare @statusCode_Cancelled tinyint = 4
+	declare @statusCode_Declined tinyint = 5
+
+
+	declare @doNotContactSolicitCodeId uniqueidentifier;
+	declare @doNotEmailSolicitCodeId uniqueidentifier;
+	declare @doNotMailSolicitCodeId uniqueidentifier;
+	declare @noSystemLettersSolicitCodeId uniqueidentifier;
+
+	declare @affiliateOfficeConstituencyId uniqueidentifier;
+	declare @preventAutoCancelConstituencyId uniqueidentifier;
+
+	declare @sponsorLookupId nvarchar(10);
+
+	select @affiliateOfficeConstituencyId = ID
+	  from dbo.CONSTITUENCYCODE
+	 where lower(DESCRIPTION) = lower('Affiliate Office')
+
+	select @preventAutoCancelConstituencyId = ID
+      from dbo.CONSTITUENCYCODE
+	 where lower(DESCRIPTION) = lower('Prevent Auto Cancel')
+
+	select @doNotContactSolicitCodeId = ID
+	  from dbo.SOLICITCODE
+	 where lower(DESCRIPTION) = lower('Do not contact')
+
+	select @doNotEmailSolicitCodeId = ID
+	  from dbo.SOLICITCODE
+	 where lower(DESCRIPTION) = lower('Do not email')
+
+	select @doNotMailSolicitCodeId = ID
+	  from dbo.SOLICITCODE
+	 where lower(DESCRIPTION) = lower('Do not mail')
+
+	select @noSystemLettersSolicitCodeId = ID
+	  from dbo.SOLICITCODE
+	 where lower(DESCRIPTION) = lower('No system letters')
+
+	declare @NTD date
+	
+	declare @jubileeWriteOffReasonCode nvarchar(63)
+	set @jubileeWriteOffReasonCode = N'6 - Jubilee'
+
+	-- Get letter code table ids
+	declare @childCountLetterVersion_OneChildLetter uniqueidentifier = null
+	select @childCountLetterVersion_OneChildLetter = ID from dbo.USR_INTERACTIONEXTENSIONLETTERCHILDVERSIONCODE where DESCRIPTION = lower ('One Child Letter')
+	
+	declare @childCountLetterVersion_TwoChildrenLetter uniqueidentifier = null
+	select @childCountLetterVersion_TwoChildrenLetter = ID from dbo.USR_INTERACTIONEXTENSIONLETTERCHILDVERSIONCODE where DESCRIPTION = lower ('Two Children Letter')
+	
+	declare @childCountLetterVersion_MultipleChildrenLetter uniqueidentifier = null
+	select @childCountLetterVersion_MultipleChildrenLetter = ID from dbo.USR_INTERACTIONEXTENSIONLETTERCHILDVERSIONCODE where DESCRIPTION = lower ('Multiple Children Letter')
+	
+				
+	begin try
+		exec dbo.USR_USP_INTERACTION_GETSUBCATEGORYID @subcategoryID output, @categoryName, @subcategoryName, @raiseErrorIfNotFound_True
+
+		if @doNotContactSolicitCodeId is null
+			raiserror 100000 'Unable to locate solicit code: Do not contact! Unable to continue.'
+
+		if @doNotEmailSolicitCodeId is null
+			raiserror 100000 'Unable to locate solicit code: Do not email! Unable to continue.'
+
+		if @doNotMailSolicitCodeId is null
+			raiserror 100000 'Unable to locate solicit code: Do not mmail! Unable to continue.'
+
+		if @noSystemLettersSolicitCodeId is null
+			raiserror 100000 'Unable to locate solicit code: No system letters! Unable to continue.'
+
+		if @affiliateOfficeConstituencyId is null
+			raiserror 100000 'Unable to locate constituency code: Affiliate Office! Unable to continue.'
+				
+		if @preventAutoCancelConstituencyId is null
+			raiserror 100000 'Unable to locate constituency code: Prevent Auto Cancel! Unable to continue.'
+
+		if @mailContactMethodID is null 
+			RAISERROR 1000000 'Unable to locate the contact method: Phone.'
+		
+		if @emailContactMethodID is null
+			RAISERROR 1000000 'Unable to locate the contact method: Email.'
+		
+		if @interactionCategoryId is null
+			RAISERROR 1000000 'Unable to locate the interaction category: Sponsorship Delinquency.'
+
+		if @childCountLetterVersion_OneChildLetter is null 
+			RAISERROR 1000000 'Unable to locate the child count code: One Child Letter.'
+		
+		if @childCountLetterVersion_OneChildLetter is null 
+			RAISERROR 1000000 'Unable to locate the child count code: Two Children Letter.'
+		
+		if @childCountLetterVersion_MultipleChildrenLetter is null 
+			RAISERROR 1000000 'Unable to locate the child count code: Multiple Children Letter.'
+	
+	end try
+	begin catch
+		exec dbo.USP_RAISE_ERROR
+	end catch
+
+	begin try
+		begin transaction d4CampaignTransaction
+		
+		--'First Day of 3 Months ago'
+		declare @firstDayThreeMonthsAgo date
+		set @firstDayThreeMonthsAgo =  dateadd(month, datediff(month, 0, getdate()) - 3, 0)
+		
+		declare @d4ResultsTable table (
+			sponsorshipID uniqueidentifier,
+			childID uniqueidentifier, 
+			childLookupID nvarchar(100),
+			childName nvarchar(154),  
+			financialSponsorID uniqueidentifier, 
+			financialSponsorLookupID nvarchar(100), 
+			financialSponsorName nvarchar(255),  
+			sponsorshipRevenueSplitID uniqueidentifier, 
+			sponsorshipRecurringGiftID uniqueidentifier,
+			NTD date, 
+			-- This will be removed in the future
+			lastPaymentDate date,
+			jubileeWaiverAmount money);
+				
+		insert @d4ResultsTable	
+		select --top 10
+				sp.ID as sponsorshipID,
+				sp.SPONSORSHIPOPPORTUNITYID as childID,
+				so.LOOKUPID as childLookupID,
+				so_child.NAME as childName,
+				sponsor.ID as financialSponsorID,
+				sponsor.LOOKUPID as financialSponsorLookupID,
+				sponsor.NAME as financialSponsorName,
+				sp.REVENUESPLITID as sponsorshipRevenueSplitID,
+				rev.ID as sponsorshipRecurringGiftID,
+				case when revschedule.NEXTTRANSACTIONDATE > revschedule.ENDDATE then null else revschedule.NEXTTRANSACTIONDATE end as NTD,
+				
+	
+				-- This will be removed in the future
+				(select	top 1 rev_payment.DATE
+   				   from	dbo.RECURRINGGIFTACTIVITY rg_act
+				   join dbo.FINANCIALTRANSACTIONLINEITEM as payment on payment.ID = rg_act.PAYMENTREVENUEID									
+				   join dbo.FINANCIALTRANSACTION as rev_payment on payment.FINANCIALTRANSACTIONID = rev_payment.ID									
+				  where	SOURCEREVENUEID = rev.ID and rev_payment.TRANSACTIONAMOUNT > 0
+				  order by rev_payment.DATE desc) as LastPaymentDate,
+				  
+				(select sum(wo.AMOUNT) from dbo.V_QUERY_RECURRINGGIFTWRITEOFF wo where upper (wo.WRITEOFFREASONCODE) = upper (@jubileeWriteOffReasonCode) and wo.REVENUEID = rev.ID) as jubileeWaiverAmount 
+
+		  from	dbo.SPONSORSHIP sp
+		  
+		  join	dbo.REVENUESPLIT revsplit on sp.REVENUESPLITID = revsplit.ID
+		  join	dbo.REVENUE rev on revsplit.REVENUEID = rev.ID
+		  join	dbo.REVENUESCHEDULE revschedule on revschedule.ID = rev.ID --REVENUE.ID		
+		  join	dbo.CONSTITUENT sponsor on rev.CONSTITUENTID = sponsor.ID
+		  join	dbo.USR_SPONSORSHIPEXTENSION se on se.ID = sp.ID
+		  join	dbo.USR_CURRENTOPPORTUNITYSPONSORSHIPSTATUSCODE statusCode on 
+					statusCode.ID = se.CURRENTOPPORTUNITYSPONSORSHIPSTATUSCODEID and statusCode.DESCRIPTION = 'Sponsored' -- 1.6
+		  join	dbo.SPONSORSHIPOPPORTUNITY so on so.ID = sp.SPONSORSHIPOPPORTUNITYID
+		  join	dbo.SPONSORSHIPOPPORTUNITYCHILD so_child on so_child.ID = sp.SPONSORSHIPOPPORTUNITYID
+		
+		
+		 where  sp.STATUSCODE = 1   -- 1.5 - Status of 'Active' 
+
+				-- 1.7 NTD Less than <= first day of Month - 3
+		   and  (case when revschedule.NEXTTRANSACTIONDATE > revschedule.ENDDATE then null else revschedule.NEXTTRANSACTIONDATE end) 
+		          <= @firstDayThreeMonthsAgo 
+		          
+				-- 1.1 - Do NOT have a solicit code of “Do not contact”.
+		   and	not exists (select 1 
+					          from dbo.CONSTITUENTSOLICITCODE constit_sol
+					         where constit_sol.CONSTITUENTID = sp.CONSTITUENTID
+			                   and constit_sol.SOLICITCODEID = @doNotContactSolicitCodeId 
+			                   and (constit_sol.ENDDATE is null or constit_sol.ENDDATE > GETDATE()))
+
+				-- 1.2 - Do NOT have any interaction with a completed Category of Sponsorship Delinquency in the previous month (based on Expected date).			                   
+		   and	not exists  (select	1 
+		                       from	dbo.INTERACTION int_
+							  where	int_.INTERACTIONSUBCATEGORYID in 
+										(select ID 
+										   from dbo.INTERACTIONSUBCATEGORY int_subcat 
+							              where int_subcat.INTERACTIONCATEGORYID = @interactionCategoryId)
+							    and	(int_.CONSTITUENTID = sp.CONSTITUENTID
+							    and DATEPART(m, int_.EXPECTEDDATE) = DATEPART(m, DATEADD(m, -1, getdate()))
+			                    and YEAR(int_.EXPECTEDDATE) = YEAR(DATEADD(m, -1, getdate()))))
+		   
+				-- 1.3, 1.4 - Do NOT have the constituency code of “Affiliate Office” or "Prevent Auto Cancel"
+		   and	not exists (select 1 
+		                      from dbo.CONSTITUENCY constit 
+		                     where constit.CONSTITUENTID = sp.CONSTITUENTID 
+			                   and constit.CONSTITUENCYCODEID in (@affiliateOfficeConstituencyId, @preventAutoCancelConstituencyId)
+			                   and (constit.DATETO is null or constit.DATETO > GETDATE()))
+		
+
+		declare @D4Group1Sponsors table (financialSponsorID uniqueidentifier)
+		declare @D4Group2Sponsors table (financialSponsorID uniqueidentifier)
+		declare @D4Group3Sponsors table (financialSponsorID uniqueidentifier)
+	
+		insert @D4Group3Sponsors
+		select distinct financialSponsorID
+		  from @d4ResultsTable d4
+		 where LastPaymentDate >= '1/1/13'
+		 
+		insert @D4Group2Sponsors
+		select distinct financialSponsorID
+		  from @d4ResultsTable d4
+		 where JubileeWaiverAmount is null 
+		   and LastPaymentDate < '1/1/13'
+		 
+		insert @D4Group1Sponsors
+		select distinct financialSponsorID
+		  from @d4ResultsTable d4
+		 where isnull(JubileeWaiverAmount,0) > 0 
+		   and LastPaymentDate < '1/1/13'
+		
+		
+		declare @D4Interactions table (
+			financialSponsorID uniqueidentifier,
+			financialSponsorLookupID nvarchar(100), 
+			interactionID uniqueidentifier,
+			d4Group tinyint,
+			hasValidPrimaryEmail bit,
+			doNotEmail bit,
+			doNotMail bit,
+			noSystemLetters bit,
+			numberOfChildren int,
+			isException bit
+			)
+
+		insert @D4Interactions (financialSponsorID, financialSponsorLookupID)
+		select distinct financialSponsorID, financialSponsorLookupID from @d4ResultsTable
+		
+		update	@D4Interactions
+		   set	interactionID = newid(),
+				d4Group =	case
+								when exists (select 1 from @D4Group3Sponsors g3 where  g3.financialSponsorID = d4Int.financialSponsorID) then 3
+								when exists (select 1 from @D4Group2Sponsors g2 where  g2.financialSponsorID = d4Int.financialSponsorID) then 2
+								when exists (select 1 from @D4Group1Sponsors g1 where  g1.financialSponsorID = d4Int.financialSponsorID) then 1
+								else 0
+							end,
+				
+				hasValidPrimaryEmail =	case 
+											when exists (select 1 from dbo.EMAILADDRESS where DONOTEMAIL = 0 and ISPRIMARY = 1 and CONSTITUENTID = d4Int.financialSponsorID) then 1 
+											else 0 
+										end,
+				
+				doNotEmail = case 
+								when exists (select 1 from dbo.CONSTITUENTSOLICITCODE constit_sol
+							 		          where constit_sol.CONSTITUENTID = d4Int.financialSponsorID
+										        and constit_sol.SOLICITCODEID = @doNotEmailSolicitCodeId 
+											    and (constit_sol.ENDDATE is null or constit_sol.ENDDATE > GETDATE())) then 1 
+								else 0 
+							end,
+
+				doNotMail = case
+								when exists (select 1 from dbo.CONSTITUENTSOLICITCODE constit_sol
+								 	          where constit_sol.CONSTITUENTID = d4Int.financialSponsorID
+									            and constit_sol.SOLICITCODEID = @doNotMailSolicitCodeId 
+										        and (constit_sol.ENDDATE is null or constit_sol.ENDDATE > GETDATE())) then 1 
+								else 0 
+							end,
+				
+				noSystemLetters =	case 
+										when exists (select 1 from dbo.CONSTITUENTSOLICITCODE constit_sol
+							 						  where constit_sol.CONSTITUENTID = d4Int.financialSponsorID
+														and constit_sol.SOLICITCODEID = @noSystemLettersSolicitCodeId 
+														and (constit_sol.ENDDATE is null or constit_sol.ENDDATE > GETDATE())) then 1 
+										else 0 
+									end,
+									
+				numberOfChildren = (select count(d4Results.childID) from @d4ResultsTable d4Results where d4Int.financialSponsorID = d4Results.financialSponsorID group by d4Results.financialSponsorID )
+
+		  from	@D4Interactions d4Int
+		  
+		update	@D4Interactions
+		   set isException = case 
+								when   (noSystemLetters = 1
+									or (hasValidPrimaryEmail = 1 and doNotEmail = 1 and doNotMail = 1)
+									or (hasValidPrimaryEmail = 0 and doNotMail = 1)) then 1
+								else 0
+							 end						
+
+		insert into dbo.INTERACTION (
+			ID,
+			INTERACTIONSUBCATEGORYID,
+			ADDEDBYID,
+			CHANGEDBYID,
+			CONSTITUENTID,
+			EXPECTEDDATE,
+			FUNDRAISERID,
+			INTERACTIONTYPECODEID,
+			OBJECTIVE,
+			STATUSCODE,
+			COMMENT
+		) 
+		select	
+			interactionID,
+			@subcategoryID,
+			@changeAgentID,
+			@changeAgentID,
+			financialSponsorID,
+			@currentDate,
+			null,
+			case 
+				when hasValidPrimaryEmail = 1 and doNotEmail = 0 then @emailContactMethodID
+				else @mailContactMethodID
+			end,
+			case 
+				when hasValidPrimaryEmail = 1 and doNotEmail = 0 then 'D4 Campaign - Email'
+				else 'D4 Campaign - Mail'
+			end,
+			@statusCode_Pending,
+			'D4 - Group ' + CAST (d4Group as nvarchar(1))
+			
+		  from @D4Interactions
+		 where isException = 0
+
+		insert dbo.USR_INTERACTIONEXTENSION (ID, ADDEDBYID, CHANGEDBYID, DATEADDED, DATECHANGED, CHILDCOUNTLETTERVERSIONCODEID)
+		select interactionID, @changeAgentID, @changeAgentID, @currentDate, @currentDate,
+			   case numberOfChildren
+					when 0 then null
+					when 1 then @childCountLetterVersion_OneChildLetter
+					when 2 then @childCountLetterVersion_TwoChildrenLetter
+					else @childCountLetterVersion_MultipleChildrenLetter
+				end
+		  from @D4Interactions
+		 where isException = 0
+
+		insert dbo.USR_INTERACTIONEXTENSIONCHILDREN
+				(INTERACTIONID, SPONSORSHIPOPPORTUNITYCHILDID, ADDEDBYID, CHANGEDBYID, DATEADDED, DATECHANGED)
+		select d4int.interactionID, d4Results.childID, @changeAgentID, @changeAgentID, @currentDate, @currentDate
+			  from @D4Interactions d4Int
+			  join @d4ResultsTable	d4Results on d4Int.financialSponsorID = d4Results.financialSponsorID
+		 where isException = 0
+		
+		
+		insert dbo.USR_D4_CAMPAIGN_BUSINESSPROCESS_RESULTS 
+			(SPONSORLOOKUPID
+			, D4CAMPAIGNDATE
+			, CAMPAIGNTYPE
+			, D4INTERACTIONSTATUS
+			, ADDEDBYID
+			, DATEADDED
+			, CHANGEDBYID
+			, DATECHANGED
+			)
+		select	
+			financialSponsorLookupID,
+			@currentDate,
+			@campaignType,
+			case 
+			    when isException = 1 then 'Not created'
+				when hasValidPrimaryEmail = 1 and doNotEmail = 0 then 'Email interaction created'
+				else 'Mail interaction created'
+			end,			
+			@changeAgentID,
+			@currentDate,
+			@changeAgentID,
+			@currentDate
+			
+		  from @D4Interactions
+		 
+		
+		set @successCount = (select count(*) from @D4Interactions where isException = 0)
+
+		set @exceptionCount = (select count(*) from @D4Interactions where isException = 1)
+
+		print @successCount 
+		print @exceptionCount 
+		
+		commit transaction d4CampaignTransaction
+		
+		
+	end try
+	
+	begin catch
+		rollback transaction d4CampaignTransaction
+		exec dbo.USP_RAISE_ERROR
+		return 1;
+	end catch
+
+end
+
+
+		]]>
+	</CreateProcedureSQL>
+
+</SQLStoredProcedureSpec>
