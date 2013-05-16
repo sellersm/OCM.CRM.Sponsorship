@@ -82,6 +82,9 @@
 		<!-- Record Operations -->
 		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.D4CampaignBusinessProcess.DeleteParameterSet.RecordOperation.xml" />
 
+		<!-- Queries -->
+		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.D4CampaignBusinessProcessResults.Query.xml" />
+		
 		<!-- Pages -->
 		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.D4CampaignBusinessProcessResults.Page.xml" />
 		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.D4CampaignBusinessProcess.Page.xml" />
