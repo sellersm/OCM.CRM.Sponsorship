@@ -235,7 +235,7 @@ begin
 			jubileeWaiverAmount money);
 				
 		insert @d4ResultsTable	
-		select	top 10 sp.ID as sponsorshipID,
+		select	sp.ID as sponsorshipID,
 				sp.SPONSORSHIPOPPORTUNITYID as childID,
 				so.LOOKUPID as childLookupID,
 				so_child.NAME as childName,
