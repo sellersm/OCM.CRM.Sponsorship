@@ -82,6 +82,9 @@
 
 		<!-- Biz Process Spec -->
 		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.D2Campaign.BusinessProcess.xml" />
+		
+		<!-- Query Views -->
+		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.D2CampaignBusinessProcessResults.Query.xml" />
 
 		<!-- Tasks -->
 		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.D2CampaignBusinessProcess.Task.xml" />
