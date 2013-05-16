@@ -94,6 +94,9 @@
 	25-Apr-2013		Memphis			Added UpdateBatchNumber.Edit.xml
 	06-May-2013		Memphis			Added USR_UFN_GET_PAYMENTMETHODCODE_BY_REVENUESPLITID.xml used in D2 Campaign biz process
 										  USR_UFN_CHECK_RECURRINGGIFT_ISHELD.xml
+	15-May-2013		Memphis			Fogbugz Case 1075: added 
+										USR_UFN_GET_UNPAIDSPONSORED_FINANCIALCOMMITMENTS_BYSPONSOR.xml
+										USR_UFN_SPONSORSHIP_GETUNPAID_SPONSOREDCHILDREN_FORSPONSOR.xml
 -->
 
 	<!-- Note:  the order of the items listed here is important.  For example, you won't be able to load a data form that references 
@@ -223,6 +226,8 @@
 		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.USR_UFN_SPONSORSHIP_MATCHEDOPPORTUNITY_PROJECTSPONSORSHIP" />
 		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.USR_UFN_GET_PAYMENTMETHODCODE_BY_REVENUESPLITID.xml" />
 		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.USR_UFN_CHECK_RECURRINGGIFT_ISHELD.xml" />
+		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.USR_UFN_GET_UNPAIDSPONSORED_FINANCIALCOMMITMENTS_BYSPONSOR.xml" />
+		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.USR_UFN_SPONSORSHIP_GETUNPAID_SPONSOREDCHILDREN_FORSPONSOR.xml" />
 
 		<!-- Smart Fields -->
 		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.NextTransactionDateDelinquency.SmartField.xml" />
