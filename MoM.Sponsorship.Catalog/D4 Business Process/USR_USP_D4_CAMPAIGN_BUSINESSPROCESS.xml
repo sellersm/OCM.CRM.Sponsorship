@@ -230,6 +230,7 @@ begin
 			sponsorshipRevenueSplitID uniqueidentifier, 
 			sponsorshipRecurringGiftID uniqueidentifier,
 			NTD date, 
+			NumberOfMonthsPastDue decimal(3,1),
 			-- This will be removed in the future
 			lastPaymentDate date,
 			jubileeWaiverAmount money);
@@ -245,7 +246,14 @@ begin
 				sp.REVENUESPLITID as sponsorshipRevenueSplitID,
 				rev.ID as sponsorshipRecurringGiftID,
 				case when revschedule.NEXTTRANSACTIONDATE > revschedule.ENDDATE then null else revschedule.NEXTTRANSACTIONDATE end as NTD,
-				
+				case 
+					when revschedule.FREQUENCYCODE = 3 then dbo.UFN_RECURRINGGIFT_GETPASTDUEAMOUNT(rev.ID, null) / rev.TRANSACTIONAMOUNT -- Monthly
+					when revschedule.FREQUENCYCODE = 6 then dbo.UFN_RECURRINGGIFT_GETPASTDUEAMOUNT(rev.ID, null) / ((rev.TRANSACTIONAMOUNT * 6)/12) -- Bimonthly
+					when revschedule.FREQUENCYCODE = 7 then dbo.UFN_RECURRINGGIFT_GETPASTDUEAMOUNT(rev.ID, null) / ((rev.TRANSACTIONAMOUNT * 24)/12) -- Semi-Monthly
+					when revschedule.FREQUENCYCODE = 8 then dbo.UFN_RECURRINGGIFT_GETPASTDUEAMOUNT(rev.ID, null) / ((rev.TRANSACTIONAMOUNT * 26)/12) -- Biweekly
+					when revschedule.FREQUENCYCODE = 9 then dbo.UFN_RECURRINGGIFT_GETPASTDUEAMOUNT(rev.ID, null) / ((rev.TRANSACTIONAMOUNT * 52)/12) -- Weekly
+					else -1
+				end,
 	
 				-- This will be removed in the future
 				(select	top 1 rev_payment.DATE
@@ -326,8 +334,8 @@ begin
 		   and (LastPaymentDate is null or LastPaymentDate < '1/1/13')
 		
 		-- ** end of temporary grouping code
-		
-		
+
+	
 		declare @D4Interactions table (
 			financialSponsorID uniqueidentifier,
 			financialSponsorLookupID nvarchar(100), 
@@ -339,7 +347,8 @@ begin
 			doNotMail bit,
 			noSystemLetters bit,
 			numberOfChildren int,
-			isException bit
+			isException bit,
+			exceptionMessage nvarchar(255)
 			)
 
 		insert @D4Interactions (financialSponsorID, financialSponsorLookupID)
@@ -393,8 +402,24 @@ begin
 								when   (noSystemLetters = 1
 									or (hasValidPrimaryEmail = 1 and doNotEmail = 1 and doNotMail = 1)
 									or (hasValidPrimaryEmail = 0 and doNotMail = 1)) then 1
+							    when exists (select 1 from @d4ResultsTable results where results.NumberOfMonthsPastDue >= 0 
+																					 and results.NumberOfMonthsPastDue < 4 
+																					 and results.financialSponsorID = D4Int.financialSponsorID)  then 1
 								else 0
-							 end						
+							 end,
+							 
+				exceptionMessage =	case 
+										when noSystemLetters = 1 then 'No system letter'
+									    when hasValidPrimaryEmail = 1 and doNotEmail = 1 and doNotMail = 1 then 'Do not email and Do not Mail solicit codes'
+									    when hasValidPrimaryEmail = 0 and doNotMail = 1 then 'Do not mail solicit code'
+									    when exists (select 1 from @d4ResultsTable results where results.NumberOfMonthsPastDue >= 0 
+																							 and results.NumberOfMonthsPastDue < 4 
+																							 and results.financialSponsorID = D4Int.financialSponsorID)  then
+											'NTD and Amount Past Due do not match'
+										else ''
+									 end
+		  from	@D4Interactions D4Int
+							 					
 
 		insert into dbo.INTERACTION (
 			ID,
@@ -464,18 +489,15 @@ begin
 			financialSponsorLookupID,
 			@currentDate,
 			@campaignType,
-			case 
-			    when isException = 1 then 'Not created'
-				when hasValidPrimaryEmail = 1 and doNotEmail = 0 then 'Email interaction created'
-				else 'Mail interaction created'
-			end,			
+			'Not created - ' + exceptionMessage,			
 			@changeAgentID,
 			@currentDate,
 			@changeAgentID,
 			@currentDate
 			
 		  from @D4Interactions
-
+		  where isException = 1
+		  
 -- ** This is temporary, since the "normal" process will not need a phone call interaction		 
 -- ************************
 
@@ -534,7 +556,7 @@ begin
 		 where isException = 0
 		   and d4Group in (2,3)
 		
-		
+/* Removed		
 		insert dbo.USR_D4_CAMPAIGN_BUSINESSPROCESS_RESULTS 
 			(SPONSORLOOKUPID
 			, D4CAMPAIGNDATE
@@ -558,11 +580,8 @@ begin
 		  from @D4Interactions
 		 where isException = 0
 		   and d4Group in (2,3)
+*/
 
-
-
-		-- Add responses to phone call interaction
-		
 		insert dbo.INTERACTIONRESPONSE 
 			(INTERACTIONID, RESPONSEID, ADDEDBYID, CHANGEDBYID, DATEADDED, DATECHANGED)
 
@@ -642,7 +661,7 @@ begin
 		
 		
 	end try
-	
+		
 	begin catch
 		rollback transaction d4CampaignTransaction
 		exec dbo.USP_RAISE_ERROR

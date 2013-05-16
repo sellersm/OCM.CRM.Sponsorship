@@ -1,0 +1,50 @@
+﻿<DataListSpec 
+	xmlns="bb_appfx_datalist"
+	xmlns:common="bb_appfx_commontypes" 
+	ID="7ac3c8b0-d556-4c8a-91ed-cb6972d5e185" 
+	Name="Sponsorship Data List"
+	Description="REPLACE_WITH_DESCRIPTION." 
+	Author="BETHESDA\cmayeda"
+	common:SecurityUIFolder="REPLACE_WITH_SECURITYUIFOLDER">
+
+	<!-- define the SP that returns the data for the datalist -->
+	<SPDataList SPName="USP_DATALIST_xxx">
+		<common:CreateProcedureSQL>
+			<![CDATA[
+create procedure dbo.USP_DATALIST_xxx(@CONTEXTID uniqueidentifier)
+as
+	set nocount on;
+
+	select ID,
+		   FIELD1,
+		   FIELD2,
+		   FIELD3
+	from dbo.TABLE1
+	where CONTEXTID = @CONTEXTID
+			]]>
+		</common:CreateProcedureSQL>
+	</SPDataList>
+
+	<!-- describe the context ID parameter for the SP (if applicable)-->
+	<Context ContextRecordType="REPLACE_WITH_RECORDTYPE" RecordIDParameter="CONTEXTID"/>
+
+	<!-- describe any parameters (other than the context ID) defined on the SP
+	<Parameters>
+		<common:FormMetaData>
+			<common:FormFields>
+				<common:FormField FieldID="PARAMETER1" Caption="Paramter1" DataType="REPLACE_WITH_DATATYPE"/>
+			</common:FormFields>
+		</common:FormMetaData>
+	</Parameters>-->
+
+	<!-- define the output fields in the list -->
+	<Output>
+		<OutputFields>
+			<OutputField FieldID="ID" Caption="ID" DataType="Guid" IsHidden="true" />
+			<OutputField FieldID="FIELD1" Caption="REPLACE_WITH_CAPTION" DataType="REPLACE_WITH_DATATYPE" />
+			<OutputField FieldID="FIELD2" Caption="REPLACE_WITH_CAPTION" DataType="REPLACE_WITH_DATATYPE" />
+			<OutputField FieldID="FIELD3" Caption="REPLACE_WITH_CAPTION" DataType="REPLACE_WITH_DATATYPE" />
+		</OutputFields>
+	</Output>
+
+</DataListSpec>
