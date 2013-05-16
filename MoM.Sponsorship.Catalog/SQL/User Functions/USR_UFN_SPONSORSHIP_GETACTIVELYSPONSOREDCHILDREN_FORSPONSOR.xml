@@ -6,6 +6,7 @@
 	Description="Get all Active Children that are sponsored by the given sponsor."
 	Author="Memphis Sellers"
 	DBFunctionName="USR_UFN_SPONSORSHIP_GETACTIVELYSPONSOREDCHILDREN_FORSPONSOR"
+	GrantServiceRolePermission="true"
 	>
 
 	<!-- 
@@ -14,7 +15,6 @@
 	History:
 	Date            Modified By     Comments
 	24-Jan-2013		Memphis			Initial Version
-
 	-->	
 
 	<CreateFunctionSQL>
