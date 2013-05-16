@@ -29,17 +29,18 @@ create procedure dbo.USR_USP_D4_CAMPAIGN_BUSINESSPROCESS (
 )
 as
 begin
-	-- do work
 	if @changeAgentID is null
 		exec dbo.USP_CHANGEAGENT_GETORCREATECHANGEAGENT @changeAgentID output;
 
 	declare @currentDate date = Cast(GETDATE() as date)
 
+	-- Interaction constants
+	declare @callCenterManagerConstituentID uniqueidentifier = 'B25168DC-4DD4-46ED-B4DD-C5A26A965667';	-- This constituent is hard coded via a script
 
-	declare @interactionContactMethodId uniqueidentifier;
-	declare @mailContactMethodID uniqueidentifier;
-	declare @emailContactMethodID uniqueidentifier;
-	declare @phoneContactMethodID uniqueidentifier;
+	declare @interactionContactMethodId uniqueidentifier
+	declare @mailContactMethodID uniqueidentifier
+	declare @emailContactMethodID uniqueidentifier
+	declare @phoneContactMethodID uniqueidentifier
 
 	-- Mail
 	select @mailContactMethodID = ID from dbo.INTERACTIONTYPECODE where lower(DESCRIPTION) = lower('Mail')
@@ -51,10 +52,13 @@ begin
 
 	declare @categoryName nvarchar(100) = 'Sponsorship Delinquency'
 	declare @subcategoryName nvarchar(100) = 'Delinquent 4 Month - Cancellation Letter'
+	declare @subcategoryName_Phone nvarchar(100) = 'Delinquency Reminder'   -- ** This is temporary, since the "normal" process will not need a phone call interaction
+	
 	declare @raiseErrorIfNotFound_True bit = 1
-	declare @interactionCategoryId uniqueidentifier;
-	declare @subcategoryID uniqueidentifier;
-
+	declare @interactionCategoryId uniqueidentifier
+	declare @subcategoryID uniqueidentifier
+	declare @subcategoryID_Phone uniqueidentifier   -- ** This is temporary, since the "normal" process will not need a phone call interaction
+	
 	select @interactionCategoryId = ID from dbo.INTERACTIONCATEGORY where lower(NAME) = lower(@categoryName)
 																				
 	declare @statusCode_Pending tinyint = 1;		-- this is the one we use in the interactions created in this biz process
@@ -63,7 +67,23 @@ begin
 	declare @statusCode_Cancelled tinyint = 4
 	declare @statusCode_Declined tinyint = 5
 
+	-- Response Category descriptions
+	declare @interactionResponseCategory_DonorContact nvarchar(100) = 'Donor Contact'
+	declare @interactionResponseCategory_LeftMessage nvarchar(100) = 'Left Message'
+	declare @interactionResponseCategory_MessageType nvarchar(100) = 'Message Type'
+	declare @interactionResponseCategory_Cancelled nvarchar(100) = 'Cancelled'
+	declare @interactionResponseCategory_EFTReceived nvarchar(100) = 'EFT Received'
 
+	declare @interactionResponse_No nvarchar(100) = 'No'
+	declare @interactionResponse_None nvarchar(100) = 'None'
+
+	declare @interactionResponseID_DonorContact_No uniqueidentifier
+	declare @interactionResponseID_LeftMessage_No uniqueidentifier
+	declare @interactionResponseID_MessageType_None uniqueidentifier
+	declare @interactionResponseID_Cancelled_No uniqueidentifier
+	declare @interactionResponseID_EFTReceived_No uniqueidentifier
+
+	-- Solicit Codes and Constituencies
 	declare @doNotContactSolicitCodeId uniqueidentifier;
 	declare @doNotEmailSolicitCodeId uniqueidentifier;
 	declare @doNotMailSolicitCodeId uniqueidentifier;
@@ -98,8 +118,7 @@ begin
 	  from dbo.SOLICITCODE
 	 where lower(DESCRIPTION) = lower('No system letters')
 
-	declare @NTD date
-	
+
 	declare @jubileeWriteOffReasonCode nvarchar(63)
 	set @jubileeWriteOffReasonCode = N'6 - Jubilee'
 
@@ -113,9 +132,44 @@ begin
 	declare @childCountLetterVersion_MultipleChildrenLetter uniqueidentifier = null
 	select @childCountLetterVersion_MultipleChildrenLetter = ID from dbo.USR_INTERACTIONEXTENSIONLETTERCHILDVERSIONCODE where DESCRIPTION = lower ('Multiple Children Letter')
 	
-				
+
+	-- Call sprocs to get IDs that raise errors
+	-- And check to make sure every constant has a value				
 	begin try
 		exec dbo.USR_USP_INTERACTION_GETSUBCATEGORYID @subcategoryID output, @categoryName, @subcategoryName, @raiseErrorIfNotFound_True
+		 
+		 -- ** This is temporary, since the "normal" process will not need a phone call interaction
+		exec dbo.USR_USP_INTERACTION_GETSUBCATEGORYID @subcategoryID_Phone output, @categoryName, @subcategoryName_Phone, @raiseErrorIfNotFound_True
+
+		exec dbo.USR_USP_INTERACTION_GETRESPONSEID 
+			@responseID = @interactionResponseID_DonorContact_No output,		
+			@responseCategoryName = @interactionResponseCategory_DonorContact,
+			@response = @interactionResponse_No,
+			@raiseErrorIfNotFound = 1
+
+		exec dbo.USR_USP_INTERACTION_GETRESPONSEID 
+			@responseID = @interactionResponseID_LeftMessage_No output,		
+			@responseCategoryName = @interactionResponseCategory_LeftMessage,
+			@response = @interactionResponse_No,
+			@raiseErrorIfNotFound = 1
+
+		exec dbo.USR_USP_INTERACTION_GETRESPONSEID 
+			@responseID = @interactionResponseID_MessageType_None output,		
+			@responseCategoryName = @interactionResponseCategory_MessageType,
+			@response = @interactionResponse_None,
+			@raiseErrorIfNotFound = 1
+
+		exec dbo.USR_USP_INTERACTION_GETRESPONSEID 
+			@responseID = @interactionResponseID_Cancelled_No output,		
+			@responseCategoryName = @interactionResponseCategory_Cancelled,
+			@response = @interactionResponse_No,
+			@raiseErrorIfNotFound = 1
+
+		exec dbo.USR_USP_INTERACTION_GETRESPONSEID 
+			@responseID = @interactionResponseID_EFTReceived_No output,		
+			@responseCategoryName = @interactionResponseCategory_EFTReceived,
+			@response = @interactionResponse_No,
+			@raiseErrorIfNotFound = 1
 
 		if @doNotContactSolicitCodeId is null
 			raiserror 100000 'Unable to locate solicit code: Do not contact! Unable to continue.'
@@ -181,8 +235,7 @@ begin
 			jubileeWaiverAmount money);
 				
 		insert @d4ResultsTable	
-		select --top 10
-				sp.ID as sponsorshipID,
+		select	top 10 sp.ID as sponsorshipID,
 				sp.SPONSORSHIPOPPORTUNITYID as childID,
 				so.LOOKUPID as childLookupID,
 				so_child.NAME as childName,
@@ -249,6 +302,8 @@ begin
 			                   and (constit.DATETO is null or constit.DATETO > GETDATE()))
 		
 
+		-- This is a temporary grouping per Jenny for May, which can be removed at a later date.
+		-- ** beginning of temporary grouping code
 		declare @D4Group1Sponsors table (financialSponsorID uniqueidentifier)
 		declare @D4Group2Sponsors table (financialSponsorID uniqueidentifier)
 		declare @D4Group3Sponsors table (financialSponsorID uniqueidentifier)
@@ -262,19 +317,22 @@ begin
 		select distinct financialSponsorID
 		  from @d4ResultsTable d4
 		 where JubileeWaiverAmount is null 
-		   and LastPaymentDate < '1/1/13'
+		   and (LastPaymentDate is null or LastPaymentDate < '1/1/13')
 		 
 		insert @D4Group1Sponsors
 		select distinct financialSponsorID
 		  from @d4ResultsTable d4
 		 where isnull(JubileeWaiverAmount,0) > 0 
-		   and LastPaymentDate < '1/1/13'
+		   and (LastPaymentDate is null or LastPaymentDate < '1/1/13')
+		
+		-- ** end of temporary grouping code
 		
 		
 		declare @D4Interactions table (
 			financialSponsorID uniqueidentifier,
 			financialSponsorLookupID nvarchar(100), 
 			interactionID uniqueidentifier,
+			phoneInteractionID uniqueidentifier,  -- ** This is temporary, since the "normal" process will not need a phone call interaction
 			d4Group tinyint,
 			hasValidPrimaryEmail bit,
 			doNotEmail bit,
@@ -289,6 +347,7 @@ begin
 		
 		update	@D4Interactions
 		   set	interactionID = newid(),
+				phoneInteractionID = newid(),  -- ** This is temporary, since the "normal" process will not need a phone call interaction
 				d4Group =	case
 								when exists (select 1 from @D4Group3Sponsors g3 where  g3.financialSponsorID = d4Int.financialSponsorID) then 3
 								when exists (select 1 from @D4Group2Sponsors g2 where  g2.financialSponsorID = d4Int.financialSponsorID) then 2
@@ -416,7 +475,161 @@ begin
 			@currentDate
 			
 		  from @D4Interactions
+
+-- ** This is temporary, since the "normal" process will not need a phone call interaction		 
+-- ************************
+
+		insert into dbo.INTERACTION (
+			ID,
+			INTERACTIONSUBCATEGORYID,
+			ADDEDBYID,
+			CHANGEDBYID,
+			CONSTITUENTID,
+			EXPECTEDDATE,
+			FUNDRAISERID,
+			INTERACTIONTYPECODEID,
+			OBJECTIVE,
+			STATUSCODE,
+			COMMENT
+		) 
+		select	
+			phoneInteractionID,
+			@subcategoryID_Phone,
+			@changeAgentID,
+			@changeAgentID,
+			financialSponsorID,
+			@currentDate,
+			@callCenterManagerConstituentID,
+			@phoneContactMethodID,
+			case 
+				when d4Group = 2 then 'D4 Campaign - Phone call (group 2)' 
+				when d4Group = 3 then 'D4 Campaign - Phone call (group 3)' 
+			end,
+			@statusCode_Pending,
+			case 
+				when d4Group = 2 then 'D4 - Group 2 - No jubilee waiver, No 2013 payment' 
+				when d4Group = 3 then 'D4 - Group 3 - Made a 2013 payment' 
+			end
+		  from @D4Interactions
+		 where isException = 0
+		   and d4Group in (2,3)
+
+		insert dbo.USR_INTERACTIONEXTENSION (ID, ADDEDBYID, CHANGEDBYID, DATEADDED, DATECHANGED, CHILDCOUNTLETTERVERSIONCODEID)
+		select phoneInteractionID, @changeAgentID, @changeAgentID, @currentDate, @currentDate,
+			   case numberOfChildren
+					when 0 then null
+					when 1 then @childCountLetterVersion_OneChildLetter
+					when 2 then @childCountLetterVersion_TwoChildrenLetter
+					else @childCountLetterVersion_MultipleChildrenLetter
+				end
+		  from @D4Interactions
+		 where isException = 0
+		   and d4Group in (2,3)
+
+		insert dbo.USR_INTERACTIONEXTENSIONCHILDREN
+				(INTERACTIONID, SPONSORSHIPOPPORTUNITYCHILDID, ADDEDBYID, CHANGEDBYID, DATEADDED, DATECHANGED)
+		select d4int.phoneInteractionID, d4Results.childID, @changeAgentID, @changeAgentID, @currentDate, @currentDate
+			  from @D4Interactions d4Int
+			  join @d4ResultsTable	d4Results on d4Int.financialSponsorID = d4Results.financialSponsorID
+		 where isException = 0
+		   and d4Group in (2,3)
+		
+		
+		insert dbo.USR_D4_CAMPAIGN_BUSINESSPROCESS_RESULTS 
+			(SPONSORLOOKUPID
+			, D4CAMPAIGNDATE
+			, CAMPAIGNTYPE
+			, D4INTERACTIONSTATUS
+			, ADDEDBYID
+			, DATEADDED
+			, CHANGEDBYID
+			, DATECHANGED
+			)
+		select	
+			financialSponsorLookupID,
+			@currentDate,
+			@campaignType,
+			'Phone interaction created',
+			@changeAgentID,
+			@currentDate,
+			@changeAgentID,
+			@currentDate
+			
+		  from @D4Interactions
+		 where isException = 0
+		   and d4Group in (2,3)
+
+
+
+		-- Add responses to phone call interaction
+		
+		insert dbo.INTERACTIONRESPONSE 
+			(INTERACTIONID, RESPONSEID, ADDEDBYID, CHANGEDBYID, DATEADDED, DATECHANGED)
+
+		select	phoneInteractionID,
+				@interactionResponseID_DonorContact_No,
+				@changeAgentID, 
+				@changeAgentID, 
+				@currentDate,
+				@currentDate
+		  from @D4Interactions
+		 where isException = 0
+		   and d4Group in (2,3)
+
+	 union all	
+
+		select	phoneInteractionID,
+				@interactionResponseID_LeftMessage_No,
+				@changeAgentID, 
+				@changeAgentID, 
+				@currentDate,
+				@currentDate
+		  from @D4Interactions
+		 where isException = 0
+		   and d4Group in (2,3)
+
+
+	 union all	
+
+		select	phoneInteractionID,
+				@interactionResponseID_MessageType_None,
+				@changeAgentID, 
+				@changeAgentID, 
+				@currentDate,
+				@currentDate
+		  from @D4Interactions
+		 where isException = 0
+		   and d4Group in (2,3)
+
+	union all	
+
+		select	phoneInteractionID,
+				@interactionResponseID_Cancelled_No,
+				@changeAgentID, 
+				@changeAgentID, 
+				@currentDate,
+				@currentDate
+		  from @D4Interactions
+		 where isException = 0
+		   and d4Group in (2,3)
+
+	union all	
+
+		select	phoneInteractionID,
+				@interactionResponseID_EFTReceived_No,
+				@changeAgentID, 
+				@changeAgentID, 
+				@currentDate,
+				@currentDate
+		  from @D4Interactions
+		 where isException = 0
+		   and d4Group in (2,3)
+
+				 
 		 
+-- ************************
+-- ** End of temporary code
+
 		
 		set @successCount = (select count(*) from @D4Interactions where isException = 0)
 
@@ -435,6 +648,7 @@ begin
 		exec dbo.USP_RAISE_ERROR
 		return 1;
 	end catch
+
 
 end
 
