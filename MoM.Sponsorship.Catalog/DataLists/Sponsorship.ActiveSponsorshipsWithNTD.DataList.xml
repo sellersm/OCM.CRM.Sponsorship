@@ -14,7 +14,12 @@
 	Date            Modified By     Comments
 	16-May-2013		CMayeda			Initial Version 
 	
-	** Add flag for whether it is a gifted sponsorship
+	Call it Child Recurring Gifts
+	
+	Add the following fields
+		Amount
+		Frequency
+		Gifted sponsorship
 	-->
 
 	<!-- define the SP that returns the data for the datalist -->
@@ -53,7 +58,7 @@ as
 				  where SOURCEREVENUEID = rev.ID -- I removed this beause it might be good to know the last payment was refunded -- and [REVPAYMENT].TRANSACTIONAMOUNT > 0
 				  order by [REVPAYMENT].DATE desc) as LASTPAYMENTAMOUNT,
 
-				(select	top 1 rev_payment.DATE
+				(select	top 1 cast (rev_payment.DATE as date)
    				   from	dbo.RECURRINGGIFTACTIVITY rg_act
 				   join dbo.FINANCIALTRANSACTIONLINEITEM as payment on payment.ID = rg_act.PAYMENTREVENUEID									
 				   join dbo.FINANCIALTRANSACTION as rev_payment on payment.FINANCIALTRANSACTIONID = rev_payment.ID									
@@ -74,7 +79,7 @@ as
 		  join	dbo.CONSTITUENT sponsor on rev.CONSTITUENTID = sponsor.ID
 		  join	dbo.USR_SPONSORSHIPEXTENSION se on se.ID = sp.ID
 		  join	dbo.USR_CURRENTOPPORTUNITYSPONSORSHIPSTATUSCODE statusCode on 
-					statusCode.ID = se.CURRENTOPPORTUNITYSPONSORSHIPSTATUSCODEID and statusCode.DESCRIPTION in ('Sponsored', 'Prospect Sponsored')
+					statusCode.ID = se.CURRENTOPPORTUNITYSPONSORSHIPSTATUSCODEID and statusCode.DESCRIPTION in ('Sponsored', 'Prospect Sponsored', 'Unpaid Sponsored')
 		  join	dbo.SPONSORSHIPOPPORTUNITY so on so.ID = sp.SPONSORSHIPOPPORTUNITYID
 		  join	dbo.SPONSORSHIPOPPORTUNITYCHILD so_child on so_child.ID = sp.SPONSORSHIPOPPORTUNITYID
 		  join	dbo.SPONSORSHIPLOCATION slocation on so.SPONSORSHIPLOCATIONID = slocation.ID 	
