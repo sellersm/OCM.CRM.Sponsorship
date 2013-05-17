@@ -15,6 +15,7 @@
 	History:
 	Date            Modified By     Comments
 	16-May-2013		Memphis			Initial Version
+	17-May-2013		Memphis			Fixed bug: include ISCURRENT = 1 in the join to get the current record's current sponsorshipstatus field value.
 	-->
 
 	<CreateFunctionSQL>
@@ -43,11 +44,12 @@ begin
 	join dbo.USR_SPONSORSHIPEXTENSION ON dbo.USR_SPONSORSHIPEXTENSION.ID = s.ID
 	join dbo.USR_CURRENTOPPORTUNITYSPONSORSHIPSTATUSCODE 
 		ON dbo.USR_CURRENTOPPORTUNITYSPONSORSHIPSTATUSCODE.ID = dbo.USR_SPONSORSHIPEXTENSION.CURRENTOPPORTUNITYSPONSORSHIPSTATUSCODEID 
-		and dbo.USR_CURRENTOPPORTUNITYSPONSORSHIPSTATUSCODE.[DESCRIPTION] = N'Unpaid Sponsored'
-	where (STATUSCODE = 1	
+		and (dbo.USR_CURRENTOPPORTUNITYSPONSORSHIPSTATUSCODE.[DESCRIPTION] = N'Unpaid Sponsored' 
+            and dbo.USR_SPONSORSHIPEXTENSION.ISCURRENT = 1)
+	where (s.STATUSCODE = 1	
 	and s.CONSTITUENTID = @sponsorId
-	and s.STATUSCODE = 1
 	and soc.ID is not NULL)
+
 
 	return
 end
