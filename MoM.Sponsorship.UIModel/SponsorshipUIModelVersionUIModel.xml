@@ -1,0 +1,10 @@
+﻿<UIModelWizardMetadata>
+  <SpecFileName>MoM.Sponsorship.UIModelVersion.View.xml</SpecFileName>
+  <Namespace></Namespace>
+  <ClassName>SponsorshipUIModelVersionUIModel</ClassName>
+  <HtmlInfo GenerateHtml="true">
+    <HtmlFile>Sponsorship.UIModelVersion.ViewForm.html</HtmlFile>
+    <HtmlFolder>htmlforms\</HtmlFolder>
+  </HtmlInfo>
+  <GenerateFromDatabase>true</GenerateFromDatabase>
+</UIModelWizardMetadata>

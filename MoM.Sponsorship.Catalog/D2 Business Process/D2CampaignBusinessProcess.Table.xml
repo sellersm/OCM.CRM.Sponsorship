@@ -1,0 +1,62 @@
+﻿<TableSpec 
+	xmlns="bb_appfx_table"
+	xmlns:common="bb_appfx_commontypes" 
+	ID="69a100ae-8556-4599-87e3-1213cc1b3d84"
+	Name="USR_D2_CAMPAIGN_BUSINESSPROCESS"
+	Description="Parameter table for the D2 Campaign business process."
+	Author="Memphis Sellers"
+	Tablename="USR_D2_CAMPAIGN_BUSINESSPROCESS"		   
+	>
+
+	<!-- 
+	Remarks:	Trigger is used to delete rows in system business process table - BUSINESSPROCESSINSTANCE
+				Currently QUERYVIEWID isn't being used.
+				
+				Note:  Curently only one row is added through a script.  There is no UI for a user to add a parameter set.
+				
+	History:
+	Date			Modified By		Comments
+    29-Apr-2013		Memphis			Initial Version
+	-->
+
+
+	<!-- define fields on the table -->
+	<Fields>
+		<TextField Name="NAME" Length="100" Required="true" IsUnique="true" Description="The name of the parameter set"/>
+		<TextField Name="DESCRIPTION" Length="255" Description="Details describing this parameter set"/>
+		<NumberField Name="CAMPAIGNTYPE" Description="Campaign Type" Type="tinyint" />
+	</Fields>
+
+	<!-- define any additional check constraints on the table --><!--
+	<CheckConstraints>
+
+	</CheckConstraints>
+
+	--><!-- define any indexes on the table --><!--
+	<Indexes>
+
+	</Indexes>-->
+		
+	<!-- define any triggers on the table -->
+	<Triggers>
+		<Trigger Name="TR_USR_D2_CAMPAIGN_BUSINESSPROCESS_DELETE_BUSINESSPROCESSINSTANCE"
+             Enabled="true"
+             Description="Used to delete the common business process records associated with this record.">
+			<CreateTriggerSQL>
+				<![CDATA[
+
+create trigger TR_USR_D2_CAMPAIGN_BUSINESSPROCESS_DELETE_BUSINESSPROCESSINSTANCE 
+		on dbo.USR_D2_CAMPAIGN_BUSINESSPROCESS 
+		after delete not for replication
+as begin
+
+	delete from dbo.BUSINESSPROCESSINSTANCE
+	 where BUSINESSPROCESSPARAMETERSETID in (select ID from deleted) 
+ 	   and BUSINESSPROCESSCATALOGID = 'd180e31a-b7e2-4e0d-a4fd-76195ea8bd42'; -- guid is the ID from business process spec - see D2Campaign.BusinessProcess.xml
+end 
+				]]>
+			</CreateTriggerSQL>
+		</Trigger>
+	</Triggers>
+
+</TableSpec>

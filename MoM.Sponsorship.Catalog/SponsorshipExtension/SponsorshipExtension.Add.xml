@@ -1,0 +1,119 @@
+﻿<AddDataFormTemplateSpec 
+	xmlns="bb_appfx_adddataformtemplate"
+	xmlns:common="bb_appfx_commontypes" 
+	ID="041dc380-71c7-4d2f-bb94-3dee84e2ebc7" 
+	Name="SponsorshipExtension Add Data Form"
+	Description="Add a new row to SponsorshipExtension table." 
+	Author="Memphis Sellers"
+	DataFormInstanceID="50815777-9e09-4f2b-8b88-59c8bd6b2741" 
+	RecordType="SponsorshipExtension"
+	common:SecurityUIFolder="Sponsorship"
+	>
+
+	<SPDataForm>
+		<!-- describe the preload SP (if applicable), which should be used to fetch field default values from the database.  If no
+		preload is needed, then this section can be removed -->
+		<LoadImplementation SPName="USR_USP_DATAFORMTEMPLATE_ADD_SPONSORSHIPEXTENSION_PRELOAD" >
+			<common:CreateProcedureSQL>
+				<![CDATA[
+create procedure dbo.USR_USP_DATAFORMTEMPLATE_ADD_SPONSORSHIPEXTENSION_PRELOAD
+(
+	@SPONSORSHIPID uniqueidentifier,
+	@SPONSORSHIPOPPORTUNITYID uniqueidentifier = null output
+)
+as 
+set nocount on;
+
+begin try
+	select @SPONSORSHIPOPPORTUNITYID = SPONSORSHIPOPPORTUNITYID
+	from dbo.sponsorship
+	where ID = @SPONSORSHIPID
+end try
+
+begin catch
+    exec dbo.USP_RAISE_ERROR
+    return 1
+end catch
+
+return 0;
+				]]>
+			</common:CreateProcedureSQL>
+		</LoadImplementation>
+
+
+		<!-- describe the save SP -->
+		<SaveImplementation SPName="USR_USP_DATAFORMTEMPLATE_ADD_SPONSORSHIPEXTENSION">
+			<common:CreateProcedureSQL>
+				<![CDATA[
+create procedure dbo.USR_USP_DATAFORMTEMPLATE_ADD_SPONSORSHIPEXTENSION
+(
+    @ID uniqueidentifier = null output,
+	@SPONSORSHIPID uniqueidentifier,
+    @CHANGEAGENTID uniqueidentifier = null,
+	@INITIALOPPORTUNITYSPONSORSHIPSTATUSCODEID uniqueidentifier = null,
+	@CURRENTOPPORTUNITYSPONSORSHIPSTATUSCODEID uniqueidentifier = null,
+	@SPONSORSHIPOPPORTUNITYID uniqueidentifier
+)
+as
+
+set nocount on;
+
+if @ID is null
+    set @ID = newid()
+
+if @CHANGEAGENTID is null  
+    exec dbo.USP_CHANGEAGENT_GETORCREATECHANGEAGENT @CHANGEAGENTID output
+
+declare @CURRENTDATE datetime
+set @CURRENTDATE = getdate()
+
+begin try
+	-- handle inserting the data
+	-- call the sproc that inserts:
+
+	exec dbo.USR_USP_SPONSORSHIPEXTENSION_INSERT
+		@SPONSORSHIPID = @SPONSORSHIPID,
+		@INITIALOPPORTUNITYSPONSORSHIPSTATUSCODEID = @INITIALOPPORTUNITYSPONSORSHIPSTATUSCODEID,
+		@CURRENTOPPORTUNITYSPONSORSHIPSTATUSCODEID = @CURRENTOPPORTUNITYSPONSORSHIPSTATUSCODEID,
+		@CONVERSIONDATE = null,
+		@SPONSORSHIPOPPORTUNITYID = @SPONSORSHIPOPPORTUNITYID,
+		@DAYSTOCONVERT = 0,
+		@CHANGEAGENTID = @CHANGEAGENTID,
+		@DATEADDED = @CURRENTDATE,
+		@DATECHANGED = null
+	
+end try
+
+begin catch
+    exec dbo.USP_RAISE_ERROR
+    return 1
+end catch
+
+return 0				
+				]]>
+			</common:CreateProcedureSQL>
+		</SaveImplementation>
+	</SPDataForm>
+
+	<!-- describe the context ID for this form (if applicable), which corresponds to a parameter in the SP. -->
+	<Context ContextRecordType="Sponsorship" RecordIDParameter="SPONSORSHIPID"/>
+
+	<!-- describe fields on the form, which correspond to parameters on the SP.  Note that system parameters 
+	like the context @ID, @CONTEXTID, and @CURRENTAPPUSERID need not be listed. -->
+	<common:FormMetaData FixedDialog="true">
+		<common:FormFields>
+			<common:FormField FieldID="INITIALOPPORTUNITYSPONSORSHIPSTATUSCODEID" Caption="Initial status" DataType="Guid" >
+				<common:CodeTable CodeTableName="USR_INITIALOPPORTUNITYSPONSORSHIPSTATUSCODE" />
+			</common:FormField>
+
+			<common:FormField FieldID="CURRENTOPPORTUNITYSPONSORSHIPSTATUSCODEID" Caption="Current status" DataType="Guid" >
+				<common:CodeTable CodeTableName="USR_CURRENTOPPORTUNITYSPONSORSHIPSTATUSCODE"/>
+			</common:FormField>
+			
+			<common:FormField FieldID="SPONSORSHIPOPPORTUNITYID" Caption="Sponsorship opportunity id" DataType="Guid" Hidden="true" Required="true"/>
+		</common:FormFields>
+
+
+	</common:FormMetaData>
+
+</AddDataFormTemplateSpec>

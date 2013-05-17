@@ -1,0 +1,59 @@
+﻿<SQLFunctionSpec
+	xmlns="bb_appfx_sqlfunction"
+	xmlns:common="bb_appfx_commontypes" 
+	ID="b746b9bb-1968-480f-9845-a02a7fe4aef9"
+	Name="USR_UFN_SPONSORSHIP_GETUNPAID_SPONSOREDCHILDREN_FORSPONSOR"
+	Description="Gets Unpaid Sponsored children for the given sponsor"
+	Author="Memphis Sellers"
+	DBFunctionName="USR_UFN_SPONSORSHIP_GETUNPAID_SPONSOREDCHILDREN_FORSPONSOR"
+	GrantServiceRolePermission="true"
+	>
+
+	<!-- 
+	Remarks:    UFN to return table of Unpaid Sponsored Children for the sponsor
+
+	History:
+	Date            Modified By     Comments
+	16-May-2013		Memphis			Initial Version
+	17-May-2013		Memphis			Fixed bug: include ISCURRENT = 1 in the join to get the current record's current sponsorshipstatus field value.
+	-->
+
+	<CreateFunctionSQL>
+		<![CDATA[
+create function dbo.USR_UFN_SPONSORSHIP_GETUNPAID_SPONSOREDCHILDREN_FORSPONSOR
+(
+	-- Add the parameters for the function here
+	@sponsorId uniqueidentifier
+)
+returns 
+@SponsoredChildrenTable TABLE 
+(
+	-- Add the column definitions for the TABLE variable here
+	childId uniqueidentifier
+)
+with execute as caller
+as
+begin
+	-- get the actively sponsored children for this sponsor, that have the current sponsorship status value
+	--  of Unpaid Sponsored, make sure they're children and not project sponsorships:
+	
+	insert @SponsoredChildrenTable
+	select soc.ID
+	from dbo.SPONSORSHIP s
+	left join dbo.SPONSORSHIPOPPORTUNITYCHILD soc on s.SPONSORSHIPOPPORTUNITYID = soc.ID
+	join dbo.USR_SPONSORSHIPEXTENSION ON dbo.USR_SPONSORSHIPEXTENSION.ID = s.ID
+	join dbo.USR_CURRENTOPPORTUNITYSPONSORSHIPSTATUSCODE 
+		ON dbo.USR_CURRENTOPPORTUNITYSPONSORSHIPSTATUSCODE.ID = dbo.USR_SPONSORSHIPEXTENSION.CURRENTOPPORTUNITYSPONSORSHIPSTATUSCODEID 
+		and (dbo.USR_CURRENTOPPORTUNITYSPONSORSHIPSTATUSCODE.[DESCRIPTION] = N'Unpaid Sponsored' 
+            and dbo.USR_SPONSORSHIPEXTENSION.ISCURRENT = 1)
+	where (s.STATUSCODE = 1	
+	and s.CONSTITUENTID = @sponsorId
+	and soc.ID is not NULL)
+
+
+	return
+end
+		]]>
+	</CreateFunctionSQL>
+
+</SQLFunctionSpec>

@@ -1,0 +1,248 @@
+﻿<EditDataFormTemplateSpec 
+    xmlns="bb_appfx_editdataformtemplate"
+    xmlns:common="bb_appfx_commontypes"
+    ID="73046151-2e3b-44c6-97cd-c09761045b45"
+    Name="RecurringGiftExtension Edit Data Form"
+    Description="RecurringGiftExtension Edit Data Form"
+    Author="Memphis Sellers"
+    DataFormInstanceID="87a0ccbe-4869-460e-8949-825cde917df5"
+    RecordType="Revenue"
+    common:SecurityUIFolder="Sponsorship"
+    FormHeader="Edit Payment Schedule"
+    >
+
+	<!-- 
+	Remarks:    NOT COMPLETE.  NOT ADDED TO PACKAGE
+
+	History:
+	Date            Modified By     Comments
+	12-Oct-2012		Memphis			Initial Version
+	15-Oct-2012		Memphis			FogBugz Case 915: make sure the payment schedule type matches with the recurring gift's payment method code (Debit or Credit).
+	-->
+	
+	
+	<SPDataForm>
+
+		<!-- define the edit load SP, which is used to load the data for the form -->
+		<LoadImplementation SPName="USR_USP_DATAFORMTEMPLATE_EDITLOAD_RECURRINGGIFTEXTENSION">
+			<common:CreateProcedureSQL>
+				<![CDATA[
+create procedure dbo.USR_USP_DATAFORMTEMPLATE_EDITLOAD_RECURRINGGIFTEXTENSION(
+	@ID uniqueidentifier,
+	@TSLONG bigint = 0 output,
+	@DATALOADED bit = 0 output,
+	@DIRECTDEBITSCHEDULECODEID uniqueidentifier = null output,
+	@CREDITCARDSCHEDULECODEID uniqueidentifier = null output,
+	--@DIRECTDEBITCODE nvarchar(100) = null output,
+	--@CREDITCARDCODE nvarchar(100) = null output
+	@AMOUNT money = null output,					-- display only for some 'visual context' for the user
+	@FREQUENCY nvarchar(100) = null output,			-- display only for some 'visual context' for the user
+	@PAYMENTMETHODTEXT nvarchar(100) = null output,		-- display only for some 'visual context' for the user
+	@FREQUENCYCODE tinyint = null output,
+	@REVENUESCHEDULESTARTDATE date = null output
+)
+as
+
+	set nocount on;
+
+	-- be sure to set these, in case the select returns no rows
+	set @DATALOADED = 0
+	set @TSLONG = 0	
+	
+	-- populate the output parameters, which correspond to fields on the form.  Note that
+	-- we set @DATALOADED = 1 to indicate that the load was successful.  Otherwise, the system
+	-- will display a "no data loaded" message.
+	
+	select @DATALOADED = 1,
+		@DIRECTDEBITSCHEDULECODEID = DIRECTDEBITSCHEDULECODEID,
+		@CREDITCARDSCHEDULECODEID = CREDITCARDSCHEDULECODEID
+		--@DIRECTDEBITCODE = (select DESCRIPTION from dbo.USR_DIRECTDEBITSCHEDULECODE where ID = @DIRECTDEBITSCHEDULECODEID),
+		--@CREDITCARDCODE = (select DESCRIPTION from dbo.USR_CREDITCARDSCHEDULECODE where ID = @CREDITCARDSCHEDULECODEID)
+	from dbo.USR_FINANCIALTRANSACTION_EXTENSION
+	where ID = @ID
+	
+	-- there may not be a record, so check and insert a new one if there wasn't one:
+	if @DATALOADED = 0
+	begin
+		declare @CHANGEAGENTID uniqueidentifier;
+		declare @DATEADDED date = getdate();
+		exec dbo.USP_CHANGEAGENT_GETORCREATECHANGEAGENT @CHANGEAGENTID output
+		INSERT INTO dbo.USR_FINANCIALTRANSACTION_EXTENSION
+			   ([ID]
+			   ,[DIRECTDEBITSCHEDULECODEID]
+			   ,[CREDITCARDSCHEDULECODEID]
+			   ,[ADDEDBYID]
+			   ,[CHANGEDBYID]
+			   ,[DATEADDED]
+			   ,[DATECHANGED])
+		 VALUES
+			   (@ID
+			   ,NULL
+			   ,NULL
+			   ,@CHANGEAGENTID
+			   ,@CHANGEAGENTID
+			   ,@DATEADDED
+			   ,@DATEADDED
+			   )
+		
+		-- now load the data values
+		select @DATALOADED = 1,
+			@DIRECTDEBITSCHEDULECODEID = DIRECTDEBITSCHEDULECODEID,
+			@CREDITCARDSCHEDULECODEID = CREDITCARDSCHEDULECODEID
+			--@DIRECTDEBITCODE = (select DESCRIPTION from dbo.USR_DIRECTDEBITSCHEDULECODE where ID = @DIRECTDEBITSCHEDULECODEID),
+			--@CREDITCARDCODE = (select DESCRIPTION from dbo.USR_CREDITCARDSCHEDULECODE where ID = @CREDITCARDSCHEDULECODEID)
+		from dbo.USR_FINANCIALTRANSACTION_EXTENSION
+		where ID = @ID
+		
+	end
+		
+	-- populate the display only fields:
+	-- Amount:
+	select 
+		@AMOUNT = sum(FINANCIALTRANSACTION.TRANSACTIONAMOUNT)
+		--@RECEIPTAMOUNT = sum(REVENUE_EXT.RECEIPTAMOUNT),
+		--@BASEAMOUNT = sum(FINANCIALTRANSACTION.BASEAMOUNT),
+		--@ORGANIZATIONAMOUNT = sum(FINANCIALTRANSACTION.ORGAMOUNT)
+		from dbo.FINANCIALTRANSACTION 
+		inner join dbo.REVENUE_EXT on FINANCIALTRANSACTION.ID = REVENUE_EXT.ID
+		where FINANCIALTRANSACTION.ID = @ID
+		and FINANCIALTRANSACTION.TYPECODE in (0,1,2,3,4,5,6,7,8,9,15) 
+		and FINANCIALTRANSACTION.DELETEDON is null;
+	
+	-- Frequency & Frequencycode :	
+	select
+		@FREQUENCY = REVENUESCHEDULE.FREQUENCY,
+		@FREQUENCYCODE = REVENUESCHEDULE.FREQUENCYCODE
+		from dbo.REVENUE
+		inner join dbo.REVENUESCHEDULE on REVENUESCHEDULE.ID = REVENUE.ID
+		left join dbo.CHANNELCODE on CHANNELCODE.ID = REVENUE.CHANNELCODEID
+		where REVENUE.ID = @ID;
+
+	-- PAYMENTMETHODTEXT:
+	select 
+		@PAYMENTMETHODTEXT = REVENUEPAYMENTMETHOD.PAYMENTMETHOD
+		from dbo.REVENUEPAYMENTMETHOD 
+		where REVENUEPAYMENTMETHOD.REVENUEID = @ID;
+
+	-- 10/15/12: FogBugz Case 915: check the recurring gift's payment method code, and ensure the extension fields match up:
+	--           if this is credit card, then make sure there's no direct debit entry, and vice versa...
+	-- we care about these: 'Credit card', 'Direct debit'
+	if LOWER(@PAYMENTMETHODTEXT) = 'credit card'
+	begin
+		-- remove any direct debit codes, since this gift's paymentmethod is credit card
+		update dbo.USR_FINANCIALTRANSACTION_EXTENSION
+			set 
+			DIRECTDEBITSCHEDULECODEID = null
+			where ID = @ID
+		set @DIRECTDEBITSCHEDULECODEID = null;
+
+	end
+	
+	if LOWER(@PAYMENTMETHODTEXT) = 'direct debit'
+	begin
+		-- remove any direct credit card codes, since this gift's paymentmethod is debit
+		update dbo.USR_FINANCIALTRANSACTION_EXTENSION
+			set 
+			CREDITCARDSCHEDULECODEID = null
+			where ID = @ID
+		set @CREDITCARDSCHEDULECODEID = null;
+			
+	end
+	
+	return 0;
+				]]>
+			</common:CreateProcedureSQL>
+		</LoadImplementation>
+
+		<SaveImplementation SPName="USR_USP_DATAFORMTEMPLATE_EDIT_RECURRINGGIFTEXTENSION">
+			<common:CreateProcedureSQL>
+				<![CDATA[
+create procedure dbo.USR_USP_DATAFORMTEMPLATE_EDIT_RECURRINGGIFTEXTENSION (
+	@ID uniqueidentifier,
+	@CHANGEAGENTID uniqueidentifier = null,
+	@DIRECTDEBITSCHEDULECODEID uniqueidentifier,
+	@CREDITCARDSCHEDULECODEID uniqueidentifier,
+	@AMOUNT money,
+	@FREQUENCYCODE tinyint,
+	@REVENUESCHEDULESTARTDATE date
+)
+as
+
+	set nocount on;
+
+	if @CHANGEAGENTID is null  
+		exec dbo.USP_CHANGEAGENT_GETORCREATECHANGEAGENT @CHANGEAGENTID output
+				
+	declare @CURRENTDATE datetime
+	set @CURRENTDATE = getdate()
+
+	begin try
+		-- handle updating the data
+		update dbo.USR_FINANCIALTRANSACTION_EXTENSION set
+			DIRECTDEBITSCHEDULECODEID = @DIRECTDEBITSCHEDULECODEID,
+			CREDITCARDSCHEDULECODEID = @CREDITCARDSCHEDULECODEID,
+			CHANGEDBYID = @CHANGEAGENTID,
+			DATECHANGED = @CURRENTDATE
+		where ID = @ID
+	
+	-- update Amount
+	update dbo.FINANCIALTRANSACTION 
+		set TRANSACTIONAMOUNT = @AMOUNT
+		where FINANCIALTRANSACTION.ID = @ID
+
+	-- update Frequency
+	update dbo.REVENUESCHEDULE
+		set FREQUENCYCODE = @FREQUENCYCODE
+		where ID = @ID;
+	
+	
+	
+	end try
+	begin catch
+		exec dbo.USP_RAISE_ERROR
+		return 1
+	end catch
+
+return 0;
+				]]>
+			</common:CreateProcedureSQL>
+		</SaveImplementation>
+
+	</SPDataForm>
+
+	<!-- describe fields on the form, which correspond to parameters on the SP.  Note that system paramters 
+	like the record ID, DATALOADED, TSLONG, and CURRENTAPPUSERID need not be listed. -->
+	<common:FormMetaData FixedDialog="false">
+		<common:FormFields>
+			<!--<common:FormField FieldID="DIRECTDEBITCODE" Caption="Direct debit schedule" DataType="String" MaxLength="100" ReadOnly="true" />
+			<common:FormField FieldID="CREDITCARDCODE" Caption="Credit card schedule" DataType="String" MaxLength="100"  ReadOnly="true" />-->
+			<common:FormField FieldID="PAYMENTMETHODTEXT" Caption="Payment method" ReadOnly="true" DataType="String" />
+			<common:FormField FieldID="FREQUENCY" Caption="Frequency" ReadOnly="true" DataType="String" />
+			<common:FormField FieldID="AMOUNT" Caption="Amount" DataType="Money" />
+			<common:FormField FieldID="DIRECTDEBITSCHEDULECODEID" Caption="Direct debit schedule">
+				<common:CodeTable CodeTableName="USR_DIRECTDEBITSCHEDULECODE" />
+			</common:FormField>
+			<common:FormField FieldID="CREDITCARDSCHEDULECODEID" Caption="Credit card schedule">
+				<common:CodeTable CodeTableName="USR_CREDITCARDSCHEDULECODE" />
+			</common:FormField>
+			
+			<common:FormField FieldID="REVENUESCHEDULESTARTDATE" Caption="Start date" DataType="Date" Hidden="true" Required="false" />			
+			<common:FormField FieldID="FREQUENCYCODE" Caption="Frequency code" DataType="String" Hidden="true"/>			
+		</common:FormFields>
+
+        <common:WebUIComponent>
+            <common:UIModel AssemblyName="MoM.Sponsorship.UIModel.dll" ClassName="MoM.Sponsorship.UIModel.RecurringGiftExtensionEditDataFormUIModel" />
+            <common:WebUI>
+                <common:ExternalResource Url="browser/htmlforms/custom/RecurringGiftExtensionEditDataForm.html" />
+            </common:WebUI>
+        </common:WebUIComponent>
+
+		<!-- indicate the client-side component for the user interface -->
+		<!--<common:FormUIComponent FormUIComponentType="CustomComponent">
+			<common:CustomComponentID AssemblyName="REPLACE_WITH_ASSEMBLYNAME" ClassName="REPLACE_WITH_FULLCLASSNAME" />
+		</common:FormUIComponent>-->
+	</common:FormMetaData>
+
+	<!--<common:DataFormExtension DataFormInstanceID="578f03d8-fae0-4116-8f4a-d136f5e3b0da" RenderStyle="AfterParent" TabCaption="Payment Schedule" />-->
+	
+</EditDataFormTemplateSpec>

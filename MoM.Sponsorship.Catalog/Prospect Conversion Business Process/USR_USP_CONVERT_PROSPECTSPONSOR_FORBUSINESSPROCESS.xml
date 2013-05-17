@@ -1,0 +1,444 @@
+﻿<SQLStoredProcedureSpec
+	xmlns="bb_appfx_sqlstoredprocedure"
+	xmlns:common="bb_appfx_commontypes" 
+	ID="d2faf190-f421-4ab7-9a63-0219fa07f2a3"
+	Name="USR_USP_CONVERT_PROSPECTSPONSOR_FORBUSINESSPROCESS"
+	Description="Handles the prospect conversion logic for the business process."
+	Author="Memphis Sellers"
+	SPName="USR_USP_CONVERT_PROSPECTSPONSOR_FORBUSINESSPROCESS"
+	>
+
+	<!-- 
+	Remarks:    This sproc is used to do all the work of converting a prospect sponsor when called from the business process. Takes in the constituent/sponsor ID of the prospect sponsor as parameter.
+				It's identical to the sproc: USR_USP_CONVERT_PROSPECT_SPONSOR, except this one manages the population of the biz process output table.
+
+	History:
+	Date            Modified By     Comments
+	25-Mar-2013		Memphis			Initial Version.
+	-->
+
+
+	<CreateProcedureSQL>
+		<![CDATA[
+create procedure dbo.USR_USP_CONVERT_PROSPECTSPONSOR_FORBUSINESSPROCESS
+(
+	@sponsorId uniqueidentifier,    -- constituent/sponsorid of the sponsor
+	@changeAgentID uniqueidentifier,						-- Used to specify change agent for ChangedByID and AddedByID fields
+	@outputTableName nvarchar(128) = ''					-- Table Name to record the results of the conversion process, pass empty string if no table needs to be populated
+)
+as
+begin
+	declare @opportunityChildId uniqueidentifier
+	declare @sponsorshipId uniqueidentifier
+	--declare @CHANGEAGENTID uniqueidentifier
+	declare @currentStatusId uniqueidentifier -- = dbo.USR_UFN_CURRENTOPPORTUNITYSPONSORSHIPSTATUSCODE_GETID_FORDESCRIPTION('Sponsored')
+	declare @prospectSponsorCurrentStatusID uniqueidentifier -- = dbo.USR_UFN_CURRENTOPPORTUNITYSPONSORSHIPSTATUSCODE_GETID_FORDESCRIPTION('Prospect Sponsor')
+	declare @CONSTITUENCYCODEID uniqueidentifier -- = dbo.USR_UFN_CONSTITUENT_GETID_FORCODE('Sponsor')
+	declare @dateFrom date = Cast(getdate() as date)
+	declare @statusCode_Cancelled tinyint = 4
+	declare @statusCode_Pending tinyint = 1
+	declare @isNewSponsor bit = 0
+	declare @currentSponsor uniqueidentifier
+	declare @interactionId uniqueidentifier
+	declare @prospectReminderGreetingCount int = 0
+	declare @revenueId uniqueidentifier;
+	declare @welcomeSubCategoryId uniqueidentifier
+	declare @phoneInteractionTypeCodeId uniqueidentifier
+	declare @prospectReminderGreetingText nvarchar(30) = 'Prospect Reminder Greeting'
+	declare @hasSponsorConstituency bit = 0
+	declare @contactMethodDesc_Mail nvarchar (100) = 'Mail'
+	declare @interactionCategoryDesc_ChildLetter nvarchar(100) = 'Child Letters'                    -- The category used for all child interactions
+	declare @interactionSubcategoryDesc_ChildWelcomeLetter nvarchar(100) = 'Child Welcome Letter'
+
+	declare @contactMethodDesc_Phone nvarchar (100) = 'Phone'
+	declare @interactionCategoryDesc_SponsorWelcome nvarchar(100) = 'Sponsor Welcome'          -- The category used for all sponsor interactions
+	declare @interactionSubcategoryDesc_WelcomeGreeting nvarchar(100) = 'Welcome Greeting'
+
+	declare @expectedDate date
+
+	-- Response Category descriptions
+	declare @interactionResponseCategory_DonorContact nvarchar(100) = 'Donor Contact'
+	declare @interactionResponseCategory_LeftMessage nvarchar(100) = 'Left Message'
+	declare @interactionResponseCategory_MessageType nvarchar(100) = 'Message Type'
+	declare @interactionResponseCategory_PacketReceived nvarchar(100) = 'Packet Received'
+	declare @interactionResponseCategory_EFTReceived nvarchar(100) = 'EFT Received'
+
+
+	declare @createWelcomeGreetingInteraction bit = 0   -- flag to determine if we need to add the welcome greeting interaction on each child
+
+	-- Response descriptions
+	declare @interactionResponse_No nvarchar(100) = 'No'
+	declare @interactionResponse_None nvarchar(100) = 'None'
+	declare @interactionResponse_Unknown nvarchar(100) = 'Unknown'
+
+	declare @callCenterManagerConstituentID uniqueidentifier = 'B25168DC-4DD4-46ED-B4DD-C5A26A965667'        -- This constituent is hard coded via a script
+
+	declare @sponsorshipStartDate date
+	declare @childWelcomeLetterExpectedDate date = Cast(DATEADD(s,-1,DATEADD(mm, DATEDIFF(m,0,GETDATE())+3,0)) as date);  --last_day_of_month_2_months_from_now
+	declare @sponsorInteractionId uniqueidentifier = null
+
+	set @currentStatusId = dbo.USR_UFN_CURRENTOPPORTUNITYSPONSORSHIPSTATUSCODE_GETID_FORDESCRIPTION('Sponsored')
+	set @prospectSponsorCurrentStatusID = dbo.USR_UFN_CURRENTOPPORTUNITYSPONSORSHIPSTATUSCODE_GETID_FORDESCRIPTION('Prospect Sponsored')
+	set @CONSTITUENCYCODEID = dbo.USR_UFN_CONSTITUENT_GETID_FORCODE('Sponsor')
+
+	if @CHANGEAGENTID is null
+			exec dbo.USP_CHANGEAGENT_GETORCREATECHANGEAGENT @CHANGEAGENTID output;
+
+	-- these are used for inserting into the output table:
+	declare @sponsorLookupId nvarchar(10) = '';
+	--declare @sponsorshipId uniqueidentifier = newid();
+	declare @currentDate date = Cast(Getdate() as date);
+	declare @CONVERSIONRESULT nvarchar(10) = 'Success';
+	declare @EXCEPTIONMESSAGE nvarchar(max) = '';
+	declare @NUMBERSPONSORSHIPCONVERSIONS int = 0;
+	declare @insertSQLParms nvarchar(255) = '@sponsorLookupId nvarchar(10),@NUMBERSPONSORSHIPCONVERSIONS int, @currentDate date,@CONVERSIONRESULT nvarchar(10),@EXCEPTIONMESSAGE nvarchar(max)'
+
+	declare @insertResultsSQL nvarchar(max) = 'INSERT INTO dbo.' + @outputTableName + ' (SPONSORLOOKUPID,NUMBERSPONSORSHIPCONVERSIONS,CONVERSIONDATE,CONVERSIONRESULT,EXCEPTIONMESSAGE)
+	VALUES	(@sponsorLookupId,@NUMBERSPONSORSHIPCONVERSIONS,@currentDate,@CONVERSIONRESULT,@EXCEPTIONMESSAGE)'
+	
+	select @sponsorLookupId = LOOKUPID 
+	from dbo.CONSTITUENT 
+	where ID = @sponsorId;
+
+	select @welcomeSubCategoryId = ID
+	from dbo.INTERACTIONSUBCATEGORY
+	where lower(NAME) = LOWER('Welcome Greeting')
+
+	select @phoneInteractionTypeCodeId = ID
+	from dbo.INTERACTIONTYPECODE
+	where lower([DESCRIPTION]) = LOWER('phone')
+
+	print @prospectSponsorCurrentStatusID;
+	print @currentStatusId;
+	print @CONSTITUENCYCODEID;
+
+	declare @conversionTbl table
+	(
+	OpportunityChildID uniqueidentifier,
+	SponsorshipID uniqueidentifier
+	);
+
+	begin try
+ 
+	;with childrenForSponsor_CTE (OpportunityChildID, SponsorshipID)
+	as
+	(
+		select sc.ID, s.ID
+		from dbo.SPONSORSHIP s
+		join dbo.SPONSORSHIPOPPORTUNITY so on s.SPONSORSHIPOPPORTUNITYID = so.ID
+		join dbo.SPONSORSHIPOPPORTUNITYCHILD sc on sc.ID = so.ID
+		where s.CONSTITUENTID = @sponsorId
+		and s.STATUSCODE = 1    -- Active
+	)  
+	insert into @conversionTbl(OpportunityChildID, SponsorshipID)
+	select OpportunityChildID, SponsorshipID
+	from childrenForSponsor_CTE;
+
+	begin tran prospectSponsorConversion
+
+	/* Sponsor Step 4: Change Constituent Codes on the Sponsor
+	 - Add the Constituent Code of 'Sponsor' to Sponsor with StartDate = Today
+	*/
+	-- first check if the Sponsor already has the Sponsor code:
+	select @hasSponsorConstituency = dbo.USR_UFN_CONSTITUENT_HAS_CONSTITUENCYCODE(@sponsorId, @CONSTITUENCYCODEID)
+
+	if @hasSponsorConstituency = 0
+		begin		
+			exec dbo.USR_USP_ADD_CONSTITUENT_CONSTITUENCYCODE
+				@CONSTITUENTID = @sponsorId,
+				@CONSTITUENCYCODEID = @CONSTITUENCYCODEID,
+				@DATEFROM = @dateFrom
+		end	
+			
+	-- Update the EndDate to Today on the existing Constituent Code 'Prospect Sponsor' record for this Sponsor:
+	exec dbo.USR_USP_CONSTITUENT_END_CONSTITUENCYCODE 
+		@CONSTITUENTID = @sponsorId,
+		@CONSTITUENCYCODE = 'Prospect Sponsor'
+	
+	/*
+	-- Sponsor Step 6: Test for a "Prospect Reminder Greeting" interaction on the Sponsor and if it's not Complete, then
+	--          Change the Interaction's Category & Subcategory
+	--          Category = 'Sponsor Welcome'
+	--          Subcategory = 'Welcome Greeting'
+	--          Summary = 'Sponsorship converted'
+	--   look for records with the subcategoryid value of the ID where Name = 'Prospect Reminder Greeting'
+
+	-- Sponsor Step 6b. ** NEW FROM PAMELA **:  if this interaction does NOT exist at all, then create a new Interaction with the
+	--                         above data!!!
+	-- Also, for step 6b, need to receive the InteractionID if it was created, and store it for each child of the same
+		Sponsor, then reset it when moving to a new Sponsor! 
+		1st Child, call the create, 
+		subsequent children for same sponsor, call the Add Child to Interaction & pass in the Interaction ID value.					    
+	*/
+
+	select @prospectReminderGreetingCount = COUNT(*)
+	from dbo.INTERACTION
+	where INTERACTIONSUBCATEGORYID IN (select ID
+		from dbo.INTERACTIONSUBCATEGORY
+		where lower(NAME) = lower(@prospectReminderGreetingText))
+	and CONSTITUENTID = @sponsorId  -- sponsor constituent id
+	and STATUSCODE = 1 -- pending
+
+	if @prospectReminderGreetingCount > 0
+		begin
+			--do the update:
+		
+			update dbo.INTERACTION
+			set INTERACTIONTYPECODEID = @phoneInteractionTypeCodeId,
+				INTERACTIONSUBCATEGORYID = @welcomeSubCategoryId,
+				COMMENT = 'Sponsorship converted'
+			where INTERACTIONSUBCATEGORYID IN (select ID
+				from dbo.INTERACTIONSUBCATEGORY
+				where lower(NAME) = lower(@prospectReminderGreetingText))
+			and CONSTITUENTID = @sponsorId  -- sponsor constituent id
+			and STATUSCODE = 1 -- pending
+		
+		end
+	else
+		begin
+			--did NOT find any prospect reminder greetings! Need to check for completed ones.'
+		
+			select @prospectReminderGreetingCount = COUNT(*)
+				from dbo.INTERACTION
+				where INTERACTIONSUBCATEGORYID IN (select ID
+					from dbo.INTERACTIONSUBCATEGORY
+					where lower(NAME) = lower(@prospectReminderGreetingText))
+				and CONSTITUENTID = @sponsorId  -- sponsor constituent id
+				--and STATUSCODE = 2 -- completed
+			
+			if @prospectReminderGreetingCount = 0
+				begin
+					--If prospect sponsorship start date is less than 20 days ago, use [prospect sponsorship start date] + 20 days, otherwise use today
+					set @createWelcomeGreetingInteraction = 1
+				
+					If DATEDIFF(dd, @sponsorshipStartDate, GETDATE()) <= 20
+						begin
+							set @expectedDate = Cast(DATEADD(d,20,@sponsorshipStartDate) as DATE)
+						end
+					else
+						begin
+							set @expectedDate = CAST(GETDATE() as DATE)
+						end
+
+					exec dbo.USR_USP_INTERACTION_SPONSOR_ADD_PENDING 
+									@id = @sponsorInteractionId output,
+									@constituentID = @sponsorId,
+									@summary = 'Sponsorship converted',
+									@categoryName = @interactionCategoryDesc_SponsorWelcome,
+									@subcategoryName = @interactionSubcategoryDesc_WelcomeGreeting,
+									@expectedDate = @expectedDate,
+									@owner = @callCenterManagerConstituentID,                                                                                 
+									@contactMethodDesc = @contactMethodDesc_Phone,
+									@comment = '',                                                                                                
+									@letterTypeDesc = '',
+									@fulfillmentStatusDesc = '',
+									@eftBrochureCode = 0,
+									@resendCode = 0,
+									@changeAgentID = @CHANGEAGENTID                                                    
+
+					if @sponsorInteractionId  is not null
+					begin
+						-- NOTE: the child will be added in the children cursor loop below, based on the createWelcomeGreetingInteraction bit flag!
+						
+						exec dbo.USR_USP_INTERACTION_ADDRESPONSE 
+										@interactionId = @sponsorInteractionId,
+										@responseCategoryName = @interactionResponseCategory_DonorContact,
+										@response = @interactionResponse_No,
+										@responseDate = null,                  
+										@changeAgentID = @changeAgentID
+
+						exec dbo.USR_USP_INTERACTION_ADDRESPONSE 
+										@interactionId = @sponsorInteractionId,
+										@responseCategoryName = @interactionResponseCategory_EFTReceived,
+										@response = @interactionResponse_No,
+										@responseDate = null,                  
+										@changeAgentID = @changeAgentID
+
+						exec dbo.USR_USP_INTERACTION_ADDRESPONSE 
+										@interactionId = @sponsorInteractionId,
+										@responseCategoryName = @interactionResponseCategory_LeftMessage,
+										@response = @interactionResponse_No,
+										@responseDate = null,                  
+										@changeAgentID = @changeAgentID
+
+						exec dbo.USR_USP_INTERACTION_ADDRESPONSE 
+										@interactionId = @sponsorInteractionId,
+										@responseCategoryName = @interactionResponseCategory_MessageType,
+										@response = @interactionResponse_None,
+										@responseDate = null,                  
+										@changeAgentID = @changeAgentID
+                    
+						exec dbo.USR_USP_INTERACTION_ADDRESPONSE 
+										@interactionId = @sponsorInteractionId,
+										@responseCategoryName = @interactionResponseCategory_PacketReceived,
+										@response = @interactionResponse_Unknown,
+										@responseDate = null,                  
+										@changeAgentID = @changeAgentID
+
+					end
+
+				end  --if @prospectReminderGreetingCount = 0
+		
+		end  -- else of if @prospectReminderGreetingCount > 0
+				
+	/* 
+	  Sponsor Step 7: cancel all pending interactions for this Sponsor where Category = 'Prospect Welcome'
+		(case [STATUSCODE] when (0) then N'Planned' when (1) then N'Pending' when (2) then N'Completed' when (3) then N'Unsuccessful' when (4) then N'Cancelled' when (5) then N'Declined'  end)
+	*/
+	update  dbo.INTERACTION 
+			set   STATUSCODE = @statusCode_Cancelled,
+				  COMMENT = 'Cancelled due to Prospect Conversion',
+				  CHANGEDBYID = @changeAgentID,
+				  DATECHANGED = getdate()            
+		   from dbo.INTERACTION 
+		  where CONSTITUENTID = @sponsorId  -- constituentid of the sponsor
+			and STATUSCODE = @statusCode_Pending
+			and INTERACTIONSUBCATEGORYID IN (select subcat.ID
+				from dbo.INTERACTIONCATEGORY cat
+				join dbo.INTERACTIONSUBCATEGORY subcat on subcat.INTERACTIONCATEGORYID = cat.ID
+				where lower(cat.NAME) = 'prospect welcome')
+
+	-- Iterate through the children for this Sponsor & process:
+
+	declare conversionProcessCursor cursor fast_forward for 
+	select * from @conversionTbl
+	Open conversionProcessCursor
+
+	fetch next from conversionProcessCursor into @opportunityChildId, @sponsorshipId
+
+	while @@FETCH_STATUS = 0
+	begin
+
+			update dbo.USR_SPONSORSHIPEXTENSION
+			set CURRENTOPPORTUNITYSPONSORSHIPSTATUSCODEID = @currentStatusId, -- 'A171526B-4F78-48C8-BD17-918DF69C0943',
+				CHANGEDBYID = @CHANGEAGENTID,
+				DATECHANGED = GETDATE(),
+				CONVERSIONDATE = GETDATE(),
+				DAYSTOCONVERT = DATEDIFF(dd, DATEADDED, GETDATE())
+			where SPONSORSHIPOPPORTUNITYID = @opportunityChildId -- this will be the cursor value for the child id
+			and ISCURRENT = 1  -- only update the most recent, current record since that's what's displayed in the child page
+		
+			-- set the CONVERSIONDATE in the USR_SPONSORSHIPEXTENSION table when updating (use GETDATE() for today's date), AND
+			-- calculate the DAYSTOCONVERT & store it in the USR_SPONSORSHIPEXTENSION table when updating:  GETDATE()-DATEADDED in days is the formula value					
+			/*
+			step 2:  change the most recent reservation key status to 'Sponsored'
+			- USR_CHILDRESERVATION table: 
+			  - update it, set the statuscode = 2, where max(startdate) and statuscode=3 for the sponsorshipopportunitychildid
+			  StatusCode values:
+			  case [STATUSCODE] 
+			  when (0) then N'Closed' 
+			  when (1) then N'Open' 
+			  when (2) then N'Sponsored' 
+			  when (3) then N'Prospect sponsored' 
+			  when (4) then N'Unpaid transfer'  
+			*/
+		
+			update dbo.USR_CHILDRESERVATION
+			set STATUSCODE = 2  -- Sponsored
+			where STARTDATE = (select MAX(STARTDATE) from dbo.USR_CHILDRESERVATION where STATUSCODE = 3 and SPONSORSHIPOPPORTUNITYCHILDID = @opportunityChildId)
+			and STATUSCODE = 3  -- Prospect Sponsored
+			and SPONSORSHIPOPPORTUNITYCHILDID = @opportunityChildId -- this will be the cursor value for the child id
+		
+		
+			-- Step 3: Create the Welcome Letter interaction:  **get this code from Cary**
+			exec dbo.USR_USP_INTERACTION_CHILDLETTER_ADD_PENDING
+							@id = @interactionId output,                                                                    
+							@sponsorhipOpportunityChildID = @opportunityChildId,
+							@summary = 'Sponsorship conversion',
+							@categoryName = @interactionCategoryDesc_ChildLetter,
+							@subcategoryName = @interactionSubcategoryDesc_ChildWelcomeLetter,
+							@expectedDate = @childWelcomeLetterExpectedDate, --@currentDate,
+							@owner = null,
+							@contactMethodDesc = @contactMethodDesc_Mail,
+							@comment = '',                                                                
+							@sponsorID = @sponsorId,  --@childLetterRecipient,
+							@changeAgentID = @CHANGEAGENTID
+                        
+                        			
+			-- Move step 5 to here...
+			-- Step 5: Create an attribute on the Recurring Gift record, named "Prospect NTD Reviewed" with a value of "No".
+			--    insert into the dbo.ATTRIBUTE3CD4670556A44714A5A9F6DFDCD5B08E table
+			--     ID of the attribute is the revenueID of the recurring gift, set booleancode to 0, addedbyid, etc., startdate of today...
+			--   use this UFN to get the revenueID to pass into the attribute insert:  USR_UFN_GETFINANCIALTRANSACTIONID_FORSPONSORSHIP (sponsorshipId)
+			--insert into dbo.ATTRIBUTE3CD4670556A44714A5A9F6DFDCD5B08E 
+		
+			select @revenueId = dbo.USR_UFN_GETFINANCIALTRANSACTIONID_FORSPONSORSHIP(@sponsorshipId)
+			INSERT INTO dbo.ATTRIBUTE3CD4670556A44714A5A9F6DFDCD5B08E
+			   ([ID]
+			   ,[REVENUEID]
+			   ,[BOOLEANCODE]
+			   ,[COMMENT]
+			   ,[STARTDATE]
+			   ,[ENDDATE]
+			   ,[ADDEDBYID]
+			   ,[CHANGEDBYID]
+			   ,[DATEADDED]
+			   ,[DATECHANGED])
+			VALUES
+			   (NEWID()
+			   ,@revenueId
+			   ,0
+			   ,'Prospect conversion'
+			   ,GETDATE()
+			   ,NULL
+			   ,@CHANGEAGENTID
+			   ,@CHANGEAGENTID
+			   ,GETDATE()
+			   ,GETDATE()
+			   )
+		
+			-- Step 6b check here, do this to add each child to the interaction if it was created above
+			if @createWelcomeGreetingInteraction = 1
+				begin
+					if @sponsorInteractionId is not null
+						-- this is the code to call for each subsequent child for the same interaction
+						exec dbo.USR_USP_INTERACTION_SPONSOR_ADDCHILD
+										@interactionId = @sponsorInteractionId,
+										@sponsorshipOpportunityChildID = @opportunityChildId,
+										@changeAgentID = @ChangeAgentID				
+				end
+
+		
+		fetch next from conversionProcessCursor into @opportunityChildId, @sponsorshipId
+		
+		set @NUMBERSPONSORSHIPCONVERSIONS = @NUMBERSPONSORSHIPCONVERSIONS + 1;
+	
+	end  -- while loop of cursor
+
+	close conversionProcessCursor
+	deallocate conversionProcessCursor
+
+	commit transaction prospectSponsorConversion
+	
+	-- if we get here then all the above must have been accomplished so write a record to the output table as a 'success':
+	-- NOTE: add the # of sponsorships converted to the output table, take out the sponsorshipId 
+	--exec sp_executesql @insertResultsSQL, @insertSQLParms, @sponsorLookupId = @sponsorLookupId, @NUMBERSPONSORSHIPCONVERSIONS = @NUMBERSPONSORSHIPCONVERSIONS, @currentDate = @currentDate, @CONVERSIONRESULT = @CONVERSIONRESULT, @EXCEPTIONMESSAGE = @EXCEPTIONMESSAGE
+	INSERT INTO dbo.USR_PROSPECTCONVERSION_BUSINESSPROCESS_RESULTS
+		(ID, SPONSORLOOKUPID,NUMBERSPONSORSHIPCONVERSIONS,CONVERSIONDATE,CONVERSIONRESULT,EXCEPTIONMESSAGE,ADDEDBYID,DATEADDED,CHANGEDBYID,DATECHANGED)
+	VALUES	
+		(NEWID(), @sponsorLookupId,@NUMBERSPONSORSHIPCONVERSIONS,@currentDate,@CONVERSIONRESULT,@EXCEPTIONMESSAGE,@changeAgentID,@currentDate,@changeAgentID,@currentDate)
+
+	
+	return 0;
+	
+	end try
+	begin catch
+		-- write the exception to the output table:
+		rollback
+		set @CONVERSIONRESULT = 'Fail';
+		set @EXCEPTIONMESSAGE = 'Unable to convert this Prospect.';
+		--exec sp_executesql @insertResultsSQL, @insertSQLParms, @sponsorLookupId = @sponsorLookupId, @NUMBERSPONSORSHIPCONVERSIONS = @NUMBERSPONSORSHIPCONVERSIONS, @currentDate = @currentDate, @CONVERSIONRESULT = @CONVERSIONRESULT, @EXCEPTIONMESSAGE = @EXCEPTIONMESSAGE
+		INSERT INTO dbo.USR_PROSPECTCONVERSION_BUSINESSPROCESS_RESULTS
+			(ID, SPONSORLOOKUPID,NUMBERSPONSORSHIPCONVERSIONS,CONVERSIONDATE,CONVERSIONRESULT,EXCEPTIONMESSAGE,ADDEDBYID,DATEADDED,CHANGEDBYID,DATECHANGED)
+		VALUES	
+			(NEWID(), @sponsorLookupId,@NUMBERSPONSORSHIPCONVERSIONS,@currentDate,@CONVERSIONRESULT,@EXCEPTIONMESSAGE,@changeAgentID,@currentDate,@changeAgentID,@currentDate)
+
+		exec dbo.USP_RAISE_ERROR;
+		return 1;
+	end catch
+
+end
+		]]>
+	</CreateProcedureSQL>
+
+</SQLStoredProcedureSpec>

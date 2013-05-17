@@ -1,0 +1,26 @@
+﻿<PageDefinitionSpec 
+	xmlns:xsd="http://www.w3.org/2001/XMLSchema" 
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+	ID="1aead03c-fdcd-45d2-b4c6-7613771c27b0" 
+	Name="D2 Campaign Business Process Status Report Page" 
+	Description="Displays the results of the D2 Campaign business process instance" 
+	Author="Memphis Sellers" 
+	ExpressionDataFormID="00000000-0000-0000-0000-000000000000" 
+	ContextRecordType="D2Campaign Business Process" 
+	xmlns="bb_appfx_pagedefinition">
+	
+	<PageHeader Caption="D2 Campaign Business Process Results Report" />
+	<Tabs>
+		<Tab Caption="Results" ID="57420432-7a7f-417c-86a0-27ed7a48a966">
+			<Sections>
+				<Section ID="4b1110c3-d10c-4fe7-8f91-743dd0478d23" Caption="D2 Campaign Results">
+					<DataList ID="f5757b2a-7120-4024-b7b8-f419ba40140a">
+						<RenderStyle>
+							<StandardView />
+						</RenderStyle>
+					</DataList>
+				</Section>
+			</Sections>
+		</Tab>
+	</Tabs>
+</PageDefinitionSpec>

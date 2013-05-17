@@ -1,0 +1,36 @@
+﻿<SQLFunctionSpec
+	xmlns="bb_appfx_sqlfunction"
+	xmlns:common="bb_appfx_commontypes" 
+	ID="48ffdd95-f352-497b-99a5-162788fc3021"
+	Name="USR_UFN_SPONSORSHIP_GET_NEXT_TRANSACTIONDATE_BY_SPONSORSHIPID"
+	Description="Gets the next transaction date for the given sponsorship ID."
+	Author="Memphis Sellers"
+	DBFunctionName="USR_UFN_SPONSORSHIP_GET_NEXT_TRANSACTIONDATE_BY_SPONSORSHIPID"
+	>
+
+	<CreateFunctionSQL>
+		<![CDATA[
+create function dbo.USR_UFN_SPONSORSHIP_GET_NEXT_TRANSACTIONDATE_BY_SPONSORSHIPID(
+	@sponsorshipID uniqueidentifier		-- sponsorshipID of the given sponsorship
+)
+returns date
+with execute as caller
+as begin
+	declare @NEXTTRANSACTION date;
+	declare @REVENUEID uniqueidentifier;
+
+	set @REVENUEID = dbo.USR_UFN_GETFINANCIALTRANSACTIONID_FORSPONSORSHIP(@sponsorshipID)
+
+	select
+		@NEXTTRANSACTION = case when REVENUESCHEDULE.NEXTTRANSACTIONDATE > REVENUESCHEDULE.ENDDATE then null else REVENUESCHEDULE.NEXTTRANSACTIONDATE end
+		from dbo.REVENUE
+		inner join dbo.REVENUESCHEDULE on REVENUESCHEDULE.ID = REVENUE.ID
+		left join dbo.CHANNELCODE on CHANNELCODE.ID = REVENUE.CHANNELCODEID
+		where REVENUE.ID = @REVENUEID;
+		
+	return @NEXTTRANSACTION;
+end
+		]]>
+	</CreateFunctionSQL>
+
+</SQLFunctionSpec>

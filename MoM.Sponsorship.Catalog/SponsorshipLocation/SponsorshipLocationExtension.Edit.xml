@@ -1,0 +1,105 @@
+<EditDataFormTemplateSpec 
+    xmlns:c="bb_appfx_commontypes"
+    ID="2fe6383b-4363-4ef9-9420-ef7871f6bcdf"
+    Name="Sponsorship Location Edit Form Extension"
+    Description="Edit a sponsorship location. Extended to include Report Recipient"
+    Author="Cary Mayeda"
+    RecordType="Sponsorship Location"
+    DataFormInstanceID="7ed8ffbb-089f-4b97-99e4-9335369cf969"
+    c:SecurityUIFolder="Sponsorship\Configuration\Locations"
+    xmlns="bb_appfx_editdataformtemplate" >
+
+	<!-- 
+	Remarks:    This extends the Sponsorship Location Edit Form to include the Report Recipient
+
+	History:
+	Date            Modified By     Comments
+	15-Aug-2012		CMayeda			Initial Version
+	-->
+
+	<SPDataForm>
+        <LoadImplementation SPName="USR_USP_DATAFORMTEMPLATE_EDITLOAD_SPONSORSHIPLOCATION_EXTENSION">
+            <c:CreateProcedureSQL>
+<![CDATA[
+create procedure dbo.USR_USP_DATAFORMTEMPLATE_EDITLOAD_SPONSORSHIPLOCATION_EXTENSION 
+(
+    @ID uniqueidentifier,
+    @DATALOADED bit = 0 output,
+    @TSLONG bigint = 0 output,
+	@REPORTRECIPIENTID uniqueidentifier = null output
+)
+
+as begin
+
+	set nocount on
+
+	select	@DATALOADED = 1,
+			@TSLONG = TSLONG,
+			@REPORTRECIPIENTID = REPORTRECIPIENTID
+	  from	dbo.USR_SPONSORSHIPLOCATIONEXTENSION
+	 where	ID = @ID
+
+
+	return 0
+end
+
+	]]>
+	</c:CreateProcedureSQL>
+			</LoadImplementation>
+			<SaveImplementation SPName="USR_USP_DATAFORMTEMPLATE_EDIT_SPONSORSHIPLOCATION_2_EXTENSION">
+				<c:CreateProcedureSQL>
+	<![CDATA[
+create procedure dbo.USR_USP_DATAFORMTEMPLATE_EDIT_SPONSORSHIPLOCATION_2_EXTENSION 
+(
+	@ID uniqueidentifier,
+	@CHANGEAGENTID uniqueidentifier = null,
+	@REPORTRECIPIENTID uniqueidentifier
+)
+
+
+as begin
+
+	set nocount on;
+
+	begin try
+		if @CHANGEAGENTID is null  
+			exec dbo.USP_CHANGEAGENT_GETORCREATECHANGEAGENT @CHANGEAGENTID output
+				
+		declare @CURRENTDATE datetime
+		set @CURRENTDATE = getdate()
+
+		update	dbo.USR_SPONSORSHIPLOCATIONEXTENSION set
+  				REPORTRECIPIENTID = @REPORTRECIPIENTID,
+				CHANGEDBYID = @CHANGEAGENTID,
+				DATECHANGED = @CURRENTDATE
+		 where  ID = @ID
+	end try
+	begin catch
+		exec dbo.USP_RAISE_ERROR;
+		return 1;
+	end catch
+ 
+	return 0;
+end
+
+]]>
+			</c:CreateProcedureSQL>
+        </SaveImplementation>
+    </SPDataForm>
+    <c:FormMetaData FixedDialog="true">
+        <c:FormFields>
+        	<c:FormField FieldID="REPORTRECIPIENTID" Caption="Report recipient" DataType="Guid" >
+				<c:SearchList SearchListID="23c5c603-d7d8-4106-aecc-65392b563887"/>
+			</c:FormField>
+		</c:FormFields>
+		
+        <c:WebUIComponent>
+			<c:WebUI>
+				<c:DefaultWebUI/>
+            </c:WebUI>
+        </c:WebUIComponent>
+    </c:FormMetaData>
+
+	<c:DataFormExtension DataFormInstanceID="c82371ca-eb60-4b03-9a48-46ebbb722576" RenderStyle="Tab" TabCaption="Reporting Info" />
+
+</EditDataFormTemplateSpec>

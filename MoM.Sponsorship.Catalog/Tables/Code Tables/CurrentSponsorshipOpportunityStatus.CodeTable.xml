@@ -1,0 +1,11 @@
+﻿<CodeTableSpec 
+	xmlns="bb_appfx_codetable" 
+	xmlns:common="bb_appfx_commontypes"
+	ID="d8d7f8a7-df84-448b-8f94-6517a09b2641" 
+	Name="Current opportunity sponsorship status code table"
+	Description="Current opportunity sponsorship status code values."
+	Author="Memphis Sellers"
+	DBTablename="USR_CURRENTOPPORTUNITYSPONSORSHIPSTATUSCODE"
+	Category="Sponsorship"
+	SortMethod="Alpha"
+/>

@@ -1,0 +1,43 @@
+﻿<RecordOperationSpec 
+	xmlns="bb_appfx_recordoperation"
+	xmlns:common="bb_appfx_commontypes" 
+	ID="4a813b71-b39f-4f4f-abf0-c3dc72b691d2" 
+	Name="Set IsMostRecentCommitment" 
+	Description="Sets the IsMostRecentCommitment flag to 1 for current sponsorship."
+	Author="Memphis Sellers"
+	OperationType="Update"
+	RecordType="Sponsorship"
+	common:SecurityUIFolder="Sponsorship"
+	>
+
+	<SPRecord>
+		<SPOperationImplementation SPName="USR_USP_SET_ISMOSTRECENTCOMMITMENTFLAG_RECORDOPERATION">
+			<common:CreateProcedureSQL>
+				<![CDATA[
+create procedure dbo.USR_USP_SET_ISMOSTRECENTCOMMITMENTFLAG_RECORDOPERATION
+(
+	@ID uniqueidentifier,
+	@CHANGEAGENTID uniqueidentifier
+)
+as begin
+	--check deletion rules, if any
+
+	-- use the system generated delete routine to allow proper recording of the deleting agent
+	exec USR_USP_SET_ISMOSTRECENTCOMMITMENTFLAG_FOR_SPONSORSHIP 
+		@sponsorShipId = @ID, 
+		@CHANGEAGENTID = @CHANGEAGENTID
+		
+	return 0;
+	
+end
+				]]>
+			</common:CreateProcedureSQL>
+		</SPOperationImplementation>
+	</SPRecord>
+
+	<!-- optionally, offer a prompt before executing the record operation -->
+	<Prompt>
+		<StandardPrompt Text="Are you sure you want to set this Sponsorship Commitment as the most recent?" />
+	</Prompt>
+
+</RecordOperationSpec>

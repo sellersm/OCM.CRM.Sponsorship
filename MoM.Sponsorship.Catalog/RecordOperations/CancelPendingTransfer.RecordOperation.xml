@@ -1,0 +1,52 @@
+﻿<RecordOperationSpec
+	xmlns="bb_appfx_recordoperation"
+	xmlns:common="bb_appfx_commontypes"
+	ID="2ab3244b-0e42-4159-a954-873c7337e369"
+	Name="Cancel Pending Transfer record operation"
+	Description="Cancels (undoes) the pending departure transfer."
+	Author="Memphis Sellers"
+	OperationType="Delete"
+	RecordType="Sponsorship"
+	common:SecurityUIFolder="Sponsorship"
+	>
+
+	<!-- 
+	Remarks:    Cancels the pending departure transfer. Called from all the sponsorship page of the pending (replacement) child's sponsorship record.
+				
+	History:
+	Date            Modified By     Comments
+	12-Mar-2013		Memphis			Initial Version
+	-->
+
+
+	<SPRecord>
+		<SPOperationImplementation SPName="USR_USP_CANCELPENDINGTRANSFER_RECORDOPERATION">
+			<common:CreateProcedureSQL>
+				<![CDATA[
+create procedure dbo.USR_USP_CANCELPENDINGTRANSFER_RECORDOPERATION
+(
+	@ID uniqueidentifier,
+	@CHANGEAGENTID uniqueidentifier
+)
+as begin
+	--check deletion rules, if any
+
+	-- use the system generated delete routine to allow proper recording of the deleting agent
+	exec USR_USP_CANCELPENDINGTRANSFER 
+		@TRANSFERSPONSORSHIPID = @ID,
+		@CHANGEAGENTID = @CHANGEAGENTID
+		
+	return 0;
+	
+end
+				]]>
+			</common:CreateProcedureSQL>
+		</SPOperationImplementation>
+	</SPRecord>
+
+	<!-- optionally, offer a prompt before executing the record operation -->
+	<Prompt>
+		<StandardPrompt Text="Are you sure you want to continue?" />
+	</Prompt>
+
+</RecordOperationSpec>

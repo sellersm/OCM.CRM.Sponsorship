@@ -1,0 +1,67 @@
+﻿<QueryViewSpec
+	xmlns="bb_appfx_queryview"
+	xmlns:common="bb_appfx_commontypes" 
+	ID="77fcc540-6e95-493c-9663-652db3f90902"
+	Name="Active Sponsorships With Inactive Recurring Gift Query"
+	Description="Used to find active sponsorships with cancelled or completed recurring gifts"
+	Author="Cary Mayeda"
+	IsRoot="true"
+	PrimaryKeyField="ID"
+	RecordType="SPONSORSHIP"
+	common:SecurityUIFolder="Sponsorship"
+	>
+
+	<!-- define the view used to return data for the query -->
+	<ViewImplementation ViewName="USR_V_QUERY_ACTIVESPONSORSHIPSWITHINACTIVERG">
+		<ViewSQL>
+			<![CDATA[
+		select	distinct 
+			SPONSORSHIP.ID,
+			BATCH.BATCHNUMBER,
+			f_trans.CONSTITUENTID,	
+			so_child.ID CHILDID,
+			sponsor.LOOKUPID SPONSORLOOKUPID,
+			sponsor.NAME SPONSORNAME,
+			so.LOOKUPID CHILDLOOKUPID,
+			so_child.NAME as CHILDNAME,
+			r_sch.STATUS RECURRINGGIFTSTATUS
+	  from	dbo.REVENUESCHEDULE r_sch
+	  join	dbo.financialtransaction f_trans on f_trans.id = r_sch.id
+	  join	dbo.CONSTITUENT sponsor ON sponsor.ID = f_trans.CONSTITUENTID
+ left join	dbo.BATCHREVENUE br on br.CONSTITUENTID = sponsor.ID
+ left join	dbo.BATCH on br.BATCHID = BATCH.ID
+      join	dbo.REVENUESPLIT r_split on r_sch.ID = r_split.REVENUEID
+	  join	dbo.SPONSORSHIP on SPONSORSHIP.REVENUESPLITID = r_split.ID
+	  join  dbo.SPONSORSHIPOPPORTUNITY so on so.ID = SPONSORSHIP.SPONSORSHIPOPPORTUNITYID
+	  join	dbo.SPONSORSHIPOPPORTUNITYCHILD so_child on so_child.ID = SPONSORSHIP.SPONSORSHIPOPPORTUNITYID
+
+	 where	f_trans.TYPECODE = 2		--recurring gift
+	   and	r_sch.STATUSCODE not in (0,1) --active, held
+       and	SPONSORSHIP.STATUSCODE = 1
+	   
+			]]>
+		</ViewSQL>
+	</ViewImplementation>
+
+	<!-- describe each field in the view output -->
+	<Output>
+		<OutputFields>
+			<OutputField Name="ID" Caption="System record ID" Category="System Fields" DataType="Guid" />
+			<OutputField Name="BATCHNUMBER" Caption="Batch Number" DataType="String" />
+			<OutputField Name="CONSTITUENTID" Caption="Sponsor system record ID" Category="System Fields" DataType="Guid" />
+			<OutputField Name="CHILDID" Caption="Child record ID" Category="System Fields" DataType="Guid" />
+
+			<OutputField Name="SPONSORLOOKUPID" Caption="Sponsor Lookup ID" DataType="String" />
+			<OutputField Name="SPONSORNAME" Caption="Sponsor Name" DataType="String" />
+			<OutputField Name="CHILDLOOKUPID" Caption="Child Lookup ID" DataType="String" />
+			<OutputField Name="CHILDNAME" Caption="Child Name" DataType="String" />
+			<OutputField Name="RECURRINGGIFTSTATUS" Caption="Recurring Gift Status" DataType="String" />
+		</OutputFields>
+	</Output>
+
+	<RelationshipOperations>
+		<AddRelatedView RelatedView="V_QUERY_SPONSORSHIP" RelatedField="ID" Field="ID" PathAlias="Sponsorship"/>
+	</RelationshipOperations>
+
+</QueryViewSpec>
+

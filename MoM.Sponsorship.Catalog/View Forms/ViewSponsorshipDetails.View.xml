@@ -1,0 +1,69 @@
+﻿<ViewDataFormTemplateSpec 
+    xmlns="bb_appfx_viewdataformtemplate"
+    xmlns:common="bb_appfx_commontypes"
+    ID="2ba9fc47-2104-4e17-835f-59b09b9ee85c"
+    Name="View Sponsorship Details View Form"
+    Description="Displays the sponsorship ID for a given sponsorship."
+    Author="Memphis Sellers"
+    DataFormInstanceID="2accdfea-fd90-4ba6-b0ee-9498368caa53"
+    RecordType="Sponsorship"
+    common:SecurityUIFolder="Sponsorship"
+    FormHeader="View Sponsorship Details"
+    >
+
+	<!-- define the SP that returns the data used by the form -->
+	<SPDataForm SPName="USR_USP_DATAFORMTEMPLATE_VIEW_SPONSORSHIPDETAILS">
+		<common:CreateProcedureSQL>
+			<![CDATA[
+create procedure dbo.USR_USP_DATAFORMTEMPLATE_VIEW_SPONSORSHIPDETAILS
+(
+	@ID uniqueidentifier,
+	@DATALOADED bit = 0 output,
+	@SPONSORSHIPID uniqueidentifier = null output,
+	@SPONSORSHIPOPPORTUNITYID uniqueidentifier = null output,
+	@REVENUESPLITID uniqueidentifier  = null output,
+	@ISMOSTRECENTFORCOMMITMENT bit = null output
+)
+as
+	set nocount on;
+	
+	-- be sure to set this, in case the select returns no rows
+	set @DATALOADED = 0;
+	
+	-- populate the output parameters, which correspond to fields on the form.  Note that
+	-- we set @DATALOADED = 1 to indicate that the load was successful.  Otherwise, the system
+	-- will display a "no data loaded" message.
+	select @DATALOADED = 1,
+		@SPONSORSHIPID = ID,
+		@SPONSORSHIPOPPORTUNITYID = SPONSORSHIPOPPORTUNITYID,
+		@REVENUESPLITID = REVENUESPLITID,
+		@ISMOSTRECENTFORCOMMITMENT = ISMOSTRECENTFORCOMMITMENT
+	from dbo.SPONSORSHIP
+	where ID = @ID
+	
+	return 0;
+			]]>
+		</common:CreateProcedureSQL>
+	</SPDataForm>
+
+	<!-- describe fields on the form, which correspond to parameters on the SP.  Note that system paramters 
+	like the context @ID, @DATALOADED, and @CURRENTAPPUSERID need not be listed. -->
+	<common:FormMetaData FixedDialog="true">
+		<common:FormFields>
+			<common:FormField FieldID="SPONSORSHIPID" Caption="Sponsorship Id" DataType="Guid" />
+			<common:FormField FieldID="SPONSORSHIPOPPORTUNITYID" Caption="Sponsorshipopportunity ID" DataType="Guid" />
+			<common:FormField FieldID="REVENUESPLITID" Caption="Revenuesplit ID (financial transaction id)" DataType="Guid" />
+			<common:FormField FieldID="ISMOSTRECENTFORCOMMITMENT" Caption="Is most recent for commitment?" DataType="Boolean" />
+		</common:FormFields>
+
+        <common:WebUIComponent>
+            <common:UIModel AssemblyName="MoM.Sponsorship.UIModel.dll" ClassName="MoM.Sponsorship.UIModel.ViewSponsorshipDetailsViewFormUIModel" />
+            <common:WebUI>
+                <common:ExternalResource Url="browser/htmlforms/custom/ViewSponsorshipDetailsViewForm.html" />
+            </common:WebUI>
+        </common:WebUIComponent>
+
+		
+	</common:FormMetaData>
+
+</ViewDataFormTemplateSpec>
