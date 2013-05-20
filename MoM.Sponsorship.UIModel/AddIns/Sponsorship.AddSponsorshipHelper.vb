@@ -320,6 +320,7 @@ Public NotInheritable Class AddSponsorshipHelper
 
 		If (CInt(model.Fields(AddSponsorshipFields.FREQUENCYCODE).ValueObject) <> frequencyMonthly) And _
 		 (CInt(model.Fields(AddSponsorshipFields.FREQUENCYCODE).ValueObject) <> frequencyQuarterly) And _
+		(CInt(model.Fields(AddSponsorshipFields.FREQUENCYCODE).ValueObject) <> frequencySemiAnnually) And _
 		 (CInt(model.Fields(AddSponsorshipFields.FREQUENCYCODE).ValueObject) <> frequencyAnnually) Then
 			e.InvalidFieldName = AddSponsorshipFields.FREQUENCYCODE
 			e.InvalidReason = "You have selected an unsupported credit card Frequency. Please select a Frequency of Monthly, Quarterly, Semi-Annually, or Annually."
