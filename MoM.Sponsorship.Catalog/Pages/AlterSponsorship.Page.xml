@@ -160,7 +160,34 @@
 					</AlterPageActionGroup>
 					
 				</AlterPageActionGroups>
-				
+				<!-- the new Sponsorship Extension tab 5/20/13 -->
+				<AlterTabs>
+					<AddTab Sequence="99">
+						<Tab Caption="Sponsorship Extensions" ID="2dfe6b84-21b0-4b45-8ada-b1d68f384425">
+							<Sections>
+								<Section ID="f2d562e8-795b-4251-bc7d-898cb5a3ff59">
+									<DataList ID="88146c5f-44ba-459d-b9ba-9c6c7adf5079">
+										<RenderStyle>
+											<StandardView />
+										</RenderStyle>
+									</DataList>
+									<SectionContext>
+										<PageExpressionField xmlns="bb_appfx_commontypes">SPONSORSHIPOPPORTUNITYID</PageExpressionField>
+									</SectionContext>
+									<Actions>
+										<Action ID="4c67849e-f661-499a-983d-d0e536f2f541" Caption="Edit" ImageKey="RES:edit">
+											<ShowDataForm DataFormID="23753c8b-6cd7-4216-b212-c1368b0fe945" xmlns="bb_appfx_commontypes">
+												<ActionContext>
+													<SectionField>ID</SectionField>
+												</ActionContext>
+											</ShowDataForm>
+										</Action>
+									</Actions>
+								</Section>
+							</Sections>
+						</Tab>
+					</AddTab>
+				</AlterTabs>
 			</AlterPage>
 		</AlterPages>
 	</AlterExistingPages>

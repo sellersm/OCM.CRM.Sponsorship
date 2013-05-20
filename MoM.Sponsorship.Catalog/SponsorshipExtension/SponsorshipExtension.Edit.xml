@@ -10,6 +10,22 @@
 	common:SecurityUIFolder="Sponsorship"
 	>
 
+	<!-- 
+	Remarks:    Edits the given row of the USR_SPONSORSHIPEXTENSION table.
+
+	History:
+	Date            Modified By     Comments
+	07-Dec-2012		Memphis			Initial Version.
+	20-May-2013		Memphis			Fogbugz Case 1079:  Added ability to update the ISCURRENT bit flag so user can determine which row is current.
+										When saving, if the ISCURRENT flag is set, it will force all other rows for this sponsorshipopportunityid 
+										to be set to 0 (false).
+									Also added the addedby and changedby fields to the display so user can try & tell if this is the row that should
+									be the Current one or not.
+									When the form loads, it will indicate to user if NO rows have ISCURRENT set, or if there are more than one ISCURRENT
+									row for this child.
+-->
+
+
 	<SPDataForm>
 
 		<!-- define the edit load SP, which is used to load the data for the form -->
@@ -23,7 +39,13 @@ create procedure dbo.USR_USP_DATAFORMTEMPLATE_EDITLOAD_SPONSORSHIPEXTENSION(
 	@INITIALOPPORTUNITYSPONSORSHIPSTATUSCODEID uniqueidentifier = null output,
 	@CURRENTOPPORTUNITYSPONSORSHIPSTATUSCODEID uniqueidentifier = null output,
 	@CONVERSIONDATE date = null output,
-	@DAYSTOCONVERT int = null output
+	@DAYSTOCONVERT int = null output,
+	@ISCURRENT bit = null output,
+	@SPONSORSHIPOPPORTUNITYID uniqueidentifier = null output,
+	@DATEADDED datetime = null output,
+	@ADDEDBYNAME nvarchar(128) = null output,
+	@CHANGEDBYNAME nvarchar(128) = null output,
+	@STATUSMESSAGE nvarchar(100) = null output
 )
 as
 
@@ -43,10 +65,43 @@ as
 		@INITIALOPPORTUNITYSPONSORSHIPSTATUSCODEID = INITIALOPPORTUNITYSPONSORSHIPSTATUSCODEID, 
 		@CURRENTOPPORTUNITYSPONSORSHIPSTATUSCODEID = CURRENTOPPORTUNITYSPONSORSHIPSTATUSCODEID,
 		@CONVERSIONDATE = CONVERSIONDATE,
-		@DAYSTOCONVERT = DAYSTOCONVERT
+		@DAYSTOCONVERT = DAYSTOCONVERT,
+		@ISCURRENT = ISCURRENT,
+		@SPONSORSHIPOPPORTUNITYID = SPONSORSHIPOPPORTUNITYID,
+		@DATEADDED = dbo.USR_SPONSORSHIPEXTENSION.DATEADDED,
+		@ADDEDBYNAME = ADDEDBY.USERNAME,
+		@CHANGEDBYNAME = CHANGEDBY.USERNAME
 	from dbo.USR_SPONSORSHIPEXTENSION
-	where ID = @ID
-	--and ISCURRENT = 1
+	left join dbo.CHANGEAGENT ADDEDBY on ADDEDBY.ID = dbo.USR_SPONSORSHIPEXTENSION.ADDEDBYID
+	left join dbo.CHANGEAGENT CHANGEDBY on CHANGEDBY.ID = dbo.USR_SPONSORSHIPEXTENSION.CHANGEDBYID 
+	where dbo.USR_SPONSORSHIPEXTENSION.ID = @ID
+
+	if @ISCURRENT = 0
+		set @STATUSMESSAGE = 'This is NOT the current row for this Child Sponsorship!';
+	else
+		set @STATUSMESSAGE = 'This IS the current row for this Child Sponsorship!';
+		
+	-- check for conditions where no iscurrent rows exist or more than rows exist:
+	if exists (select count(*), ISCURRENT
+				from dbo.USR_SPONSORSHIPEXTENSION
+				where (ISCURRENT = 0
+				and SPONSORSHIPOPPORTUNITYID = @SPONSORSHIPOPPORTUNITYID)
+				group by ISCURRENT
+				having count(*) > 1)
+		begin
+			set @STATUSMESSAGE = 'Child has NO IsCurrent rows set!';
+		end
+	
+	if exists (select count(*), ISCURRENT
+				from dbo.USR_SPONSORSHIPEXTENSION
+				where (ISCURRENT = 1
+				and SPONSORSHIPOPPORTUNITYID = @SPONSORSHIPOPPORTUNITYID)
+				group by ISCURRENT
+				having count(*) > 1)
+		begin
+			set @STATUSMESSAGE = 'Child has MORE THAN ONE IsCurrent rows set!';
+		end
+	
 
 	return 0;
 				]]>
@@ -62,7 +117,9 @@ create procedure dbo.USR_USP_DATAFORMTEMPLATE_EDIT_SPONSORSHIPEXTENSION(
 	@INITIALOPPORTUNITYSPONSORSHIPSTATUSCODEID uniqueidentifier,
 	@CURRENTOPPORTUNITYSPONSORSHIPSTATUSCODEID uniqueidentifier,
 	@CONVERSIONDATE date,
-	@DAYSTOCONVERT int
+	@DAYSTOCONVERT int,
+	@ISCURRENT bit,
+	@SPONSORSHIPOPPORTUNITYID uniqueidentifier
 )
 as
 
@@ -83,8 +140,21 @@ as
 			DAYSTOCONVERT = @DAYSTOCONVERT,
 			CONVERSIONDATE = @CONVERSIONDATE,
 			CHANGEDBYID = @CHANGEAGENTID,
-			DATECHANGED = @CURRENTDATE
+			DATECHANGED = @CURRENTDATE,
+			ISCURRENT = @ISCURRENT
 		where ID = @ID
+		
+		-- if the user is setting the iscurrent flag, or it has already been set, then ensure this is the ONLY current record for this sponsorship,
+		--  set all other rows for this child to 0 (false).
+		if @ISCURRENT = 1
+			begin
+				update dbo.USR_SPONSORSHIPEXTENSION 
+				set ISCURRENT = 0
+				where (SPONSORSHIPOPPORTUNITYID = @SPONSORSHIPOPPORTUNITYID 
+				and ID <> @ID)
+			end
+
+
 	end try
 	begin catch
 		exec dbo.USP_RAISE_ERROR
@@ -112,6 +182,12 @@ return 0;
 
 			<common:FormField FieldID="CONVERSIONDATE" Caption="Conversion date" DataType="Date" />
 			<common:FormField FieldID="DAYSTOCONVERT" Caption="Days to convert" DataType="Integer" />
+			<common:FormField FieldID="ISCURRENT" Caption="Current record?" DataType="Boolean" />
+			<common:FormField FieldID="SPONSORSHIPOPPORTUNITYID" Caption="Child Id" DataType="Guid" Hidden="true" />
+			<common:FormField FieldID="DATEADDED" Caption="Date added" DataType="Date" ReadOnly="true" />
+			<common:FormField FieldID="CHANGEDBYNAME" Caption="Changed by" DataType="String" ReadOnly="true" />
+			<common:FormField FieldID="ADDEDBYNAME" Caption="Added by" DataType="String" ReadOnly="true" />
+			<common:FormField FieldID="STATUSMESSAGE" Caption="Message" DataType="String" ReadOnly="true" />
 		</common:FormFields>
 
 	</common:FormMetaData>
