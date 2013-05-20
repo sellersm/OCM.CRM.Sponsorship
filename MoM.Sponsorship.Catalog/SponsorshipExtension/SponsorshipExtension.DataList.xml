@@ -1,0 +1,67 @@
+﻿<DataListSpec 
+	xmlns="bb_appfx_datalist"
+	xmlns:common="bb_appfx_commontypes" 
+	ID="88146c5f-44ba-459d-b9ba-9c6c7adf5079" 
+	Name="Sponsorship Extension Data List"
+	Description="Displays all rows for given child from sponsorship extension table." 
+	Author="Memphis Sellers"
+	common:SecurityUIFolder="Sponsorship">
+
+	<!-- define the SP that returns the data for the datalist -->
+	<SPDataList SPName="USR_USP_DATALIST_SPONSORSHIPEXTENSION">
+		<common:CreateProcedureSQL>
+			<![CDATA[
+create procedure dbo.USR_USP_DATALIST_SPONSORSHIPEXTENSION(@CONTEXTID uniqueidentifier)
+as
+	set nocount on;
+
+	select dbo.USR_SPONSORSHIPEXTENSION.ID
+		, dbo.USR_INITIALOPPORTUNITYSPONSORSHIPSTATUSCODE.[DESCRIPTION] as INITIALSTATUS
+		, USR_CURRENTOPPORTUNITYSPONSORSHIPSTATUSCODE.[DESCRIPTION] as CURRENTSTATUS
+		, ISCURRENT
+		, dbo.USR_SPONSORSHIPEXTENSION.DATEADDED as ADDEDDATE
+		, dbo.USR_SPONSORSHIPEXTENSION.DATECHANGED as CHANGEDDATE
+		, CONVERSIONDATE
+		, DAYSTOCONVERT
+		, ADDEDBY.USERNAME as ADDEDBYNAME
+		, CHANGEDBY.USERNAME as CHANGEDBYNAME
+	from dbo.USR_SPONSORSHIPEXTENSION
+	left join dbo.USR_INITIALOPPORTUNITYSPONSORSHIPSTATUSCODE ON dbo.USR_INITIALOPPORTUNITYSPONSORSHIPSTATUSCODE.ID = dbo.USR_SPONSORSHIPEXTENSION.INITIALOPPORTUNITYSPONSORSHIPSTATUSCODEID
+	left join dbo.USR_CURRENTOPPORTUNITYSPONSORSHIPSTATUSCODE ON dbo.USR_CURRENTOPPORTUNITYSPONSORSHIPSTATUSCODE.ID = dbo.USR_SPONSORSHIPEXTENSION.CURRENTOPPORTUNITYSPONSORSHIPSTATUSCODEID
+	left join dbo.CHANGEAGENT ADDEDBY ON ADDEDBY.ID = dbo.USR_SPONSORSHIPEXTENSION.ADDEDBYID
+	left join dbo.CHANGEAGENT CHANGEDBY ON CHANGEDBY.ID = dbo.USR_SPONSORSHIPEXTENSION.CHANGEDBYID
+	where SPONSORSHIPOPPORTUNITYID = @CONTEXTID
+	
+			]]>
+		</common:CreateProcedureSQL>
+	</SPDataList>
+
+	<!-- describe the context ID parameter for the SP (if applicable)-->
+	<Context ContextRecordType="SPONSORSHIPOPPORTUNITY" RecordIDParameter="CONTEXTID"/>
+
+	<!-- describe any parameters (other than the context ID) defined on the SP
+	<Parameters>
+		<common:FormMetaData>
+			<common:FormFields>
+				<common:FormField FieldID="PARAMETER1" Caption="Paramter1" DataType="REPLACE_WITH_DATATYPE"/>
+			</common:FormFields>
+		</common:FormMetaData>
+	</Parameters>-->
+
+	<!-- define the output fields in the list -->
+	<Output>
+		<OutputFields>
+			<OutputField FieldID="ID" Caption="ID" DataType="Guid" IsHidden="true" />
+			<OutputField FieldID="INITIALSTATUS" Caption="Initial Status" DataType="String" />
+			<OutputField FieldID="CURRENTSTATUS" Caption="Current Status" DataType="String" />
+			<OutputField FieldID="ISCURRENT" Caption="Is Current" DataType="Boolean" />
+			<OutputField FieldID="ADDEDDATE" Caption="Date Added" DataType="Date" />
+			<OutputField FieldID="CHANGEDDATE" Caption="Date Changed" DataType="Date" />
+			<OutputField FieldID="CONVERSIONDATE" Caption="Conversion Date" DataType="Date" />
+			<OutputField FieldID="DAYSTOCONVERT" Caption="Days to Convert" DataType="Integer" />
+			<OutputField FieldID="ADDEDBYNAME" Caption="Added by" DataType="String" />
+			<OutputField FieldID="CHANGEDBYNAME" Caption="Changed by" DataType="String" />
+		</OutputFields>
+	</Output>
+
+</DataListSpec>
