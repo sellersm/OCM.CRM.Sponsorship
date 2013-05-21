@@ -516,7 +516,7 @@
     <EmbeddedResource Include="D4 Business Process\USR_USP_D4_CAMPAIGN_BUSINESSPROCESS.xml" />
     <EmbeddedResource Include="D2 Business Process\D2CampaignBusinessProcessResults.Query.xml" />
     <EmbeddedResource Include="D4 Business Process\D4CampaignBusinessProcessResults.Query.xml" />
-    <EmbeddedResource Include="DataLists\Sponsorship.ActiveOnlyWithGiftInfo.DataList.xml.xml" />
+    <EmbeddedResource Include="DataLists\Sponsorship.ActiveOnlyWithGiftInfo.DataList.xml" />
     <Content Include="DataLists\Sponsorship.Reasons.DataList.xml" />
     <EmbeddedResource Include="SQL\User Functions\USR_UFN_CHECK_RECURRINGGIFT_ISHELD.xml" />
     <EmbeddedResource Include="SQL\User Functions\USR_UFN_GET_PAYMENTMETHODCODE_BY_REVENUESPLITID.xml" />
