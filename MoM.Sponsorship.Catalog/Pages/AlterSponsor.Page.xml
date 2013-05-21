@@ -264,7 +264,7 @@
 
 					</AlterTab>
 					<AddTab>
-						<Tab Caption="Sponsorships with NTD" ID="1258c502-18f6-4da4-bab2-8172c3c59891">
+						<Tab Caption="Active Children with Gift Info" ID="1258c502-18f6-4da4-bab2-8172c3c59891">
 							<Sections>
 								<Section ID="b3c1690c-83cf-428d-943c-100dfc45ca45">
 									<DataList ID="7ac3c8b0-d556-4c8a-91ed-cb6972d5e185">
