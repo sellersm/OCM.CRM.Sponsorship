@@ -25,7 +25,7 @@
 	<SPDataList SPName="USR_USP_DATALIST_SPONSORSHIP_ACTIVE_WITH_GIFTINFO">
 		<common:CreateProcedureSQL>
 			<![CDATA[
-create procedure dbo.USR_USP_DATALIST_SPONSORSHIP_ACTIVE_WITH_NTD (@CONTEXTID uniqueidentifier)
+create procedure dbo.USR_USP_DATALIST_SPONSORSHIP_ACTIVE_WITH_GIFTINFO (@CONTEXTID uniqueidentifier)
 as
 	set nocount on;
 
