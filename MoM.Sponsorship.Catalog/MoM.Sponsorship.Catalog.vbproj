@@ -473,6 +473,7 @@
     <EmbeddedResource Include="Prospect Conversion Business Process\ProspectConversion.BusinessProcess.Errors.DataList.xml" />
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="Query Views\D4SponsorshipsToCancel.Query.xml" />
     <EmbeddedResource Include="Sponsor Terminate Business Process\SponsorTerminateBusinessProcessResults.Query.xml" />
     <EmbeddedResource Include="Sponsor Terminate Business Process\SponsorTerminateBusinessProcess.Summary.View.xml" />
     <EmbeddedResource Include="Sponsor Terminate Business Process\SponsorTerminate.BusinessProcess.xml" />
