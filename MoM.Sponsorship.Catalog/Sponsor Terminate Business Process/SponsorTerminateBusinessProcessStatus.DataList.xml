@@ -25,7 +25,7 @@
 		<common:StaticParameters>
 			<common:ParameterList>
 				<common:Param ID="BusinessProcessCatalogID">
-					<common:Value>8527734D-BD88-4326-9DCD-E491DA1523C7</common:Value>
+					<common:Value>19D463DC-BB06-40CB-9E8D-170B8C5480BB</common:Value>
 				</common:Param>
 				<common:Param ID="ApplyParametersIDFilter">
 					<common:Value>True</common:Value>

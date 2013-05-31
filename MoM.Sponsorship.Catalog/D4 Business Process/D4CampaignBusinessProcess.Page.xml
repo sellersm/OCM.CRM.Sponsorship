@@ -19,7 +19,7 @@
 
 	<PageHeader Caption="D4 Campaign business process page" />
 	<SummarySection ID="99928D46-502E-4CCE-A1B4-39849C487784" Caption="D4 Campaign Parameters">
-		<DataForm ID="333348E9-B2A2-4EAC-90CF-80D5DB2AAAD3" />
+		<DataForm ID="5982650F-8485-4031-B9F4-CF68F2A536D8" />
 		<SectionContext>
 			<PageContextID xmlns="bb_appfx_commontypes" />
 		</SectionContext>
@@ -38,7 +38,7 @@
 		<Tab Caption="History" ID="3EFEA853-386C-440B-B5E4-B895D3AA8FC0">
 			<Sections>
 				<Section ID="86BE30EE-8B3D-4D2C-8139-8AEBEDEB22DA" Caption="History">
-					<DataList ID="947FE3ED-48DF-45C5-8107-DD5D258C54D3">
+					<DataList ID="BBCEB8C3-F3B9-4619-9ADF-045CF098E674">
 						<RenderStyle>
 							<StandardView />
 						</RenderStyle>
