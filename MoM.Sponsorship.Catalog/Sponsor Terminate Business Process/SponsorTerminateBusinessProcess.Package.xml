@@ -75,9 +75,10 @@
 		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.SponsorTerminateBusinessProcessStatus.DataList.xml" />
 
 		<!-- Views -->
+		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.SponsorTerminateBusinessProcess.Summary.View.xml" />
 		<!--
 		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.D4CampaignBusinessProcess.View.xml" />
-		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.D4CampaignBusinessProcess.Summary.View.xml" />
+		
 		-->
 		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.SponsorTerminateBusinessProcess.PageExpression.View.xml" />
 
@@ -85,9 +86,7 @@
 		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.SponsorTerminateBusinessProcess.DeleteParameterSet.RecordOperation.xml" />
 
 		<!-- Queries -->
-		<!--
-		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.D4CampaignBusinessProcessResults.Query.xml" />
-		-->
+		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.SponsorTerminateBusinessProcessResults.Query.xml" />		
 		
 		<!-- Pages -->
 		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.SponsorTerminateBusinessProcess.Page.xml" />

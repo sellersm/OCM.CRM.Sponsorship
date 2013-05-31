@@ -32,7 +32,7 @@
 						</RenderStyle>
 					</DataList>
 					<Actions>
-						<Action ID="B49A6802-9222-4661-80E6-D007960CF509" Caption="Go to process" ImageKey="RES:goto_round" DefaultAction="true" AppendSeparator="true" LinkFieldID="ID" >
+						<Action ID="B49A6802-9222-4661-80E6-D007960CF509" Caption="Go to process" ImageKey="RES:goto_round" AppendSeparator="true" >
 							<ShowPage xmlns="bb_appfx_commontypes" PageID="DC36FBD8-ADE1-4BAE-8BBE-5CF15A6B1C55" TabID="00000000-0000-0000-0000-000000000000">
 								<ActionContext>
 									<SectionField>ID</SectionField>
@@ -67,7 +67,7 @@
 							</ExecuteRecordOperation>
 
 						</Action>
-						<Action ID="A4EA4D43-EE4F-4CBB-BF89-8074DADB2EF0" Caption="Security??" ImageKey="RES:usersfolder" Visible="= Globals.CurrentAppUserIsSysAdmin() OrElse (Globals.CurrentAppUserID = new System.Guid(CStr(Fields!OwnerID)))" Enabled="= Globals.CurrentAppUserIsSysAdmin() OrElse (Globals.CurrentAppUserID = new System.Guid(CStr(Fields!OwnerID)))">
+						<Action ID="A4EA4D43-EE4F-4CBB-BF89-8074DADB2EF0" Caption="Security" ImageKey="RES:usersfolder" Visible="= Globals.CurrentAppUserIsSysAdmin() OrElse (Globals.CurrentAppUserID = new System.Guid(CStr(Fields!OwnerID)))" Enabled="= Globals.CurrentAppUserIsSysAdmin() OrElse (Globals.CurrentAppUserID = new System.Guid(CStr(Fields!OwnerID)))">
 							<ShowDataForm xmlns="bb_appfx_commontypes" DataFormID="206e614d-be02-4faa-a7e2-ae64d1b1e454">
 								<ActionContext>
 									<SectionField>ID</SectionField>

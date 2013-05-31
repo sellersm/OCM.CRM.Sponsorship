@@ -72,8 +72,12 @@ as
 			<OutputField FieldID="ID" Caption="ID" DataType="Guid" IsHidden="true" />
 			<OutputField FieldID="NAME" Caption="Name" DataType="String" />
 			<OutputField FieldID="DESCRIPTION" Caption="Description" DataType="String" />
-			<OutputField FieldID="CAMPAIGNTYPE" Caption="Campaign Type" DataType="TinyInt" />
-			<OutputField FieldID="OWNERID" Caption="Owner ID" DataType="Guid" IsHidden="true" />
+			<OutputField FieldID="SELECTIONNAME" Caption="Selection" DataType="String" />
+			<OutputField FieldID="ADDEDBY" Caption="Added by" DataType="String"/>
+			<OutputField FieldID="DATEADDED" Caption="Date Added" DataType="Date" />
+			<OutputField FieldID="CHANGEDBY" Caption="Changed by" DataType="String"/>
+			<OutputField FieldID="DATECHANGED" Caption="Date Changed" DataType="Date"/>
+
 		</OutputFields>
 	</Output>
 
