@@ -14,7 +14,7 @@
 
 	History:
 	Date            Modified By     Comments
-	14-May-2013		CMayeda			Initial Version copied from Memphis' USR_USP_D2_CAMPAIGN_BUSINESSPROCESS
+	30-May-2013		CMayeda			Initial Version 
 	-->
 
 	<CreateProcedureSQL>
@@ -69,7 +69,7 @@ begin
 	end try
 	begin catch
 		exec dbo.USP_RAISE_ERROR
-	-- **return 1;
+		return 1;
 	end catch
 
 
@@ -83,8 +83,7 @@ begin
 	declare @childName nvarchar(255) = ''
 	
 	declare sponsorshipsToTerminateCursor cursor for
-	select top 1 --**
-			s.ID, 
+	select	s.ID, 
 			s.STATUSCODE,
 			s.CONSTITUENTID as SPONSORID,
 			sponsor.LOOKUPID as SPONSORLOOKUPID,
@@ -186,7 +185,7 @@ begin
 				@sponsorshipOpportunityChildID = @sponsorshipOpportunityChildID,		-- Specify a Sponsorship Opportunity ID (same as the child's ID) if the sproc should only process a single child
 				@includeIneligibleInUpdate = 0,											-- Whether to include Ineligible children in updates.  0 = Do not include Ineligible children, 1 = Include Ineligible children
 				@CHANGEAGENTID = @changeAgentID
-
+			
 			insert USR_SPONSORTERMINATE_BUSINESSPROCESS_RESULTS (SPONSORLOOKUPID, SPONSORNAME, CHILDLOOKUPID, CHILDNAME, TERMINATESUCCESS, ERRORMESSAGE, ADDEDBYID, DATEADDED, CHANGEDBYID, DATECHANGED)
 			select @SponsorLookupID, @sponsorName, @childLookupID, @childName, 1, '', @changeAgentID, getdate(), @changeAgentID, getdate()
 
