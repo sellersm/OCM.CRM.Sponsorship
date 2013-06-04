@@ -99,6 +99,7 @@
 										USR_UFN_SPONSORSHIP_GETUNPAID_SPONSOREDCHILDREN_FORSPONSOR.xml										
 	15-May-2013		CMayeda			Sponsorship.ActiveSponsorshipsWithNTD.DataList.xml
 	20-May-2013		Memphis			Added SponsorshipExtension.DataList.xml
+	04-Jun-2013		Memphis			Fogubgz Case 1007:  Jason was missing this datalist spec  Sponsorship.Reasons.DataList.xml, it was here but was misspelled.
 -->
 
 	<!-- Note:  the order of the items listed here is important.  For example, you won't be able to load a data form that references 
@@ -256,7 +257,7 @@
 		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.ProjectsAvailableForSponsorship.SimpleList.xml" />
 		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.Website.SponsorshipCheckoutSource.DataList.xml" />
 		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.SponsorshipDataListCustomized.DataList.xml" />
-		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.Sponsorship.Reason.DataList.xml" />
+		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.Sponsorship.Reasons.DataList.xml" />
 		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.Sponsorship.ActiveSponsorshipsWithNTD.DataList.xml" />
 		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.SponsorshipExtension.DataList.xml" />
 
