@@ -18,6 +18,9 @@
 	History:
 	Date            Modified By     Comments
 	13-May-2013		Memphis			Initial Version.  
+	01-Jun-2013		Memphis			Fogbugz Case 1082. Added check based on number of months past due, similar to the D4 campaign process by Cary.
+									If the number of months past due isn't >=0 and <2 then it won't get an interaction, no matter
+									what the NTD says.
 	-->
 
 	
@@ -89,6 +92,8 @@ begin
 
 	declare @expectedDate date = cast(getdate() as date);
 
+    declare @exceptionMessage nvarchar(100);
+    declare @amountException bit = 0;
 
 	declare @solicitCodeList table (CODEDESCRIPTION nvarchar(100))
 	declare @isNoEmailOrLetters bit = 0;
@@ -178,10 +183,11 @@ begin
 				NTD date, 
 				PAYMETHOD tinyint, 
 				SPONSORSHIPREVENUEID uniqueidentifier, 
-				ISHELD bit);
+				ISHELD bit,
+                NUMBEROFMONTHSPASTDUE decimal(3,1));
 		
 		declare @childId uniqueidentifier, @revenueSplitId uniqueidentifier, @sponsorId uniqueidentifier, @sponsorshipId uniqueidentifier;
-		declare @NTD date, @payMethod tinyint, @sponsorshipRevenueId uniqueidentifier, @isHeld bit;
+		declare @NTD date, @payMethod tinyint, @sponsorshipRevenueId uniqueidentifier, @isHeld bit, @numberOfMonthsPastDue decimal(3,1);
 
 		set @payMethod = 99;  -- default to neither cash nor eft
 
@@ -292,8 +298,18 @@ begin
 			   , payMethod
 			   , sponsorshipRevenueId
 			   , isHeld
+               ,case 
+                	when REVENUESCHEDULE.FREQUENCYCODE = 3 then dbo.UFN_RECURRINGGIFT_GETPASTDUEAMOUNT(rev.ID, null) / rev.TRANSACTIONAMOUNT -- Monthly
+                	when REVENUESCHEDULE.FREQUENCYCODE = 6 then dbo.UFN_RECURRINGGIFT_GETPASTDUEAMOUNT(rev.ID, null) / ((rev.TRANSACTIONAMOUNT * 6)/12) -- Bimonthly
+                	when REVENUESCHEDULE.FREQUENCYCODE = 7 then dbo.UFN_RECURRINGGIFT_GETPASTDUEAMOUNT(rev.ID, null) / ((rev.TRANSACTIONAMOUNT * 24)/12) -- Semi-Monthly
+                	when REVENUESCHEDULE.FREQUENCYCODE = 8 then dbo.UFN_RECURRINGGIFT_GETPASTDUEAMOUNT(rev.ID, null) / ((rev.TRANSACTIONAMOUNT * 26)/12) -- Biweekly
+                	when REVENUESCHEDULE.FREQUENCYCODE = 9 then dbo.UFN_RECURRINGGIFT_GETPASTDUEAMOUNT(rev.ID, null) / ((rev.TRANSACTIONAMOUNT * 52)/12) -- Weekly
+                	else -1        
+                end NumberOfMonthsPastDue
 		from D2ChildrenList
-		inner join dbo.REVENUESCHEDULE on REVENUESCHEDULE.ID = sponsorshipRevenueId --REVENUE.ID
+		join	dbo.REVENUESPLIT revsplit on revenueSplitId = revsplit.ID
+		join	dbo.REVENUE rev on revsplit.REVENUEID = rev.ID
+		join	dbo.REVENUESCHEDULE on REVENUESCHEDULE.ID = rev.ID --REVENUE.ID		
 		where ((case when REVENUESCHEDULE.NEXTTRANSACTIONDATE > REVENUESCHEDULE.ENDDATE then null else REVENUESCHEDULE.NEXTTRANSACTIONDATE end) 
 			between @secondDayTwoMonthsAgo and @firstDayPreviousMonth
 		--and isHeld = case when @campaignType in (0,1) then 0 else 1 end
@@ -312,7 +328,7 @@ begin
 
 		open d2resultsCursor;
 							
-		fetch next from d2resultsCursor into @childId, @revenueSplitId, @sponsorId, @sponsorshipId, @NTD, @payMethod, @sponsorshipRevenueId, @isHeld;
+		fetch next from d2resultsCursor into @childId, @revenueSplitId, @sponsorId, @sponsorshipId, @NTD, @payMethod, @sponsorshipRevenueId, @isHeld, @numberOfMonthsPastDue;
 
 		-- set the new sponsor flag for the first sponsor
 		set @isNewSponsor = 1;
@@ -497,6 +513,22 @@ begin
 									end
 							end
 					
+                            -- new Memphis 6/1/13: check the number of months past due to determine if this really is delinquent 2 months or not:
+                            -- but only if we're about to create an interaction, otherwise we don't care:
+                            if (@createInteractions = 1 and @writeToExceptionLog = 0)
+                                begin
+                                    -- number of months past due should be between 0 and 2:
+                                    if (@numberOfMonthsPastDue >= 0 and @numberOfMonthsPastDue < 2)
+                                        begin
+    										set @createInteractions = 0;
+    										set @writeToExceptionLog = 1;
+                                            set @amountException = 1;
+                                        end
+                                    else
+                                        set @amountException = 0;
+                                end
+                                
+                                
 							if @createInteractions = 1
 								begin
 									-- prevent this from creating multiple sponsor interactions per child
@@ -639,6 +671,10 @@ begin
 						select @sponsorLookupId = LOOKUPID
 						from dbo.CONSTITUENT
 						where ID = @sponsorId;
+                        
+                        set @exceptionMessage = case when @amountException = 1 then 'NTD and Amount Past Due do not match'
+                                                     when @amountException = 0 then 'No D2 phone call interaction created'
+                                                     end;
 				
 						if @sponsorLookupId is not null
 							begin
@@ -656,7 +692,7 @@ begin
 									(@sponsorLookupId
 									, CAST(GETDATE() as date)
 									, @CAMPAIGNTYPE
-									, 'No D2 phone call interaction created'
+									, @exceptionMessage
 									, @changeAgentID
 									, @currentDate
 									, @changeAgentID
@@ -669,7 +705,7 @@ begin
 					end
 			
 				SKIP_THIS_RECORD:
-				fetch next from d2resultsCursor into @childId, @revenueSplitId, @sponsorId, @sponsorshipId, @NTD, @payMethod, @sponsorshipRevenueId, @isHeld;
+		        fetch next from d2resultsCursor into @childId, @revenueSplitId, @sponsorId, @sponsorshipId, @NTD, @payMethod, @sponsorshipRevenueId, @isHeld, @numberOfMonthsPastDue;
 		
 				-- check for a different sponsor
 				if @currentSponsorId <> @sponsorId
@@ -684,6 +720,7 @@ begin
 						set @isNoCalls = 0;				-- false								
 						set @childrenExistForSponsor = 0;
 						set @doPhoneProcess = 0;
+                        set @amountException = 0;
 				
 						delete from @childIDList;
 				
