@@ -82,7 +82,7 @@ begin
 --	declare @heldEFTCreditCardSubcategoryName nvarchar(100) = 'Delinquent 2 Month - Credit Card';
 --	declare @heldEFTDirectDebitSubcategoryName nvarchar(100) = 'Delinquent 2 Month - Direct Debit';
 	declare @activeEFTSubcategoryName nvarchar(100) = 'Delinquent 2 Month - EFT';
-  declare @heldEFTSubcategoryName nvarchar(100) = 'Delinquent 2 Month - Held EFT';
+    declare @heldEFTSubcategoryName nvarchar(100) = 'Delinquent 2 Month - Held EFT';
 	declare @raiseErrorIfNotFound_True bit = 1
 	declare @writeToExceptionLog bit = 0;		-- flag to identify when to write a record to the output table indicating no interaction was created
 	declare @subcategoryName nvarchar(100);		-- will hold one of the category name values above based on campaign type
@@ -92,8 +92,9 @@ begin
 
 	declare @expectedDate date = cast(getdate() as date);
 
-    declare @exceptionMessage nvarchar(100);
+    declare @exceptionMessage nvarchar(100) = '';
     declare @amountException bit = 0;
+    declare @noCallMessage nvarchar(100) = '';
 
 	declare @solicitCodeList table (CODEDESCRIPTION nvarchar(100))
 	declare @isNoEmailOrLetters bit = 0;
@@ -190,6 +191,7 @@ begin
 		declare @NTD date, @payMethod tinyint, @sponsorshipRevenueId uniqueidentifier, @isHeld bit, @numberOfMonthsPastDue decimal(3,1);
 
 		set @payMethod = 99;  -- default to neither cash nor eft
+        set @numberOfMonthsPastDue = -1;
 
 		-- constants used for checking what payment type is this sponsorship:
 		declare @CASHPAYMENT_VALUE tinyint = 0;
@@ -217,6 +219,8 @@ begin
 					where (dbo.INTERACTION.INTERACTIONSUBCATEGORYID in (select ID from dbo.INTERACTIONSUBCATEGORY 
 							where dbo.INTERACTIONSUBCATEGORY.INTERACTIONCATEGORYID = @interactionCategoryId)
 				and (dbo.INTERACTION.CONSTITUENTID = dbo.SPONSORSHIP.CONSTITUENTID
+				and lower(COMMENT) like '%d2%'
+				and STATUSCODE = 2
 				and (DATEPART(m, EXPECTEDDATE) = DATEPART(m, DATEADD(m, -1, getdate()))
 				AND YEAR(EXPECTEDDATE) = YEAR(DATEADD(m, -1, getdate())))))
 				)
@@ -315,9 +319,6 @@ begin
 		--and isHeld = case when @campaignType in (0,1) then 0 else 1 end
 		)
 		order by NTD;
-
-		-- campaignType: 0=Cash, 1=EFT Active, 2=EFT Held
-
 
 
 		-- put the results into a cursor so we can create the necessary interactions, one-by-one and do all the various pieces of work required
@@ -504,12 +505,16 @@ begin
 
 										set @createInteractions = 1;
 										set @writeToExceptionLog = 0;
+                                        set @noCallMessage = '';
+                                        set @amountException = 0;
 									end
 								else
 									begin
 										-- 3.5 do not create interactions, set the flag for 3.6 to write to exception log
 										set @createInteractions = 0;
 										set @writeToExceptionLog = 1;
+                                        set @amountException = 0;
+                                        set @noCallMessage = 'Solicit Code of Do Not Call or No Phone Calls';
 									end
 							end
 					
@@ -523,10 +528,18 @@ begin
     										set @createInteractions = 0;
     										set @writeToExceptionLog = 1;
                                             set @amountException = 1;
+                                            set @noCallMessage = '';
                                         end
                                     else
-                                        set @amountException = 0;
+										begin
+											set @createInteractions = 1;
+											set @amountException = 0;
+											set @writeToExceptionLog = 0;
+											set @noCallMessage = '';
+										end
                                 end
+                            else
+                                set @amountException = 0;
                                 
                                 
 							if @createInteractions = 1
@@ -672,8 +685,8 @@ begin
 						from dbo.CONSTITUENT
 						where ID = @sponsorId;
                         
-                        set @exceptionMessage = case when @amountException = 1 then 'NTD and Amount Past Due do not match'
-                                                     when @amountException = 0 then 'No D2 phone call interaction created'
+                        set @exceptionMessage = case when @amountException = 1 then 'NTD and Amount Past Due do not match: ' + Cast(ISNULL(@NTD, '') as nvarchar(30)) + '  ' + Cast(@numberOfMonthsPastDue as nvarchar(5))
+                                                     when @amountException = 0 then 'No D2 phone call interaction created: ' + @noCallMessage
                                                      end;
 				
 						if @sponsorLookupId is not null
@@ -701,6 +714,11 @@ begin
 							end
 						
 						set @exceptionCounter = @exceptionCounter + 1;
+                        -- clear out the variables used for exception message
+                        set @noCallMessage = '';
+                        set @amountException = 0;
+						set @exceptionMessage = '';
+						set @writeToExceptionLog = 0;
 				
 					end
 			
@@ -720,8 +738,10 @@ begin
 						set @isNoCalls = 0;				-- false								
 						set @childrenExistForSponsor = 0;
 						set @doPhoneProcess = 0;
+                        set @noCallMessage = '';
                         set @amountException = 0;
-				
+						set @writeToExceptionLog = 0;
+						
 						delete from @childIDList;
 				
 					end

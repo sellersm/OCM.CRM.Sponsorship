@@ -106,11 +106,12 @@ begin
 	declare @contactMethodDesc_Email nvarchar (100) = 'Email';
 	declare @contactMethodDesc nvarchar(100);   -- this will get populated by either of the above values before creating the interaction
 
-    declare @exceptionMessage nvarchar(100);
+    declare @exceptionMessage nvarchar(100) = '';
     declare @amountException bit = 0;
+    declare @noEmailMessage nvarchar(100) = '';
 
 	declare @expectedDate date = cast(getdate() as date);
-
+    
 	declare @solicitCodeList table (CODEDESCRIPTION nvarchar(100))
 	declare @isNoEmailOrLetters bit = 0;
 	declare @isNoCalls bit = 0;
@@ -207,7 +208,8 @@ begin
 		declare @NTD date, @payMethod tinyint, @sponsorshipRevenueId uniqueidentifier, @isHeld bit, @numberOfMonthsPastDue decimal(3,1);
 
 		set @payMethod = 99;  -- default to neither cash nor eft
-        
+        set @numberOfMonthsPastDue = -1;
+
     -- ** NEW **: get only the children for the given  Campaign payment method type, so use this variable to compare against each child's paymethod!
     --                  based on these campaign type values and payment method values:
     --      0=Cash, 1=EFT Active, 2=EFT Held Credit Card, 3=EFT Held Direct Debit
@@ -243,6 +245,8 @@ begin
 					where (dbo.INTERACTION.INTERACTIONSUBCATEGORYID in (select ID from dbo.INTERACTIONSUBCATEGORY 
 							where dbo.INTERACTIONSUBCATEGORY.INTERACTIONCATEGORYID = @interactionCategoryId)
 				and (dbo.INTERACTION.CONSTITUENTID = dbo.SPONSORSHIP.CONSTITUENTID
+				and lower(COMMENT) like '%d2%'
+				and STATUSCODE = 2
 				and (DATEPART(m, EXPECTEDDATE) = DATEPART(m, DATEADD(m, -1, getdate()))
 				AND YEAR(EXPECTEDDATE) = YEAR(DATEADD(m, -1, getdate())))))
 				)
@@ -377,9 +381,15 @@ begin
 						select * from dbo.USR_UFN_GET_CONSTITUENT_SOLICITCODES_LIST(@sponsorId)
 
 						if exists(select 1 from @solicitCodeList where lower(CODEDESCRIPTION) in ('do not email', 'no system letters'))
-							set @isNoEmailOrLetters = 1;  -- true
+                            begin
+    							set @isNoEmailOrLetters = 1;  -- true
+                                set @noEmailMessage = 'Solicit Code of Do Not Email or No System Letters';
+                            end
 						else 
-							set @isNoEmailOrLetters = 0;  -- false
+                            begin
+    							set @isNoEmailOrLetters = 0;  -- false
+                                set @noEmailMessage = '';
+                            end
 
 
 						--  *** B. Build a list of the delinquent children for each sponsor  ***
@@ -491,15 +501,21 @@ begin
 											--do not create email interaction
 											--set @doPhoneProcess = 1;										
 											set @createInteractions = 0;
+                                            set @writeToExceptionLog = 1;
 										end
 									else
-									  set @createInteractions = 1;
+                                        begin
+									        set @createInteractions = 1;
+                                            set @writeToExceptionLog = 0;
+                                        end
 								end
 							else
 								-- sponsor does not have a valid primary email, so do tests for phone interaction
 								begin
 									--2.2 goes here, no email so can't create any interaction for this sponsor
 									set @createInteractions = 0;
+                                    set @writeToExceptionLog = 1;
+                                    set @noEmailMessage = 'No valid primary email';
 								end
 
                             -- new Memphis 6/3/13: check the number of months past due to determine if this really is delinquent 2 months or not:
@@ -512,11 +528,18 @@ begin
     										set @createInteractions = 0;
     										set @writeToExceptionLog = 1;
                                             set @amountException = 1;
+                                            set @noEmailMessage = '';
                                         end
                                     else
-                                        set @amountException = 0;
+                                        begin
+                                            set @createInteractions = 1;
+                                            set @amountException = 0;
+                                            set @writeToExceptionLog = 0;
+                                            set @noEmailMessage = '';
+                                        end
                                 end
-
+                            else
+                                set @amountException = 0;
 
 
 							if @createInteractions = 1
@@ -623,8 +646,8 @@ begin
 						from dbo.CONSTITUENT
 						where ID = @sponsorId;
                         
-                        set @exceptionMessage = case when @amountException = 1 then 'NTD and Amount Past Due do not match'
-                                                     when @amountException = 0 then 'No D2 email interaction created'
+                        set @exceptionMessage = case when @amountException = 1 then 'NTD and Amount Past Due do not match: ' + Cast(ISNULL(@NTD, '') as nvarchar(30)) + '  ' + Cast(@numberOfMonthsPastDue as nvarchar(5))
+                                                     when @amountException = 0 then 'No D2 email interaction created: ' + @noEmailMessage
                                                      end;
 				
 						if @sponsorLookupId is not null
@@ -652,6 +675,11 @@ begin
 							end
 						
 						set @exceptionCounter = @exceptionCounter + 1;
+                        -- clear out the variables used for exception message
+                        set @noEmailMessage = '';
+                        set @amountException = 0;
+                        set @exceptionMessage = '';
+                        set @writeToExceptionLog = 0;
 				
 					end
 			
@@ -671,6 +699,9 @@ begin
 						set @isNoCalls = 0;				-- false								
 						set @childrenExistForSponsor = 0;
 						--set @doPhoneProcess = 0;
+                        set @noEmailMessage = '';
+                        set @amountException = 0;
+                        set @writeToExceptionLog = 0;
 				
 						delete from @childIDList;
 				
