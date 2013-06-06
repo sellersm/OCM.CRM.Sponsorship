@@ -13,7 +13,7 @@
 		<TextField Name="SPONSORLOOKUPID" Description="Sponsor Lookup ID" Length="10" Required="true"/>
 		<DateField Name="D2CAMPAIGNDATE" DefaultValue="GETDATE()" IncludeTime="false" Description="Campaign Date" Required="true" />
 		<NumberField Name="CAMPAIGNTYPE" Description="Campaign Type" Type="tinyint" />
-		<TextField Name="D2INTERACTIONSTATUS" Description="D2 campaign results" Length="50" Required="true"/>
+		<TextField Name="D2INTERACTIONSTATUS" Description="D2 campaign results" Length="200" Required="true"/>
 		<NumberField Name="INTERACTIONCREATEDCOUNT" Description="Number of delinquent sponsors" Type="int"  />
 		<NumberField Name="NOINTERACTIONCOUNT" Description="D2 sponsors unable to contact" Type="int" />
 		<GuidField Name="D2SESSIONID" Description="D2 Session Id" Required="false"/>
