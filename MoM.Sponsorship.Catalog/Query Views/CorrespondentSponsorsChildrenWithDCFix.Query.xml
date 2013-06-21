@@ -30,6 +30,7 @@ as (
 	  join dbo.CONSTITUENT c on s.CONSTITUENTID = c.ID 
 	  join dbo.SPONSORSHIPOPPORTUNITYCHILD so_child on s.SPONSORSHIPOPPORTUNITYID = so_child.ID     
 	 where s.STATUSCODE = 1
+	   -- The data conversion created 2 sponsorships on the same child.  One for the gifter and one for the giftee
 	   and dbo.UFN_SPONSORSHIPOPPORTUNITY_ACTIVESPONSORSHIPS (so_child.ID) > 1
 /*	   and exists (	   
 					select 1
@@ -44,11 +45,13 @@ as (
 					   and r.RECIPROCALTYPECODEID = 'B382173F-646B-426E-A44A-1D6C597FC6AF'
 					)			    
 */					
+			-- The correspondent (giftee) sponsorship doesn't have a recurring gift in the data conversion issue records
        and exists (
 					select 1 from SPONSORSHIP s2
                      where s2.STATUSCODE = 1
                        and s2.SPONSORSHIPOPPORTUNITYID = so_child.ID 
                        and s2.REVENUESPLITID is null
+					   and s2.CONSTITUENTID <> c.ID
                   )
 )
 
