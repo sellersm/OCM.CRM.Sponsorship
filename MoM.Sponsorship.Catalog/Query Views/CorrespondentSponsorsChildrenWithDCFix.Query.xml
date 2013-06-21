@@ -31,7 +31,7 @@ as (
 	  join dbo.SPONSORSHIPOPPORTUNITYCHILD so_child on s.SPONSORSHIPOPPORTUNITYID = so_child.ID     
 	 where s.STATUSCODE = 1
 	   and dbo.UFN_SPONSORSHIPOPPORTUNITY_ACTIVESPONSORSHIPS (so_child.ID) > 1
-	   and exists (	   
+/*	   and exists (	   
 					select 1
 					  from dbo.RELATIONSHIP r
 					  join dbo.CONSTITUENT on r.RECIPROCALCONSTITUENTID = CONSTITUENT.ID
@@ -43,6 +43,7 @@ as (
 							or r.ENDDATE >= cast (getdate() as date))
 					   and r.RECIPROCALTYPECODEID = 'B382173F-646B-426E-A44A-1D6C597FC6AF'
 					)			    
+*/					
        and exists (
 					select 1 from SPONSORSHIP s2
                      where s2.STATUSCODE = 1
