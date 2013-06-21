@@ -544,6 +544,9 @@
     <EmbeddedResource Include="Replace Batch Number\UpdateBatchNumber.Edit.xml" />
     <EmbeddedResource Include="SQL\User Functions\USR_UFN_GETACTIVE_FINANCIALCOMMITMENTS_BYSPONSOR.xml" />
   </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Query Views\CorrespondentSponsorsChildrenWithDCFix.Query.xml" />
+  </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.VisualBasic.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

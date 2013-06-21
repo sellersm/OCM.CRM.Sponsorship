@@ -1,0 +1,88 @@
+﻿<QueryViewSpec
+	xmlns="bb_appfx_queryview"
+	xmlns:common="bb_appfx_commontypes" 
+	ID="f1348baa-a9d0-49d2-b093-2b449b5bc03a"
+	Name="Correspondent Sponsors Children With Data Conversion Fix Query"
+	Description="This is a temporary fix to CRM query - All Correspondent Child Sponsorships (no financial sponsor gifters) to remove the financial sponsorships."
+	Author="Cary Mayeda"
+	IsRoot="true"
+	PrimaryKeyField="ID"
+	RecordType="SPONSORSHIP"
+	common:SecurityUIFolder="Sponsorship"
+	>
+	
+	<!-- 
+	Remarks: This is a temporary fix to CRM query - All Correspondent Child Sponsorships (no financial sponsor gifters) to remove the financial sponsorships
+
+	History:
+	Date            Modified By     Comments
+	20-Jun-2013		CMayeda			Initial Version
+	-->
+	
+	<!-- define the view used to return data for the query -->
+	<ViewImplementation ViewName="USR_V_QUERY_CORRESPONDENTSPONSORSCHILDRENWITHDCFIX">
+		<ViewSQL>
+			<![CDATA[
+with FinancialSponsorships (SponsorshipID)
+as (
+	select s.ID
+	  from dbo.SPONSORSHIP s 
+	  join dbo.CONSTITUENT c on s.CONSTITUENTID = c.ID 
+	  join dbo.SPONSORSHIPOPPORTUNITYCHILD so_child on s.SPONSORSHIPOPPORTUNITYID = so_child.ID     
+	 where s.STATUSCODE = 1
+	   and dbo.UFN_SPONSORSHIPOPPORTUNITY_ACTIVESPONSORSHIPS (so_child.ID) > 1
+	   and exists (	   
+					select 1
+					  from dbo.RELATIONSHIP r
+					  join dbo.CONSTITUENT on r.RECIPROCALCONSTITUENTID = CONSTITUENT.ID
+					  join dbo.RELATIONSHIPTYPECODE reltypecode on r.RECIPROCALTYPECODEID = reltypecode.ID
+					 where r.RELATIONSHIPCONSTITUENTID = c.ID --'02F8FB8C-2AB6-4C44-B8F4-00384117CB5A'
+					   and (r.STARTDATE is null
+							or r.STARTDATE <= cast (getdate() as date))
+					   and (r.ENDDATE is null
+							or r.ENDDATE >= cast (getdate() as date))
+					   and r.RECIPROCALTYPECODEID = 'B382173F-646B-426E-A44A-1D6C597FC6AF'
+					)			    
+       and exists (
+					select 1 from SPONSORSHIP s2
+                     where s2.STATUSCODE = 1
+                       and s2.SPONSORSHIPOPPORTUNITYID = so_child.ID 
+                       and s2.REVENUESPLITID is null
+                  )
+)
+
+select distinct 
+		[V_QUERY_SPONSORSHIP].ID,
+		[V_QUERY_SPONSORSHIP].[STATUS] as [Status],
+		[V_QUERY_SPONSORSHIP\Sponsor\Constituent].[LOOKUPID] as [Sponsor\Constituent\Lookup ID],
+		[V_QUERY_SPONSORSHIP\Sponsorship Opportunity\Opportunity Location].[LOOKUPID] as [Sponsorship Opportunity\Opportunity Location\Lookup ID],
+		[V_QUERY_SPONSORSHIP\Sponsorship Opportunity].[LOOKUPID] as [Sponsorship Opportunity\Lookup ID],
+		[V_QUERY_SPONSORSHIP\Sponsorship Opportunity\Child].[NAME] as [Sponsorship Opportunity\Child\Name]
+  from	[V_QUERY_SPONSORSHIP] as [V_QUERY_SPONSORSHIP]
+left outer join [V_QUERY_SPONSOR] as [V_QUERY_SPONSORSHIP\Sponsor] on [V_QUERY_SPONSORSHIP].[CONSTITUENTID] = [V_QUERY_SPONSORSHIP\Sponsor].[ID]
+left outer join [V_QUERY_CONSTITUENT] as [V_QUERY_SPONSORSHIP\Sponsor\Constituent] on [V_QUERY_SPONSORSHIP\Sponsor].[ID] = [V_QUERY_SPONSORSHIP\Sponsor\Constituent].[ID]
+inner join [V_QUERY_SPONSORSHIPOPPORTUNITY] as [V_QUERY_SPONSORSHIP\Sponsorship Opportunity] on [V_QUERY_SPONSORSHIP].[SPONSORSHIPOPPORTUNITYID] = [V_QUERY_SPONSORSHIP\Sponsorship Opportunity].[ID]
+left outer join [V_QUERY_SPONSORSHIPLOCATION] as [V_QUERY_SPONSORSHIP\Sponsorship Opportunity\Opportunity Location] on [V_QUERY_SPONSORSHIP\Sponsorship Opportunity].[SPONSORSHIPLOCATIONID] = [V_QUERY_SPONSORSHIP\Sponsorship Opportunity\Opportunity Location].[ID]
+left outer join [V_QUERY_SPONSORSHIPOPPORTUNITYCHILD] as [V_QUERY_SPONSORSHIP\Sponsorship Opportunity\Child] on [V_QUERY_SPONSORSHIP\Sponsorship Opportunity].[ID] = [V_QUERY_SPONSORSHIP\Sponsorship Opportunity\Child].[ID]
+where [V_QUERY_SPONSORSHIP].[STATUS] in (N'Active', N'Active (Transfer pending)', N'Active (Reassigned)')
+ and [V_QUERY_SPONSORSHIP\Sponsorship Opportunity].[TYPE] = N'Child'
+ and not exists (select 1 from FinancialSponsorships where SponsorshipID = [V_QUERY_SPONSORSHIP].ID)
+ 
+			]]>
+		</ViewSQL>
+	</ViewImplementation>
+
+	<!-- describe each field in the view output -->
+	<Output>
+		<OutputFields>
+			<OutputField Caption="System record ID" Category="System Fields" Name="ID" />
+			<OutputField Name="Status" Caption="Status" DataType="String" />
+			<OutputField Name="Sponsor\Constituent\Lookup ID" Caption="Sponsor\Constituent\Lookup ID" DataType="String" />
+			<OutputField Name="Sponsorship Opportunity\Opportunity Location\Lookup ID" Caption="Sponsorship Opportunity\Opportunity Location\Lookup ID" DataType="String" />
+			<OutputField Name="Sponsorship Opportunity\Lookup ID" Caption="Sponsorship Opportunity\Lookup ID" DataType="String" />
+			<OutputField Name="Sponsorship Opportunity\Child\Name" Caption="Sponsorship Opportunity\Child\Name" DataType="String" />
+		</OutputFields>
+	</Output>
+
+</QueryViewSpec>
+
