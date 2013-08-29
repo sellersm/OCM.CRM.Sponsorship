@@ -17,13 +17,14 @@
 	Date            Modified By     Comments
 	22-Oct-2012		CMayeda			Initial Version
 	29-Jan-2013		CMayeda			Added V_QUERY_SPONSORSHIP as a related view - FogBugz case 962
+    29-Aug-2013     CMayeda         Include sponsorships that do not have a sponsorship extension record - V1:D-01040
 	-->
 
 	<!-- define the view used to return data for the query -->
 	<ViewImplementation ViewName="USR_V_QUERY_SPONSORSHIPEXTENSION">
 		<ViewSQL>
 			<![CDATA[
-	select	sp_ext.ID,
+	select	s.ID,
 			sp_ext.INITIALOPPORTUNITYSPONSORSHIPSTATUSCODEID,
 			(select DESCRIPTION from dbo.USR_INITIALOPPORTUNITYSPONSORSHIPSTATUSCODE where ID = sp_ext.INITIALOPPORTUNITYSPONSORSHIPSTATUSCODEID) as INITIALOPPORTUNITYSPONSORSHIPSTATUS,
 			sp_ext.CURRENTOPPORTUNITYSPONSORSHIPSTATUSCODEID,
@@ -38,7 +39,8 @@
 			ADDEDBY.USERNAME as ADDEDBY_USERNAME,
 			CHANGEDBY.APPLICATIONNAME as CHANGEDBY_APPLICATION,
 			CHANGEDBY.USERNAME as CHANGEDBY_USERNAME
-	  from	dbo.USR_SPONSORSHIPEXTENSION sp_ext
+	  from  dbo.SPONSORSHIP s
+ left join  dbo.USR_SPONSORSHIPEXTENSION sp_ext on s.ID = sp_ext.ID
  left join	dbo.CHANGEAGENT ADDEDBY on ADDEDBY.ID = sp_ext.ADDEDBYID
  left join	dbo.CHANGEAGENT CHANGEDBY on CHANGEDBY.ID = sp_ext.CHANGEDBYID
 			]]>
