@@ -100,7 +100,9 @@
 	15-May-2013		CMayeda			Sponsorship.ActiveSponsorshipsWithNTD.DataList.xml
 	20-May-2013		Memphis			Added SponsorshipExtension.DataList.xml
 	04-Jun-2013		Memphis			Fogubgz Case 1007:  Jason was missing this datalist spec  Sponsorship.Reasons.DataList.xml, it was here but was misspelled.
--->
+	18-Sep-2013		CMayeda			Added Sponsorship.ActiveOnlyWithGiftInfo.DataList.xml
+	
+	-->
 
 	<!-- Note:  the order of the items listed here is important.  For example, you won't be able to load a data form that references 
 	a table that hasn't been loaded, etc.  In general, the following order is recommended:
@@ -260,7 +262,8 @@
 		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.Sponsorship.Reasons.DataList.xml" />
 		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.Sponsorship.ActiveSponsorshipsWithNTD.DataList.xml" />
 		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.SponsorshipExtension.DataList.xml" />
-
+		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.Sponsorship.ActiveOnlyWithGiftInfo.DataList.xml" />
+		
 		<!-- Forms -->
 		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.SponsorshipAdd_Wrapped.Add.xml" />
 		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.SponsorshipOpportunityChild_MoMCustom.Search.xml" />
