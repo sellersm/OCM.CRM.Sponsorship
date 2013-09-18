@@ -35,8 +35,14 @@ as
 				sp.ID as SPONSORSHIPID,
 				rev.ID as SPONSORSHIPRECURRINGGIFTID,
 				sp.SPONSORSHIPOPPORTUNITYID,
-				coalesce (slocation.LOOKUPID,'') + '-' + so.LOOKUPID as CHILDLOOKUPID,
-				so_child.NAME as CHILDNAME,
+				case 
+					when so_child.ID is null then so.LOOKUPID
+					else coalesce (slocation.LOOKUPID,'') + '-' + so.LOOKUPID 
+				end as SOLOOKUPID,
+				case 
+					when so_child.ID is null then so_project.NAME
+					else so_child.NAME 
+				end as SONAME,
 				statusCode.DESCRIPTION as SPONSORSHIPSTATUS,
 				rev.Amount as RGAMOUNT,
 				revschedule.FREQUENCY,
@@ -82,6 +88,7 @@ as
 					statusCode.ID = se.CURRENTOPPORTUNITYSPONSORSHIPSTATUSCODEID and statusCode.DESCRIPTION in ('Sponsored', 'Prospect Sponsored', 'Unpaid Sponsored')
 		  join	dbo.SPONSORSHIPOPPORTUNITY so on so.ID = sp.SPONSORSHIPOPPORTUNITYID
 	 left join	dbo.SPONSORSHIPOPPORTUNITYCHILD so_child on so_child.ID = sp.SPONSORSHIPOPPORTUNITYID
+     left join  dbo.SPONSORSHIPOPPORTUNITYPROJECT so_project on so_project.ID = sp.SPONSORSHIPOPPORTUNITYID
 		  join	dbo.SPONSORSHIPLOCATION slocation on so.SPONSORSHIPLOCATIONID = slocation.ID 	
 	      join	dbo.REVENUEPAYMENTMETHOD rev_paymethod on rev_paymethod.REVENUEID = revsplit.REVENUEID
 	
@@ -111,8 +118,8 @@ as
 			<OutputField FieldID="SPONSORSHIPID" Caption="SPONSORSHIPID" DataType="Guid" IsHidden="true" />
 			<OutputField FieldID="SPONSORSHIPRECURRINGGIFTID" Caption="SPONSORSHIPRECURRINGGIFTID" DataType="Guid" IsHidden="true" />
 			<OutputField FieldID="SPONSORSHIPOPPORTUNITYID" Caption="SPONSORSHIPOPPORTUNITYID" DataType="Guid" IsHidden="true" />
-			<OutputField FieldID="CHILDLOOKUPID" Caption="Lookup ID" DataType="String" />
-			<OutputField FieldID="CHILDNAME" Caption="Opportunity" DataType="String" />
+			<OutputField FieldID="SOLOOKUPID" Caption="Lookup ID" DataType="String" />
+			<OutputField FieldID="SONAME" Caption="Opportunity" DataType="String" />
 			<OutputField FieldID="SPONSORSHIPSTATUS" Caption="Current sponsorship status" DataType="String" />
 			<OutputField FieldID="RGAMOUNT" Caption="Amount" DataType="Money" />
 			<OutputField FieldID="FREQUENCY" Caption="Frequency" DataType="String" />
