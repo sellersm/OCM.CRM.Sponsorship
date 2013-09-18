@@ -15,7 +15,8 @@
 	16-May-2013		CMayeda			Initial Version 
 	20-May-2013		CMayeda			Fixed datetimeoffset(3) issue
 									Added Amount, Frequency
-	
+	17-Sep-2013		CMayeda			Made Sponsorship Extension and Child left joins instead of inner joins per V1:B-01412
+
 	Add the following fields later.
 		Gifted sponsorship
 		
@@ -76,11 +77,11 @@ as
 		  join	dbo.REVENUE rev on revsplit.REVENUEID = rev.ID
 		  join	dbo.REVENUESCHEDULE revschedule on revschedule.ID = rev.ID --REVENUE.ID		
 		  join	dbo.CONSTITUENT sponsor on rev.CONSTITUENTID = sponsor.ID
-		  join	dbo.USR_SPONSORSHIPEXTENSION se on se.ID = sp.ID
+     left join	dbo.USR_SPONSORSHIPEXTENSION se on se.ID = sp.ID
 		  join	dbo.USR_CURRENTOPPORTUNITYSPONSORSHIPSTATUSCODE statusCode on 
 					statusCode.ID = se.CURRENTOPPORTUNITYSPONSORSHIPSTATUSCODEID and statusCode.DESCRIPTION in ('Sponsored', 'Prospect Sponsored', 'Unpaid Sponsored')
 		  join	dbo.SPONSORSHIPOPPORTUNITY so on so.ID = sp.SPONSORSHIPOPPORTUNITYID
-		  join	dbo.SPONSORSHIPOPPORTUNITYCHILD so_child on so_child.ID = sp.SPONSORSHIPOPPORTUNITYID
+	 left join	dbo.SPONSORSHIPOPPORTUNITYCHILD so_child on so_child.ID = sp.SPONSORSHIPOPPORTUNITYID
 		  join	dbo.SPONSORSHIPLOCATION slocation on so.SPONSORSHIPLOCATIONID = slocation.ID 	
 	      join	dbo.REVENUEPAYMENTMETHOD rev_paymethod on rev_paymethod.REVENUEID = revsplit.REVENUEID
 	
