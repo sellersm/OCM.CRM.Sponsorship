@@ -14,6 +14,7 @@
 	History:
 	Date            Modified By     Comments
 	01-Oct-2012		CMayeda			Initial Version
+	03-Oct-2013		CMayeda			Added Heavenly Homemakers
 	-->
 
 	<!-- define the SP that returns the data for the datalist -->
@@ -40,10 +41,11 @@ as begin
 	(3, null, 'Concert/Artist', 1, 'Enter the Concert/Artist'),
 	(4, null, 'Facebook', 0, ''),
 	(5, null, 'Friend', 0, ''),
-	(6, null, 'Internet', 0, ''),
-	(7, null, 'Ministry Representative', 1, 'Enter the Representative'),
-	(8, null, 'Radio', 1, 'Enter the Radio Call Letters'),
-	(9, null, 'Other ', 1, 'Enter How You Heard About MoM')
+	(6, null, 'Heavenly Homemakers', 0, ''),	
+	(7, null, 'Internet', 0, ''),
+	(8, null, 'Ministry Representative', 1, 'Enter the Representative'),
+	(9, null, 'Radio', 1, 'Enter the Radio Call Letters'),
+	(10, null, 'Other ', 1, 'Enter How You Heard About OCM')
 
 	insert @sources
 	select 2, ID, 'Children''s Cup', 0, '' from dbo.APPEAL where lower(NAME) = lower ('Ben Rodgers')
