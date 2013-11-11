@@ -23,6 +23,7 @@
 	03-Jun-2013		Memphis			Fogbugz Case 1082. Added check based on number of months past due, similar to the D4 campaign process by Cary.
 									If the number of months past due isn't >=0 and <2 then it won't get an interaction, no matter
 									what the NTD says.
+	10-Nov-2013		Memphis			Fixed bug in D2ChildrenList CTE to filter out Project Sponsorships 
 	-->
 
 
@@ -283,10 +284,12 @@ begin
 			from dbo.SPONSORSHIP
 			join dbo.USR_SPONSORSHIPEXTENSION se on se.ID = dbo.SPONSORSHIP.ID
 			join dbo.USR_CURRENTOPPORTUNITYSPONSORSHIPSTATUSCODE statusCode on statusCode.ID = se.CURRENTOPPORTUNITYSPONSORSHIPSTATUSCODEID and statusCode.DESCRIPTION = 'Sponsored'
-			where (CONSTITUENTID IN (select sponsorId from D2SponsorList)
+			left outer join dbo.SPONSORSHIPOPPORTUNITYCHILD on  dbo.SPONSORSHIPOPPORTUNITYCHILD.ID = SPONSORSHIP.SPONSORSHIPOPPORTUNITYID  -- this will help us identify only children commitments      
+			where (dbo.SPONSORSHIP.CONSTITUENTID IN (select sponsorId from D2SponsorList)
 			and STATUSCODE = 1   -- status of 'Active'
 			and (dbo.UFN_SPONSORSHIP_GIFTFINANCIALSPONSORID(dbo.SPONSORSHIP.ID) is null	
-				 or dbo.UFN_SPONSORSHIP_GIFTFINANCIALSPONSORID(dbo.SPONSORSHIP.ID) = CONSTITUENTID)	-- filter out correspondent kids and sponsorships
+				 or dbo.UFN_SPONSORSHIP_GIFTFINANCIALSPONSORID(dbo.SPONSORSHIP.ID) = dbo.SPONSORSHIP.CONSTITUENTID)	-- filter out correspondent kids and sponsorships
+			and dbo.SPONSORSHIPOPPORTUNITYCHILD.ID is not null  -- filter out project sponsorships         
 			)
 			union
 			-- This is the logic from the USR_UFN_GETACTIVE_FINANCIALCOMMITMENTS_BYSPONSOR, 
