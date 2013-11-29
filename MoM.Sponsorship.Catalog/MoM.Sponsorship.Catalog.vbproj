@@ -343,7 +343,9 @@
     <EmbeddedResource Include="Query Views\RevenueSchedule.Query.xml" />
     <EmbeddedResource Include="Query Views\Sponsorship.ActiveSponsorshipsWithInactiveRG.Query.xml" />
     <EmbeddedResource Include="Page Expressions\Sponsorship.ExpressionDataForm.View.xml" />
-    <EmbeddedResource Include="Query Views\SponsorshipExtension.Query.xml" />
+    <EmbeddedResource Include="Query Views\SponsorshipExtension.Query.xml">
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
     <EmbeddedResource Include="Query Views\SponsorshipNTDChange.Query.xml" />
   </ItemGroup>
   <ItemGroup>
@@ -546,6 +548,9 @@
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Query Views\CorrespondentSponsorsChildrenWithDCFix.Query.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="DataLists\Sponsorship.SmartFields.DataList.xml" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.VisualBasic.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

@@ -1,0 +1,92 @@
+﻿<DataListSpec 
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+  xmlns:xsd="http://www.w3.org/2001/XMLSchema" 
+  xmlns:d1p1="bb_appfx_commontypes" 
+  xmlns="bb_appfx_datalist" 
+  ID="a98bc350-22e5-48e8-aa67-f426b36ac1c2" 
+  Name="Sponsorship Smart Field Data List" 
+  Description="Sponsorship Smart Field Data List." 
+  Author="Trucmai Gupta" 
+  d1p1:SecurityUIFolder="Sponsorship"
+ >
+  <d1p1:InstalledProductList>
+    <d1p1:InstalledProduct ID="3117d2c8-7f46-42f2-abeb-b654f2f63046" />
+  </d1p1:InstalledProductList>
+  <ResourceFile AssemblyName="Blackbaud.AppFx.Sponsorship.Catalog.dll" ClassName="Blackbaud.AppFx.Sponsorship.Catalog.SponsorshipOpportunityProjectSmartFields.DataList" />
+  <CLRDataList AssemblyName="Blackbaud.AppFx.Platform.Catalog" ClassName="Blackbaud.AppFx.Platform.Catalog.SmartFieldDatalist">
+    <d1p1:GrantExecuteList>
+      <d1p1:GrantExecute>
+        dbo.USP_ATTRIBUTECATEGORY_GETINFORMATIONBYTYPE
+      </d1p1:GrantExecute>
+    </d1p1:GrantExecuteList>
+    <d1p1:StaticParameters>
+      <d1p1:ParameterList>
+        <d1p1:Param ID="RECORDTYPE">
+          <d1p1:Value>Sponsorship</d1p1:Value>
+        </d1p1:Param>
+      </d1p1:ParameterList>
+    </d1p1:StaticParameters>
+  </CLRDataList>
+  <Parameters>
+    <d1p1:FormMetaData>
+      <d1p1:FormFields>
+        <d1p1:FormField FieldID="SITEFILTERMODE" DataType="TinyInt" Required="true" Caption="Sites" DefaultValueText="0" CaptionResourceKey="$$sites">
+          <d1p1:ValueList>
+            <d1p1:Items>
+              <d1p1:Item>
+                <d1p1:Value>0</d1p1:Value>
+                <d1p1:Label>All sites</d1p1:Label>
+              </d1p1:Item>
+              <d1p1:Item>
+                <d1p1:Value>1</d1p1:Value>
+                <d1p1:Label>My site</d1p1:Label>
+              </d1p1:Item>
+              <d1p1:Item>
+                <d1p1:Value>2</d1p1:Value>
+                <d1p1:Label>My site's branch</d1p1:Label>
+              </d1p1:Item>
+              <d1p1:Item>
+                <d1p1:Value>3</d1p1:Value>
+                <d1p1:Label>Selected sites</d1p1:Label>
+              </d1p1:Item>
+            </d1p1:Items>
+          </d1p1:ValueList>
+          <d1p1:InstalledProductList>
+            <d1p1:InstalledProduct ID="133f9bca-00f1-4007-9792-586b931340c6" />
+          </d1p1:InstalledProductList>
+        </d1p1:FormField>
+        <d1p1:FormField FieldID="SITESSELECTED" DataType="XML" Hidden="true">
+          <d1p1:Collection>
+            <d1p1:Fields>
+              <d1p1:FormField FieldID="SITEID" DataType="Guid" Caption="Site ID" CaptionResourceKey="$$site_id" />
+            </d1p1:Fields>
+          </d1p1:Collection>
+        </d1p1:FormField>
+      </d1p1:FormFields>
+      <d1p1:FormUIComponent FormUIComponentType="CustomComponent">
+        <d1p1:CustomComponentID AssemblyName="Blackbaud.AppFx.Platform.ClientComponents.dll" ClassName="Blackbaud.AppFx.Platform.ClientComponents.DatalistSiteFilter" />
+      </d1p1:FormUIComponent>
+      <d1p1:WebUIComponent>
+        <d1p1:UIModel AssemblyName="Blackbaud.AppFx.Platform.UIModel.dll" ClassName="Blackbaud.AppFx.Platform.UIModel.Site.DataListSiteFilterUIModel" />
+        <d1p1:WebUI>
+          <d1p1:ExternalResource Url="browser/htmlforms/platform/site/DataListSiteFilter.html" />
+        </d1p1:WebUI>
+      </d1p1:WebUIComponent>
+    </d1p1:FormMetaData>
+  </Parameters>
+  <Output>
+    <OutputFields>
+      <OutputField FieldID="ID" Caption="ID" IsHidden="true" DataType="Guid" CaptionResourceKey="$$id" />
+      <OutputField FieldID="SMARTFIELDID" Caption="SMARTFIELDID" IsHidden="true" DataType="Guid" CaptionResourceKey="$$smartfieldid" />
+      <OutputField FieldID="NAME" Caption="Name" DataType="String" CaptionResourceKey="$$name" />
+      <OutputField FieldID="VALUE" Caption="Value" DataType="String" CaptionResourceKey="$$value" />
+      <OutputField FieldID="VALUEGROUP" Caption="Value group" DataType="String" CaptionResourceKey="$$value_group" />
+      <OutputField FieldID="SMARTFIELDKEY" Caption="SMARTFIELDKEY" IsHidden="true" DataType="String" CaptionResourceKey="$$smartfieldkey" />
+      <OutputField FieldID="SITES" Caption="Sites" DataType="String" CaptionResourceKey="$$sites">
+        <d1p1:InstalledProductList>
+          <d1p1:InstalledProduct ID="133f9bca-00f1-4007-9792-586b931340c6" />
+        </d1p1:InstalledProductList>
+      </OutputField>
+    </OutputFields>
+  </Output>
+</DataListSpec>

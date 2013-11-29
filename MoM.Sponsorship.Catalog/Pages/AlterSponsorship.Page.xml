@@ -187,7 +187,21 @@
 							</Sections>
 						</Tab>
 					</AddTab>
-				</AlterTabs>
+          <AddTab Sequence="100">
+            <Tab Caption="Smart Fields" ID="8fe27bcc-53b5-4539-b81f-2da8ef715297" Visible="=Globals.CurrentAppUserIsSysAdmin()" CaptionResourceKey="$$smart_fields">
+              <Sections>
+                <Section ID="0cd62635-cbb2-4439-a97f-325e0b4226e0" Caption="Smart Fields" CaptionResourceKey="$$smart_fields">
+                  <DataList ID="a98bc350-22e5-48e8-aa67-f426b36ac1c2">
+                    <RenderStyle>
+                      <StandardView />
+                    </RenderStyle>
+                  </DataList>
+                </Section>
+              </Sections>
+            </Tab>
+          </AddTab>
+
+        </AlterTabs>
 			</AlterPage>
 		</AlterPages>
 	</AlterExistingPages>
