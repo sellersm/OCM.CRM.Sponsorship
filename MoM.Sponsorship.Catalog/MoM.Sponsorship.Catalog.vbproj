@@ -552,6 +552,9 @@
   <ItemGroup>
     <EmbeddedResource Include="DataLists\Sponsorship.SmartFields.DataList.xml" />
   </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Smart Fields\Child.CountOfSponsorshipsPerChild.SmartField.xml" />
+  </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.VisualBasic.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

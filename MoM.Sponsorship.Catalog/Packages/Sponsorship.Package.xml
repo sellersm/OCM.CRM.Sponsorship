@@ -101,7 +101,7 @@
 	20-May-2013		Memphis			Added SponsorshipExtension.DataList.xml
 	04-Jun-2013		Memphis			Fogubgz Case 1007:  Jason was missing this datalist spec  Sponsorship.Reasons.DataList.xml, it was here but was misspelled.
 	18-Sep-2013		CMayeda			Added Sponsorship.ActiveOnlyWithGiftInfo.DataList.xml
-	
+	95-Dec-2013   TGupta      Added Child.CountOfSponsorshipsPerChild.SmartField.xml
 	-->
 
 	<!-- Note:  the order of the items listed here is important.  For example, you won't be able to load a data form that references 
@@ -236,8 +236,9 @@
 
 		<!-- Smart Fields -->
 		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.NextTransactionDateDelinquency.SmartField.xml" />
+    <common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.Child.CountOfSponsorshipsPerChild.SmartField.xml" />
 
-		<!-- Record Operations-->
+    <!-- Record Operations-->
 		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.DeleteChildSelectedForSponsorshipLock.RecordOperation.xml" />
 		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.LockSelectedChild.RecordOperation.xml" />
 		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.SponsorshipLocationExtension.ReportRecipient.Delete.RecordOperation.xml" />
