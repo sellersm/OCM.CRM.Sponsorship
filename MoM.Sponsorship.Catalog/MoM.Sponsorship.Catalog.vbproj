@@ -555,6 +555,12 @@
   <ItemGroup>
     <EmbeddedResource Include="Smart Fields\Child.CountOfSponsorshipsPerChild.SmartField.xml" />
   </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="D2 Business Process\D2PreCampaignQA.Query.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="D2 Business Process\USR_UFN_GET_D2_PRECAMPAIGN_QA_RESULTS.xml" />
+  </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.VisualBasic.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
