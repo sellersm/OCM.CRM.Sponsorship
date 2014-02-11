@@ -24,6 +24,7 @@
 									If the number of months past due isn't >=0 and <2 then it won't get an interaction, no matter
 									what the NTD says.
 	10-Nov-2013		Memphis			Fixed bug in D2ChildrenList CTE to filter out Project Sponsorships 
+	11-Feb-2014		Memphis			Removed the CTE and replaced with temp tables to help improve performance.
 	-->
 
 
@@ -237,9 +238,16 @@ begin
 			 Do NOT have the constituency code of “Affiliate Office”?
 		*/
 		-- first get the sponsors that meet 1.1 - 1.3
-		;with D2SponsorList (sponsorId)
-		as
-		(
+		
+		declare @D2SponsorList table (
+    	   [sponsorId] uniqueidentifier
+    		)
+		
+		
+		--;with D2SponsorList (sponsorId)
+		--as
+		--(
+		insert into @D2SponsorList
 			select distinct dbo.SPONSORSHIP.CONSTITUENTID
 			from dbo.SPONSORSHIP
 			where (not exists (select 1 from dbo.INTERACTION
@@ -256,7 +264,7 @@ begin
 			and not exists (select 1 from dbo.CONSTITUENTSOLICITCODE where (dbo.CONSTITUENTSOLICITCODE.CONSTITUENTID = dbo.SPONSORSHIP.CONSTITUENTID
 				  and dbo.CONSTITUENTSOLICITCODE.SOLICITCODEID = @doNotContactSolicitCodeId and (dbo.CONSTITUENTSOLICITCODE.ENDDATE is null or dbo.CONSTITUENTSOLICITCODE.ENDDATE > GETDATE())))
 			)      
-		)
+		--)
 		/*
 			1.4
 			 Has child sponsorship one of “Active”, “Active (transfer pending)” or “Active (reassign)”
@@ -271,9 +279,21 @@ begin
 
 
 		-- then get the children for each sponsor that meet 1.4-1.6
-		, D2ChildrenList (childId, revenueSplitId, sponsorId, sponsorshipId, payMethod, sponsorshipRevenueId, isHeld)
-		as
-		(
+		
+declare @D2ChildrenList table (
+    	   [childId] uniqueidentifier,
+           revenueSplitId uniqueidentifier,
+           sponsorId uniqueidentifier,
+           sponsorshipId uniqueidentifier,
+           payMethod int,
+           sponsorshipRevenueId uniqueidentifier,
+           isHeld bit
+    	)
+    			
+		--, D2ChildrenList (childId, revenueSplitId, sponsorId, sponsorshipId, payMethod, sponsorshipRevenueId, isHeld)
+		--as
+		--(
+		insert into @D2ChildrenList
 			select dbo.SPONSORSHIP.SPONSORSHIPOPPORTUNITYID,
 				   dbo.SPONSORSHIP.REVENUESPLITID,
 				   dbo.SPONSORSHIP.CONSTITUENTID,
@@ -285,7 +305,7 @@ begin
 			join dbo.USR_SPONSORSHIPEXTENSION se on se.ID = dbo.SPONSORSHIP.ID
 			join dbo.USR_CURRENTOPPORTUNITYSPONSORSHIPSTATUSCODE statusCode on statusCode.ID = se.CURRENTOPPORTUNITYSPONSORSHIPSTATUSCODEID and statusCode.DESCRIPTION = 'Sponsored'
 			left outer join dbo.SPONSORSHIPOPPORTUNITYCHILD on  dbo.SPONSORSHIPOPPORTUNITYCHILD.ID = SPONSORSHIP.SPONSORSHIPOPPORTUNITYID  -- this will help us identify only children commitments      
-			where (dbo.SPONSORSHIP.CONSTITUENTID IN (select sponsorId from D2SponsorList)
+			where (dbo.SPONSORSHIP.CONSTITUENTID IN (select sponsorId from @D2SponsorList)
 			and STATUSCODE = 1   -- status of 'Active'
 			and (dbo.UFN_SPONSORSHIP_GIFTFINANCIALSPONSORID(dbo.SPONSORSHIP.ID) is null	
 				 or dbo.UFN_SPONSORSHIP_GIFTFINANCIALSPONSORID(dbo.SPONSORSHIP.ID) = dbo.SPONSORSHIP.CONSTITUENTID)	-- filter out correspondent kids and sponsorships
@@ -310,11 +330,11 @@ begin
 			join dbo.USR_SPONSORSHIPEXTENSION se on se.ID = ACTIVESPONSORSHIP.ID
 			join dbo.USR_CURRENTOPPORTUNITYSPONSORSHIPSTATUSCODE statusCode on statusCode.ID = se.CURRENTOPPORTUNITYSPONSORSHIPSTATUSCODEID and statusCode.DESCRIPTION = 'Sponsored'
 			left outer join dbo.SPONSORSHIPOPPORTUNITYCHILD on  dbo.SPONSORSHIPOPPORTUNITYCHILD.ID = ACTIVESPONSORSHIP.SPONSORSHIPOPPORTUNITYID  -- this will help us identify only children commitments
-			where (GIFTSTART.GIFTFINANCIALSPONSORID IN (select sponsorId from D2SponsorList)
+			where (GIFTSTART.GIFTFINANCIALSPONSORID IN (select sponsorId from @D2SponsorList)
 			and ACTIVESPONSORSHIP.STATUSCODE = 1   -- status of 'Active'
 			and (@SHOWHISTORY = 1 or GIFTEND.ID is null)
 			and dbo.SPONSORSHIPOPPORTUNITYCHILD.ID is not null)  -- filter out project sponsorships
-		)
+		--)
 		-- ************   I THINK this is where we filter out the records based on the campaign type passed in! *********************
 		insert into @d2ResultsTable
 		select childId
@@ -333,7 +353,7 @@ begin
                 	when REVENUESCHEDULE.FREQUENCYCODE = 9 then dbo.UFN_RECURRINGGIFT_GETPASTDUEAMOUNT(rev.ID, null) / ((rev.TRANSACTIONAMOUNT * 52)/12) -- Weekly
                 	else -1        
                 end NumberOfMonthsPastDue
-		from D2ChildrenList
+		from @D2ChildrenList
         join	dbo.REVENUESPLIT revsplit on revenueSplitId = revsplit.ID
         join	dbo.REVENUE rev on revsplit.REVENUEID = rev.ID
         join	dbo.REVENUESCHEDULE on REVENUESCHEDULE.ID = rev.ID --REVENUE.ID		
