@@ -300,8 +300,48 @@
 								</Section>
 							</Sections>
 						</Tab>
-
+            
 					</AddTab>
+          <AddTab Sequence="99">
+            <Tab Caption="Rate Increase" ID="6372ef1f-90e0-4221-bdc5-43386152c709">
+              <Sections>
+                <Section ID="89f6b59b-b894-4ff8-8a8a-beeb9ec838ba" Caption="Rate Change Appeal 2014">
+                  <DataForm ID="37aaae9a-1bde-4cb0-9de8-fbd982faa81d" IsScrollable="true" />
+                </Section>
+                <Section ID="b47b027c-7d22-4324-85c7-43f26731c340" Caption="Rate Increase Responses">
+                  <DataList ID="c32a5449-87d1-470a-bcad-b5946021ba72">
+                    <RenderStyle>
+                      <StandardView>
+                        <DetailViewForm ViewDataFormID="=Fields!ViewFormID" />
+                      </StandardView>
+                    </RenderStyle>
+                  </DataList>
+                  <Actions>
+                    <Action ID="224a822c-6b6d-4aa4-89d0-bf1a73c9a988" Caption="Add Appeal Response" ImageKey="RES:newItem">
+                      <ShowAddDataForm DataFormID="8c264407-0155-4147-b528-b2b4110d7f7f" xmlns="bb_appfx_commontypes">
+                        <ActionContext>
+                          <SectionField>SPONSORID</SectionField>
+                        </ActionContext>
+                        <PostActionEvent>
+                          <RefreshSection />
+                        </PostActionEvent>
+                      </ShowAddDataForm>
+                    </Action>
+                    <Action ID="3886c46f-6f5f-4894-8bb7-689d2620024a" Caption="Edit" ImageKey="RES:edit" DefaultAction="True">
+                      <ShowDataForm DataFormID="0144c06d-d442-4640-bf0c-b0eca083cf74" xmlns="bb_appfx_commontypes">
+                        <ActionContext>
+                          <SectionField>ID</SectionField>
+                        </ActionContext>
+                        <PostActionEvent>
+                          <RefreshSection />
+                        </PostActionEvent>
+                      </ShowDataForm>
+                    </Action>
+                  </Actions>
+                </Section>
+              </Sections>
+            </Tab>
+          </AddTab>
 				</AlterTabs>
 
 				<AlterOrAddPageActionGroups>
