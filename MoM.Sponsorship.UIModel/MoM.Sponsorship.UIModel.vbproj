@@ -155,6 +155,10 @@
       <DependentUpon>ProspectSponsorshipAddDataFormUIModel.vb</DependentUpon>
     </Compile>
     <Compile Include="ProspectSponsorshipAddDataFormUIModel.vb" />
+    <Compile Include="RateIncreaseResponsesEditDataFormUIModel.CodeGen.vb">
+      <DependentUpon>RateIncreaseResponsesEditDataFormUIModel.vb</DependentUpon>
+    </Compile>
+    <Compile Include="RateIncreaseResponsesEditDataFormUIModel.vb" />
     <Compile Include="Recurring Gift Extension\RecurringGiftExtensionEditDataFormUIModel.CodeGen.vb">
       <DependentUpon>RecurringGiftExtensionEditDataFormUIModel.vb</DependentUpon>
     </Compile>
@@ -203,7 +207,14 @@
     <None Include="..\MoM.Sponsorship.Catalog\View Forms\ViewSponsorshipDetails.View.xml">
       <Link>LinkedSpecs\ViewSponsorshipDetails.View.xml</Link>
     </None>
+    <None Include="..\MoM.Sponsorship.Catalog\Edit Forms\RateIncreaseResponses.Edit.xml">
+      <Link>LinkedSpecs\RateIncreaseResponses.Edit.xml</Link>
+    </None>
+    <Content Include="htmlforms\RateIncreaseResponsesEditDataForm.html" />
     <Content Include="htmlforms\ViewSponsorshipDetailsViewForm.html" />
+    <Content Include="RateIncreaseResponsesEditDataFormUIModel.xml">
+      <DependentUpon>RateIncreaseResponsesEditDataFormUIModel.vb</DependentUpon>
+    </Content>
     <Content Include="ViewSponsorshipDetailsViewFormUIModel.xml">
       <DependentUpon>ViewSponsorshipDetailsViewFormUIModel.vb</DependentUpon>
     </Content>

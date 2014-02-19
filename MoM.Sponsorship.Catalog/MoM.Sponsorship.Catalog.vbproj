@@ -561,6 +561,18 @@
   <ItemGroup>
     <EmbeddedResource Include="D2 Business Process\USR_UFN_GET_D2_PRECAMPAIGN_QA_RESULTS.xml" />
   </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="View Forms\ViewRateChangeAppeal.View.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="DataLists\RateIncreaseResponses.DataList.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Edit Forms\RateIncreaseResponses.Edit.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Add Forms\RateIncreaseResponses.Add.xml" />
+  </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.VisualBasic.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
