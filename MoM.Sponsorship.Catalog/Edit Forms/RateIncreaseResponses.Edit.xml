@@ -13,10 +13,10 @@
   <SPDataForm>
 
     <!-- define the edit load SP, which is used to load the data for the form -->
-    <LoadImplementation SPName="USP_DATAFORMTEMPLATE_EDITLOAD_RATEINCREASERESPONSES">
+    <LoadImplementation SPName="USR_USP_DATAFORMTEMPLATE_EDITLOAD_RATEINCREASERESPONSES">
       <common:CreateProcedureSQL>
         <![CDATA[
-create procedure dbo.USP_DATAFORMTEMPLATE_EDITLOAD_RATEINCREASERESPONSES(
+create procedure dbo.USR_USP_DATAFORMTEMPLATE_EDITLOAD_RATEINCREASERESPONSES(
     @ID uniqueidentifier,
     @DATALOADED bit = 0 output,
     @TSLONG bigint = 0 output,
@@ -35,19 +35,7 @@ create procedure dbo.USP_DATAFORMTEMPLATE_EDITLOAD_RATEINCREASERESPONSES(
 as
 
 	set nocount on;
-
   
-  -- Update the RESPONDAFTERRATECHANGEUPDATED if todayDate() > dbo.USR_RATECHANGEIMPLEMENTEDDATE.RateChangeImplementationDate
-  
-  select @RATECHANGEIMPLEMENTATIONDATE = RateChangeImplementationDate from dbo.USR_RATECHANGEIMPLEMENTEDDATE where changeyear = 2014
-  if @RATECHANGEIMPLEMENTATIONDATE IS NOT NULL
-  begin
-    if getDate() > @RATECHANGEIMPLEMENTATIONDATE
-    begin
-      update dbo.USR_SPONSOR_RATECHANGE_SPONSORSHIPS
-      set dbo.USR_SPONSOR_RATECHANGE_SPONSORSHIPS.RESPONDAFTERRATECHANGEUPDATED = 1
-    end
-  end 
 	-- be sure to set these, in case the select returns no rows
 	set @DATALOADED = 0
 	set @TSLONG = 0
@@ -76,15 +64,30 @@ as
 	from dbo.USR_SPONSOR_RATECHANGE_SPONSORSHIPS		
 	where ID = @ID
 
+
+   -- Update the RESPONDAFTERRATECHANGEUPDATED if todayDate() > dbo.USR_RATECHANGEIMPLEMENTEDDATE.RateChangeImplementationDate
+  
+  select @RATECHANGEIMPLEMENTATIONDATE = RateChangeImplementationDate from dbo.USR_RATECHANGEIMPLEMENTEDDATE where changeyear = 2014
+  if @RATECHANGEIMPLEMENTATIONDATE IS NOT NULL
+  begin
+    if getDate() > @RATECHANGEIMPLEMENTATIONDATE
+    begin
+      --update dbo.USR_SPONSOR_RATECHANGE_SPONSORSHIPS
+      --set dbo.USR_SPONSOR_RATECHANGE_SPONSORSHIPS.RESPONDAFTERRATECHANGEUPDATED = 1
+      set @RESPONDAFTERRATECHANGEUPDATED = 1
+    end
+  end 
+  
+  
 	return 0;
 				]]>
       </common:CreateProcedureSQL>
     </LoadImplementation>
 
-    <SaveImplementation SPName="USP_DATAFORMTEMPLATE_EDIT_RATEINCREASERESPONSE">
+    <SaveImplementation SPName="USR_USP_DATAFORMTEMPLATE_EDIT_RATEINCREASERESPONSE">
       <common:CreateProcedureSQL>
         <![CDATA[
-create procedure dbo.USP_DATAFORMTEMPLATE_EDIT_RATEINCREASERESPONSE (
+create procedure dbo.USR_USP_DATAFORMTEMPLATE_EDIT_RATEINCREASERESPONSE (
 	@ID uniqueidentifier,
 	@CHANGEAGENTID uniqueidentifier = null,
 	@CHANGEYEAR SMALLINT,
@@ -128,6 +131,7 @@ as
       NOAPPEALRESPONSECODEID = @NOAPPEALRESPONSECODEID --(select NOAPPEALRESPONSECODEID from dbo.USR_NO_RATEINCREASEAPPEAL_RESPONSECODE 
                                                     --where Description = @NOAPPEALRESPONSECODE)
 		where ID = @ID
+     
 	end try
 	begin catch
 		exec dbo.USP_RAISE_ERROR
