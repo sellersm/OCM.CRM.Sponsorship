@@ -565,10 +565,14 @@
     <EmbeddedResource Include="View Forms\ViewRateChangeAppeal.View.xml" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="DataLists\RateIncreaseResponses.DataList.xml" />
+    <EmbeddedResource Include="DataLists\RateIncreaseResponses.DataList.xml">
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Edit Forms\RateIncreaseResponses.Edit.xml" />
+    <EmbeddedResource Include="Edit Forms\RateIncreaseResponses.Edit.xml">
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Add Forms\RateIncreaseResponses.Add.xml" />
