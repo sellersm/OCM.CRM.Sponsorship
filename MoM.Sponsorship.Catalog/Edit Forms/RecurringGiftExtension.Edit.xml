@@ -18,6 +18,8 @@
 	Date            Modified By     Comments
 	12-Oct-2012		Memphis			Initial Version
 	15-Oct-2012		Memphis			FogBugz Case 915: make sure the payment schedule type matches with the recurring gift's payment method code (Debit or Credit).
+	02-Apr-2013		CMayeda			Defect D-01110: Removed the updating of the amount and frequency on the recurring gift 
+									until we fix this to re-generate the installments and address the installment with a balance issue
 	-->
 	
 	
@@ -184,7 +186,9 @@ as
 			CHANGEDBYID = @CHANGEAGENTID,
 			DATECHANGED = @CURRENTDATE
 		where ID = @ID
-	
+
+/*
+Removed the updating of the amount and frequency on the recurring gift until we fix this to re-generate the installments and address the installment with a balance issue
 	-- update Amount
 	update dbo.FINANCIALTRANSACTION 
 		set TRANSACTIONAMOUNT = @AMOUNT
@@ -194,7 +198,8 @@ as
 	update dbo.REVENUESCHEDULE
 		set FREQUENCYCODE = @FREQUENCYCODE
 		where ID = @ID;
-	
+
+*/
 	
 	
 	end try
