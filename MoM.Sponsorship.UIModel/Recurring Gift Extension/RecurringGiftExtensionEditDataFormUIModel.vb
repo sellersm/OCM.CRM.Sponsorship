@@ -108,7 +108,7 @@ Public Class RecurringGiftExtensionEditDataFormUIModel
 
 	End Sub
 
-	' Set Frequcney and Starting On Date based on Credit Card schedule selected
+	' Set Frequency and Starting On Date based on Credit Card schedule selected
 	Private Sub CreditCardScheduleCodeID_ValueChanged(ByVal sender As Object, ByVal e As Blackbaud.AppFx.UIModeling.Core.ValueChangedEventArgs)
 		Select Case Me.CREDITCARDSCHEDULECODEID.Value.ToString()
 			Case creditCardScheduleMontly1stWeek
