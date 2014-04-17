@@ -9,7 +9,7 @@ Public Class RecurringGiftExtensionEditDataFormUIModel
 	Private Const errorTextCouldNotFindDirectDebitSchedule As String = "Could not find direct debit schedule code table value for - "
 
 	Private Const defaultStartingOnDayOfMonth As Integer = 1				'The day of the month to default the Starting On date to
-	Private Const defaultMonthlyChildSponsorshipAmount As Integer = 34		'This should be pulled from the program, but for now just setting to $34
+	Private Const defaultMonthlyChildSponsorshipAmount As Integer = 39		'This should be pulled from the program, but for now just setting to $39
 
 	Private Const frequencyAnnually As Integer = 0
 	Private Const frequencySemiAnnually As Integer = 1
