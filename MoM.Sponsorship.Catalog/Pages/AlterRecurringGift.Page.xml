@@ -48,8 +48,21 @@
 								</AlterActions>
 							</AlterDataFormSection>
 						</AlterSections>
-					</AlterTab>					
-				</AlterTabs>
+					</AlterTab>
+					<AddTab>
+						<Tab Caption="Declined EFT" ID="1b0a38f4-1362-4028-8733-30a6f19453d7">
+							<Sections>
+								<Section ID="f05fb05b-37d8-40a7-b7e8-d4335fd204c5" Caption="Declined EFT">
+									<DataList ID="dfe9ad1e-d4ca-4a4d-b536-91919bd44219">
+										<RenderStyle>
+											<StandardView />
+										</RenderStyle>
+									</DataList>
+								</Section>
+							</Sections>
+						</Tab>
+					</AddTab>
+				</AlterTabs>				
 				<AlterOrAddPageActionGroups>
 					<AlterOrAddPageActionGroup Caption="Tasks" CaptionResourceKey="$$tasks" ID="6edc3707-736f-441f-8871-5fa6467e1d9b" >
 						<AddAction>

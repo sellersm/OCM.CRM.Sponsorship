@@ -1,0 +1,42 @@
+﻿<QueryViewSpec
+	xmlns="bb_appfx_queryview"
+	xmlns:common="bb_appfx_commontypes" 
+	ID="27093229-12f1-4367-874a-ca784d1e60f5"
+	Name="EFT Decline Process Exception Log Query"
+	Description="Query the exceptions to the EFT Decline biz process"
+	Author="Memphis Sellers"
+	IsRoot="true"
+	PrimaryKeyField="ID"
+	RecordType="EFTBatch"
+	common:SecurityUIFolder="EFTBatch"	
+	>
+
+	<!-- define the view used to return data for the query -->
+	<ViewImplementation ViewName="USR_V_QUERY_EFTDECLINE_PROCESS_EXCEPTIONS">
+		<ViewSQL>
+			<![CDATA[
+SELECT	ID
+		,BATCHDATE
+		,SPONSORLOOKUPID
+		,case when BATCHTYPE=0 then 'Direct Debit' else 'Credit Card' end as BATCHTYPEDESCRIPTION
+		,INTERACTIONSTATUS
+		,BATCHNUMBER
+FROM dbo.USR_EFTDECLINEBATCH_BUSINESSPROCESS_RESULTS
+			]]>
+		</ViewSQL>
+	</ViewImplementation>
+
+	<!-- describe each field in the view output -->
+	<Output>
+		<OutputFields>
+			<OutputField Caption="System record ID" Category="System Fields" Name="ID" />
+			<OutputField Name="BATCHDATE" Caption="Batch Date" DataType="Date" />
+			<OutputField Name="SPONSORLOOKUPID" Caption="Sponsor Id" DataType="String" />
+			<OutputField Name="BATCHTYPEDESCRIPTION" Caption="Batch Type" DataType="String" />
+			<OutputField Name="INTERACTIONSTATUS" Caption="Exception" DataType="String" />
+			<OutputField Name="BATCHNUMBER" Caption="Batch Number" DataType="String" />			
+		</OutputFields>
+	</Output>
+
+</QueryViewSpec>
+

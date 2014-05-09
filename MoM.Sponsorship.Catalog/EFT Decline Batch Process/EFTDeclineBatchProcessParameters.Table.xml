@@ -1,0 +1,49 @@
+﻿<TableSpec 
+	xmlns="bb_appfx_table"
+	xmlns:common="bb_appfx_commontypes" 
+	ID="cc5b109f-70fc-45e7-a814-448abf9ce457"
+	Name="EFT Decline Batch Process Parameters"
+	Description="Holds EFT Decline Batch biz process parameters."
+	Author="Memphis Sellers"
+	Tablename="USR_EFTDECLINEBATCH_BUSINESSPROCESS"		   
+	>
+
+	<!-- define fields on the table -->
+	<Fields>
+		<TextField Name="NAME" Length="100" Required="true" IsUnique="true" Description="The name of the parameter set"/>
+		<TextField Name="DESCRIPTION" Length="255" Description="Details describing this parameter set"/>
+		<TextField Name="BATCHNUMBER" Length="150" Description="The batch number of the exception batch"/>
+		<NumberField Name="BATCHTYPE" Description="Batch type" Type="int" />
+	</Fields>
+
+	<!-- define any additional check constraints on the table -->
+	<!--<CheckConstraints>
+
+	</CheckConstraints>-->
+
+	<!-- define any indexes on the table -->
+	<!--<Indexes>
+
+	</Indexes>-->
+		
+	<!-- define any triggers on the table -->
+	<Triggers>
+		<Trigger Name="TR_USR_EFTDECLINEBATCH_BUSINESSPROCESS_DELETE_BUSINESSPROCESSINSTANCE"
+             Enabled="true"
+             Description="Used to delete the common business process records associated with this record.">
+			<CreateTriggerSQL>
+				<![CDATA[
+			create trigger TR_USR_EFTDECLINEBATCH_BUSINESSPROCESS_DELETE_BUSINESSPROCESSINSTANCE 
+					on dbo.USR_EFTDECLINEBATCH_BUSINESSPROCESS 
+					after delete not for replication
+			as begin
+				delete from dbo.BUSINESSPROCESSINSTANCE
+				where BUSINESSPROCESSPARAMETERSETID in (select ID from deleted) 
+ 				and BUSINESSPROCESSCATALOGID = '3cb4a9f8-ede0-4497-acff-c351057f8a87'; -- guid is the ID from business process spec - see EFTDeclineBatch.BusinessProcess.xml
+			end 
+				]]>
+			</CreateTriggerSQL>
+		</Trigger>
+	</Triggers>
+
+</TableSpec>
