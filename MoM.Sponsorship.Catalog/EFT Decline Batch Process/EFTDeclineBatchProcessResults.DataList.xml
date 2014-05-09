@@ -1,0 +1,57 @@
+﻿<DataListSpec 
+	xmlns="bb_appfx_datalist"
+	xmlns:common="bb_appfx_commontypes" 
+	ID="c7617394-ddda-4c64-9c8b-09f778e8668d" 
+	Name="EFT Decline Batch Process Results Data List"
+	Description="Displays results of EFT Decline Batch Biz Process." 
+	Author="Memphis Sellers"
+	common:SecurityUIFolder="EFTBtach">
+
+	<!-- define the SP that returns the data for the datalist -->
+	<SPDataList SPName="USR_USP_DATALIST_EFTDECLINEBATCH_PROCESS_RESULTS">
+		<common:CreateProcedureSQL>
+			<![CDATA[
+create procedure dbo.USR_USP_DATALIST_EFTDECLINEBATCH_PROCESS_RESULTS
+as
+	set nocount on;
+
+	SELECT  ID, 
+			SPONSORLOOKUPID, 
+			BATCHDATE, 
+			case when BATCHTYPE=0 then 'Direct Debit' else 'Credit Card' end as BATCHTYPETEXT, 
+			BATCHNUMBER,
+			INTERACTIONSTATUS, 
+			INTERACTIONCREATEDCOUNT, 
+			NOINTERACTIONCOUNT
+	FROM dbo.USR_EFTDECLINEBATCH_BUSINESSPROCESS_RESULTS;
+			]]>
+		</common:CreateProcedureSQL>
+	</SPDataList>
+
+	<!-- describe the context ID parameter for the SP (if applicable)-->
+	<!--<Context ContextRecordType="REPLACE_WITH_RECORDTYPE" RecordIDParameter="CONTEXTID"/>-->
+
+	<!-- describe any parameters (other than the context ID) defined on the SP
+	<Parameters>
+		<common:FormMetaData>
+			<common:FormFields>
+				<common:FormField FieldID="PARAMETER1" Caption="Paramter1" DataType="REPLACE_WITH_DATATYPE"/>
+			</common:FormFields>
+		</common:FormMetaData>
+	</Parameters>-->
+
+	<!-- define the output fields in the list -->
+	<Output>
+		<OutputFields>
+			<OutputField FieldID="ID" Caption="ID" DataType="Guid" IsHidden="true" />
+			<OutputField FieldID="BATCHNUMBER" Caption="Batch number" DataType="String" />
+			<OutputField FieldID="BATCHTYPETEXT" Caption="Batch type" DataType="String" />
+			<OutputField FieldID="BATCHDATE" Caption="Batch date" DataType="Date" />
+			<OutputField FieldID="SPONSORLOOKUPID" Caption="Sponsor Id" DataType="String" />
+			<OutputField FieldID="INTERACTIONSTATUS" Caption="Status" DataType="String" />
+			<OutputField FieldID="INTERACTIONCREATEDCOUNT" Caption="Interactions created" DataType="Integer" />
+			<OutputField FieldID="NOINTERACTIONCOUNT" Caption="Interactions not created" DataType="Integer" />			
+		</OutputFields>
+	</Output>
+
+</DataListSpec>

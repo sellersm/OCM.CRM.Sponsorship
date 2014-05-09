@@ -1,0 +1,27 @@
+﻿<SQLStoredProcedureSpec
+	xmlns="bb_appfx_sqlstoredprocedure"
+	xmlns:common="bb_appfx_commontypes" 
+	ID="2da13502-7813-4695-8210-524cda01eb0e"
+	Name="USR_USP_EFTDECLINEBATCH_PROCESS_GETPARAMETERS"
+	Description="Gets the parameters for the EFT Decline Batch Biz Process"
+	Author="Memphis Sellers"
+	SPName="USR_USP_EFTDECLINEBATCH_PROCESS_GETPARAMETERS"
+	GrantServiceRolePermission="true"
+	>
+
+	<CreateProcedureSQL>
+		<![CDATA[
+create procedure dbo.USR_USP_EFTDECLINEBATCH_PROCESS_GETPARAMETERS(
+	@ID uniqueidentifier
+)
+as
+begin
+	select BATCHNUMBER
+	from dbo.USR_EFTDECLINEBATCH_BUSINESSPROCESS
+	where ID = @ID;
+end
+
+		]]>
+	</CreateProcedureSQL>
+
+</SQLStoredProcedureSpec>

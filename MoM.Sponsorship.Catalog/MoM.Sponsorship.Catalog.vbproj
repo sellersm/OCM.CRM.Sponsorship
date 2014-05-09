@@ -73,6 +73,7 @@
   <ItemGroup>
     <Compile Include="D2 Business Process\D2Campaign.BusinessProcess.vb" />
     <Compile Include="D4 Business Process\D4Campaign.BusinessProcess.vb" />
+    <Compile Include="EFT Decline Batch Process\EFTDeclineBatch.BusinessProcess.vb" />
     <Compile Include="My Project\AssemblyInfo.vb" />
     <Compile Include="Prospect Conversion Business Process\ProspectConversion.BusinessProcess.vb" />
     <Compile Include="Sponsor Terminate Business Process\SponsorTerminate.BusinessProcess.vb" />
@@ -579,6 +580,22 @@
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Query Views\Sponsorship.MultipleCommitmentsForSponsorChild.Query.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="EFT Decline Batch Process\DeclinedEFTTab.DataList.xml" />
+    <EmbeddedResource Include="EFT Decline Batch Process\EFTDeclineBatch.BusinessProcess.xml" />
+    <EmbeddedResource Include="EFT Decline Batch Process\EFTDeclineBatchPreProcess.Edit.xml" />
+    <EmbeddedResource Include="EFT Decline Batch Process\EFTDeclineBatchProcess.DataList.xml" />
+    <EmbeddedResource Include="EFT Decline Batch Process\EFTDeclineBatchProcess.View.xml" />
+    <EmbeddedResource Include="EFT Decline Batch Process\EFTDeclineBatchProcessParameters.Table.xml" />
+    <EmbeddedResource Include="EFT Decline Batch Process\EFTDeclineBatchProcessResults.DataList.xml" />
+    <EmbeddedResource Include="EFT Decline Batch Process\EFTDeclineBatchProcessResults.Table.xml" />
+    <EmbeddedResource Include="EFT Decline Batch Process\EFTDeclineBusinessProcess.Package.xml" />
+    <EmbeddedResource Include="EFT Decline Batch Process\EFTDeclineBusinessProcess.Page.xml" />
+    <EmbeddedResource Include="EFT Decline Batch Process\EFTDeclined.Table.xml" />
+    <EmbeddedResource Include="EFT Decline Batch Process\EFTDeclineProcessExceptionLog.Query.xml" />
+    <EmbeddedResource Include="EFT Decline Batch Process\USR_USP_EFTDECLINEBATCH_BUSINESSPROCESS.xml" />
+    <EmbeddedResource Include="EFT Decline Batch Process\USR_USP_EFTDECLINEBATCH_PROCESS_GETPARAMETERS.xml" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.VisualBasic.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
