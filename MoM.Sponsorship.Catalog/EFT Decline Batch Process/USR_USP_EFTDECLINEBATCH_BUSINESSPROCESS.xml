@@ -15,6 +15,7 @@
 	History:
 	Date            Modified By     Comments
 	16-Apr-2014		Memphis			Initial Version.
+	16-May-2014		Memphis			Per Pamela: change Interaction Summary and put exception message in Comment.
 	-->
 
 	<CreateProcedureSQL>
@@ -33,6 +34,8 @@ begin
 	--declare @BATCHDATE date = cast(getdate() as date);
 	--declare @BATCHTYPE int = 1;  -- 0 directdebit, 1 creditcard  
 	--declare @BATCHNUMBER nvarchar(150) = '2014-455b' -- Direct Debit test batch: 2014-485b   -- this is for Credit Card testing '2014-455b';
+	--declare @successCount int;
+	--declare @exceptionCount int;
 	--------  COMMENT THE ABOVE WHEN CREATING THE SPROC ---------
 
 	declare @exceptionOccurred bit;
@@ -70,6 +73,7 @@ begin
 	declare @writeToExceptionLog bit = 0;
 	declare @exceptionMessage nvarchar(100) = '';
 	--declare @currentDate datetime = getdate();
+	declare @interactionSummary nvarchar(100);    -- gets set based on the batchType
 
 	-- Direct Debit Decline Letter
 	select @creditCardDeclineLetterSubcategoryId = isc.ID
@@ -101,10 +105,12 @@ begin
 	if @BATCHTYPE = 0   --Direct Debit
 		begin
 			set @subcategoryName = 'Direct Debit Decline Letter';
+			set @interactionSummary = 'Direct Debit Decline';
 		end
 	else
 		begin
 			set @subcategoryName = 'Credit Card Decline Letter';
+			set @interactionSummary = 'Credit Card Decline';
 		end
 
 	if @CHANGEAGENTID is null
@@ -134,8 +140,7 @@ begin
 			RevenueLookupId nvarchar(100)
 	);
 
-	-- these are the variables used for the cursor
-	--declare @interactionSummary nvarchar(100); 
+	-- these are the variables used for the cursor	
 	declare @ChildId uniqueidentifier;
 	declare @ChildInfo nvarchar(100);
 	declare @RejectionMessage nvarchar(100);
@@ -492,7 +497,8 @@ begin
 			if @writeToExceptionLog = 0 and @createInteractions = 1
 				begin
 					-- 3. if no exceptions to this point, then create the interaction
-					set @interactionOwner = null;                      
+					set @interactionOwner = null;     
+					                 
 					
 					-- TESTING ONLY:
 					--print 'about to create interaction for sponsor:';
@@ -506,13 +512,13 @@ begin
 					exec dbo.USR_USP_INTERACTION_SPONSOR_ADD_PENDING 
 							@id = @sponsorInteractionId output,
 							@constituentID = @BatchSponsorId,
-							@summary = @batchExceptionMessage,
+							@summary = @interactionSummary,
 							@categoryName = @categoryName,
 							@subcategoryName = @subcategoryName,
 							@expectedDate = @expectedDate,
 							@owner = @interactionOwner,
 							@contactMethodDesc = @contactMethodDesc,
-							@comment = 'From EFT Decline Batch Process',                                                                      
+							@comment = @batchExceptionMessage,                                                                      
 							@letterTypeDesc = '',
 							@fulfillmentStatusDesc = '',
 							@eftBrochureCode = 0,
