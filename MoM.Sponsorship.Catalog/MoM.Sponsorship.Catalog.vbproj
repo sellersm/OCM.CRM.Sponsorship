@@ -597,6 +597,12 @@
     <EmbeddedResource Include="EFT Decline Batch Process\USR_USP_EFTDECLINEBATCH_BUSINESSPROCESS.xml" />
     <EmbeddedResource Include="EFT Decline Batch Process\USR_USP_EFTDECLINEBATCH_PROCESS_GETPARAMETERS.xml" />
   </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="EFT Decline Batch Process\DeclinedEFTTab.Edit.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="EFT Decline Batch Process\DeclinedEFTTab.RecordOperation.xml" />
+  </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.VisualBasic.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
