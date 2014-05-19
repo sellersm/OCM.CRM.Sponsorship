@@ -16,12 +16,12 @@
 	Date            Modified By     Comments
 	16-Apr-2014		Memphis			Initial Version.
 	16-May-2014		Memphis			Per Pamela: change Interaction Summary and put exception message in Comment.
+	19-May-2014		Memphis			Changed BatchDate to be the date of the batch from the Batch table itself.
 	-->
 
 	<CreateProcedureSQL>
 		<![CDATA[
-create procedure dbo.USR_USP_EFTDECLINEBATCH_BUSINESSPROCESS(
-	@BATCHDATE date,
+create procedure dbo.USR_USP_EFTDECLINEBATCH_BUSINESSPROCESS(	
 	@BATCHNUMBER nvarchar(150),
 	@BATCHTYPE int,
 	@successCount int OUTPUT,
@@ -137,7 +137,8 @@ begin
 			AccountInfo nvarchar(4000),
 			--AccountName nvarchar(100),
 			EFTStatus nvarchar(10),
-			RevenueLookupId nvarchar(100)
+			RevenueLookupId nvarchar(100),
+			BatchDate date
 	);
 
 	-- these are the variables used for the cursor	
@@ -156,6 +157,7 @@ begin
 	--declare @AccountName nvarchar(100);
 	declare @EFTStatus nvarchar(10);
 	declare @RevenueLookupId nvarchar(100);
+	declare @BATCHDATE date;
 
 	-- need this to get the full Account description info, it only shows what's shown in the Batch window, nothing confidential:
 	EXEC dbo.Usp_get_key_access;
@@ -175,7 +177,8 @@ begin
 	      c.NAME as ConName,
 	      account.[DESCRIPTION] as AccountInfo,
 	      account.EFTSTATUS,
-	      r.LOOKUPID
+	      r.LOOKUPID,
+	      cast(b.DATEADDED as date) as BATCHDATE
 	from 
 	      batchrevenue br
 	      join batch b on br.BATCHID = b.ID
@@ -210,7 +213,8 @@ begin
 			--AccountNumber,
 			AccountInfo,
 			EFTStatus,
-			RevenueLookupId
+			RevenueLookupId,
+			BatchDate
 	from @EFTBatchTable;
 	*/
 
@@ -230,14 +234,15 @@ begin
 			--AccountNumber,
 			AccountInfo,
 			EFTStatus,
-			RevenueLookupId
+			RevenueLookupId,
+			BatchDate
 	from @EFTBatchTable;
 
 	open eftBatchCursor;
 
 	--  ** NOTE: ** NEED to manage the interactionSummary value based on batch type!!!*****
 
-	fetch next from eftBatchCursor into @ChildId, @ChildInfo, @RejectionMessage, @DirectdebitIsRejected, @DirectDebitResultCode, @CreditCardNumber, @CardHolderName, @ExpiryDate, @BatchSponsorId, @SponsorLookupId, @SponsorName, @AccountInfo, @EFTStatus, @RevenueLookupId;
+	fetch next from eftBatchCursor into @ChildId, @ChildInfo, @RejectionMessage, @DirectdebitIsRejected, @DirectDebitResultCode, @CreditCardNumber, @CardHolderName, @ExpiryDate, @BatchSponsorId, @SponsorLookupId, @SponsorName, @AccountInfo, @EFTStatus, @RevenueLookupId, @BATCHDATE;
 
 	-- Need to track the current sponsor and only create the Interaction once per each unique Sponsor:
 	-- set the new sponsor flag for the first sponsor
@@ -574,7 +579,7 @@ begin
 				end
 						
 		
-			fetch next from eftBatchCursor into @ChildId, @ChildInfo, @RejectionMessage, @DirectdebitIsRejected, @DirectDebitResultCode, @CreditCardNumber, @CardHolderName, @ExpiryDate, @BatchSponsorId, @SponsorLookupId, @SponsorName, @AccountInfo, @EFTStatus, @RevenueLookupId;
+			fetch next from eftBatchCursor into @ChildId, @ChildInfo, @RejectionMessage, @DirectdebitIsRejected, @DirectDebitResultCode, @CreditCardNumber, @CardHolderName, @ExpiryDate, @BatchSponsorId, @SponsorLookupId, @SponsorName, @AccountInfo, @EFTStatus, @RevenueLookupId, @BATCHDATE;
 
 			-- check for a different sponsor
 			if @currentSponsorId <> @BatchSponsorId

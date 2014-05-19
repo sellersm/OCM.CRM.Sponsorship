@@ -58,6 +58,28 @@
 											<StandardView />
 										</RenderStyle>
 									</DataList>
+									<Actions>
+										<Action ID="5d5dfaa9-c62f-4e5a-baa4-60d47582ea8c" Caption="Edit" ImageKey="RES:edit_32" DefaultAction="True">
+											<ShowDataForm DataFormID="a86445b7-efd3-4ad1-b44b-2122bc69d0f6" xmlns="bb_appfx_commontypes">
+												<ActionContext>
+													<SectionField>ID</SectionField>
+												</ActionContext>
+												<PostActionEvent>
+													<RefreshSection />
+												</PostActionEvent>
+											</ShowDataForm>
+										</Action>
+										<Action ID="58e6b2fc-51d4-425b-9940-3b97b3d54dc5" Caption="Delete" ImageKey="RES:delete_32">
+											<ExecuteRecordOperation RecordOperationID="4f8ebbc9-b8ae-49af-b5bf-cae3fa9cb9c9" xmlns="bb_appfx_commontypes">
+												<ActionContext>
+													<SectionField>ID</SectionField>
+												</ActionContext>
+												<PostActionEvent>
+													<RefreshSection />
+												</PostActionEvent>
+											</ExecuteRecordOperation>
+										</Action>
+									</Actions>
 								</Section>
 							</Sections>
 						</Tab>
