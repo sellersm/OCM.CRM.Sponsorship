@@ -31,7 +31,6 @@ as
 begin
 
 	-- Only for testing, COMMENT OUT WHEN CREATING THE SPROC ----
-	--declare @BATCHDATE date = cast(getdate() as date);
 	--declare @BATCHTYPE int = 1;  -- 0 directdebit, 1 creditcard  
 	--declare @BATCHNUMBER nvarchar(150) = '2014-455b' -- Direct Debit test batch: 2014-485b   -- this is for Credit Card testing '2014-455b';
 	--declare @successCount int;
@@ -166,7 +165,8 @@ begin
 	insert into @EFTBatchTable
 	select s.SPONSORSHIPOPPORTUNITYID,
 	      dbo.USR_UFN_CHILD_GETCHILDLOOKUPID (s.SPONSORSHIPOPPORTUNITYID, 1),
-	      REJECTIONMESSAGE,
+	      --REJECTIONMESSAGE,
+	      case when charindex('.', REJECTIONMESSAGE) > 0 then PARSENAME(REJECTIONMESSAGE, 2) else REJECTIONMESSAGE end as REJECTIONMESSAGE,
 	      DIRECTDEBITISREJECTED,
 	      DIRECTDEBITRESULTCODE,
 	      cc.CREDITCARDPARTIALNUMBER,
@@ -271,6 +271,8 @@ begin
 				begin
 					-- credit card uses rejection message value
 					set @batchExceptionMessage = coalesce(@RejectionMessage, '');
+					-- credit card doesn't have account info
+					set @AccountInfo = '';
 				end		
 			
 			--print 'about to insert into USR_EFTDECLINE_BATCH_SPONSORS table:';
@@ -628,6 +630,7 @@ begin
 	end catch	
 	
 end
+	
 
 		]]>
 	</CreateProcedureSQL>
