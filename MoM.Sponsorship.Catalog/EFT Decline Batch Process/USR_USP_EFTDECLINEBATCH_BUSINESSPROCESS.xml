@@ -17,6 +17,8 @@
 	16-Apr-2014		Memphis			Initial Version.
 	16-May-2014		Memphis			Per Pamela: change Interaction Summary and put exception message in Comment.
 	19-May-2014		Memphis			Changed BatchDate to be the date of the batch from the Batch table itself.
+									Added code to update the new USR_FINANCIALTRANSACTION_EXTENSION.ISEFTDECLINED 
+									field to identify on the recurring gift this payment method has been declined.
 	-->
 
 	<CreateProcedureSQL>
@@ -188,7 +190,7 @@ begin
 	      left join REVENUESPLIT rs on rs.REVENUEID = ft.ID
 	      left join REVENUE r on r.ID = ft.ID
 	      left join CREDITCARD cc on cc.ID = CREDITCARDID
-	      left join CONSTITUENTACCOUNT account on account.CONSTITUENTID = c.ID -- CONSTITUENTACCOUNTID = account.ID
+		  left join CONSTITUENTACCOUNT account on account.ID = br.CONSTITUENTACCOUNTID -- = account.ID
 	      left join sponsorship s on s.REVENUESPLITID = rs.ID
 	where 
 	      b.batchnumber = @BATCHNUMBER --'2014-485b' --'2014-455b'
@@ -320,6 +322,52 @@ begin
 			  ,@SponsorName 			-- SPONSORNAME - nvarchar(255)
 			  --,coalesce(ACCOUNTNAME,'') -- ACCOUNTNAME - nvarchar(100)
 			)		
+			
+			-- Memphis: 5/20/14 update the recurring gift custom field:
+			-- if a row is not found, then do the insert:
+			declare @recurringGiftExtensionId uniqueidentifier = null;
+			declare @revenueId uniqueidentifier = null;
+			
+			select @revenueId = ID
+			from dbo.REVENUE
+			where LOOKUPID = @RevenueLookupId;
+			
+			select @recurringGiftExtensionId = ID 
+			from dbo.USR_FINANCIALTRANSACTION_EXTENSION
+			where ID = @revenueId;
+			
+			if @recurringGiftExtensionId is not null
+				begin
+					-- update the row
+					update dbo.USR_FINANCIALTRANSACTION_EXTENSION
+					set ISEFTDECLINED = 1
+					where ID = @recurringGiftExtensionId;
+				end
+			else
+				begin
+					-- insert the row
+					insert into dbo.USR_FINANCIALTRANSACTION_EXTENSION(
+					   ID
+					  ,DIRECTDEBITSCHEDULECODEID
+					  ,CREDITCARDSCHEDULECODEID
+					  ,ADDEDBYID
+					  ,CHANGEDBYID
+					  ,DATEADDED
+					  ,DATECHANGED
+					  ,PREDEPARTUREGIFTSTATUS
+					  ,ISEFTDECLINED
+					) values (
+					   @revenueId	  -- ID - uniqueidentifier
+					  ,NULL			  -- DIRECTDEBITSCHEDULECODEID - uniqueidentifier
+					  ,NULL			  -- CREDITCARDSCHEDULECODEID - uniqueidentifier
+					  ,@changeAgentID -- ADDEDBYID - uniqueidentifier
+					  ,@changeAgentID -- CHANGEDBYID - uniqueidentifier
+					  ,getdate()	  -- DATEADDED - datetime
+					  ,getdate()	  -- DATECHANGED - datetime
+					  ,N''			  -- PREDEPARTUREGIFTSTATUS - nvarchar(10)
+					  ,1
+					)
+				end
 			
 			-- check for a new sponsor, only do 1 interaction per sponsor:
 			if @isNewSponsor = 1 

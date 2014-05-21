@@ -13,6 +13,8 @@
 	History:
 	Date            Modified By     Comments
 	23-Feb-2013		CMayeda			Added "Edit Predeparture Gift Status" task - FogBugz 1004
+	21-May-2014		Memphis			Added Declined EFT Tab
+									Added Task for changing ISEFTDECLINED field value
 	-->
 
 	
@@ -43,6 +45,18 @@
 													<RefreshPage />
 												</PostActionEvent>
 											</ShowDataForm>
+										</Action>
+									</AddAction>
+									<AddAction>
+										<Action ID="51deac10-f6dd-49d4-8ece-1247bae470ac" Caption="Change EFT Declined value" ImageKey="CATALOG:Blackbaud.AppFx.Marketing.Catalog,Blackbaud.AppFx.Marketing.Catalog.addremove.png">
+											<ExecuteRecordOperation RecordOperationID="56e2b7ec-6669-480d-8fa0-5551e7bfec08" xmlns="bb_appfx_commontypes">
+												<ActionContext>
+													<PageContextID />
+												</ActionContext>
+												<PostActionEvent>
+													<RefreshPage />
+												</PostActionEvent>
+											</ExecuteRecordOperation>
 										</Action>
 									</AddAction>
 								</AlterActions>

@@ -7,21 +7,23 @@
 	Author="Memphis Sellers"
 	IsRoot="true"
 	PrimaryKeyField="ID"
-	RecordType="EFTBatch"
-	common:SecurityUIFolder="EFTBatch"	
+	RecordType="Constituent"
+	common:SecurityUIFolder="Constituent"	
 	>
 
 	<!-- define the view used to return data for the query -->
 	<ViewImplementation ViewName="USR_V_QUERY_EFTDECLINE_PROCESS_EXCEPTIONS">
 		<ViewSQL>
 			<![CDATA[
-SELECT	ID
+SELECT	c.ID
 		,BATCHDATE
 		,SPONSORLOOKUPID
 		,case when BATCHTYPE=0 then 'Direct Debit' else 'Credit Card' end as BATCHTYPEDESCRIPTION
 		,INTERACTIONSTATUS
 		,BATCHNUMBER
 FROM dbo.USR_EFTDECLINEBATCH_BUSINESSPROCESS_RESULTS
+join dbo.CONSTITUENT c on SPONSORLOOKUPID = c.LOOKUPID
+
 			]]>
 		</ViewSQL>
 	</ViewImplementation>
@@ -37,6 +39,10 @@ FROM dbo.USR_EFTDECLINEBATCH_BUSINESSPROCESS_RESULTS
 			<OutputField Name="BATCHNUMBER" Caption="Batch Number" DataType="String" />			
 		</OutputFields>
 	</Output>
+
+	<!--<RelationshipOperations>
+		<AddRelatedView RelatedView="V_QUERY_CONSTITUENT" PathAlias="Constituent" Field="ID" RelatedField="ID"/>
+	</RelationshipOperations>-->
 
 </QueryViewSpec>
 

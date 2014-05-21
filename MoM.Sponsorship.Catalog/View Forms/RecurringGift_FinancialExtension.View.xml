@@ -23,7 +23,8 @@ create procedure dbo.USR_USP_DATAFORMTEMPLATE_VIEW_RECURRINGGIFTEXTENSION
 	--@DIRECTDEBITSCHEDULECODEID uniqueidentifier = null output,
 	--@CREDITCARDSCHEDULECODEID uniqueidentifier = null output,
 	@DIRECTDEBITCODE nvarchar(100) = null output,
-	@CREDITCARDCODE nvarchar(100) = null output
+	@CREDITCARDCODE nvarchar(100) = null output,
+	@ISEFTDECLINED bit = null output
 )
 as
 	set nocount on;
@@ -38,7 +39,8 @@ as
 	-- will display a "no data loaded" message.
 	select @DATALOADED = 1,
 		@DIRECTDEBITSCHEDULECODEID = DIRECTDEBITSCHEDULECODEID,
-		@CREDITCARDSCHEDULECODEID = CREDITCARDSCHEDULECODEID
+		@CREDITCARDSCHEDULECODEID = CREDITCARDSCHEDULECODEID,
+		@ISEFTDECLINED = ISEFTDECLINED
 	from dbo.USR_FINANCIALTRANSACTION_EXTENSION
 	where ID = @ID
 	
@@ -58,6 +60,7 @@ as
 		<common:FormFields>
 			<common:FormField FieldID="DIRECTDEBITCODE" Caption="Direct debit schedule" DataType="String" MaxLength="100" />
 			<common:FormField FieldID="CREDITCARDCODE" Caption="Credit card schedule" DataType="String" MaxLength="100" />
+			<common:FormField FieldID="ISEFTDECLINED" Caption="EFT Declined?" DataType="Boolean"  />
 			<!--<common:FormField FieldID="DIRECTDEBITSCHEDULECODEID" Caption="direct debit" Hidden="true" />
 			<common:FormField FieldID="CREDITCARDSCHEDULECODEID" Caption="credit card" Hidden="true" />-->
 		</common:FormFields>

@@ -50,12 +50,12 @@
 	-->
 	
 	<common:DependencyList>
-        <common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.USR_USP_EFTDECLINEBATCH_BUSINESSPROCESS.xml" />
-        <common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.USR_USP_EFTDECLINEBATCH_PROCESS_GETPARAMETERS.xml" />
         <common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.EFTDeclineBatchProcessParameters.Table.xml" />
         <common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.EFTDeclineBatchProcessResults.Table.xml" />
         <common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.EFTDeclined.Table.xml" />
-        <common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.DeclinedEFTTab.DataList.xml" />
+		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.USR_USP_EFTDECLINEBATCH_BUSINESSPROCESS.xml" />
+		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.USR_USP_EFTDECLINEBATCH_PROCESS_GETPARAMETERS.xml" />
+		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.DeclinedEFTTab.DataList.xml" />
         <common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.EFTDeclineBatchProcess.DataList.xml" />
         <common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.EFTDeclineBatchProcessResults.DataList.xml" />
         <common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.EFTDeclineBatchPreProcess.Edit.xml" />
@@ -65,6 +65,7 @@
         <common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.EFTDeclineProcessExceptionLog.Query.xml" />
         <common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.EFTDeclineBusinessProcess.Page.xml" />
 		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.DeclinedEFTTab.RecordOperation.xml" />
+		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.SwitchRecurringGift.EFTDeclinedFieldValue.RecordOperation.xml" />
 	</common:DependencyList>
 
 </PackageSpec>

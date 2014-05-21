@@ -16,12 +16,12 @@ Public NotInheritable Class EFTDeclineBatchBusinessProcess
 		Dim batchNumber As String = String.Empty
 		Dim batchTypeDfv As XmlTypes.DataForms.DataFormFieldValue = Nothing
 		Dim batchType As String = String.Empty
-		Dim batchDateDfv As XmlTypes.DataForms.DataFormFieldValue = Nothing
-		Dim batchDate As String = String.Empty
+		'Dim batchDateDfv As XmlTypes.DataForms.DataFormFieldValue = Nothing
+		'Dim batchDate As String = String.Empty
 
-		If Me.RequestArgs.DataItem.TryGetValue("BATCHDATE", batchDateDfv) Then
-			batchDate = CStr(batchDateDfv.Value)
-		End If
+		'If Me.RequestArgs.DataItem.TryGetValue("BATCHDATE", batchDateDfv) Then
+		'	batchDate = CStr(batchDateDfv.Value)
+		'End If
 
 		If Me.RequestArgs.DataItem.TryGetValue("BATCHNUMBER", batchNumberDfv) Then
 			batchNumber = CStr(batchNumberDfv.Value)
@@ -31,7 +31,7 @@ Public NotInheritable Class EFTDeclineBatchBusinessProcess
 			batchType = CStr(batchTypeDfv.Value)
 		End If
 
-		Me.UpdateProcessStatus(String.Format("Processing EFT Decline Batch #{0} for Batch Type of {1} on {2}", batchNumber, batchType, batchDate))
+		Me.UpdateProcessStatus(String.Format("Processing EFT Decline Batch #{0} for Batch Type of {1}", batchNumber, batchType))
 
 		Dim ProcessResults As New Blackbaud.AppFx.Server.AppCatalog.AppBusinessProcessResult
 
@@ -57,7 +57,7 @@ Public NotInheritable Class EFTDeclineBatchBusinessProcess
 						.CommandType = CommandType.StoredProcedure
 						.CommandText = "dbo.USR_USP_EFTDECLINEBATCH_BUSINESSPROCESS"
 						.CommandTimeout = Me.ProcessCommandTimeout
-						.Parameters.AddWithValue("@BATCHDATE", batchDate)
+						'.Parameters.AddWithValue("@BATCHDATE", batchDate)
 						.Parameters.AddWithValue("@BATCHNUMBER", batchNumber)				' The sproc will get the Change Agent ID if we pass in null
 						.Parameters.AddWithValue("@BATCHTYPE", batchType)		' The table to insert the results of conversion process
 						'.Parameters.AddWithValue("exceptionTableName", exceptionTableName)	' The table to insert exceptions and kids put on the waiting list
