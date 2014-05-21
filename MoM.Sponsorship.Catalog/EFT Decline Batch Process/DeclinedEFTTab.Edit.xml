@@ -18,6 +18,12 @@
 	History:
 	Date			Modified By		Comments
     19-May-2014		Memphis			Initial Version
+	20-May-2014		Memphis			Added field validation and changes from Pamela.
+								1.	The card number OR account info fields need to have a value.
+								2.	If the card number is not null then the card expiration date needs to be not null.
+								3.	If the card expiration date is not null then the card number needs to be not null
+								4.	If the Account info has a value, then the card number and/or card expiration fields need to be null.
+								    Keep the BatchType hidden to use it for validation when saving.
 	-->
 
 
@@ -39,7 +45,8 @@ create procedure dbo.USR_USP_DATAFORMTEMPLATE_EDITLOAD_EFTDECLINEBATCH_SPONSOR(
 	@ACCOUNTINFO nvarchar(4000) = null output,
 	@BATCHNUMBER nvarchar(100) = null output,
 	@CHILDINFO nvarchar(100) = null output,
-	@REVENUELOOKUPID nvarchar(100) = null output	
+	@REVENUELOOKUPID nvarchar(100) = null output,
+	@BATCHTYPE nvarchar(20) = null output
 )
 as
 
@@ -65,7 +72,8 @@ as
 			@ACCOUNTINFO = ACCOUNTINFO,
 			@BATCHNUMBER = USR_EFTDECLINE_BATCH_SPONSORS.BATCHNUMBER, 
 			@CHILDINFO = CHILDINFO, 
-			@REVENUELOOKUPID = REVENUELOOKUPID
+			@REVENUELOOKUPID = REVENUELOOKUPID,
+			@BATCHTYPE = BATCHTYPE
 			--r.ID as RevenueID
 	FROM dbo.USR_EFTDECLINE_BATCH_SPONSORS
 	join dbo.REVENUE r on r.LOOKUPID = REVENUELOOKUPID
@@ -88,7 +96,8 @@ create procedure dbo.USR_USP_DATAFORMTEMPLATE_EDIT_EFTDECLINEBATCH_SPONSOR (
 	@DECLINEREASON nvarchar(max),
 	@CARDNUMBER nvarchar(4),
 	@CARDEXPIRATION nvarchar(8),
-	@ACCOUNTINFO nvarchar(4000)
+	@ACCOUNTINFO nvarchar(4000),
+	@BATCHTYPE nvarchar(20)
 	--@BATCHNUMBER nvarchar(100),
 	--@CHILDINFO nvarchar(100),
 	--@REVENUELOOKUPID nvarchar(100)
@@ -104,6 +113,47 @@ as
 	set @CURRENTDATE = getdate()
 
 	begin try
+		-- perform validation based on batchType:
+		/*
+			1.	The card number OR account info fields need to have a value.
+			2.	If the card number is not null then the card expiration date needs to be not null.
+			3.	If the card expiration date is not null then the card number needs to be not null
+			4.	If the Account info has a value, then the card number and/or card expiration fields need to be null.		
+		*/
+		
+		--decline reason is required no matter what batch type:
+		if (@DECLINEREASON is null or @DECLINEREASON = '')
+			RAISERROR 1000000 'Decline reason is required.'				
+
+		if lower(@BATCHTYPE) = 'direct debit'   
+			begin
+				--Direct Debit
+				if (@ACCOUNTINFO is null or @ACCOUNTINFO = '')
+					RAISERROR 1000000 'Please enter the Account Info for a Direct Debit decline.'
+					
+				-- set the credit card fields to NULL before saving? *OR* just do two different updates???
+				set @CARDHOLDERNAME = '';
+				set @CARDNUMBER = '';
+				set @CARDEXPIRATION = '';				
+			end
+		else
+			begin
+				--Credit Card				
+				if (@CARDNUMBER is null or @CARDNUMBER = '')
+					RAISERROR 1000000 'Card number is required for a Credit Card decline.'
+				
+				--an empty fuzzy date value is:  00000000
+				if (@CARDEXPIRATION is null or @CARDEXPIRATION = '' or @CARDEXPIRATION = '00000000')
+					RAISERROR 1000000 'Card expiration is required if there is a Credit Card number, for a Credit Card decline.'
+				
+				--check for cardholder
+				if (@CARDHOLDERNAME is null or @CARDHOLDERNAME = '')
+					RAISERROR 1000000 'Card holder name is required for a Credit Card decline.'				
+								
+				set @ACCOUNTINFO = '';				
+			end
+		
+	
 		-- handle updating the data
 		update dbo.USR_EFTDECLINE_BATCH_SPONSORS set
 			CARDHOLDERNAME = @CARDHOLDERNAME, 
@@ -119,6 +169,7 @@ as
 			DATECHANGED = @CURRENTDATE
 		where ID = @ID
 	end try
+	
 	begin catch
 		exec dbo.USP_RAISE_ERROR
 		return 1
@@ -143,7 +194,8 @@ return 0;
 			<common:FormField FieldID="BATCHNUMBER" Caption="Batch Number" DataType="String" ReadOnly="true"/>
 			<common:FormField FieldID="CHILDINFO" Caption="Child Info" DataType="String" ReadOnly="true"/>
 			<common:FormField FieldID="REVENUELOOKUPID" Caption="Revenue LookupId" DataType="String" ReadOnly="true"/>
-			<common:FormField FieldID="BATCHDATE" Caption="Batch Date" DataType="Date" ReadOnly="true"/>			
+			<common:FormField FieldID="BATCHDATE" Caption="Batch Date" DataType="Date" ReadOnly="true"/>
+			<common:FormField FieldID="BATCHTYPE" Caption="Batch Type" DataType="String" />				
 		</common:FormFields>
 
 	</common:FormMetaData>
