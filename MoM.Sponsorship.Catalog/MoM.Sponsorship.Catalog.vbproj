@@ -606,6 +606,19 @@
   <ItemGroup>
     <EmbeddedResource Include="RecordOperations\SwitchRecurringGift.EFTDeclinedFieldValue.RecordOperation.xml" />
   </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="DataLists\CommitmentLineHistory.Commitments.DataList.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Query Views\RevenueExtension.Query.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Tables\CommitmentLineHistory.Table.xml" />
+    <EmbeddedResource Include="Tables\CommitmentLineHistoryCommitment.Table.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="View Forms\CommitmentLineHistory.View.xml" />
+  </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.VisualBasic.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

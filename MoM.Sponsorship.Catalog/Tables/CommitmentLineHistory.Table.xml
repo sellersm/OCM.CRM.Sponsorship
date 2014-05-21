@@ -1,0 +1,95 @@
+﻿<TableSpec 
+	xmlns="bb_appfx_table"
+	xmlns:common="bb_appfx_commontypes" 
+	ID="ef2c8efd-8e2e-4914-890d-aac6e2658aca"
+	Name="Commitment Line History"
+	Description="Used to report commitment / sponsorship stats"
+	Author="Cary Mayeda"
+	Tablename="USR_COMMITMENTLINEHISTORY"
+	CustomIdentifier="true"
+	>	
+	<!-- 
+	Remarks:    
+
+	History:
+	Date            Modified By     Comments
+	07-May-2014		CMayeda			Initial Prototype Version
+	-->
+
+	<!--
+Need to run this script after creating the table to modify the LOOKUPID prefix to "clh-"
+
+ALTER TABLE [dbo].[USR_COMMITMENTLINEHISTORY] 
+DROP CONSTRAINT [UC_USR_COMMITMENTLINEHISTORY_LOOKUPID] 
+GO
+
+ALTER TABLE [dbo].[USR_COMMITMENTLINEHISTORY] 
+DROP COLUMN [LOOKUPID]
+GO
+
+ALTER TABLE [dbo].[USR_COMMITMENTLINEHISTORY] 
+ADD [LOOKUPID] as (case len([CUSTOMIDENTIFIER]) when (0) then 'clh-'+CONVERT([nvarchar](20),[SEQUENCEID],(0)) else [CUSTOMIDENTIFIER] end)
+CONSTRAINT [UC_USR_COMMITMENTLINEHISTORY_LOOKUPID] UNIQUE([LOOKUPID]) WITH (FILLFACTOR=100,
+		DATA_COMPRESSION = NONE) ON [IDXGROUP]
+GO
+
+Sometimes changes to the status column requires a delete and recreate
+ALTER TABLE [dbo].[USR_COMMITMENTLINEHISTORY] 
+drop constraint CK_USR_COMMITMENTLINEHISTORY_STATUSCODE
+
+ALTER TABLE [dbo].[USR_COMMITMENTLINEHISTORY] 
+DROP CONSTRAINT DF__USR_COMMI__STATU__1EF003D1
+
+ALTER TABLE [dbo].[USR_COMMITMENTLINEHISTORY] 
+DROP COLUMN STATUSCODE
+
+DROP COLUMN STATUS
+GO
+	-->
+
+	<!-- define fields on the table -->
+	<Fields>
+		<ForeignKeyField Name="SPONSORID" Description="Sponsor's constituent ID" Cardinality="ManyToOne" ForeignTable="CONSTITUENT" ForeignFieldName="ID" OnDelete="SetToNull"/>
+		<DateField Name="STARTDATE" Description="The date the 'Add' transaction of the first sponorship date" IncludeTime="false" />
+		<DateField Name="ENDDATE" Description="The date the 'terminate' or 'cancel' transaction of the last sponsorship" IncludeTime="false" />
+		<EnumField Name="TYPECODE" Description="Direct, Prospect, Conversion, Account Correction" DefaultValue="0">
+			<EnumValues>
+				<EnumValue ID="0" Translation="Unknown"/>
+				<EnumValue ID="1" Translation="Direct"/>
+				<EnumValue ID="2" Translation="Prospect"/>
+				<EnumValue ID="3" Translation="Conversion"/>
+				<EnumValue ID="4" Translation="Account Correction"/>
+			</EnumValues>
+		</EnumField>
+		<TextField Name="SOURCE" Description="Appeal of the first sponsorship" Length="100"/>
+		<TextField Name="SOURCECATEGORY" Description="this should be a code table" Length="100"/>
+		<TextField Name="PACKAGE" Description="'Package' of the first sponsorship" Length="100"/>
+		<TextField Name="INBOUNDCHANNEL" Description="Inbound channel of the first sponsorship" Length="100"/>
+		<DateField Name="CONVERSIONDATE" Description="Conversion Date" IncludeTime="false" Required="false"/>
+		<NumberField Name="DAYSTOCONVERT" Description="Days to Convert" Type="smallint" />
+		<EnumField Name="STATUSCODE" Description="Status of this sponsorship." DefaultValue="0">
+			<EnumValues>
+				<EnumValue ID="0" Translation="Active" />
+				<EnumValue ID="1" Translation="Active (Transfer pending)" />
+				<EnumValue ID="2" Translation="Active (Reassigned)" />
+				<EnumValue ID="3" Translation="Inactive" />
+				<EnumValue ID="4" Translation="Transferred" />
+				<EnumValue ID="5" Translation="Expired" />
+				<EnumValue ID="6" Translation="Cancelled" />
+				<EnumValue ID="7" Translation="Declined" />
+				<EnumValue ID="8" Translation="Terminated" />
+				<EnumValue ID="9" Translation="Reassigned" />
+			</EnumValues>
+		</EnumField>
+		<ForeignKeyField Name="CANCELSPONSORSHIPREASONID" Description="The cancel or terminate reason of the last sponsorship commitment in the table." ForeignTable="SPONSORSHIPREASON" OnDelete="SetToNull" Required="false" />
+	</Fields>
+
+	<Indexes>
+		<Index IsUnique="false">
+			<IndexFields>
+				<IndexField Name="SPONSORID"/>
+			</IndexFields>
+		</Index>
+	</Indexes>
+
+</TableSpec>
