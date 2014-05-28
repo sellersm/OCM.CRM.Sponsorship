@@ -22,6 +22,7 @@
 	22-May-2014		Memphis			If the constituent has an invalid address and no primary/invalid email address – 
 									do not create interaction (exception) but add to the data list and EFT invalid to yes.
 									Other changes as well to capture non-sponsorship recurring gifts, etc.
+	28-May-2014		Memphis			Fixed multiple issues from Pamela's testing...
 	-->
 
 	<CreateProcedureSQL>
@@ -40,7 +41,7 @@ begin
 	--declare @BATCHNUMBER nvarchar(150) = '2014-455b' -- Direct Debit test batch: 2014-485b   -- this is for Credit Card testing '2014-455b';
 	--declare @successCount int;
 	--declare @exceptionCount int;
-	------  COMMENT THE ABOVE WHEN CREATING THE SPROC ---------
+	----  COMMENT THE ABOVE WHEN CREATING THE SPROC ---------
 
 	declare @exceptionOccurred bit;
 	declare @changeAgentID uniqueidentifier = null;
@@ -217,7 +218,7 @@ begin
 	where 
 	      b.batchnumber = @BATCHNUMBER --'2014-485b' --'2014-455b'
 		  --and s.[STATUS] = 'Active'
-		  --and c.lookupid = '210460'
+		  and c.lookupid = '283016'
 
 	-- close the key we used above
 	CLOSE SYMMETRIC KEY sym_BBInfinity;
@@ -311,11 +312,17 @@ begin
 			--print @BatchSponsorId;
 			
 			-- *** NEED: figure out how to get the ChildInfo here from the Sponsorship related to this batch record:
+			--select @sponsorshipOpportunityId = SPONSORSHIPOPPORTUNITYID
+			--from dbo.SPONSORSHIP
+			--where REVENUESPLITID = @RevenueSplitId
+			--and CONSTITUENTID = @BatchSponsorId
+			--and STATUS = 'Active';
 			select @sponsorshipOpportunityId = SPONSORSHIPOPPORTUNITYID
 			from dbo.SPONSORSHIP
-			where REVENUESPLITID = @RevenueSplitId
-			and CONSTITUENTID = @BatchSponsorId
-			and STATUS = 'Active';
+			join dbo.SPONSORSHIPOPPORTUNITYCHILD soc on soc.ID = SPONSORSHIPOPPORTUNITYID
+			join @EFTBatchTable eft on eft.RevenueSplitId = dbo.SPONSORSHIP.REVENUESPLITID and eft.BatchSponsorId = @BatchSponsorId and eft.RevenueSplitId = @RevenueSplitId
+			where STATUS = 'Active'
+			and soc.ID is not null;
 			
 			--print '@sponsorshipOpportunityId';
 			--print @sponsorshipOpportunityId;
@@ -478,6 +485,16 @@ begin
 							set @writeToExceptionLog = 1;
 							set @exceptionMessage = 'Sponsor has Blackout All Communication code.';
 						end
+
+					-- check for a valid mailing address if we're going to send mail:
+					if @allowMail = 1
+						begin
+							if exists (SELECT 1 FROM dbo.ADDRESS where (constituentID = @BatchSponsorId and HISTORICALENDDATE is null and DONOTMAIL = 1 and ISPRIMARY = 1))
+								begin
+									set @allowMail = 0;									
+									--print 'NO Valid Mail address!';
+								end
+						end
 						
 
 					-- only do the following if we're OK to create an interaction anyway:
@@ -490,8 +507,25 @@ begin
 							if @sponsorshipOpportunityId is null
 								begin
 									-- NO interaction for this Sponsor's active sponsorship
-									set @createInteractions = 0;
-									set @isChildSponsorship = 0;
+									-- 5/28/14: check if this revenue is for an inactive sponsorship that may have just been cancelled or something:
+									if exists (select 1 from dbo.SPONSORSHIP
+										join dbo.SPONSORSHIPOPPORTUNITYCHILD soc on soc.ID = SPONSORSHIPOPPORTUNITYID
+										join @EFTBatchTable eft on eft.RevenueSplitId = dbo.SPONSORSHIP.REVENUESPLITID and eft.BatchSponsorId = @BatchSponsorId and eft.RevenueSplitId = @RevenueSplitId										
+										where STATUS <> 'Active' and soc.ID is not null)
+											begin
+												-- this is for a non active sponsorship so do not create interaction
+												--      and do write to exception log:
+												set @createInteractions = 0;
+												set @isChildSponsorship = 0;
+												set @writeToExceptionLog = 1;
+												set @exceptionMessage = 'Sponsorship is no longer Active, no interaction created.';
+											end
+									else
+										begin
+											-- set these so we'll check below for any active financial transaction(s): gifts
+											set @createInteractions = 0;
+											set @isChildSponsorship = 0;
+										end
 								end
 							else
 								begin
@@ -503,14 +537,17 @@ begin
 							--print @isChildSponsorship;
 							
 							-- if we already have a child sponsorship for this sponsor, don't need to check further:
-							if (@isChildSponsorship = 0 and @createInteractions = 0)
+							if (@isChildSponsorship = 0 and @createInteractions = 0 and @writeToExceptionLog = 0)
 								begin
 									--   "Active Financial Transaction" = if not exists select 1 from sponsorship for this revenuesplitid
 									--    AND the financial transaction record status is Active
 									if not exists (select 1 from dbo.REVENUESCHEDULE where ID = @REVENUEID and STATUSCODE = 0)  -- rs.ID is same as Revenue ID: statuscode 0 is Active
 										begin
 											-- NO interaction needed for this Sponsor cuz no active recurring gifts
+											-- and there are no active or inactive child sponsorships
 											set @createInteractions = 0;
+											set @writeToExceptionLog = 1;
+											set @exceptionMessage = 'Sponsor has no active sponsorships nor any active gifts, no interaction created.';
 										end
 									else
 										begin
@@ -519,17 +556,26 @@ begin
 										end
 								end
 		            
-							-- populate the child list with all children for this Sponsor, used if creating interactions:    
-							-- *** NEED:  REFACTOR THIS BECAUSE WE DON'T HAVE CHILDREN YET!!! ***							        		
-							if @createInteractions = 1
+							-- 5/28/14 Memphis: we only want to add the children that are being rejected/declined, not all
+							--         the children for this Sponsor!
+							if (@createInteractions = 1 and @isChildSponsorship = 1)
 								begin
-									-- we only want the Children, not any Projects that are being Sponsored by this Sponsor:																		
+									-- we only want the Children, not any Projects that are being Sponsored by this Sponsor:
+									-- 5/28/14: but we only want those that are being declined, not all of them:
+									-- **NEED** refactor this to just get the declined kids!
+									--insert @childIDList 
+									--select SPONSORSHIPOPPORTUNITYID
+									--from dbo.SPONSORSHIP
+									--join dbo.SPONSORSHIPOPPORTUNITYCHILD soc on soc.ID = SPONSORSHIPOPPORTUNITYID
+									--where dbo.SPONSORSHIP.CONSTITUENTID = @BatchSponsorId
+									--and STATUS = 'Active';
 									insert @childIDList 
 									select SPONSORSHIPOPPORTUNITYID
 									from dbo.SPONSORSHIP
 									join dbo.SPONSORSHIPOPPORTUNITYCHILD soc on soc.ID = SPONSORSHIPOPPORTUNITYID
-									where dbo.SPONSORSHIP.CONSTITUENTID = @BatchSponsorId
-									and STATUS = 'Active';
+									join @EFTBatchTable eft on eft.RevenueSplitId = dbo.SPONSORSHIP.REVENUESPLITID and eft.BatchSponsorId = @BatchSponsorId
+									where STATUS = 'Active'
+									and soc.ID is not null;
 								end
 						end
 					
@@ -644,7 +690,8 @@ begin
 									else
 										begin
 											set @writeToExceptionLog = 1;
-											set @exceptionMessage = 'Sponsor has no valid email and DO NOT MAIL code.';										
+											--set @exceptionMessage = 'Sponsor has no valid email and DO NOT MAIL code.';
+											set @exceptionMessage = 'Sponsor has no valid email and either DO NOT MAIL code or no valid mail address.';
 										end									
 								end
 						end
