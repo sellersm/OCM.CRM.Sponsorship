@@ -218,7 +218,7 @@ begin
 	where 
 	      b.batchnumber = @BATCHNUMBER --'2014-485b' --'2014-455b'
 		  --and s.[STATUS] = 'Active'
-		  and c.lookupid = '283016'
+		  --and c.lookupid = '283016'
 
 	-- close the key we used above
 	CLOSE SYMMETRIC KEY sym_BBInfinity;
