@@ -23,6 +23,7 @@
 									do not create interaction (exception) but add to the data list and EFT invalid to yes.
 									Other changes as well to capture non-sponsorship recurring gifts, etc.
 	28-May-2014		Memphis			Fixed multiple issues from Pamela's testing...
+	29-May-2014		Memphis			Added Order By to main select to help solve the 'two interactions being created' problem.
 	-->
 
 	<CreateProcedureSQL>
@@ -264,7 +265,8 @@ begin
 			EFTStatus,
 			RevenueLookupId,
 			BatchDate
-	from @EFTBatchTable;
+	from @EFTBatchTable
+	order by SponsorLookupId;
 
 	open eftBatchCursor;
 
