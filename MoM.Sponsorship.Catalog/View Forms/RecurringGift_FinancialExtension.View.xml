@@ -10,7 +10,14 @@
 	common:SecurityUIFolder="Sponsorship"
 	>
 
+	<!-- 
+	Remarks:    
 
+	History:
+	Date            Modified By     Comments
+					Memphis			Initial Version
+	29-May-2014		CMayeda			Added DELAYEFTPAYMENTDUEDATECODEID
+	-->
 	
 	<!-- define the SP that returns the data used by the form -->
 	<SPDataForm SPName="USR_USP_DATAFORMTEMPLATE_VIEW_RECURRINGGIFTEXTENSION">
@@ -24,7 +31,8 @@ create procedure dbo.USR_USP_DATAFORMTEMPLATE_VIEW_RECURRINGGIFTEXTENSION
 	--@CREDITCARDSCHEDULECODEID uniqueidentifier = null output,
 	@DIRECTDEBITCODE nvarchar(100) = null output,
 	@CREDITCARDCODE nvarchar(100) = null output,
-	@ISEFTDECLINED bit = null output
+	@ISEFTDECLINED bit = null output,
+	@DELAYEFTPAYMENTDUEDATECODE nvarchar(100) = null output
 )
 as
 	set nocount on;
@@ -40,7 +48,8 @@ as
 	select @DATALOADED = 1,
 		@DIRECTDEBITSCHEDULECODEID = DIRECTDEBITSCHEDULECODEID,
 		@CREDITCARDSCHEDULECODEID = CREDITCARDSCHEDULECODEID,
-		@ISEFTDECLINED = ISEFTDECLINED
+		@ISEFTDECLINED = ISEFTDECLINED,
+		@DELAYEFTPAYMENTDUEDATECODE = (select DESCRIPTION from DELAYEFTPAYMENTDUEDATECODE where ID = DELAYEFTPAYMENTDUEDATECODEID)
 	from dbo.USR_FINANCIALTRANSACTION_EXTENSION
 	where ID = @ID
 	
@@ -61,6 +70,8 @@ as
 			<common:FormField FieldID="DIRECTDEBITCODE" Caption="Direct debit schedule" DataType="String" MaxLength="100" />
 			<common:FormField FieldID="CREDITCARDCODE" Caption="Credit card schedule" DataType="String" MaxLength="100" />
 			<common:FormField FieldID="ISEFTDECLINED" Caption="EFT Declined?" DataType="Boolean"  />
+			<common:FormField FieldID="DELAYEFTPAYMENTDUEDATECODE" Caption="Delay EFT Payment Due Date" DataType="String" MaxLength="100" />
+			
 			<!--<common:FormField FieldID="DIRECTDEBITSCHEDULECODEID" Caption="direct debit" Hidden="true" />
 			<common:FormField FieldID="CREDITCARDSCHEDULECODEID" Caption="credit card" Hidden="true" />-->
 		</common:FormFields>
