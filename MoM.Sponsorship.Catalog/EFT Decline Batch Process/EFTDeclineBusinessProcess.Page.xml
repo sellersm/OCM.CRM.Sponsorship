@@ -47,7 +47,7 @@
 		<PageActionGroup ID="1a6dcc7e-7b6a-45a2-81f0-fc4fb0c7f414" Caption="Process">
 			<Actions>
 				<Action ID="f692055c-a7d8-4603-abf6-db8574bb295e" Caption="Run Process" ImageKey="RES:businessprocessspec">
-					<StartBusinessProcess BusinessProcessID="3cb4a9f8-ede0-4497-acff-c351057f8a87" StatusPageID="c5faec79-1637-43c8-8af0-56b4cadcd935" StatusTabID="00000000-0000-0000-0000-000000000000" PreprocessEditFormID="00000000-0000-0000-0000-000000000000" xmlns="bb_appfx_commontypes">
+					<StartBusinessProcess BusinessProcessID="3cb4a9f8-ede0-4497-acff-c351057f8a87" StatusPageID="6992dbfe-35f0-414f-af77-59195d4f70ab" StatusTabID="00000000-0000-0000-0000-000000000000" PreprocessEditFormID="00000000-0000-0000-0000-000000000000" xmlns="bb_appfx_commontypes">
 						<ActionContext>
 							<Expression>3cb4a9f8-ede0-4497-acff-c351057f8a87</Expression>
 						</ActionContext>
