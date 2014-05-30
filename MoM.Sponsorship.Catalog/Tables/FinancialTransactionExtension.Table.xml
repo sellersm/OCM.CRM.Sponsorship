@@ -17,6 +17,7 @@
 	21-Jan-2013		Memphis			Added the new field to hold the pre-departure gift status:  PreDepartureGiftStatus
 	20-May-2014		Memphis			Added field ISEFTDECLINED (boolean)
 									to indicate if this gift EFT payment has been declined, set by EFT Decline biz process
+	29-May-2014		CMayeda			Added DELAYEFTPAYMENTDUEDATECODEID
 -->
 
 
@@ -27,6 +28,8 @@
 		<CodeTableField CodeTable="USR_CREDITCARDSCHEDULECODE" Description="Credit card schedule" Name="CREDITCARDSCHEDULECODEID" Required="false"/>
 		<TextField Name="PREDEPARTUREGIFTSTATUS" Description="Pre Departure Gift Status" Length="10" Required="false" DefaultValue="" />
 		<BooleanField Name="ISEFTDECLINED" Description="EFT is declined"/>
+		<CodeTableField Name="DELAYEFTPAYMENTDUEDATECODEID" Description="Delay EFT Payment Due Date" CodeTable="DELAYEFTPAYMENTDUEDATECODE"  Required="false"/>
+
 	</Fields>
 
 	<!-- define any additional check constraints on the table -->

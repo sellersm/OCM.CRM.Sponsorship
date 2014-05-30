@@ -16,6 +16,7 @@
 	History:
 	Date            Modified By     Comments
 	21-May-2014		CMayeda			Initial Version
+	29-May-2014		CMayeda			Added DELAYEFTPAYMENTDUEDATECODE
 	-->
 
 	<!-- define the view used to return data for the query -->
@@ -25,7 +26,8 @@
 			
 select
 	ID,
-	ISEFTDECLINED
+	ISEFTDECLINED,
+	(select DESCRIPTION from DELAYEFTPAYMENTDUEDATECODE where ID = DELAYEFTPAYMENTDUEDATECODEID)  as DELAYEFTPAYMENTDUEDATECODE
 from 
 	dbo.USR_FINANCIALTRANSACTION_EXTENSION				
 			]]>
@@ -37,6 +39,12 @@ from
 		<OutputFields>
 			<OutputField Caption="System record ID" Category="System Fields" Name="ID" />
 			<OutputField Name="ISEFTDECLINED" Caption="Is EFT Declined?" DataType="Boolean" />
+			<OutputField Name="DELAYEFTPAYMENTDUEDATECODE" Caption="Delay EFT Payment Due Date" DataType="String">
+				<LookupInfo>
+					<CodeTable CodeTableName="DELAYEFTPAYMENTDUEDATECODE" IncludeInactive="true" />
+				</LookupInfo>
+			</OutputField>
+
 		</OutputFields>
 	</Output>
 

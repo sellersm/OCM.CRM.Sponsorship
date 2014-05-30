@@ -36,19 +36,7 @@
 							<AlterDataFormSection DataFormID="bafca6f5-4cdb-4173-aece-113713d38bfb" SectionID="e88ccbda-5f94-4f31-a58a-b46036cec17b" >
 								<AlterActions>
 									<AddAction>
-										<Action ID="f9e9b276-c7ff-4d67-9439-0a77d4060f6d" Caption="Edit Payment Schedule" ImageKey="res:Edit" Visible="=(Fields!AUTOPAY &lt;&gt; 0)" CaptionResourceKey="$$edit">
-											<ShowDataForm DataFormID="87a0ccbe-4869-460e-8949-825cde917df5" xmlns="bb_appfx_commontypes">
-												<ActionContext>
-													<Expression>=Page.Fields!REVENUEID</Expression>
-												</ActionContext>
-												<PostActionEvent>
-													<RefreshPage />
-												</PostActionEvent>
-											</ShowDataForm>
-										</Action>
-									</AddAction>
-									<AddAction>
-										<Action ID="51deac10-f6dd-49d4-8ece-1247bae470ac" Caption="Change EFT Declined value" ImageKey="CATALOG:Blackbaud.AppFx.Marketing.Catalog,Blackbaud.AppFx.Marketing.Catalog.addremove.png">
+										<Action ID="51deac10-f6dd-49d4-8ece-1247bae470ac" Caption="Change EFT decline" ImageKey="CATALOG:Blackbaud.AppFx.Marketing.Catalog,Blackbaud.AppFx.Marketing.Catalog.addremove.png">
 											<ExecuteRecordOperation RecordOperationID="56e2b7ec-6669-480d-8fa0-5551e7bfec08" xmlns="bb_appfx_commontypes">
 												<ActionContext>
 													<PageContextID />
@@ -57,6 +45,30 @@
 													<RefreshPage />
 												</PostActionEvent>
 											</ExecuteRecordOperation>
+										</Action>
+									</AddAction>
+									<AddAction>
+										<Action ID="424c0bad-6187-4dd0-98f4-d0f1c5960b25" Caption="Edit delay payment">
+											<ShowDataForm DataFormID="bd6ba74e-303f-4ad9-84a9-a28494596aae" xmlns="bb_appfx_commontypes">
+												<ActionContext>
+													<PageContextID />
+												</ActionContext>
+												<PostActionEvent>
+													<RefreshPage />
+												</PostActionEvent>
+											</ShowDataForm>
+										</Action>
+									</AddAction>
+									<AddAction>
+										<Action ID="f9e9b276-c7ff-4d67-9439-0a77d4060f6d" Caption="Edit schedule" ImageKey="res:Edit" Visible="=(Fields!AUTOPAY &lt;&gt; 0)" CaptionResourceKey="$$edit">
+											<ShowDataForm DataFormID="87a0ccbe-4869-460e-8949-825cde917df5" xmlns="bb_appfx_commontypes">
+												<ActionContext>
+													<Expression>=Page.Fields!REVENUEID</Expression>
+												</ActionContext>
+												<PostActionEvent>
+													<RefreshPage />
+												</PostActionEvent>
+											</ShowDataForm>
 										</Action>
 									</AddAction>
 								</AlterActions>
