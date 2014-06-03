@@ -16,6 +16,8 @@
 		<ViewSQL>
 			<![CDATA[
 
+-- Financial Sponsors
+
 with MemberSponsorships as
 (
 select 
@@ -73,7 +75,6 @@ from
 	join RECURRINGGIFTINSTALLMENTPAYMENT p on i.ID = p.RECURRINGGIFTINSTALLMENTID
 	join FINANCIALTRANSACTION payment_ft on payment_ft.ID = p.PAYMENTID
 where
---	payment_ft.DATE < '2/1/14'
 	i.DATE >= '2/1/14'
 group by 
 	s.MEMBERID, 
@@ -88,26 +89,29 @@ SponsorshipNumberOfInstallments as
 select 
 	MEMBERID, 
 	RECURRINGGIFTID,
-	sum (INSTALLMENTTOTALPAYMENTS/INSTALLMENTAMOUNT) as NUMBEROFINSTALLMENTSPAID
+	sum (INSTALLMENTTOTALPAYMENTS/INSTALLMENTAMOUNT) as PERCENTAGEOFINSTALLMENTSPAID,
+	count (INSTALLMENTDATE) as NUMBEROFINSTALLMENTSPAID
 from 
 	SponsorshipPayments 
 group by 
 	MEMBERID, 
 	RECURRINGGIFTID
 )
+
 /*
 select 
 	s.*,
+	ni.PERCENTAGEOFINSTALLMENTSPAID,
 	ni.NUMBEROFINSTALLMENTSPAID,
-	dateadd(d, day(NEXTTRANSACTIONDATE)-1, dateadd ( m, ceiling(NUMBEROFINSTALLMENTSPAID), '7/1/14')) as NEWNEXTTRANSACTIONDATE,
+	dateadd(d, day(NEXTTRANSACTIONDATE)-1, dateadd ( m, ceiling(NUMBEROFINSTALLMENTSPAID), '6/1/14')) as NEWNEXTTRANSACTIONDATE,
 	case 
 		when exists (select MEMBERID from SponsorshipPayments where MEMBERID = s.MEMBERID and INSTALLMENTAMOUNT > 40) then 'DO NOT USE NEW NTD- NOT MONTHLY'
 		else 'ok to use new NTD'
 	end as VALIDNTD
+	
 from 
 	MemberSponsorships s
 	join SponsorshipNumberOfInstallments ni on ni.MEMBERID = s.MEMBERID and ni.RECURRINGGIFTID  = s.RECURRINGGIFTID 
-
 */
 
 select 
@@ -115,8 +119,10 @@ select
 	p.INSTALLMENTDATE,
 	p.INSTALLMENTAMOUNT,
 	p.INSTALLMENTTOTALPAYMENTS,
+	ni.PERCENTAGEOFINSTALLMENTSPAID,
+	cast (ceiling(ni.PERCENTAGEOFINSTALLMENTSPAID) as integer) as NUMBEROFINSTALLMENTSTOADDTONTD,
 	ni.NUMBEROFINSTALLMENTSPAID,
-	dateadd(d, day(NEXTTRANSACTIONDATE)-1, dateadd ( m, ceiling(NUMBEROFINSTALLMENTSPAID), '7/1/14')) as NEWNEXTTRANSACTIONDATE,
+	dateadd(d, day(NEXTTRANSACTIONDATE)-1, dateadd ( m, ceiling(NUMBEROFINSTALLMENTSPAID), '6/1/14')) as NEWNEXTTRANSACTIONDATE,
 	case 
 		when exists (select MEMBERID from SponsorshipPayments where MEMBERID = s.MEMBERID and INSTALLMENTAMOUNT > 40) then 'DO NOT USE NEW NTD- NOT MONTHLY'
 		else 'ok to use new NTD'
@@ -148,7 +154,9 @@ from
 			<OutputField Name="INSTALLMENTDATE" Caption="Installlment Date" DataType="Date" />
 			<OutputField Name="INSTALLMENTAMOUNT" Caption="Installment Amount" DataType="Money"/>
 			<OutputField Name="INSTALLMENTTOTALPAYMENTS" Caption="Installment Total Payments" DataType="Money" />
- 			<OutputField Name="NUMBEROFINSTALLMENTSPAID" Caption="Number of Installments Paid" DataType="Integer" />
+			<OutputField Name="NUMBEROFINSTALLMENTSTOADDTONTD" Caption="Number of Installments to add to NTD" DataType="Integer" />
+			<OutputField Name="PERCENTAGEOFINSTALLMENTSPAID" Caption="Number of Installments Paid" DataType="Decimal" />
+			<OutputField Name="NUMBEROFINSTALLMENTSPAID" Caption="Number of Installments Paid" DataType="Integer" />
 			<OutputField Name="NEWNEXTTRANSACTIONDATE" Caption="New Next Transaction Date" DataType="Date" />
 			<OutputField Name="VALIDNTD" Caption="Valid NTD?" DataType="String" />
 		</OutputFields>
