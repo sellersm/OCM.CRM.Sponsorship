@@ -101,8 +101,8 @@ group by
 select 
 	s.*,
 	ni.PERCENTAGEOFINSTALLMENTSPAID,
-	ni.NUMBEROFINSTALLMENTSPAID,
-	dateadd(d, day(NEXTTRANSACTIONDATE)-1, dateadd ( m, ceiling(NUMBEROFINSTALLMENTSPAID), '6/1/14')) as NEWNEXTTRANSACTIONDATE,
+	coalesce(ni.NUMBEROFINSTALLMENTSPAID,1) as NUMBEROFINSTALLMENTSPAID,
+	dateadd(d, day(NEXTTRANSACTIONDATE)-1, dateadd ( m, ceiling(coalesce(ni.NUMBEROFINSTALLMENTSPAID,1)), '6/1/14')) as NEWNEXTTRANSACTIONDATE,
 	case 
 		when exists (select MEMBERID from SponsorshipPayments where MEMBERID = s.MEMBERID and INSTALLMENTAMOUNT > 40) then 'DO NOT USE NEW NTD- NOT MONTHLY'
 		else 'ok to use new NTD'
@@ -110,7 +110,7 @@ select
 	
 from 
 	MemberSponsorships s
-	join SponsorshipNumberOfInstallments ni on ni.MEMBERID = s.MEMBERID and ni.RECURRINGGIFTID  = s.RECURRINGGIFTID 
+	left join SponsorshipNumberOfInstallments ni on ni.MEMBERID = s.MEMBERID and ni.RECURRINGGIFTID  = s.RECURRINGGIFTID 
 
 			]]>
 		</ViewSQL>

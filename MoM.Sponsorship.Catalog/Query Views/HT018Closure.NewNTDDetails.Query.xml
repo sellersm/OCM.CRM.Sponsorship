@@ -98,22 +98,6 @@ group by
 	RECURRINGGIFTID
 )
 
-/*
-select 
-	s.*,
-	ni.PERCENTAGEOFINSTALLMENTSPAID,
-	ni.NUMBEROFINSTALLMENTSPAID,
-	dateadd(d, day(NEXTTRANSACTIONDATE)-1, dateadd ( m, ceiling(NUMBEROFINSTALLMENTSPAID), '6/1/14')) as NEWNEXTTRANSACTIONDATE,
-	case 
-		when exists (select MEMBERID from SponsorshipPayments where MEMBERID = s.MEMBERID and INSTALLMENTAMOUNT > 40) then 'DO NOT USE NEW NTD- NOT MONTHLY'
-		else 'ok to use new NTD'
-	end as VALIDNTD
-	
-from 
-	MemberSponsorships s
-	join SponsorshipNumberOfInstallments ni on ni.MEMBERID = s.MEMBERID and ni.RECURRINGGIFTID  = s.RECURRINGGIFTID 
-*/
-
 select 
 	s.*,
 	p.INSTALLMENTDATE,
@@ -121,16 +105,16 @@ select
 	p.INSTALLMENTTOTALPAYMENTS,
 	ni.PERCENTAGEOFINSTALLMENTSPAID,
 	cast (ceiling(ni.PERCENTAGEOFINSTALLMENTSPAID) as integer) as NUMBEROFINSTALLMENTSTOADDTONTD,
-	ni.NUMBEROFINSTALLMENTSPAID,
-	dateadd(d, day(NEXTTRANSACTIONDATE)-1, dateadd ( m, ceiling(NUMBEROFINSTALLMENTSPAID), '6/1/14')) as NEWNEXTTRANSACTIONDATE,
+	coalesce(ni.NUMBEROFINSTALLMENTSPAID,1) as NUMBEROFINSTALLMENTSPAID,
+	dateadd(d, day(NEXTTRANSACTIONDATE)-1, dateadd ( m, ceiling(coalesce(ni.NUMBEROFINSTALLMENTSPAID,1)), '6/1/14')) as NEWNEXTTRANSACTIONDATE,
 	case 
 		when exists (select MEMBERID from SponsorshipPayments where MEMBERID = s.MEMBERID and INSTALLMENTAMOUNT > 40) then 'DO NOT USE NEW NTD- NOT MONTHLY'
 		else 'ok to use new NTD'
 	end as VALIDNTD
 from 
 	MemberSponsorships s
-	join SponsorshipPayments p on p.MEMBERID = s.MEMBERID and p.RECURRINGGIFTID  = s.RECURRINGGIFTID 
-	join SponsorshipNumberOfInstallments ni on ni.MEMBERID = s.MEMBERID and ni.RECURRINGGIFTID  = s.RECURRINGGIFTID 
+	left join SponsorshipPayments p on p.MEMBERID = s.MEMBERID and p.RECURRINGGIFTID  = s.RECURRINGGIFTID 
+	left join SponsorshipNumberOfInstallments ni on ni.MEMBERID = s.MEMBERID and ni.RECURRINGGIFTID  = s.RECURRINGGIFTID 
 
 			]]>
 		</ViewSQL>
