@@ -4,7 +4,7 @@
 	ID="70d150a1-d7e6-41fe-9b7f-a6ee0c8c83dc"
 	Name="HT018 Closure Report Query"
 	Description="Used to determine payments and possible refunds for HT-018 sponsorships"
-	Author="Cary Myeda"
+	Author="Cary Mayeda"
 	IsRoot="true"
 	PrimaryKeyField="SPONSORSHIPID"
 	RecordType="SPONSORSHIP"
