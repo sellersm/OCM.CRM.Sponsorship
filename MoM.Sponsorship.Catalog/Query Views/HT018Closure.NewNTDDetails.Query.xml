@@ -106,7 +106,7 @@ select
 	ni.PERCENTAGEOFINSTALLMENTSPAID,
 	cast (ceiling(ni.PERCENTAGEOFINSTALLMENTSPAID) as integer) as NUMBEROFINSTALLMENTSTOADDTONTD,
 	coalesce(ni.NUMBEROFINSTALLMENTSPAID,1) as NUMBEROFINSTALLMENTSPAID,
-	dateadd(d, day(NEXTTRANSACTIONDATE)-1, dateadd ( m, ceiling(coalesce(ni.NUMBEROFINSTALLMENTSPAID,1)), '6/1/14')) as NEWNEXTTRANSACTIONDATE,
+	dateadd(d, day(NEXTTRANSACTIONDATE)-1, dateadd ( m, ceiling(coalesce(ni.PERCENTAGEOFINSTALLMENTSPAID,1)), '6/1/14')) as NEWNEXTTRANSACTIONDATE,
 	case 
 		when exists (select MEMBERID from SponsorshipPayments where MEMBERID = s.MEMBERID and INSTALLMENTAMOUNT > 40) then 'DO NOT USE NEW NTD- NOT MONTHLY'
 		else 'ok to use new NTD'
@@ -139,7 +139,7 @@ from
 			<OutputField Name="INSTALLMENTAMOUNT" Caption="Installment Amount" DataType="Money"/>
 			<OutputField Name="INSTALLMENTTOTALPAYMENTS" Caption="Installment Total Payments" DataType="Money" />
 			<OutputField Name="NUMBEROFINSTALLMENTSTOADDTONTD" Caption="Number of Installments to add to NTD" DataType="Integer" />
-			<OutputField Name="PERCENTAGEOFINSTALLMENTSPAID" Caption="Number of Installments Paid" DataType="Decimal" />
+			<OutputField Name="PERCENTAGEOFINSTALLMENTSPAID" Caption="Percentage of Installments Paid" DataType="Decimal" />
 			<OutputField Name="NUMBEROFINSTALLMENTSPAID" Caption="Number of Installments Paid" DataType="Integer" />
 			<OutputField Name="NEWNEXTTRANSACTIONDATE" Caption="New Next Transaction Date" DataType="Date" />
 			<OutputField Name="VALIDNTD" Caption="Valid NTD?" DataType="String" />
