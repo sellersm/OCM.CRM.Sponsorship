@@ -1,0 +1,61 @@
+﻿<QueryViewSpec
+	xmlns="bb_appfx_queryview"
+	xmlns:common="bb_appfx_commontypes" 
+	ID="B12DD54F-5771-4BE4-9784-3330AA175D10"
+	Name="D4 Campaign Business Process Results Query"
+	Description="Query to display results of D4 Campaign business process"
+	Author="Cary Mayeda"
+	IsRoot="true"
+	PrimaryKeyField="ID"
+	RecordType="Constituent"
+	common:SecurityUIFolder="Sponsorship"
+	>
+
+	<!-- 
+	Remarks:    
+
+	History:
+	Date            Modified By     Comments
+	14-May-2013		CMayeda			Initial Version copied from Memphis' D2 Campaign Business Process Results Query
+									Changed RecordType to Constituent 
+									Added constituent related view
+	-->
+
+	<!-- define the view used to return data for the query -->
+	<ViewImplementation ViewName="USR_V_QUERY_D4CAMPAIGN_BUSINESSPROCESS_RESULTS">
+		<ViewSQL>
+			<![CDATA[
+
+SELECT	c.ID, 
+		r.ID as RESULTID,
+		r.SPONSORLOOKUPID,
+		c.NAME as SPONSORNAME,		
+		r.D4CAMPAIGNDATE, 
+		r.DATEADDED, 
+		r.D4INTERACTIONSTATUS
+FROM dbo.USR_D4_CAMPAIGN_BUSINESSPROCESS_RESULTS r
+join dbo.CONSTITUENT c on r.SPONSORLOOKUPID = c.LOOKUPID
+
+	]]>
+		</ViewSQL>
+	</ViewImplementation>
+
+	<!-- describe each field in the view output -->
+	<Output>
+		<OutputFields>
+			<OutputField Name="ID" Caption="Sponsor record ID" Category="System Fields" DataType="Guid"/>
+			<OutputField Name="RESULTID" Caption="System record ID" Category="System Fields" />
+			<OutputField Name="SPONSORLOOKUPID" Caption="Sponsor Lookup Id" DataType="String" />
+			<OutputField Name="SPONSORNAME" Caption="Sponsor Name" DataType="String" />
+			<OutputField Name="D4CAMPAIGNDATE" Caption="D4 Campaign Date" DataType="Date" />
+			<OutputField Name="DATEADDED" Caption="Date Added" DataType="Date" />
+			<OutputField Name="D4INTERACTIONSTATUS" Caption="Result" DataType="String" />
+		</OutputFields>
+	</Output>
+
+	
+	<RelationshipOperations>
+		<AddRelatedView RelatedView="V_QUERY_CONSTITUENT" PathAlias="Sponsor" Field="ID" RelatedField="ID"/>
+	</RelationshipOperations>
+</QueryViewSpec>
+

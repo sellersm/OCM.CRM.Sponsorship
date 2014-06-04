@@ -1,0 +1,837 @@
+﻿<SQLStoredProcedureSpec
+	xmlns="bb_appfx_sqlstoredprocedure"
+	xmlns:common="bb_appfx_commontypes"
+	ID="756ecec0-975c-4418-ab8f-26360a48b41a"
+	Name="USR_USP_SPONSORSHIP_HANDLE_DEPARTURETRANSFERCOMPLETION"
+	Description="Performs all the custom process for completing a departure transfer and/or override."
+	Author="Memphis Sellers"
+	SPName="USR_USP_SPONSORSHIP_HANDLE_DEPARTURETRANSFERCOMPLETION"
+	>
+
+	<!-- 
+	Remarks:    This sproc is used to do all the work of completing a departure transfer.  Called after the OOB sprocs are called from the
+				Complete Or Override Pending Transfer Form.
+
+	History:
+	Date            Modified By     Comments
+	30-Jan-2013		Memphis			Initial Version.
+	12-Feb-2013		Memphis			Fogbugz Case 976: wrong subcategory code in workflow doc. changed to 'Child Welcome Letter'
+	18-Feb-2013		Memphis			Fogbugz Case 977, 978, 979
+	19-Feb-2013		Memphis			Fogbugz Case 985, 987.
+	20-Feb-2013		Memphis			Fogbugz Case 988, 989, 990, 991
+	23-Feb-2013		Memphis			Fogbugz Case 1005: need to check the isPaidAheadOrActiveEFT variable instead of just isPaidAhead
+	27-Feb-2013		Memphis			Fogbugz Case 1013: don't populate the departure reason/other if admin type but not project closure
+	-->
+
+
+	<CreateProcedureSQL>
+		<![CDATA[
+create procedure dbo.USR_USP_SPONSORSHIP_HANDLE_DEPARTURETRANSFERCOMPLETION
+(
+	@sponsorId uniqueidentifier,
+	@transferSponsorshipId uniqueidentifier,
+	@departedSponsorshipId uniqueidentifier,
+	@transferChildId uniqueidentifier,		
+	@departedChildId uniqueidentifier,		
+	@changeAgentID uniqueidentifier = null,		
+	@sponsorContactCodeId uniqueidentifier	-- lettertypecodeid value for contact/no contact
+)
+as
+begin
+/*
+ Process for completing/override a Pending Transfer
+ - customizations required for OCM process.
+ - this runs after the OOB CRM procedures are all done.
+ 
+*/
+
+declare @sponsorInteractionID uniqueidentifier;
+
+-- check if this is a sponsor or prospect sponsor
+declare @prospectSponsorCodeId uniqueidentifier;
+declare @sponsorCodeId uniqueidentifier;
+declare @isSponsor bit = 0;
+declare @isProspect bit = 0;
+
+select @prospectSponsorCodeId = dbo.USR_UFN_CONSTITUENT_GETID_FORCODE('Prospect Sponsor')
+select @sponsorCodeId = dbo.USR_UFN_CONSTITUENT_GETID_FORCODE('Sponsor')
+
+/*  TESTING ONLY 
+print @sponsorCodeId
+print @prospectSponsorCodeId;
+*/
+
+declare @departureReasonCodeText nvarchar(100);
+declare @departureReasonCodeID uniqueidentifier = null;
+declare @adminProjectClosureId uniqueidentifier = null;  -- this is the only admin departure type code we care about
+declare @fulfillmentStatusCodeId_Pending uniqueidentifier;
+
+select @isSponsor = dbo.USR_UFN_CONSTITUENT_HAS_CONSTITUENCYCODE(@sponsorId, @sponsorCodeId)
+select @isProspect = dbo.USR_UFN_CONSTITUENT_HAS_CONSTITUENCYCODE(@sponsorId, @prospectSponsorCodeId)
+
+if @changeAgentID is null  
+	exec dbo.USP_CHANGEAGENT_GETORCREATECHANGEAGENT @changeAgentID output
+
+
+-- used for the lettertype code of contacted/not contacted
+declare @notContactedLetterTypeCodeId uniqueidentifier;
+declare @contactedLetterTypeCodeId uniqueidentifier;
+
+-- used for interactions
+declare @subcategoryLetterUpdate nvarchar(100);		-- holds the subcategory letter code used in the update statement
+
+declare @summary nvarchar(100) = ''						-- The summary / objective of the interaction
+declare @categoryName nvarchar(100) = ''					-- Name of the interaction category (not the guid)
+declare @subcategoryName nvarchar(100) = ''				-- Name of the interaction subcategory (not the guid)
+declare @expectedDate date = null							-- Expected Date of the interaction
+declare @actualDate date = null							-- Actual Date - required for completed interactions
+declare @owner uniqueidentifier = null					-- Owner / Fundraiser assigned to the interaction 
+declare @contactMethodDesc nvarchar(100) = ''				-- Email, Event, Mail, Phone, Task
+declare @statusCode tinyint = null							-- 0 - Planned, 1 - Pending, 2 - Completed, 3 - Unsuccessful, 4 - Cancelled, 5 - Declined
+declare @comment nvarchar(max) = ''						-- Comment
+declare @letterTypeDesc nvarchar(100) = ''					-- Description of the row in USR_INTERACTIONEXTENSIONLETTERTYPECODE used to set LETTERTYPECODEID
+declare @fulfillmentStatusDesc nvarchar(100) = ''			-- Description from USR_INTERACTIONEXTENSIONFULFILLMENTSTATUSCODE used to set FULFILLMENTSTATUSCODEID 
+
+-- used to hold departure information
+declare @DEPARTURE_DEATHOFCHILD bit = 0;
+declare @ISPROGRAMCOMPLETION bit = 0;
+declare @DEPARTURETYPECODE tinyint;
+declare @DEPARTURE_LACKOFINTEREST bit = 0;
+declare @DEPARTURE_FAILED bit = 0;
+declare @DEPARTURE_LIVESWITHRELATIVES bit = 0;
+declare @DEPARTURE_ILLNESS  bit = 0;
+declare @DEPARTURE_TRANSFERRED bit = 0;
+declare @DEPARTURE_EMPLOYED bit = 0;
+declare @DEPARTURE_MARRIED bit = 0;
+declare @DEPARTURE_NEEDEDATHOME bit = 0;
+declare @DEPARTURE_PREGNANCY bit = 0;
+declare @DEPARTURE_REMOVEDBYPARENTS bit = 0;
+declare @DEPARTURE_FAMILYMOVED bit = 0;
+declare @DEPARTURE_FAMILYNOWPROVIDES bit = 0;
+declare @DEPARTURE_PROJECTTOOFAR bit = 0;
+declare @DEPARTURE_OTHER nvarchar(250) = null;
+declare @ADMINISTRATIVECODEID uniqueidentifier;
+
+-- setup all the initial and current status id values:
+declare @sponsoredInitialStatusId uniqueidentifier = null;  -- initial 'Sponsored'
+declare @sponsoredCurrentStatusId uniqueidentifier = null;  -- current 'Sponsored'
+declare @unpaidTransferInitialStatusId uniqueidentifier = null; -- initial 'Unpaid Transfer'
+declare @unpaidSponsoredCurrentStatusId uniqueidentifier = null; -- current 'Unpaid Sponsored'
+declare @prospectTransferInitialStatusId uniqueidentifier = null; -- initial 'Prospect Transfer'
+declare @prospectSponsoredCurrentStatusId uniqueidentifier = null; -- current 'Prospect Sponsored'
+declare @isPaidAheadOrActiveEFT bit = 0;
+declare @isEFTSponsorship bit = 0;
+declare @isPaidAhead bit = 0;
+
+-- letter types vars:
+declare @letterType_ChildTransfer_Prospect nvarchar(100) = 'Child Transfer Letter - Prospect'
+declare @letterType_ChildTransfer nvarchar(100) = 'Child Transfer Letter'
+declare @letterType_ChildTransfer_Unpaid nvarchar(100) = 'Child Transfer Letter - Unpaid'
+declare @letterType_ProjectClosure_Prospect nvarchar(100) = 'Project Closure Letter - Prospect'
+declare @letterType_ProjectClosure nvarchar(100) = 'Project Closure Letter'
+declare @letterType_ProjectClosure_Unpaid nvarchar(100) = 'Project Closure Letter - Unpaid'
+declare @letterType_ProgramCompletion nvarchar(100) = 'Program Completion Letter'
+declare @letterType_ProgramCompletion_Unpaid nvarchar(100) = 'Program Completion Letter - Unpaid'
+
+
+
+-- use this UFN to get the current status ID values: dbo.USR_UFN_CURRENTOPPORTUNITYSPONSORSHIPSTATUSCODE_GETID_FORDESCRIPTION
+-- use this UFN to get the initial status ID values: dbo.USR_UFN_INITIALOPPORTUNITYSPONSORSHIPSTATUSCODE_GETID_FORDESCRIPTION
+--set @sponsoredInitialStatusId  = dbo.USR_UFN_INITIALOPPORTUNITYSPONSORSHIPSTATUSCODE_GETID_FORDESCRIPTION('Sponsored')
+-- Fogbugz Case 985: make the initial status to be 'Paid transfer' if this is paid:
+set @sponsoredInitialStatusId  = dbo.USR_UFN_INITIALOPPORTUNITYSPONSORSHIPSTATUSCODE_GETID_FORDESCRIPTION('Paid transfer')
+set @sponsoredCurrentStatusId = dbo.USR_UFN_CURRENTOPPORTUNITYSPONSORSHIPSTATUSCODE_GETID_FORDESCRIPTION('Sponsored')
+set @unpaidTransferInitialStatusId = dbo.USR_UFN_INITIALOPPORTUNITYSPONSORSHIPSTATUSCODE_GETID_FORDESCRIPTION('Unpaid Transfer')
+set @unpaidSponsoredCurrentStatusId = dbo.USR_UFN_CURRENTOPPORTUNITYSPONSORSHIPSTATUSCODE_GETID_FORDESCRIPTION('Unpaid Sponsored')
+set @prospectTransferInitialStatusId = dbo.USR_UFN_INITIALOPPORTUNITYSPONSORSHIPSTATUSCODE_GETID_FORDESCRIPTION('Prospect Transfer')
+set @prospectSponsoredCurrentStatusId = dbo.USR_UFN_CURRENTOPPORTUNITYSPONSORSHIPSTATUSCODE_GETID_FORDESCRIPTION('Prospect Sponsored')
+
+declare @contactCodeDescription nvarchar(100) = null;
+declare @isSponsorContact bit = 0;
+
+select @contactCodeDescription = [DESCRIPTION]
+from dbo.USR_INTERACTIONEXTENSIONLETTERTYPECODE
+where ID = @sponsorContactCodeId
+
+
+-- *** MEMPHIS: LOOK AT THIS FOR THE FOGBUGZ ISSUE ***
+if lower(@contactCodeDescription) like '%not%'
+	set @isSponsorContact = 0
+else
+	set @isSponsorContact = 1
+
+select @contactedLetterTypeCodeId = ID
+from dbo.USR_INTERACTIONEXTENSIONLETTERTYPECODE
+where LOWER([DESCRIPTION]) = lower('Contacted')
+
+select @notContactedLetterTypeCodeId = ID
+from dbo.USR_INTERACTIONEXTENSIONLETTERTYPECODE
+where LOWER([DESCRIPTION]) = lower('Not Contacted')
+
+select @adminProjectClosureId = ID
+from dbo.USR_DEPARTURE_ADMINISTRATIVE_CODE
+where lower([DESCRIPTION]) = LOWER('Admin - Project Closed')
+
+
+select @fulfillmentStatusCodeId_Pending = ID
+from dbo.USR_INTERACTIONEXTENSIONFULFILLMENTSTATUSCODE
+where LOWER([DESCRIPTION]) = LOWER('Pending')
+
+	begin try
+	
+	-- ensure we have all the values we need:
+	if @sponsorId is null
+		RAISERROR 1000000 'Sponsor is missing! Unable to continue.'
+		
+	if @transferSponsorshipId is null
+		RAISERROR 1000000 'Transfer Sponsorship ID is missing! Unable to continue.'
+		
+	if @departedSponsorshipId is null
+		RAISERROR 1000000 'Departed Sponsorship ID is missing! Unable to continue.'
+		
+	if @transferChildId is null
+		RAISERROR 1000000 'Transfer Child ID is missing! Unable to continue.'
+	
+	if @departedChildId is null
+		RAISERROR 1000000 'Departed Child ID is missing! Unable to continue.'
+		
+	if @sponsorContactCodeId is null
+		RAISERROR 1000000 'Donor Contact Type Code is missing! Unable to continue.'
+	
+	if @sponsoredInitialStatusId is null
+		RAISERROR 1000000 'Unable to locate the Initial Opportunity Sponsorship Status Code of Sponsored'
+		
+	if @sponsoredCurrentStatusId is null
+		RAISERROR 1000000 'Unable to locate the Current Opportunity Sponsorship Status Code of Sponsored'
+	
+	if @unpaidTransferInitialStatusId is null
+		RAISERROR 1000000 'Unable to locate the Initial Opportunity Sponsorship Status Code of Unpaid Transfer'
+	
+	if @unpaidSponsoredCurrentStatusId is null
+		RAISERROR 1000000 'Unable to locate the Current Opportunity Sponsorship Status Code of Unpaid Sponsored'
+	
+	if @prospectSponsoredCurrentStatusId is null
+		RAISERROR 1000000 'Unable to locate the Current Opportunity Sponsorship Status Code of Prospect Sponsored'
+	
+	if @prospectTransferInitialStatusId is null
+		RAISERROR 1000000 'Unable to locate the Initial Opportunity Sponsorship Status Code of Prospect Transfer'
+	
+	if @contactedLetterTypeCodeId is null
+		RAISERROR 1000000 'Unable to locate the InteractionExtension LetterType Code of Contacted'
+	
+	if @notContactedLetterTypeCodeId is null
+		RAISERROR 1000000 'Unable to locate the InteractionExtension LetterType Code of Not Contacted'
+	
+	if @prospectSponsorCodeId is null
+		RAISERROR 1000000 'Unable to locate the Constituency Code ID for code Prospect Sponsor'
+		
+	if @sponsorCodeId is null
+		RAISERROR 1000000 'Unable to locate the Constituency Code ID for code Sponsor'
+	
+	if @adminProjectClosureId is null
+		RAISERROR 1000000 'Unable to locate the Departure Administrative code of Admin - Project Closed'
+		
+	if @fulfillmentStatusCodeId_Pending is null
+		RAISERROR 1000000 'Unable to locate the InteractionExtension Fulfillment Status code of Pending'
+
+-- for testing only
+--set @isProspect = 0;
+--set @isSponsor = 0;
+
+	-- this condition should never happen, but if it does we can't proceed:
+	if @isSponsor = 1 and @isProspect = 1
+		begin
+			-- raise an error
+			RAISERROR 1000000 'This Sponsor cannot be both a Sponsor and a Prospect Sponsor! Unable to continue.'
+		end
+	else
+		-- check for the opposite condition, this must be at least ONE type of constituency!
+		if @isSponsor = 0 and @isProspect = 0
+			begin
+				-- raise an error
+				RAISERROR 1000000 'This Sponsor must be either a Sponsor or a Prospect Sponsor! Unable to continue.'
+			end
+		
+end try
+begin catch
+    exec dbo.USP_RAISE_ERROR
+	return 1	
+end catch
+	
+begin try
+
+	/*
+	IF SPONSOR:
+	2. Check if sponsor is paid ahead or active EFT?
+	  IF YES:
+	- Update sponsorship extension Initial Sponsorship Status to 'Sponsored' and Current Sponsorship Status to 'Sponsored'
+	IF NO:
+	- Update sponsorship extension Initial Sponsorship Status to 'Unpaid Transfer' and Current Sponsorship Status to 'Unpaid Sponsored'
+	2A. Is a PROSPECT SPONSOR:
+	 - Update sponsorship extension Initial Sponsorship Status to 'Prospect Transfer' and Current Sponsorship Status to 'Prospect Sponsored'
+	*/
+
+	-- before udpating sponsorship extension, check for a row first:
+	declare @sponsorshipExtensionId uniqueidentifier = null;
+	
+	select @sponsorshipExtensionId = ID
+	from dbo.USR_SPONSORSHIPEXTENSION
+	where ID = @transferSponsorshipId
+	
+	declare @initialStatusText nvarchar(100) = null;
+	declare @currentStatusText nvarchar(100) = null;
+
+	-- fogbugz case 977: set the current sponsorship status of the departed child
+	-- Sponsored = Formerly  Sponsored
+	-- Unpaid Sponsored = Formerly Unpaid Sponsored
+	-- Prospect Sponsored = Formerly Prospect Sponsored
+	-- get the current sponsorship status of the departed child's sponsorship record:
+	declare @newDepartedCurrentSponsorshipStatusId uniqueidentifier;
+	declare @departedCurrentSponsorshipStatusId uniqueidentifier;
+	set @departedCurrentSponsorshipStatusId = dbo.USR_UFN_SPONSORSHIP_GETCURRENTOPPORTUNITYSTATUSCODEID(@departedSponsorshipId)
+	
+	-- figure out which status it is and then set the new one:
+	if @departedCurrentSponsorshipStatusId is not null
+		begin
+			-- check for Prospect Sponsored current status
+			if @departedCurrentSponsorshipStatusId = @prospectSponsoredCurrentStatusId
+				set @newDepartedCurrentSponsorshipStatusId = dbo.USR_UFN_CURRENTOPPORTUNITYSPONSORSHIPSTATUSCODE_GETID_FORDESCRIPTION('Formerly Prospect Sponsored')
+			
+			-- check for Unpaid Sponsored current status
+			if @departedCurrentSponsorshipStatusId = @unpaidSponsoredCurrentStatusId
+				set @newDepartedCurrentSponsorshipStatusId = dbo.USR_UFN_CURRENTOPPORTUNITYSPONSORSHIPSTATUSCODE_GETID_FORDESCRIPTION('Formerly Unpaid Sponsored')
+			
+			-- check for Sponsored current status
+			if @departedCurrentSponsorshipStatusId = @sponsoredCurrentStatusId
+				set @newDepartedCurrentSponsorshipStatusId = dbo.USR_UFN_CURRENTOPPORTUNITYSPONSORSHIPSTATUSCODE_GETID_FORDESCRIPTION('Formerly Sponsored')
+				
+			-- perform the update
+			update dbo.USR_SPONSORSHIPEXTENSION
+			set CURRENTOPPORTUNITYSPONSORSHIPSTATUSCODEID = @newDepartedCurrentSponsorshipStatusId
+			where ID = @departedSponsorshipId
+						
+		end
+		
+	-- Determine the PREDEPARTUREGIFTSTATUS value of the departed sponsorship
+	declare @transferFinancialTransactionId uniqueidentifier;
+	declare @departedFinancialTransactionId uniqueidentifier;
+
+	set @transferFinancialTransactionId = dbo.USR_UFN_GETFINANCIALTRANSACTIONID_FORSPONSORSHIP(@transferSponsorshipId)
+	set @departedFinancialTransactionId = dbo.USR_UFN_GETFINANCIALTRANSACTIONID_FORSPONSORSHIP(@departedSponsorshipId)
+
+	declare @preDepartureGiftStatus nvarchar(10);
+	set @preDepartureGiftStatus = dbo.USR_UFN_GET_PREDEPARTUREGIFTSTATUS(@departedFinancialTransactionId)
+
+	-- Fogbugz 985: not correctly determining if this is a PaidAhead or an Active EFT sponsorship.
+	-- must use the departed sponsorshipID because the payment info is copied to the transferred (new) sponsorship:
+	set @isEFTSponsorship = dbo.USR_UFN_SPONSORSHIP_ISEFT(@departedSponsorshipId)
+	
+	-- to determine paid ahead, look at the past due amount, should be 0, ignore the NTD!
+	-- use this UFN:  USR_UFN_ISSPONSORSHIP_PAIDAHEAD(sponsorshipId)
+	-- function returns a 1 if paid ahead, 0 if not:
+	set @isPaidAhead = dbo.USR_UFN_ISSPONSORSHIP_PAIDAHEAD(@departedSponsorshipId)
+
+	-- for determining if this is paid ahead OR an active EFT
+	-- if this is paid ahead, don't do anything else, if it isn't, check if it's an active eft
+	if @isPaidAhead = 0
+		set @isPaidAheadOrActiveEFT = @isEFTSponsorship;
+		if @isPaidAheadOrActiveEFT = 1
+			begin
+				-- 2/21/13 Memphis: need to check the predeparturegiftstatus and if it's Held
+				-- then set @isPaidAheadOrActiveEFT to 0
+				if lower(@preDepartureGiftStatus) = 'held'
+					set @isPaidAheadOrActiveEFT = 0;
+			end
+	else
+		set @isPaidAheadOrActiveEFT = @isPaidAhead;
+	
+
+	if @sponsorshipExtensionId is null
+		begin
+			-- set the opportunity status values:
+			if @isSponsor = 1
+				begin
+					if @isPaidAheadOrActiveEFT = 1
+						begin
+							set @initialStatusText = 'Sponsored';
+							set @currentStatusText = 'Sponsored';
+						end
+					else
+						begin
+							set @initialStatusText = 'Unpaid Transfer';
+							set @currentStatusText = 'Unpaid Sponsored';							
+						end
+				end
+			else
+				if @isProspect = 1
+					begin
+							set @initialStatusText = 'Prospect Transfer';
+							set @currentStatusText = 'Prospect Sponsored';							
+					end						
+
+			-- insert into the sponsorship extension table:
+			exec dbo.USR_USP_INSERTNEWSPONSORSHIP_SPONSORSHIPEXTENSION
+				@SPONSORSHIPID = @transferSponsorshipId,
+				@initialStatusText = @initialStatusText,
+				@currentStatusText = @currentStatusText,				
+				@CHANGEAGENTID = @CHANGEAGENTID,			
+				@SPONSORSHIPOPPORTUNITYID = @transferChildId
+		end
+	else
+		begin
+			-- perform the update as the row exists
+			-- if this is a Sponsor:
+			-- go ahead and update the sponsorship extension sponsorship status field[s] for the transfer sponsorship:
+			if @isSponsor = 1
+				begin
+					if @isPaidAheadOrActiveEFT = 1
+						begin
+							update dbo.USR_SPONSORSHIPEXTENSION
+							set INITIALOPPORTUNITYSPONSORSHIPSTATUSCODEID = @sponsoredInitialStatusId,
+								CURRENTOPPORTUNITYSPONSORSHIPSTATUSCODEID = @sponsoredCurrentStatusId
+							where ID = @transferSponsorshipId
+						end
+					else
+						begin
+							update dbo.USR_SPONSORSHIPEXTENSION
+							set INITIALOPPORTUNITYSPONSORSHIPSTATUSCODEID = @unpaidTransferInitialStatusId,
+								CURRENTOPPORTUNITYSPONSORSHIPSTATUSCODEID = @unpaidSponsoredCurrentStatusId
+							where ID = @transferSponsorshipId
+						end
+				end
+			else
+				begin
+					-- if prospect sponsor, update with different initial and current status ID values:
+					if @isProspect = 1
+						begin
+							update dbo.USR_SPONSORSHIPEXTENSION
+							set INITIALOPPORTUNITYSPONSORSHIPSTATUSCODEID = @prospectTransferInitialStatusId,
+								CURRENTOPPORTUNITYSPONSORSHIPSTATUSCODEID = @prospectSponsoredCurrentStatusId
+							where ID = @transferSponsorshipId
+						end		
+				end
+		end
+	
+	/*
+	3. Create welcome letter interaction for the transfer child:
+	   - Summary: Transfer sponsorship complete
+	- Category: Child Letters
+	- Subcategory: Welcome Letter
+	- Status: Pending
+	- Contact Method: Mail
+	- Expected Date: today's date (getdate())
+	-- Fogbugz Case 979, from Pamela:
+	--  The child's interaction "Child Welcome Letter" needs to have an expected date of 2 months and last day of that month from today.
+	--  For example, if today is 2/13/13 then the expected date needs to be 4/30/13.
+	- Sponsor ID:  sponsor lookup id
+	*/
+	declare @childWelcomeLetterInteractionId uniqueidentifier;
+	declare @currentDate date = getdate();
+	declare @futureExpectedDate date;
+	select @futureExpectedDate = cast(DATEADD(s,-1,DATEADD(mm, DATEDIFF(m,0,GETDATE())+3,0)) as date);
+
+	-- Fogbugz case 987: only create child welcome letter for sponsor (not prospect sponsor):
+	if @isSponsor = 1
+		begin	
+			exec dbo.USR_USP_INTERACTION_CHILDLETTER_ADD_PENDING
+				@id = @childWelcomeLetterInteractionId output,								-- This returns the ID of the interaction created
+				@sponsorhipOpportunityChildID = @transferChildId,		-- The Constituent ID to create the interaction for
+				@summary = 'Transfer sponsorship complete',								-- The summary / objective of the interaction
+				@categoryName = 'Child Letters',							-- Name of the interaction category (not the guid)
+				@subcategoryName = 'Child Welcome Letter',						-- Name of the interaction subcategory (not the guid)
+				@expectedDate = @futureExpectedDate,  --  @currentDate, Expected Date of the interaction
+				@owner = null,								-- Owner / Fundraiser assigned to the interaction 
+				@contactMethodDesc = 'Mail',						-- Email, Event, Mail, Phone, Task
+				@comment = 'Complete pending transfer',								-- Comment
+				@sponsorID = @sponsorId,							-- Constituent ID of the sponsor the child is to write to
+				@changeAgentID = null	
+		end
+
+	/*
+	- Child have open reservation key?
+	- NO:  do nothing
+	- YES: 
+	- Is this Unpaid Sponsored?
+	  - Yes:  change reservation status field to "Unpaid Sponsored"
+	  - No:   change reservation status field to "Sponsored"
+	  - add today's date to the End Date of reservation key
+	- Is this Prospect Sponsored?
+	  - Yes:  change reservation status field to "Prospect Sponsored"
+	  - add today's date to the End Date of reservation key
+	*/
+
+	-- reservation status code values:
+	/*
+	(case [STATUSCODE] when (0) then N'Closed' 
+	when (1) then N'Open' 
+	when (2) then N'Sponsored' 
+	when (3) then N'Prospect sponsored' 
+	when (4) then N'Unpaid transfer'
+	5 = 'Unpaid sponsored':  added the new statuscode value to ChildReservation table.
+	*/
+
+	declare @reservationStatusCode_UnpaidSponsored tinyint = 5	--Used to hold the status code value of 'Unpaid Sponsored'
+	declare @reservationStatusCode_Sponsored tinyint = 2			--Used to hold the status code value of 'Sponsored'
+	declare @reservationStatusCode_ProspectSponsored tinyint = 3	--Used to hold the status code value of 'Prospect Sponsored'
+	declare @reservationStatusCode_Open tinyint = 1					--Used to hold the status code value of 'Sponsored'
+	declare @reservationStatusCodeUpdateValue tinyint;				--Holds the updated status code value used in the update statement
+
+	declare @reservationId uniqueidentifier = null;
+
+	select  @reservationId =  r.ID
+		from dbo.USR_CHILDRESERVATION r
+		where r.SPONSORSHIPOPPORTUNITYCHILDID = @transferChildId
+		and r.STATUSCODE = @reservationStatusCode_Open
+ 
+
+	-- From Pamela: current sponsorship status value
+	-- get the current sponsorship status for the departed sponsorship:
+	declare @departedSponsorshipStatusId uniqueidentifier;
+	set @departedSponsorshipStatusId = dbo.USR_UFN_SPONSORSHIP_GETCURRENTOPPORTUNITYSTATUSCODEID(@departedSponsorshipId)
+
+	declare @isUnpaidSponsor bit = 0;
+
+	if @departedSponsorshipStatusId = @unpaidSponsoredCurrentStatusId 
+		set @isUnpaidSponsor = 1;
+	
+ 
+	if @reservationId is not null
+		begin
+			if @isProspect = 1
+				set @reservationStatusCodeUpdateValue = @reservationStatusCode_ProspectSponsored;
+		
+			if @isUnpaidSponsor = 1
+				set @reservationStatusCodeUpdateValue = @reservationStatusCode_UnpaidSponsored;
+			else
+				set @reservationStatusCodeUpdateValue = @reservationStatusCode_Sponsored;
+		
+			update	dbo.USR_CHILDRESERVATION 
+			   set	STATUSCODE = @reservationStatusCodeUpdateValue,
+					ENDDATE = getdate() 
+			 where	ID = @reservationId;
+		end     
+
+
+
+	/*
+	4. UPdate recurring gift:
+	  - Original EFT Gift status on Held?  (usr_financialtransaction_extension.PreDepartureGiftStatus field)
+		- YES:  leave the gift status alone
+		- NO:   change the gift status to Active
+	*/
+
+	if LOWER(@preDepartureGiftStatus) <> 'held'
+		begin
+			-- update the transfer recurring gift status to Active
+			-- 2/21/13 Memphis removed this since we don't set it 
+			--update dbo.REVENUESCHEDULE 
+			--set STATUSCODE = 0 -- Active
+			--where ID = @transferFinancialTransactionId
+			
+			-- Fogbugz Case 981:
+			-- remove the 'Held Recurring Gift' attribute for this record:
+			-- 2/21/13 Memphis: delete the record, not set end date!
+			delete dbo.ATTRIBUTE58705B2A658B4396A8F1BBC9003B9DCA
+			where REVENUEID = @transferFinancialTransactionId -- @revenueId
+		end
+
+	/*
+	5. Create sponsor interactions based on child departure reason:
+	  - IF PROSPECT SPONSOR:
+		- Use the appropriate Subcategory letter, from workflow chart
+	  - IF SPONSOR:
+		- Use the appropriate Subcategory letter, from workflow chart
+	*/
+
+	select 
+		@DEPARTURE_DEATHOFCHILD = DEPARTURE_DEATHOFCHILD
+		,@ISPROGRAMCOMPLETION = ISPROGRAMCOMPLETION
+		,@DEPARTURETYPECODE = DEPARTURETYPECODE
+		,@DEPARTURE_LACKOFINTEREST = DEPARTURE_LACKOFINTEREST
+		,@DEPARTURE_FAILED = DEPARTURE_FAILED
+		,@DEPARTURE_LIVESWITHRELATIVES = DEPARTURE_LIVESWITHRELATIVES
+		,@DEPARTURE_ILLNESS = DEPARTURE_ILLNESS
+		,@DEPARTURE_TRANSFERRED = DEPARTURE_TRANSFERRED
+		,@DEPARTURE_EMPLOYED = DEPARTURE_EMPLOYED
+		,@DEPARTURE_MARRIED = DEPARTURE_MARRIED
+		,@DEPARTURE_NEEDEDATHOME = DEPARTURE_NEEDEDATHOME
+		,@DEPARTURE_PREGNANCY = DEPARTURE_PREGNANCY
+		,@DEPARTURE_REMOVEDBYPARENTS = DEPARTURE_REMOVEDBYPARENTS
+		,@DEPARTURE_FAMILYMOVED = DEPARTURE_FAMILYMOVED
+		,@DEPARTURE_FAMILYNOWPROVIDES = DEPARTURE_FAMILYNOWPROVIDES
+		,@DEPARTURE_PROJECTTOOFAR = DEPARTURE_PROJECTTOOFAR
+		,@DEPARTURE_OTHER = DEPARTURE_OTHER
+		,@ADMINISTRATIVECODEID = ADMINISTRATIVECODEID
+	from dbo.USR_CHILDDEPARTURE
+	where SPONSORSHIPOPPORTUNITYCHILDID = @departedChildId
+	and ISCURRENTDEPARTURECODE = 1  -- Yes
+
+	-- use this flag to identify when we're done checking departure fields:
+	declare @departureCheckDone bit = 0;
+	declare @deathOfChild bit = 0;
+	declare @adminDeparture bit = 0;
+	declare @adminProjectClosure bit = 0;
+
+	-- check for the easy cases first:
+	if @DEPARTURE_DEATHOFCHILD = 1
+		begin
+			set @departureReasonCodeText = 'DR5 - death of child'
+			set @deathOfChild = 1;
+			set @departureCheckDone = 1;
+		end
+	
+	--(case [DEPARTURETYPECODE] when (0) then N'Departure' when (1) then N'Completion' when (2) then N'Administrative'  end)
+	if @departureCheckDone = 0 and @DEPARTURETYPECODE = 2  -- Administrative
+		begin
+			-- check the administrative reason code value, we only care about 'Admin - Project Closed'
+			if @adminProjectClosureId = @ADMINISTRATIVECODEID
+				begin		
+					set @adminDeparture = 1;
+					set @adminProjectClosure = 1;
+					set @departureCheckDone = 1;
+          set @DEPARTURE_OTHER = NULL;  -- force this to NULL so it's not used in the update below
+				end
+			else
+				begin
+					-- per Pamela, set the DepartureReason to DR16 – Other and DepartureReasonOther of “Administrative”
+					set @adminDeparture = 1;
+					set @departureReasonCodeText = 'DR16 - other'
+					set @DEPARTURE_OTHER = 'Administrative'
+					set @departureCheckDone = 1;  -- might need to set this to 0 so it's checked below?
+				end
+		end
+	
+		
+	if @departureCheckDone = 0 and @ISPROGRAMCOMPLETION = 1
+		begin
+			set @departureReasonCodeText = 'DR11 - completed program'
+			set @departureCheckDone = 1;
+		end
+	
+	if @departureCheckDone = 0 and @DEPARTURE_LACKOFINTEREST = 1
+		begin
+			set @departureReasonCodeText = 'DR1 - dropped out'
+			set @departureCheckDone = 1;
+		end			
+
+	if @departureCheckDone = 0 and @DEPARTURE_FAILED = 1
+		begin
+			set @departureReasonCodeText = 'DR2 - failed school'
+			set @departureCheckDone = 1;
+		end
+	
+	if @departureCheckDone = 0 and @DEPARTURE_LIVESWITHRELATIVES = 1
+		begin
+			set @departureReasonCodeText = 'DR3 - live w relatives'
+			set @departureCheckDone = 1;
+		end
+
+	if @departureCheckDone = 0 and @DEPARTURE_ILLNESS = 1
+		begin
+			set @departureReasonCodeText = 'DR4 - health problems'
+			set @departureCheckDone = 1;
+		end
+
+	if @departureCheckDone = 0 and @DEPARTURE_TRANSFERRED = 1
+		begin
+			set @departureReasonCodeText = 'DR6 - transferred schools'
+			set @departureCheckDone = 1;
+		end
+
+	if @departureCheckDone = 0 and @DEPARTURE_EMPLOYED = 1
+		begin
+			set @departureReasonCodeText = 'DR7 - child employed'
+			set @departureCheckDone = 1;
+		end
+
+	if @departureCheckDone = 0 and @DEPARTURE_MARRIED = 1
+		begin
+			set @departureReasonCodeText = 'DR8 - child married'
+			set @departureCheckDone = 1;
+		end
+
+	if @departureCheckDone = 0 and @DEPARTURE_NEEDEDATHOME = 1
+		begin
+			set @departureReasonCodeText = 'DR9 - needed at home'
+			set @departureCheckDone = 1;
+		end
+
+	if @departureCheckDone = 0 and @DEPARTURE_PREGNANCY = 1
+		begin
+			set @departureReasonCodeText = 'DR10 - child pregnant'
+			set @departureCheckDone = 1;
+		end
+
+	if @departureCheckDone = 0 and @DEPARTURE_REMOVEDBYPARENTS = 1
+		begin
+			set @departureReasonCodeText = 'DR12 - taken out by caregiver'
+			set @departureCheckDone = 1;
+		end
+
+	if @departureCheckDone = 0 and @DEPARTURE_FAMILYMOVED = 1
+		begin
+			set @departureReasonCodeText = 'DR13 - family moved'
+			set @departureCheckDone = 1;
+		end
+
+	if @departureCheckDone = 0 and @DEPARTURE_FAMILYNOWPROVIDES = 1
+		begin
+			set @departureReasonCodeText = 'DR14 - able to provide'
+			set @departureCheckDone = 1;
+		end
+
+	if @departureCheckDone = 0 and @DEPARTURE_PROJECTTOOFAR = 1
+		begin
+			set @departureReasonCodeText = 'DR15 - home too far'
+			set @departureCheckDone = 1;
+		end
+
+	-- other departure
+	if @departureCheckDone = 0 and NULLIF(@DEPARTURE_OTHER,'') is not null  -- departure other has a value
+		begin
+			set @departureReasonCodeText = 'DR16 - other'
+			set @departureCheckDone = 1;
+		end
+
+	-- DEPARTURE_OTHER: NOT NULL nor EMPTY = 'DR16 - other' reason code
+
+
+	-- based on the departure data, set the reasoncode text, then lookup the respective ID for that code, 
+	-- then update the interactionextension DEPARTUREREASONCODEID field
+	-- if there's a DEPARTURE_OTHER field value, then update the DEPARTUREREASONOTHERDESCRIPTION field
+
+  -- Fogbugz Case 1013: only set departure reasons if NOT project closure:
+  if @adminProjectClosure = 0
+    begin
+	    select @departureReasonCodeID = ID
+	    from dbo.USR_INTERACTIONEXTENSIONDEPARTUREREASONCODE
+	    where LOWER([DESCRIPTION]) = LOWER(@departureReasonCodeText);
+    end
+  else
+    begin
+      -- set these values to NULL so they don't get used in the update down below
+      set @departureReasonCodeID = null;
+      set @DEPARTURE_OTHER = null;
+    end
+
+	-- set the values that aren't dependent upon the departure reason type:
+	set @summary = (case 
+					when @isProspect = 1 then 'Child prospect transfer complete'
+					when @isSponsor = 1 and @isPaidAheadOrActiveEFT = 1 then 'Child paid transfer complete'
+					when @isSponsor = 1 and @isPaidAheadOrActiveEFT = 0 then 'Child unpaid transfer complete'
+					else 'Child transfer complete'
+					end);
+	set @categoryName = 'Sponsorship Transfers';
+	set @statusCode = 1; -- pending
+	set @contactMethodDesc = 'Mail';
+	set @expectedDate = @currentDate;
+
+
+	declare @letterSubcategoryDesc nvarchar(100) = null  -- holds the letter type description, set in the case below
+
+	-- set the letter subcategory based on the rules from the workflow document:
+	select @letterSubcategoryDesc = 
+			(case 
+				when @isProspect = 1 and @deathOfChild = 1 then @letterType_ChildTransfer_Prospect 
+				when @isProspect = 1 and @adminDeparture = 1 and @adminProjectClosure = 1 then @letterType_ProjectClosure_Prospect
+				when @isProspect = 1 and @ISPROGRAMCOMPLETION = 1 then @letterType_ChildTransfer_Prospect
+				when @isProspect = 1 and @DEPARTURETYPECODE = 0 and @deathOfChild = 0 then @letterType_ChildTransfer_Prospect
+				when @isProspect = 1 and @adminDeparture = 1 and @adminProjectClosure = 0 then @letterType_ChildTransfer_Prospect
+				when @isProspect = 0 and @DEPARTURETYPECODE = 0 and @deathOfChild = 0 and @isPaidAheadOrActiveEFT = 1 then @letterType_ChildTransfer
+				when @isProspect = 0 and @DEPARTURETYPECODE = 0 and @deathOfChild = 0 and @isPaidAheadOrActiveEFT = 0 then @letterType_ChildTransfer_Unpaid
+				when @isProspect = 0 and @ISPROGRAMCOMPLETION = 1  and @isPaidAheadOrActiveEFT = 1 then @letterType_ProgramCompletion
+				when @isProspect = 0 and @ISPROGRAMCOMPLETION = 1  and @isPaidAheadOrActiveEFT = 0 then @letterType_ProgramCompletion_Unpaid
+				when @isProspect = 0 and @adminDeparture = 1 and @adminProjectClosure = 1 and @isPaidAheadOrActiveEFT = 1 then @letterType_ProjectClosure
+				when @isProspect = 0 and @adminDeparture = 1 and @adminProjectClosure = 1 and @isPaidAheadOrActiveEFT = 0 then @letterType_ProjectClosure_Unpaid
+				when @isProspect = 0 and @deathOfChild = 1 and @isPaidAheadOrActiveEFT = 1 then @letterType_ChildTransfer 
+				when @isProspect = 0 and @deathOfChild = 1 and @isPaidAheadOrActiveEFT = 0 then @letterType_ChildTransfer_Unpaid 
+				when @isProspect = 0 and @adminDeparture = 1 and @adminProjectClosure = 0 and @isPaidAheadOrActiveEFT = 1 then @letterType_ChildTransfer
+				when @isProspect = 0 and @adminDeparture = 1 and @adminProjectClosure = 0 and @isPaidAheadOrActiveEFT = 0 then @letterType_ChildTransfer_Unpaid
+				else @letterType_ChildTransfer
+			end)
+
+	if @letterSubcategoryDesc is null
+		RAISERROR 1000000 'Unable to set the correct Interaction Subcategory name. Unable to continue.'
+
+	-- Fogbugz 978: left out of workflow doc, 
+	-- if Autopay (eft) then eftBrochure Code is No, else Yes
+	declare @eftBrochureCode bit = 0;
+
+	if @isEFTSponsorship = 1
+		set @eftBrochureCode = 0;
+	else
+		set @eftBrochureCode = 1;
+
+	--Use this to create the Sponsor interaction stuff:
+	exec dbo.USR_USP_INTERACTION_SPONSOR_ADD_PENDING 
+		@id = @sponsorInteractionID output,
+		@constituentID = @sponsorId,
+		@summary = @summary,
+		@categoryName = 'Sponsorship Transfers',
+		@subcategoryName = @letterSubcategoryDesc,
+		@expectedDate = @currentDate,
+		@owner = null,
+		@contactMethodDesc = 'Mail',
+		@comment = 'Sponsorship transfer completed.',	
+		@letterTypeDesc = @letterTypeDesc,
+		@fulfillmentStatusDesc = 'Pending',
+		@eftBrochureCode = @eftBrochureCode,			
+		@resendCode = 0,
+		@changeAgentID = @changeAgentID			
+
+
+	-- Add the child to the interaction (already exisiting or new one)
+	if @sponsorInteractionID is not null
+		begin
+			-- update the interactionextension table
+			update dbo.USR_INTERACTIONEXTENSION
+			set FULFILLMENTSTATUSCODEID = @fulfillmentStatusCodeId_Pending,
+				RESENDCODE = 0,
+				DEPARTEDCHILDID = @departedChildId,
+				TRANSFERCHILDID = @transferChildId,
+				LETTERTYPECODEID = (case when @isSponsorContact = 1 then @contactedLetterTypeCodeId else @notContactedLetterTypeCodeId end),
+				DEPARTUREREASONCODEID = (case when @departureReasonCodeID is not null then @departureReasonCodeID else DEPARTUREREASONCODEID end),
+				DEPARTUREREASONOTHERDESCRIPTION = (case when NULLIF(@DEPARTURE_OTHER,'') is not null then @DEPARTURE_OTHER else DEPARTUREREASONOTHERDESCRIPTION end)
+			where ID = @sponsorInteractionID
+		
+			exec dbo.USR_USP_INTERACTION_SPONSOR_SETDEPARTEDCHILD
+				@interactionID = @sponsorInteractionID,
+				@sponsorshipOpportunityChildID = @departedChildId,
+				@changeAgentID = @changeAgentID 
+
+			exec dbo.USR_USP_INTERACTION_SPONSOR_SETTRANSFERCHILD
+				@interactionID = @sponsorInteractionID,
+				@sponsorshipOpportunityChildID = @transferChildId,
+				@changeAgentID = @changeAgentID 
+		end	
+
+	declare @financialTransactionId uniqueidentifier;
+
+	set @financialTransactionId = dbo.USR_UFN_GETFINANCIALTRANSACTIONID_FORSPONSORSHIP(@departedSponsorshipId)
+
+	-- Fogbugz Case 990: remove the Revenue Reference from the recurring gift, it's a not null varchar, 
+	--  so have to set it to an empty string:
+	if @financialTransactionId is not null
+		begin
+			update dbo.REVENUE_EXT
+			set REFERENCE = ''
+			where ID = @financialTransactionId
+		end
+
+
+	return 0;
+
+end try
+
+begin catch
+	exec dbo.USP_RAISE_ERROR
+	return 1;
+end catch
+			
+
+end
+
+		]]>
+	</CreateProcedureSQL>
+
+</SQLStoredProcedureSpec>

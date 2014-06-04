@@ -1,0 +1,10 @@
+﻿<UIModelWizardMetadata>
+  <SpecFileName>SponsorshipOpportunityChild_MoMCustom.Search.xml</SpecFileName>
+  <Namespace></Namespace>
+  <ClassName>SponsorshipOpportunityChildMoMCustomSearchUIModel</ClassName>
+  <HtmlInfo GenerateHtml="true">
+    <HtmlFile>SponsorshipOpportunityChildMoMCustomSearch_IGNORE.html</HtmlFile>
+    <HtmlFolder>htmlforms\</HtmlFolder>
+  </HtmlInfo>
+  <GenerateFromDatabase>true</GenerateFromDatabase>
+</UIModelWizardMetadata>

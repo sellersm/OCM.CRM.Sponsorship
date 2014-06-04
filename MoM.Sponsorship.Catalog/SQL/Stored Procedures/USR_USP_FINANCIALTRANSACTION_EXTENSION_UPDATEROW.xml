@@ -1,0 +1,41 @@
+﻿<SQLStoredProcedureSpec
+	xmlns="bb_appfx_sqlstoredprocedure"
+	xmlns:common="bb_appfx_commontypes" 
+	ID="1bb7d396-e844-46e4-a828-d87952a8c8c9"
+	Name="USR_USP_FINANCIALTRANSACTION_EXTENSION_UPDATEROW"
+	Description="Updates a given row of Financial Transaction extension table."
+	Author="Memphis Sellers"
+	SPName="USR_USP_FINANCIALTRANSACTION_EXTENSION_UPDATEROW"
+	>
+
+	<CreateProcedureSQL>
+		<![CDATA[
+-- =============================================
+-- Author:		Memphis Sellers
+-- Create date: 
+-- Description:	Updates a given row of Financial Transaction extension table.
+-- =============================================		
+create procedure dbo.USR_USP_FINANCIALTRANSACTION_EXTENSION_UPDATEROW
+	@FINANCIALTRANSACTIONID uniqueidentifier, 
+	@DIRECTDEBITSCHEDULECODEID uniqueidentifier,
+	@CREDITCARDSCHEDULECODEID uniqueidentifier,
+	@CHANGEDBYID uniqueidentifier = null,
+	@DATECHANGED date = GETDATE
+as
+begin
+	if @CHANGEDBYID is null
+		exec dbo.USP_CHANGEAGENT_GETORCREATECHANGEAGENT @CHANGEDBYID output;
+	
+	UPDATE [dbo].[USR_FINANCIALTRANSACTION_EXTENSION]
+	   SET 
+		  [DIRECTDEBITSCHEDULECODEID] = @DIRECTDEBITSCHEDULECODEID
+		  ,[CREDITCARDSCHEDULECODEID] = @CREDITCARDSCHEDULECODEID
+		  ,[CHANGEDBYID] = @CHANGEDBYID
+		  ,[DATECHANGED] = @DATECHANGED
+	 WHERE [ID] = @FINANCIALTRANSACTIONID
+end
+
+		]]>
+	</CreateProcedureSQL>
+
+</SQLStoredProcedureSpec>

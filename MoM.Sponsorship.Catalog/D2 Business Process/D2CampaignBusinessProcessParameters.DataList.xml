@@ -1,0 +1,59 @@
+﻿<DataListSpec 
+	xmlns="bb_appfx_datalist"
+	xmlns:common="bb_appfx_commontypes" 
+	ID="21d99f92-0904-4d8c-b9f4-d19cc4581202" 
+	Name="D2 Campaign Business Process Parameters Data List"
+	Description="D2 Campaign Business Process Parameters Data List." 
+	Author="Memphis Sellers"
+	common:SecurityUIFolder="Sponsorship">
+
+	<!-- define the SP that returns the data for the datalist -->
+	<SPDataList SPName="USR_USP_DATALIST_D2CAMPAIGN_BUSINESSPROCESS_PARAMETERS">
+		<common:CreateProcedureSQL>
+			<![CDATA[
+create procedure dbo.USR_USP_DATALIST_D2CAMPAIGN_BUSINESSPROCESS_PARAMETERS(
+	@CURRENTAPPUSERID uniqueidentifier = null
+)
+as
+	set nocount on;
+
+	select bizproc.ID,
+		   bizproc.NAME,
+		   bizproc.DESCRIPTION,
+		   bizproc.CAMPAIGNTYPE,
+		   BPI.OWNERID
+	from dbo.USR_D2_CAMPAIGN_BUSINESSPROCESS bizproc
+	LEFT JOIN
+		dbo.BUSINESSPROCESSINSTANCE BPI on bizproc.ID = BPI.BUSINESSPROCESSPARAMETERSETID
+	where 
+		dbo.UFN_SECURITY_APPUSER_GRANTED_BUSINESSPROCESSINSTANCE_IN_SYSTEMROLE(@CURRENTAPPUSERID, bizproc.ID) = 1
+	order by 
+		bizproc.NAME
+			]]>
+		</common:CreateProcedureSQL>
+	</SPDataList>
+
+	<!-- describe the context ID parameter for the SP (if applicable)-->
+	<!--<Context ContextRecordType="USR_D2_CAMPAIGN_BUSINESSPROCESS" RecordIDParameter="CONTEXTID"/>-->
+
+	<!-- describe any parameters (other than the context ID) defined on the SP
+	<Parameters>
+		<common:FormMetaData>
+			<common:FormFields>
+				<common:FormField FieldID="PARAMETER1" Caption="Paramter1" DataType="REPLACE_WITH_DATATYPE"/>
+			</common:FormFields>
+		</common:FormMetaData>
+	</Parameters>-->
+
+	<!-- define the output fields in the list -->
+	<Output>
+		<OutputFields>
+			<OutputField FieldID="ID" Caption="ID" DataType="Guid" IsHidden="true" />
+			<OutputField FieldID="NAME" Caption="Name" DataType="String" />
+			<OutputField FieldID="DESCRIPTION" Caption="Description" DataType="String" />
+			<OutputField FieldID="CAMPAIGNTYPE" Caption="Campaign Type" DataType="TinyInt" />
+			<OutputField FieldID="OWNERID" Caption="Owner ID" DataType="Guid" IsHidden="true" />
+		</OutputFields>
+	</Output>
+
+</DataListSpec>

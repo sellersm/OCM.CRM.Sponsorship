@@ -1,0 +1,26 @@
+﻿<SQLStoredProcedureSpec
+	xmlns="bb_appfx_sqlstoredprocedure"
+	xmlns:common="bb_appfx_commontypes" 
+	ID="5025bea2-d9cf-4057-a8e0-da01cb1dd011"
+	Name="USR_DELETE_LOCK_CHILD_FOR_SPONSORSHIP_SELECTION"
+	Description="Delete stored procedure for sponsorship child selected lock table "
+	Author="Memphis Sellers"
+	SPName="USR_DELETE_LOCK_CHILD_FOR_SPONSORSHIP_SELECTION"
+	>
+
+	<CreateProcedureSQL>
+		<![CDATA[
+create procedure dbo.USR_DELETE_LOCK_CHILD_FOR_SPONSORSHIP_SELECTION (
+		@OPPORTUNITYID uniqueidentifier
+)
+as
+begin
+	-- do work
+	delete dbo.USR_CHILD_SELECTED_FOR_SPONSORSHIP_LOCK
+	where OPPORTUNITYID = @OPPORTUNITYID
+end
+
+		]]>
+	</CreateProcedureSQL>
+
+</SQLStoredProcedureSpec>

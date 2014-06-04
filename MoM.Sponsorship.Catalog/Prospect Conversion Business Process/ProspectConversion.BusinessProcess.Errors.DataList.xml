@@ -1,0 +1,52 @@
+﻿<DataListSpec
+	xmlns="bb_appfx_datalist"
+	xmlns:common="bb_appfx_commontypes"
+	ID="dfc5aa3a-c2e8-4385-a80d-4fa1c759987a"
+	Name="Prospect Conversion Error Results Data List"
+	Description="List of exceptions (failed) Prospect conversions from business process."
+	Author="Memphis Sellers"
+	common:SecurityUIFolder="Sponsorship">
+
+	<!-- define the SP that returns the data for the datalist -->
+	<SPDataList SPName="USR_USP_DATALIST_PROSPECTCONVERSION_BUSINESSPROCESS_FAILURERESULTS">
+		<common:CreateProcedureSQL>
+			<![CDATA[
+create procedure dbo.USR_USP_DATALIST_PROSPECTCONVERSION_BUSINESSPROCESS_FAILURERESULTS(@CONTEXTID nvarchar(7))
+as
+	set nocount on;
+
+	select ID,
+		   SPONSORLOOKUPID,
+		   NUMBERSPONSORSHIPCONVERSIONS,
+		   CONVERSIONDATE,
+		   EXCEPTIONMESSAGE
+	from dbo.USR_PROSPECTCONVERSION_BUSINESSPROCESS_RESULTS
+	where CONVERSIONRESULT = @CONTEXTID
+			]]>
+		</common:CreateProcedureSQL>
+	</SPDataList>
+
+	<!-- describe the context ID parameter for the SP (if applicable)-->
+	<Context ContextRecordType="Sponsorship" RecordIDParameter="CONTEXTID"/>
+
+	<!-- describe any parameters (other than the context ID) defined on the SP
+	<Parameters>
+		<common:FormMetaData>
+			<common:FormFields>
+				<common:FormField FieldID="PARAMETER1" Caption="Paramter1" DataType="REPLACE_WITH_DATATYPE"/>
+			</common:FormFields>
+		</common:FormMetaData>
+	</Parameters>-->
+
+	<!-- define the output fields in the list -->
+	<Output>
+		<OutputFields>
+			<OutputField FieldID="ID" Caption="ID" DataType="Guid" IsHidden="true" />
+			<OutputField FieldID="SPONSORLOOKUPID" Caption="Sponsor lookup Id" DataType="String" />
+			<OutputField FieldID="NUMBERSPONSORSHIPCONVERSIONS" Caption="Number converted" DataType="Integer" />
+			<OutputField FieldID="CONVERSIONDATE" Caption="Conversion date" DataType="Date" />
+			<OutputField FieldID="EXCEPTIONMESSAGE" Caption="Error" DataType="String" />
+		</OutputFields>
+	</Output>
+
+</DataListSpec>

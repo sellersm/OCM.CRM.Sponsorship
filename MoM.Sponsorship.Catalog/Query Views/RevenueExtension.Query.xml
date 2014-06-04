@@ -1,0 +1,57 @@
+﻿<QueryViewSpec
+	xmlns="bb_appfx_queryview"
+	xmlns:common="bb_appfx_commontypes" 
+	ID="fa29de9c-c706-400d-b40a-79a1569514a0"
+	Name="Revenue Extension Query"
+	Description="OCM Revenue extension fields"
+	Author="Cary Mayeda"
+	IsRoot="false"
+	PrimaryKeyField="ID"
+	RecordType="Revenue"
+	common:SecurityUIFolder="Revenue"
+	>
+	<!-- 
+	Remarks:    Created for Task TK-01432
+
+	History:
+	Date            Modified By     Comments
+	21-May-2014		CMayeda			Initial Version
+	29-May-2014		CMayeda			Added DELAYEFTPAYMENTDUEDATECODE
+	-->
+
+	<!-- define the view used to return data for the query -->
+	<ViewImplementation ViewName="USR_V_QUERY_REVENUE_EXTENSION">
+		<ViewSQL>
+			<![CDATA[
+			
+select
+	ID,
+	ISEFTDECLINED,
+	(select DESCRIPTION from DELAYEFTPAYMENTDUEDATECODE where ID = DELAYEFTPAYMENTDUEDATECODEID)  as DELAYEFTPAYMENTDUEDATECODE
+from 
+	dbo.USR_FINANCIALTRANSACTION_EXTENSION				
+			]]>
+		</ViewSQL>
+	</ViewImplementation>
+
+	<!-- describe each field in the view output -->
+	<Output>
+		<OutputFields>
+			<OutputField Caption="System record ID" Category="System Fields" Name="ID" />
+			<OutputField Name="ISEFTDECLINED" Caption="Is EFT Declined?" DataType="Boolean" />
+			<OutputField Name="DELAYEFTPAYMENTDUEDATECODE" Caption="Delay EFT Payment Due Date" DataType="String">
+				<LookupInfo>
+					<CodeTable CodeTableName="DELAYEFTPAYMENTDUEDATECODE" IncludeInactive="true" />
+				</LookupInfo>
+			</OutputField>
+
+		</OutputFields>
+	</Output>
+
+
+	<RelationshipOperations>
+		<AddToParentView Field="ID" ParentView="V_QUERY_REVENUE" ParentViewRelatedField="ID" PathAlias="Revenue extension fields"/>
+	</RelationshipOperations>
+	
+</QueryViewSpec>
+

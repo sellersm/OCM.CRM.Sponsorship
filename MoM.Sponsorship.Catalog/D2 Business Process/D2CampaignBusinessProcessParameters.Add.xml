@@ -1,0 +1,99 @@
+﻿<AddDataFormTemplateSpec 
+	xmlns="bb_appfx_adddataformtemplate"
+	xmlns:common="bb_appfx_commontypes" 
+	ID="632a81fc-1dda-4634-9b32-60c8a50f274a" 
+	Name="D2CampaignBusinessProcessParameters Add Data Form"
+	Description="Adds parameters for the D2 Campaign Business Process." 
+	Author="Memphis Sellers"
+	DataFormInstanceID="ef5a35bc-807c-4f03-a8b6-d2528557b385" 
+	RecordType="D2 Campaign Business Process Results"
+	common:SecurityUIFolder="Sponsorship"
+	>
+
+	<SPDataForm>
+		<!-- describe the save SP -->
+		<SaveImplementation SPName="USR_USP_DATAFORMTEMPLATE_ADD_D2CAMPAIGN_BUSINESSPROCESS_PARAMETERS">
+			<common:CreateProcedureSQL>
+				<![CDATA[
+create procedure dbo.USR_USP_DATAFORMTEMPLATE_ADD_D2CAMPAIGN_BUSINESSPROCESS_PARAMETERS
+(
+    @ID uniqueidentifier = null output,
+    @CHANGEAGENTID uniqueidentifier = null,
+	@NAME nvarchar(100) = '',
+	@DESCRIPTION nvarchar(100) = '',
+	@CAMPAIGNTYPE tinyint = ''
+)
+as
+
+set nocount on;
+
+if @ID is null
+    set @ID = newid()
+
+if @CHANGEAGENTID is null  
+    exec dbo.USP_CHANGEAGENT_GETORCREATECHANGEAGENT @CHANGEAGENTID output
+
+declare @CURRENTDATE datetime
+set @CURRENTDATE = getdate()
+
+begin try
+	-- handle inserting the data
+	insert into dbo.USR_D2_CAMPAIGN_BUSINESSPROCESS
+		(ID, NAME, DESCRIPTION, CAMPAIGNTYPE, ADDEDBYID, CHANGEDBYID, DATEADDED, DATECHANGED)
+    values
+		(@ID, @NAME, @DESCRIPTION, @CAMPAIGNTYPE, @CHANGEAGENTID, @CHANGEAGENTID, @CURRENTDATE, @CURRENTDATE)
+	
+end try
+
+begin catch
+    exec dbo.USP_RAISE_ERROR
+    return 1
+end catch
+
+return 0				
+				]]>
+			</common:CreateProcedureSQL>
+		</SaveImplementation>
+	</SPDataForm>
+
+	<!-- describe fields on the form, which correspond to parameters on the SP.  Note that system parameters 
+	like the context @ID, @CONTEXTID, and @CURRENTAPPUSERID need not be listed. -->
+	<common:FormMetaData FixedDialog="true">
+		<common:FormFields>
+			<common:FormField FieldID="NAME" Caption="Name" DataType="String" MaxLength="100" Required="true" />
+			<common:FormField FieldID="DESCRIPTION" Caption="Description" DataType="String" MaxLength="100" />
+			<common:FormField FieldID="CAMPAIGNTYPE" Caption="Campaign Type" DataType="TinyInt" Required="true" >
+				<common:ValueList UseRadioButtons="false" >
+					<common:Items>
+						<common:Item>
+							<common:Value>0</common:Value>
+							<common:Label>Email Cash</common:Label>
+						</common:Item>
+						<common:Item>
+							<common:Value>1</common:Value>
+							<common:Label>Email EFT Active</common:Label>
+						</common:Item>
+						<common:Item>
+							<common:Value>2</common:Value>
+							<common:Label>Email EFT Held Credit Card</common:Label>
+						</common:Item>
+						<common:Item>
+							<common:Value>3</common:Value>
+							<common:Label>Email EFT Held Direct Debit</common:Label>
+						</common:Item>
+						<common:Item>
+							<common:Value>4</common:Value>
+							<common:Label>Phone (all)</common:Label>
+						</common:Item>
+					</common:Items>
+				</common:ValueList>
+			</common:FormField>
+		</common:FormFields>
+
+		<!-- indicate the client-side component for the user interface -->
+		<!--<common:FormUIComponent FormUIComponentType="CustomComponent">
+			<common:CustomComponentID AssemblyName="REPLACE_WITH_ASSEMBLYNAME" ClassName="REPLACE_WITH_FULLCLASSNAME" />
+		</common:FormUIComponent>-->
+	</common:FormMetaData>
+
+</AddDataFormTemplateSpec>

@@ -1,0 +1,31 @@
+﻿<SQLFunctionSpec
+	xmlns="bb_appfx_sqlfunction"
+	xmlns:common="bb_appfx_commontypes" 
+	ID="a0e57ada-20e7-4e12-9759-4c6494c492ff"
+	Name="USR_UFN_SPONSORSHIP_GET_SPONSORSHIPREASON_BY_REASONID"
+	Description="Gets the sponsorship reason for the given sponsorshipreasonid."
+	Author="Memphis Sellers"
+	DBFunctionName="USR_UFN_SPONSORSHIP_GET_SPONSORSHIPREASON_BY_REASONID"
+	>
+
+	<CreateFunctionSQL>
+		<![CDATA[
+create function dbo.USR_UFN_SPONSORSHIP_GET_SPONSORSHIPREASON_BY_REASONID(
+	@REASONID uniqueidentifier
+)
+returns nvarchar(100)
+with execute as caller
+as begin
+	-- get the reason text based on the reason id
+	declare @CANCELREASONTEXT nvarchar(100);
+	select @CANCELREASONTEXT = REASON	
+		from dbo.SPONSORSHIPREASON
+		where ID = @REASONID;
+	
+	return @CANCELREASONTEXT;
+	
+end
+		]]>
+	</CreateFunctionSQL>
+
+</SQLFunctionSpec>

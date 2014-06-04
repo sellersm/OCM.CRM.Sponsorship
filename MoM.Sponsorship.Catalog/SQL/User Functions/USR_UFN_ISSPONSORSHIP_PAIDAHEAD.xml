@@ -1,0 +1,56 @@
+﻿<SQLFunctionSpec
+	xmlns="bb_appfx_sqlfunction"
+	xmlns:common="bb_appfx_commontypes" 
+	ID="bcbdbb4b-a6c9-4212-aa65-74be59b91456"
+	Name="USR_UFN_ISSPONSORSHIP_PAIDAHEAD"
+	Description="Determine if the given sponsorship has any past due amount balance."
+	Author="Memphis Sellers"
+	DBFunctionName="USR_UFN_ISSPONSORSHIP_PAIDAHEAD"
+	>
+	
+	<!--	
+	Remarks:	to determine paid ahead, look at the past due amount, should be 0, ignore the NTD!
+				use this dbo.UFN_RECURRINGGIFT_GETPASTDUEAMOUNT (f_trans.ID, getdate())
+				pass in the revenue id, and past due amount as of today 
+				Returns a bit value of 0 if there is a past due amount (NOT paid ahead),
+				or a value of 1 if there is NOT past due amount (is paid ahead).
+
+	History:
+	Date            Modified By     Comments
+	27-Jan-2013		Memphis			Initial Version
+	
+	-->
+
+	<CreateFunctionSQL>
+		<![CDATA[
+create function dbo.USR_UFN_ISSPONSORSHIP_PAIDAHEAD(
+	@sponsorshipId uniqueidentifier				-- ID of the sponsorship for which we need to find the recurring gift's financial transaction ID.
+)
+returns bit
+with execute as caller
+as begin
+	-- do work here and return a value
+	declare @isPaidAhead bit = 0;
+	
+	-- get the financial transaction id for this sponsorship
+	declare @financialTransactionId uniqueidentifier;
+
+	set @financialTransactionId = dbo.USR_UFN_GETFINANCIALTRANSACTIONID_FORSPONSORSHIP(@sponsorshipId)
+
+	declare @pastDueAmount money = 0;
+
+	set @pastDueAmount = dbo.UFN_RECURRINGGIFT_GETPASTDUEAMOUNT(@financialTransactionId, GETDATE())
+
+	if @pastDueAmount is null or @pastDueAmount = 0
+		set @isPaidAhead = 1;
+	else
+		set @isPaidAhead = 0;
+
+return @isPaidAhead
+
+	
+end
+		]]>
+	</CreateFunctionSQL>
+
+</SQLFunctionSpec>

@@ -1,0 +1,263 @@
+﻿<DataListSpec 
+	xmlns="bb_appfx_datalist"
+	xmlns:common="bb_appfx_commontypes" 
+	ID="69d55521-2184-416c-8cc8-38195230b123" 
+	Name="Commitment Line History Commitments Data List"
+	Description="Used to display the commitments in a Commitment Line History" 
+	Author="Cary Mayeda"
+	common:SecurityUIFolder="Sponsorship">
+	
+	<!-- 
+	Remarks:    
+
+	History:
+	Date            Modified By     Comments
+	07-May-2014		CMayeda			Initial Prototype Version
+	-->
+
+	<common:DependencyList>
+		<common:Dependency CatalogAssembly="Blackbaud.AppFx.Sponsorship.Catalog.dll" CatalogItem="Blackbaud.AppFx.Sponsorship.Catalog.UFN_SPONSORSHIPOPPORTUNITY_TRANSLATIONFUNCTION.xml" />
+		<common:Dependency CatalogAssembly="Blackbaud.AppFx.Sponsorship.Catalog.dll" CatalogItem="Blackbaud.AppFx.Sponsorship.Catalog.UFN_SPONSORSHIP_DELETEALLOWED.xml" />
+		<common:Dependency CatalogAssembly="Blackbaud.AppFx.Sponsorship.Catalog.dll" CatalogItem="Blackbaud.AppFx.Sponsorship.Catalog.UFN_SPONSORSHIP_REACTIVATEALLOWED.xml" />
+		<common:Dependency CatalogAssembly="Blackbaud.AppFx.Constituent.Catalog.dll" CatalogItem="Blackbaud.AppFx.Constituent.Catalog.UFN_CONSTITUENT_BUILDNAME.xml" />
+	</common:DependencyList>
+	<common:InstalledProductList>
+		<common:InstalledProduct ID="3117d2c8-7f46-42f2-abeb-b654f2f63046" />
+	</common:InstalledProductList>
+	<ResourceFile AssemblyName="Blackbaud.AppFx.Sponsorship.Catalog.dll" ClassName="Blackbaud.AppFx.Sponsorship.Catalog.Sponsorship.DataList" />
+	<SPDataList SPName="USR_USP_DATALIST_COMMITMENTLINEHISTORY_COMMITMENTS">
+		<common:CreateProcedureSQL>
+
+			<![CDATA[
+
+create procedure dbo.USR_USP_DATALIST_COMMITMENTLINEHISTORY_COMMITMENTS(
+@CONSTITUENTID uniqueidentifier,
+@SHOWHISTORY bit = 0
+)
+as begin
+
+
+-- Commitment Line Histories
+select
+	clh.ID,
+	null PARENTID,
+	clh.ID as COMMITMENTLINEHISTORYID,
+	null SPONSORSHIPID,
+	null CONTEXTSPONSORSHIPID,
+	-1 COMMITMENTSEQUENCE,
+	-1 SPONSORSHIPSEQUENCE,
+	null SPONSORSHIPOPPORTUNITYID,
+	null NAME,
+	clh.STARTDATE,
+	clh.ENDDATE,
+	clh.TYPE,
+	clh.STATUS,
+	case
+		when CANCELSPONSORSHIPREASONID is null then ''
+		else (select REASON from dbo.SPONSORSHIPREASON where ID = CANCELSPONSORSHIPREASONID)
+	end as REASON,
+	null TRANSACTIONID,
+	null ACTIONCODE,
+	0 DELETEALLOWED,
+	0 REACTIVATEALLOWED,
+	null REASSIGNEDCONSTITUENTID,
+	'' REASSIGNEDCONSTITUENTNAME,
+	'' PAIDFORBY,
+	null PAIDFORBYID,
+	null REVENUEID,
+	clh.LOOKUPID as COMMITMENTLINEHISTORYLOOKUPID,
+	null as COMMITMENTID,
+	'' CHILDPROJECTLOOKUPID,
+	clh.SOURCECATEGORY,
+	clh.SOURCE,
+	clh.PACKAGE,
+	clh.INBOUNDCHANNEL
+
+from 
+	dbo.USR_COMMITMENTLINEHISTORY clh
+where 
+	clh.SPONSORID = @CONSTITUENTID
+
+union all
+
+-- Commitments
+select
+	SPONSORSHIPCOMMITMENT.ID,
+	clh.ID PARENTID,
+	clh.ID as COMMITMENTLINEHISTORYID,
+	null SPONSORSHIPID,
+	isnull(LASTTRANSACTION.TARGETSPONSORSHIPID,LASTTRANSACTION.CONTEXTSPONSORSHIPID) CONTEXTSPONSORSHIPID,
+	SPONSORSHIPCOMMITMENT.COMMITMENTSEQUENCE,
+	-1 SPONSORSHIPSEQUENCE,
+	null SPONSORSHIPOPPORTUNITYID,
+	null NAME,
+	(select min(STARTDATE) from dbo.SPONSORSHIP where SPONSORSHIP.SPONSORSHIPCOMMITMENTID = SPONSORSHIPCOMMITMENT.ID) STARTDATE,
+	case when LASTTRANSACTION.ACTIONCODE in(2,3,5) then LASTSPONSORSHIP.ENDDATE end ENDDATE,
+	'' as TYPE,
+	case when LASTTRANSACTION.ACTIONCODE in(2,3) or (LASTTRANSACTION.ACTIONCODE = 5 and LASTSPONSORSHIP.ENDDATE is not null) then 'Inactive'
+	when LASTTRANSACTION.ACTIONCODE = 6 then 'Active (Transfer pending)'
+	else 'Active' end STATUS,
+	'' REASON,
+	LASTTRANSACTION.ID TRANSACTIONID,
+	LASTTRANSACTION.ACTIONCODE ACTIONCODE,
+	0 DELETEALLOWED,
+	dbo.UFN_SPONSORSHIP_REACTIVATEALLOWED(isnull(LASTTRANSACTION.TARGETSPONSORSHIPID,LASTTRANSACTION.CONTEXTSPONSORSHIPID)) REACTIVATEALLOWED,
+	null REASSIGNEDCONSTITUENTID,
+	'' REASSIGNEDCONSTITUENTNAME,
+	PAIDFORBY_NF.NAME PAIDFORBY,
+	dbo.UFN_SPONSORSHIP_GIFTFINANCIALSPONSORID(LASTSPONSORSHIP.ID) PAIDFORBYID,
+	REVENUE.ID REVENUEID,
+	null as COMMITMENTLINEHISTORYLOOKUPID,
+	SPONSORSHIPCOMMITMENT.LOOKUPID COMMITMENTID,
+	'' CHILDPROJECTLOOKUPID,
+	'' as SOURCECATEGORY,
+	'' as SOURCE,
+	'' as PACKAGE,
+	'' as INBOUNDCHANNEL
+
+
+from 
+	USR_COMMITMENTLINEHISTORY clh
+	join dbo.USR_COMMITMENTLINEHISTORYCOMMITMENTS clh_c on clh_c.COMMITMENTLINEHISTORYID = clh.ID
+	join dbo.SPONSORSHIPCOMMITMENT on dbo.SPONSORSHIPCOMMITMENT.ID = clh_c.COMMITMENTID
+	inner join dbo.SPONSORSHIPTRANSACTION LASTTRANSACTION on LASTTRANSACTION.SPONSORSHIPCOMMITMENTID = SPONSORSHIPCOMMITMENT.ID and LASTTRANSACTION.TRANSACTIONSEQUENCE = (select max(TRANSACTIONSEQUENCE) from dbo.SPONSORSHIPTRANSACTION MAXSEQUENCE where MAXSEQUENCE.SPONSORSHIPCOMMITMENTID = SPONSORSHIPCOMMITMENT.ID and MAXSEQUENCE.ACTIONCODE <> 9)
+	left outer join dbo.SPONSORSHIP LASTSPONSORSHIP on LASTSPONSORSHIP.SPONSORSHIPCOMMITMENTID = SPONSORSHIPCOMMITMENT.ID and ((LASTTRANSACTION.ACTIONCODE = 5 and LASTSPONSORSHIP.ID in(LASTTRANSACTION.TARGETSPONSORSHIPID,LASTTRANSACTION.CONTEXTSPONSORSHIPID)) or (LASTTRANSACTION.ACTIONCODE <> 5 and LASTSPONSORSHIP.ID = isnull(LASTTRANSACTION.TARGETSPONSORSHIPID,LASTTRANSACTION.CONTEXTSPONSORSHIPID)))
+	left outer join dbo.REVENUESPLIT on REVENUESPLIT.ID = LASTSPONSORSHIP.REVENUESPLITID
+	left outer join dbo.REVENUE on REVENUE.ID = REVENUESPLIT.REVENUEID
+	outer apply dbo.UFN_CONSTITUENT_DISPLAYNAME(dbo.UFN_SPONSORSHIP_GIFTFINANCIALSPONSORID(LASTSPONSORSHIP.ID)) PAIDFORBY_NF
+where 
+	SPONSORSHIPCOMMITMENT.CONSTITUENTID = @CONSTITUENTID
+
+	
+union all
+
+-- Sponsorships
+select
+	SPONSORSHIP.ID ID,
+	SPONSORSHIP.SPONSORSHIPCOMMITMENTID, 
+	clh.ID as COMMITMENTLINEHISTORYID,
+	SPONSORSHIP.ID SPONSORSHIPID,
+	SPONSORSHIP.ID CONTEXTSPONSORSHIPID,
+	SPONSORSHIPCOMMITMENT.COMMITMENTSEQUENCE,
+	CREATETRANSACTION.TRANSACTIONSEQUENCE SPONSORSHIPSEQUENCE,
+	SPONSORSHIPOPPORTUNITY.ID,
+	dbo.UFN_SPONSORSHIPOPPORTUNITY_TRANSLATIONFUNCTION(SPONSORSHIP.SPONSORSHIPOPPORTUNITYID) NAME,
+	SPONSORSHIP.STARTDATE,
+	SPONSORSHIP.ENDDATE,
+	'' as TYPE,
+	case SPONSORSHIP.STATUSCODE
+	when 1 then
+	case LASTTRANSACTION.ACTIONCODE
+	when 6 then 'Active (Transfer pending)'
+	when 5 then 'Active (Reassigned from ' + REASSIGNEDCONSTITUENTNAME_NF.NAME + ')'
+	else 'Active' end
+	when 2 then
+	case LASTTRANSACTION.ACTIONCODE
+	when 1 then 'Transferred'
+	when 2 then
+	case SPONSORSHIP.ID
+	when LASTTRANSACTION.CONTEXTSPONSORSHIPID then
+	case SPONSORSHIPREASON.REASONTYPECODE when 11 then 'Expired' else 'Cancelled' end
+	when LASTTRANSACTION.DECLINEDSPONSORSHIPID then 'Declined' end
+	when 3 then 'Terminated'
+	when 5 then 'Reassigned to ' + REASSIGNEDCONSTITUENTNAME_NF.NAME
+	when 7 then
+	case SPONSORSHIP.ID
+	when LASTTRANSACTION.CONTEXTSPONSORSHIPID then 'Transferred'
+	when LASTTRANSACTION.DECLINEDSPONSORSHIPID then 'Declined' end
+	when 8 then 'Transferred' end
+	else SPONSORSHIP.STATUS end STATUS,
+	case when SPONSORSHIP.STATUSCODE = 2 or (SPONSORSHIP.STATUSCODE = 1 and LASTTRANSACTION.ACTIONCODE = 6) then SPONSORSHIPREASON.REASON end REASON,
+	LASTTRANSACTION.ID TRANSACTIONID,
+	LASTTRANSACTION.ACTIONCODE ACTIONCODE,
+	dbo.UFN_SPONSORSHIP_DELETEALLOWED(SPONSORSHIP.ID) DELETEALLOWED,
+	dbo.UFN_SPONSORSHIP_REACTIVATEALLOWED(SPONSORSHIP.ID) REACTIVATEALLOWED,
+	REASSIGNED.CONSTITUENTID REASSIGNEDCONSTITUENTID,
+	REASSIGNEDCONSTITUENTNAME_NF.NAME REASSIGNEDCONSTITUENTNAME,
+	PAIDFORBY_NF.NAME PAIDFORBY,
+	dbo.UFN_SPONSORSHIP_GIFTFINANCIALSPONSORID(SPONSORSHIP.ID) PAIDFORBYID,
+	REVENUE.ID,
+	null as COMMITMENTLINEHISTORYLOOKUPID,
+	null as COMMITMENTID,
+	case
+		when exists (select ID from SPONSORSHIPOPPORTUNITYCHILD where ID = SPONSORSHIPOPPORTUNITY.ID) then dbo.USR_UFN_CHILD_GETCHILDLOOKUPID (SPONSORSHIPOPPORTUNITY.ID, 	1) -- 1 specifiees including the project lookup id 
+		else SPONSORSHIPOPPORTUNITY.LOOKUPID
+	end CHILDPROJECTLOOKUPID,
+	'' as SOURCECATEGORY,
+	'' as SOURCE,
+	'' as PACKAGE,
+	'' as INBOUNDCHANNEL
+
+from 
+	dbo.SPONSORSHIP
+	
+	inner join dbo.SPONSORSHIPCOMMITMENT on SPONSORSHIPCOMMITMENT.ID = SPONSORSHIP.SPONSORSHIPCOMMITMENTID
+	join dbo.USR_COMMITMENTLINEHISTORYCOMMITMENTS clh_c on SPONSORSHIPCOMMITMENT.ID = clh_c.COMMITMENTID
+	join USR_COMMITMENTLINEHISTORY clh on clh_c.COMMITMENTLINEHISTORYID = clh.ID
+
+	inner join dbo.SPONSORSHIPOPPORTUNITY on SPONSORSHIPOPPORTUNITY.ID = SPONSORSHIP.SPONSORSHIPOPPORTUNITYID
+	inner join dbo.SPONSORSHIPPROGRAM on SPONSORSHIPPROGRAM.ID = SPONSORSHIP.SPONSORSHIPPROGRAMID
+	inner join dbo.SPONSORSHIPTRANSACTION CREATETRANSACTION on CREATETRANSACTION.SPONSORSHIPCOMMITMENTID = SPONSORSHIP.SPONSORSHIPCOMMITMENTID and CREATETRANSACTION.TRANSACTIONSEQUENCE = (select min(TRANSACTIONSEQUENCE) from dbo.SPONSORSHIPTRANSACTION MINSEQUENCE where MINSEQUENCE.SPONSORSHIPCOMMITMENTID = SPONSORSHIP.SPONSORSHIPCOMMITMENTID and MINSEQUENCE.TARGETSPONSORSHIPID = SPONSORSHIP.ID)
+	inner join dbo.SPONSORSHIPTRANSACTION LASTTRANSACTION on LASTTRANSACTION.SPONSORSHIPCOMMITMENTID = SPONSORSHIP.SPONSORSHIPCOMMITMENTID and LASTTRANSACTION.TRANSACTIONSEQUENCE = (select max(TRANSACTIONSEQUENCE) from dbo.SPONSORSHIPTRANSACTION MAXSEQUENCE where MAXSEQUENCE.SPONSORSHIPCOMMITMENTID = SPONSORSHIP.SPONSORSHIPCOMMITMENTID and SPONSORSHIP.ID in(MAXSEQUENCE.CONTEXTSPONSORSHIPID,MAXSEQUENCE.TARGETSPONSORSHIPID,MAXSEQUENCE.DECLINEDSPONSORSHIPID) and MAXSEQUENCE.ACTIONCODE <> 9)
+	left outer join dbo.SPONSORSHIP REASSIGNED on REASSIGNED.ID = case SPONSORSHIP.STATUSCODE when 1 then LASTTRANSACTION.CONTEXTSPONSORSHIPID when 2 then LASTTRANSACTION.TARGETSPONSORSHIPID end and LASTTRANSACTION.ACTIONCODE = 5
+	left outer join dbo.SPONSORSHIPREASON on SPONSORSHIPREASON.ID = LASTTRANSACTION.SPONSORSHIPREASONID
+	left outer join dbo.REVENUESPLIT on REVENUESPLIT.ID = SPONSORSHIP.REVENUESPLITID
+	left outer join dbo.REVENUE on REVENUE.ID = REVENUESPLIT.REVENUEID
+	outer apply dbo.UFN_CONSTITUENT_DISPLAYNAME(REASSIGNED.CONSTITUENTID) REASSIGNEDCONSTITUENTNAME_NF
+	outer apply dbo.UFN_CONSTITUENT_DISPLAYNAME(dbo.UFN_SPONSORSHIP_GIFTFINANCIALSPONSORID(SPONSORSHIP.ID)) PAIDFORBY_NF
+	where SPONSORSHIPCOMMITMENT.CONSTITUENTID = @CONSTITUENTID
+	order by COMMITMENTSEQUENCE, SPONSORSHIPSEQUENCE;
+		
+end
+			]]>
+		</common:CreateProcedureSQL>
+	</SPDataList>
+
+	<!-- describe the context ID parameter for the SP (if applicable)-->
+	<Context ContextRecordType="Constituent" RecordIDParameter="CONSTITUENTID" />
+
+	<Parameters>
+		<common:FormMetaData>
+			<common:FormFields>
+				<common:FormField FieldID="SHOWHISTORY" DataType="Boolean" Caption="Show commitment history" DefaultValueText="0" CaptionResourceKey="$$show_commitment_history" />
+			</common:FormFields>
+		</common:FormMetaData>
+	</Parameters>
+
+	<Output>
+		<OutputFields>
+				<OutputField FieldID="ID" Caption="ID" IsHidden="true" DataType="Guid" DisplaySequence="1" />
+				<OutputField FieldID="PARENTID" Caption="PARENTID" IsHidden="true" DataType="Guid" DisplaySequence="2" />
+				<OutputField FieldID="COMMITMENTHISTORYID" Caption="COMMITMENTHISTORYID" IsHidden="true" DataType="Guid" DisplaySequence="3" />
+				<OutputField FieldID="SPONSORSHIPID" Caption="SPONSORSHIPID" IsHidden="true" DataType="Guid" DisplaySequence="4" />
+				<OutputField FieldID="CONTEXTSPONSORSHIPID" Caption="SPONSORSHIPID" IsHidden="true" DataType="Guid" DisplaySequence="5" />
+				<OutputField FieldID="COMMITMENTSEQUENCE" Caption="COMMITMENTSEQUENCE" IsHidden="true" DataType="SmallInt" DisplaySequence="6" />
+				<OutputField FieldID="SPONSORSHIPSEQUENCE" Caption="SPONSORSHIPSEQUENCE" IsHidden="true" DataType="SmallInt" DisplaySequence="7" />
+				<OutputField FieldID="SPONSORSHIPOPPORTUNITYID" Caption="SPONSORSHIPOPPORTUNITYID" IsHidden="true" DataType="Guid" DisplaySequence="8" />
+				<OutputField FieldID="NAME" Caption="Opportunity" DataType="String" CaptionResourceKey="$$opportunity" DisplaySequence="12" />
+				<OutputField FieldID="STARTDATE" Caption="Start date" DataType="Date" CaptionResourceKey="$$start_date" DisplaySequence="13" />
+				<OutputField FieldID="ENDDATE" Caption="End date" DataType="Date" CaptionResourceKey="$$end_date" DisplaySequence="14" />
+				<OutputField FieldID="TYPE" Caption="Type" DataType="String" DisplaySequence="15" />
+				<OutputField FieldID="STATUS" Caption="Status" DataType="String" CaptionResourceKey="$$status" DisplaySequence="16" />
+				<OutputField FieldID="REASON" Caption="Reason" DataType="String" CaptionResourceKey="$$reason" DisplaySequence="17" />
+				<OutputField FieldID="TRANSACTIONID" Caption="TRANSACTIONID" IsHidden="true" DataType="Guid" DisplaySequence="18" />
+				<OutputField FieldID="ACTIONCODE" Caption="ACTIONCODE" IsHidden="true" DataType="TinyInt" DisplaySequence="19" />
+				<OutputField FieldID="DELETEALLOWED" Caption="DELETEALLOWED" IsHidden="true" DataType="Boolean" DisplaySequence="20" />
+				<OutputField FieldID="REACTIVATEALLOWED" Caption="REACTIVATEALLOWED" IsHidden="true" DataType="Boolean" DisplaySequence="21" />
+				<OutputField FieldID="REASSIGNEDCONSTITUENTID" Caption="REASSIGNEDCONSTITUENTID" IsHidden="true" DataType="Guid" DisplaySequence="22" />
+				<OutputField FieldID="REASSIGNEDCONSTITUENTNAME" Caption="REASSIGNEDCONSTITUENTNAME" IsHidden="true" DataType="String" DisplaySequence="23" />
+				<OutputField FieldID="PAIDFORBY" Caption="Gift sponsorship donor" DataType="String" CaptionResourceKey="$$gift_sponsorship_donor" DisplaySequence="24" />
+				<OutputField FieldID="PAIDFORBYID" Caption="PAIDFORBYID" IsHidden="true" DataType="Guid" DisplaySequence="25" />
+				<OutputField FieldID="REVENUEID" Caption="REVENUEID" IsHidden="true" DataType="Guid" DisplaySequence="26" />
+				<OutputField FieldID="COMMITMENTLINEHISTORYLOOKUPID" Caption="Comm Line History ID" DataType="String" DisplaySequence="9" />
+				<OutputField FieldID="COMMITMENTID" Caption="Commitment ID" DataType="String" CaptionResourceKey="$$commitment_id" DisplaySequence="10" />
+				<OutputField FieldID="CHILDPROJECTLOOKUPID" Caption="Lookup ID" DataType="String" DisplaySequence="11"/>
+				<OutputField FieldID="SOURCECATEGORY" Caption="Source Category" DataType="String" DisplaySequence="27" />
+				<OutputField FieldID="SOURCE" Caption="Source" DataType="String" DisplaySequence="28" />
+				<OutputField FieldID="PACKAGE" Caption="Package" DataType="String" DisplaySequence="29" />
+				<OutputField FieldID="INBOUNDCHANNEL" Caption="Inbound Channel" DataType="String" DisplaySequence="30" />
+
+		</OutputFields>
+	</Output>
+
+</DataListSpec>

@@ -1,0 +1,33 @@
+﻿<SimpleDataListSpec
+	xmlns="bb_appfx_simpledatalist"
+	xmlns:common="bb_appfx_commontypes"
+	ID="3eb2bc55-07d8-4b1d-9a48-33883b3fa404"
+	Name="ChildrenToSponsor Simple Data List"
+	Description="List of children for a sponsorship"
+	Author="Memphis Sellers"
+	TranslationFunctionID="285061cd-3180-4816-ba91-5578007d47c4"
+	>
+
+	<SPSimpleList SPName="USP_SIMPLEDATALIST_CHILDREN_TO_SPONSOR">
+		<common:CreateProcedureSQL >
+			<![CDATA[
+create procedure dbo.USP_SIMPLEDATALIST_CHILDREN_TO_SPONSOR as
+	select 
+		ID as VALUE, 
+		NAME as LABEL
+	from dbo.SPONSORSHIPOPPORTUNITYCHILD
+	order by NAME
+			]]>
+		</common:CreateProcedureSQL>
+	</SPSimpleList>
+	<!--<LookupView ViewName="V_SIMPLEDATALIST_LISTOFCHILDREN">
+		<ViewSQL>
+
+			select
+			[NAME] as LABEL
+			from
+			dbo.SPONSORSHIPOPPORTUNITYCHILD;
+
+		</ViewSQL>
+	</LookupView>-->
+</SimpleDataListSpec>

@@ -1,0 +1,1084 @@
+﻿<EditDataFormTemplateSpec
+    xmlns="bb_appfx_editdataformtemplate"
+    xmlns:common="bb_appfx_commontypes"
+    ID="928a3378-201e-4631-8eba-953f886a86a6"
+    Name="Complete Or Override Pending Transfer Form"
+    Description="Complete or override pending transfer form"
+    Author="Memphis Sellers"
+    DataFormInstanceID="cf6ed8e2-d7b0-454d-b495-49d766252df6"
+    RecordType="Sponsorship"
+    common:SecurityUIFolder="Sponsorship"
+    FormHeader="Transfer a sponsorship"
+    FormHeaderResourceKey="$$transfer_a_sponsorship"
+    >
+
+
+	<!-- 
+        Remarks:    This is a 'copy' of the OOB Override Transfer form, combined with Complete Transfer.
+                                It will call all the OOB Blackbaud stuff, then adds the custom things we need it to do.
+        History:
+        Date            Modified By     Comments
+        30-Jan-2013     Memphis         Initial Version
+		18-Feb-2013		Memphis			Fogbugz Case 977, 978, 979
+		20-Feb-2013		Memphis			Fogbugz Case 985, 987, 988, 989, 990, 991
+        -->
+
+	<common:DependencyList>
+		<common:Dependency CatalogAssembly="Blackbaud.AppFx.Constituent.Catalog.dll" CatalogItem="Blackbaud.AppFx.Constituent.Catalog.Constituent.Search.xml" />
+		<common:Dependency CatalogAssembly="Blackbaud.AppFx.Sponsorship.Catalog.dll" CatalogItem="Blackbaud.AppFx.Sponsorship.Catalog.SponsorshipLocation.Search.xml" />
+		<common:Dependency CatalogAssembly="Blackbaud.AppFx.Sponsorship.Catalog.dll" CatalogItem="Blackbaud.AppFx.Sponsorship.Catalog.SponsorshipOpportunityChild.Search.xml" />
+		<common:Dependency CatalogAssembly="Blackbaud.AppFx.Sponsorship.Catalog.dll" CatalogItem="Blackbaud.AppFx.Sponsorship.Catalog.SponsorshipOpportunityProject.Search.xml" />
+		<common:Dependency CatalogAssembly="Blackbaud.AppFx.Constituent.Catalog.dll" CatalogItem="Blackbaud.AppFx.Constituent.Catalog.IndividualSpouseBusiness.Add.xml" />
+		<common:Dependency CatalogAssembly="Blackbaud.AppFx.ConstituentGroups.Catalog.dll" CatalogItem="Blackbaud.AppFx.ConstituentGroups.Catalog.Household.Add.xml" />
+		<common:Dependency CatalogAssembly="Blackbaud.AppFx.ConstituentGroups.Catalog.dll" CatalogItem="Blackbaud.AppFx.ConstituentGroups.Catalog.Group.Add.xml" />
+		<common:Dependency CatalogAssembly="Blackbaud.AppFx.Constituent.Catalog.dll" CatalogItem="Blackbaud.AppFx.Constituent.Catalog.Organization.Add.xml" />
+		<common:Dependency CatalogAssembly="Blackbaud.AppFx.Constituent.Catalog.dll" CatalogItem="Blackbaud.AppFx.Constituent.Catalog.ConstituentAccount.Add.xml" />
+		<common:Dependency CatalogAssembly="Blackbaud.AppFx.Sponsorship.Catalog.dll" CatalogItem="Blackbaud.AppFx.Sponsorship.Catalog.SponsorshipReason.SimpleList.xml" />
+		<common:Dependency CatalogAssembly="Blackbaud.AppFx.Sponsorship.Catalog.dll" CatalogItem="Blackbaud.AppFx.Sponsorship.Catalog.SponsorshipProgram.SimpleList.xml" />
+		<common:Dependency CatalogAssembly="Blackbaud.AppFx.Sponsorship.Catalog.dll" CatalogItem="Blackbaud.AppFx.Sponsorship.Catalog.SponsorshipOpportunityAgeRange.SimpleList.xml" />
+		<common:Dependency CatalogAssembly="Blackbaud.AppFx.Constituent.Catalog.dll" CatalogItem="Blackbaud.AppFx.Constituent.Catalog.ConstituentAccount.SimpleList.xml" />
+		<common:Dependency CatalogAssembly="Blackbaud.AppFx.Sponsorship.Catalog.dll" CatalogItem="Blackbaud.AppFx.Sponsorship.Catalog.USP_GETPENDINGTRANSFERSPONSORSHIPS.xml" />
+		<common:Dependency CatalogAssembly="Blackbaud.AppFx.Sponsorship.Catalog.dll" CatalogItem="Blackbaud.AppFx.Sponsorship.Catalog.USP_SPONSORSHIP_OVERRIDETRANSFER.xml" />
+		<common:Dependency CatalogAssembly="Blackbaud.AppFx.Fundraising.Catalog.dll" CatalogItem="Blackbaud.AppFx.Fundraising.Catalog.UFN_REVENUEDETAIL_GETSPLITS.xml" />
+		<common:Dependency CatalogAssembly="Blackbaud.AppFx.Fundraising.Catalog.dll" CatalogItem="Blackbaud.AppFx.Fundraising.Catalog.RecurringGiftPaymentDetails.Edit.2.xml" />
+		<common:Dependency CatalogAssembly="Blackbaud.AppFx.Sponsorship.Catalog.dll" CatalogItem="Blackbaud.AppFx.Sponsorship.Catalog.SponsorshipPayment.Edit.xml" />
+		<common:Dependency CatalogAssembly="Blackbaud.AppFx.Sponsorship.Catalog.dll" CatalogItem="Blackbaud.AppFx.Sponsorship.Catalog.USP_SPONSORSHIP_TRANSFER_EDITLOAD.xml" />
+		<common:Dependency CatalogAssembly="Blackbaud.AppFx.Sponsorship.Catalog.dll" CatalogItem="Blackbaud.AppFx.Sponsorship.Catalog.SponsorshipOpportunityReservation.Search.xml" />
+		<common:Dependency CatalogAssembly="Blackbaud.AppFx.Sponsorship.Catalog.dll" CatalogItem="Blackbaud.AppFx.Sponsorship.Catalog.SponsorshipProgramInfo.DataList.xml" />
+		<common:Dependency CatalogAssembly="Blackbaud.AppFx.Sponsorship.Catalog.dll" CatalogItem="Blackbaud.AppFx.Sponsorship.Catalog.SponsorshipOpportunityGroupInfo.DataList.xml" />
+		<common:Dependency CatalogAssembly="Blackbaud.AppFx.Fundraising.Catalog.dll" CatalogItem="Blackbaud.AppFx.Fundraising.Catalog.RecurringGiftSchedule.DataList.xml" />
+		<common:Dependency CatalogAssembly="Blackbaud.AppFx.Sponsorship.Catalog.dll" CatalogItem="Blackbaud.AppFx.Sponsorship.Catalog.SponsorshipLocation.IsDescendant.Datalist.xml" />
+		<common:Dependency CatalogAssembly="Blackbaud.AppFx.Sponsorship.Catalog.dll" CatalogItem="Blackbaud.AppFx.Sponsorship.Catalog.SponsorshipOpportunitySoleSponsorshipInfo.View.xml" />
+		<common:Dependency CatalogAssembly="Blackbaud.AppFx.Sponsorship.Catalog.dll" CatalogItem="Blackbaud.AppFx.Sponsorship.Catalog.SponsorshipOfferSoleSponsorship.DataList.xml" />
+		<common:Dependency CatalogAssembly="Blackbaud.AppFx.Sponsorship.Catalog.dll" CatalogItem="Blackbaud.AppFx.Sponsorship.Catalog.SponsorshipOpportunityMatch.DataList.xml" />
+		<common:Dependency CatalogAssembly="Blackbaud.AppFx.Sponsorship.Catalog.dll" CatalogItem="Blackbaud.AppFx.Sponsorship.Catalog.SponsorshipOpportunityUnreserve.RecordOperation.xml" />
+		<common:Dependency CatalogAssembly="Blackbaud.AppFx.Fundraising.Catalog.dll" CatalogItem="Blackbaud.AppFx.Fundraising.Catalog.AppealRevenue.Search.xml" />
+		<common:Dependency CatalogAssembly="Blackbaud.AppFx.Fundraising.Catalog.dll" CatalogItem="Blackbaud.AppFx.Fundraising.Catalog.Appeal.Add.xml" />
+		<common:Dependency CatalogAssembly="Blackbaud.AppFx.Fundraising.Catalog.dll" CatalogItem="Blackbaud.AppFx.Fundraising.Catalog.GLRevenueCategory.SimpleList.xml" />
+		<common:Dependency CatalogAssembly="Blackbaud.AppFx.Sponsorship.Catalog.dll" CatalogItem="Blackbaud.AppFx.Sponsorship.Catalog.USP_DATAFORMTEMPLATE_EDIT_SPONSORSHIPOVERRIDETRANSFER.xml" />
+	</common:DependencyList>
+	<common:ImpliedSecurityList>
+		<common:ImpliedSecurity Type="Datalist" ID="26c9edcb-a40f-4cf3-9cd4-fb01f773a777" />
+		<common:ImpliedSecurity Type="Datalist" ID="298a1b75-b1e4-4be6-b4af-dc5d1633f436" />
+		<common:ImpliedSecurity Type="Datalist" ID="ecf6002d-f1c1-4880-a715-fefd5ffa86f4" />
+		<common:ImpliedSecurity Type="Datalist" ID="1b958a23-8976-433a-9216-4c485e7ee7ef" />
+		<common:ImpliedSecurity Type="DataFormSpec" ID="b5b49bc6-70ca-416d-aa1b-7b56187ad833" />
+		<common:ImpliedSecurity Type="Datalist" ID="dfd49aaf-1dfc-453f-9f8c-325651df76e1" />
+		<common:ImpliedSecurity Type="Datalist" ID="156c6b80-a895-411f-bebb-198c7a2f9874" />
+		<common:ImpliedSecurity Type="RecordOperation" ID="66267281-2786-45b5-8869-600104ad37f0" />
+		<common:ImpliedSecurity Type="Datalist" ID="d9b37525-ff33-472e-b66a-8bded0d2e9f2" />
+		<common:ImpliedSecurity Type="DataFormSpec" ID="9b63c3a7-f580-4b09-a00e-a3058dc22b6d" />
+		<common:ImpliedSecurity Type="Datalist" ID="2034f63b-b270-4a9e-b85e-fdd55205fca0" />
+		<common:ImpliedSecurity Type="Datalist" ID="f87afcf8-e743-4017-8d00-fbf4cdabe38b" />
+		<common:ImpliedSecurity Type="Datalist" ID="55bbc2dd-aab3-4bf4-b45a-2cb66815b804" />
+		<common:ImpliedSecurity Type="SearchList" ID="ef764bb7-fdf0-45c2-a50f-294bf460f200" />
+		<common:ImpliedSecurity Type="DataFormSpec" ID="a2d70b98-ee76-4812-9dc7-36d4f8e18c65" />
+		<common:ImpliedSecurity Type="RecordOperation" ID="2dd6ea0b-dbe2-4b95-b266-eb7c6243e413" />
+		<common:ImpliedSecurity Type="RecordOperation" ID="8b382b28-764a-4443-9ebe-6f291dc55167" />
+		<common:ImpliedSecurity Type="RecordOperation" ID="0eee0709-2a41-45c5-bda2-4a22cd867606" />
+		<common:ImpliedSecurity Type="Datalist" ID="ec9c9ceb-32fc-48ce-b3d3-ee200048f327" />
+		<common:ImpliedSecurity Type="DataFormSpec" ID="3f043eb3-46bb-4607-8782-fe623e188a00" />
+	</common:ImpliedSecurityList>
+	<common:InstalledProductList>
+		<common:InstalledProduct ID="3117d2c8-7f46-42f2-abeb-b654f2f63046" />
+	</common:InstalledProductList>
+	<ResourceFile AssemblyName="Blackbaud.AppFx.Sponsorship.Catalog.dll" ClassName="Blackbaud.AppFx.Sponsorship.Catalog.Sponsorship.OverrideTransfer" />
+	<SPDataForm>
+		<LoadImplementation SPName="USR_USP_DATAFORMTEMPLATE_EDITLOAD_COMPLETEOROVERRIDEPENDINGTRANSFER_PRELOAD">
+			<common:CreateProcedureSQL>
+				<![CDATA[    
+                        create procedure dbo.USR_USP_DATAFORMTEMPLATE_EDITLOAD_COMPLETEOROVERRIDEPENDINGTRANSFER_PRELOAD(
+                                @ID uniqueidentifier,
+                                @DATALOADED bit = 0 output,
+                                @TSLONG bigint = 0 output,
+                                @FORMTITLE nvarchar(100) = null output,
+                                @ORIGINALOPPORTUNITYID uniqueidentifier = null output,
+                                @REVENUECONSTITUENTID uniqueidentifier = null output,
+                                @SPONSORSHIPCONSTITUENTID uniqueidentifier = null output,
+                                @SPONSORSHIPPROGRAMID uniqueidentifier = null output,
+                                @SPONSORSHIPLOCATIONID uniqueidentifier = null output,
+                                @GENDERCODE int = null output,
+                                @SPROPPAGERANGEID uniqueidentifier = null output,
+                                @ISHIVPOSITIVECODE int = null output,
+                                @HASCONDITIONCODE int = null output,
+                                @ISORPHANEDCODE int = null output,
+                                @ISSOLESPONSORSHIP bit = null output,
+                                @STARTDATE date = null output,
+                                @SPROPPPROJECTCATEGORYCODEID uniqueidentifier = null output,
+                                @AMOUNT money = null output,
+                                @PAYMENTMETHODCODE tinyint = null output,
+                                @REFERENCEDATE dbo.UDT_FUZZYDATE = null output,
+                                @REFERENCENUMBER nvarchar(20) = null output,
+                                @CARDHOLDERNAME nvarchar(100) = null output,
+                                @CREDITCARDNUMBER nvarchar(20) = null output,
+                                @CREDITTYPECODEID uniqueidentifier = null output,
+                                @EXPIRESON dbo.UDT_FUZZYDATE = null output,
+                                @CONSTITUENTACCOUNTID uniqueidentifier = null output,
+                                @FREQUENCYCODE tinyint = null output,
+                                @REVENUESCHEDULEENDDATE datetime = null output,
+                                @REVENUESCHEDULESTARTDATE datetime = null output,
+                                @AUTOPAY bit = null output,
+                                @CREDITCARDTOKEN uniqueidentifier = null output,
+                                -- not set, just satisfying the req's of an Edit Form
+                                @SPONSORSHIPREASONID uniqueidentifier = null output,
+                                @SPONSORSHIPOPPORTUNITYIDCHILD uniqueidentifier = null output,
+                                @SPONSORSHIPOPPORTUNITYIDPROJECT uniqueidentifier = null output,
+                                @GIFTRECIPIENT bit = null output,
+                                @PLANNEDENDDATE date = null output,
+                                @RESERVEDOPPORTUNITYIDCHILD uniqueidentifier = null output,
+                                @RESERVATIONKEY uniqueidentifier = null output,
+                                @MATCHEDOPPORTUNITYID uniqueidentifier = null output,
+                                @SENDREMINDER bit = null output,
+                                @NEXTINSTALLMENTID uniqueidentifier = null output,
+                                @FINDERNUMBER bigint = null output,
+                                @SOURCECODE nvarchar(50) = null output,
+                                @APPEALID uniqueidentifier = null output,
+                                @MAILINGID uniqueidentifier = null output,
+                                @CHANNELCODEID uniqueidentifier = null output,
+                                @REFERENCE nvarchar(255) = null output,
+                                @CATEGORYCODEID uniqueidentifier = null output,
+                                @REVENUEDEVELOPMENTFUNCTIONCODEID uniqueidentifier = null output,
+                                @EDITSTARTDATE bit = null output,
+                                @LASTACTIVITYDATE date = null output,
+                                @EXPIRATIONREASONID uniqueidentifier = null output,
+                                @BASECURRENCYID uniqueidentifier = null output,
+                                @TRANSACTIONCURRENCYID uniqueidentifier = null output,
+                                @BASEEXCHANGERATEID uniqueidentifier = null output,
+                                @EXCHANGERATE decimal(20,8) = null output,
+                                @HADSPOTRATE bit = null output,
+                                @RATECHANGED bit = null output,
+                                @BASECURRENCYDECIMALDIGITS tinyint = null output,
+                                @BASECURRENCYROUNDINGTYPECODE tinyint = null output,
+                                @BASEAMOUNT money = null output,
+                                @UPDATERECOGNITIONOPTION bit = null output,
+                                @DONOTACKNOWLEDGE bit = null output,
+                                @SPONSORID uniqueidentifier = null output,
+                                @FROMCHILDID uniqueidentifier = null output,
+                                @TOCHILDID uniqueidentifier = null output,
+                                @DONORCONTACTCODEID uniqueidentifier = null output,
+                                @OVERRIDEFLAG bit = null output
+                        )
+                        as
+
+                        set nocount on;
+
+                        declare @FROMSPONSORSHIPID uniqueidentifier
+                        declare @TOSPONSORSHIPID uniqueidentifier
+
+                        exec dbo.USP_GETPENDINGTRANSFERSPONSORSHIPS
+                                @ID,
+                                @FROMSPONSORSHIPID output,
+                                @TOSPONSORSHIPID output
+
+
+                        if @FROMSPONSORSHIPID is not null and @TOSPONSORSHIPID is not null
+                        begin
+                                exec dbo.USP_SPONSORSHIP_TRANSFER_EDITLOAD
+                                        @FROMSPONSORSHIPID,
+                                        1,
+                                        @DATALOADED output,
+                                        @TSLONG output,
+                                        @FORMTITLE output,
+                                        @ORIGINALOPPORTUNITYID output,
+                                        @REVENUECONSTITUENTID output,
+                                        @SPONSORSHIPCONSTITUENTID output,
+                                        @SPONSORSHIPPROGRAMID output,
+                                        @SPONSORSHIPLOCATIONID output,
+                                        @GENDERCODE output,
+                                        @SPROPPAGERANGEID output,
+                                        @ISHIVPOSITIVECODE output,
+                                        @HASCONDITIONCODE output,
+                                        @ISORPHANEDCODE output,
+                                        @SPROPPPROJECTCATEGORYCODEID output,
+                                        @ISSOLESPONSORSHIP output,
+                                        @STARTDATE output,
+                                        @AMOUNT output,
+                                        @PAYMENTMETHODCODE output,
+                                        @REFERENCEDATE output,
+                                        @REFERENCENUMBER output,
+                                        @CARDHOLDERNAME output,
+                                        @CREDITCARDNUMBER output,
+                                        @CREDITTYPECODEID output,
+                                        @EXPIRESON output,
+                                        @CONSTITUENTACCOUNTID output,
+                                        @FREQUENCYCODE output,
+                                        @REVENUESCHEDULEENDDATE output,
+                                        @REVENUESCHEDULESTARTDATE output,
+                                        @AUTOPAY output,
+                                        @CREDITCARDTOKEN output,
+                                        @GIFTRECIPIENT output,
+                                        @PLANNEDENDDATE output,
+                                        @SENDREMINDER output,
+                                        @NEXTINSTALLMENTID output,
+                                        @FINDERNUMBER output,
+                                        @SOURCECODE output,
+                                        @APPEALID output,
+                                        @MAILINGID output,
+                                        @CHANNELCODEID output,
+                                        @REFERENCE output,
+                                        @CATEGORYCODEID output,
+                                        @EDITSTARTDATE output,
+                                        @LASTACTIVITYDATE output,
+                                        @EXPIRATIONREASONID output,
+                                        @BASECURRENCYID output,
+                                        @TRANSACTIONCURRENCYID output,
+                                        @BASEEXCHANGERATEID output,
+                                        @EXCHANGERATE output,
+                                        @HADSPOTRATE output,
+                                        @RATECHANGED output,
+                                        @BASECURRENCYDECIMALDIGITS output,
+                                        @BASECURRENCYROUNDINGTYPECODE output,
+                                        @BASEAMOUNT output,
+                                        @UPDATERECOGNITIONOPTION output,
+                                        @DONOTACKNOWLEDGE output
+
+                                -- bug 39664:  Set Original opportunity ID to the overridden sponsorship's opportunity.
+                                select @ORIGINALOPPORTUNITYID = SPONSORSHIPOPPORTUNITYID
+                                from dbo.SPONSORSHIP
+                                where ID = @TOSPONSORSHIPID;
+                                
+                                set @FROMCHILDID = (select SPONSORSHIPOPPORTUNITYID from dbo.SPONSORSHIP where ID = @FROMSPONSORSHIPID) 
+                                set @TOCHILDID = (select SPONSORSHIPOPPORTUNITYID from dbo.SPONSORSHIP where ID = @TOSPONSORSHIPID)
+                                
+                                set @SPONSORSHIPOPPORTUNITYIDCHILD = @TOCHILDID
+
+                        end
+
+                        return 0;
+                        ]]>
+			</common:CreateProcedureSQL>
+		</LoadImplementation>
+
+		<SaveImplementation SPName="USR_USP_DATAFORMTEMPLATE_EDIT_COMPLETEOROVERRIDEPENDINGTRANSFER">
+			<common:CreateProcedureSQL>
+				<![CDATA[
+                create procedure dbo.USR_USP_DATAFORMTEMPLATE_EDIT_COMPLETEOROVERRIDEPENDINGTRANSFER(
+                                @ID uniqueidentifier,
+                                @CHANGEAGENTID uniqueidentifier = null,
+                                @SPONSORSHIPREASONID uniqueidentifier,
+                                --@MATCHRULE tinyint,
+                                @SPONSORSHIPPROGRAMID uniqueidentifier,
+                                @SPONSORSHIPLOCATIONID uniqueidentifier,
+                                @GENDERCODE int,
+                                @SPROPPAGERANGEID uniqueidentifier,
+                                @ISHIVPOSITIVECODE int,
+                                @HASCONDITIONCODE int,
+                                @ISORPHANEDCODE int,
+                                @SPROPPPROJECTCATEGORYCODEID uniqueidentifier,
+                                @SPONSORSHIPOPPORTUNITYIDCHILD uniqueidentifier,
+                                @SPONSORSHIPOPPORTUNITYIDPROJECT uniqueidentifier,
+                                @ISSOLESPONSORSHIP bit,
+                                @AMOUNT money,
+                                @FREQUENCYCODE tinyint,
+                                @REVENUESCHEDULESTARTDATE datetime,
+                                @REVENUESCHEDULEENDDATE datetime,
+                                @PLANNEDENDDATE date,
+                                @RESERVEDOPPORTUNITYIDCHILD uniqueidentifier,
+                                @RESERVATIONKEY uniqueidentifier,
+                                @MATCHEDOPPORTUNITYID uniqueidentifier,
+                                @SENDREMINDER bit,
+                                @NEXTINSTALLMENTID uniqueidentifier,
+                                @FINDERNUMBER bigint,
+                                @SOURCECODE nvarchar(50),
+                                @APPEALID uniqueidentifier,
+                                @MAILINGID uniqueidentifier,
+                                @CHANNELCODEID uniqueidentifier,
+                                @REFERENCE nvarchar(255),
+                                @CATEGORYCODEID uniqueidentifier,
+                                @REVENUEDEVELOPMENTFUNCTIONCODEID uniqueidentifier,
+                                @EXPIRATIONREASONID uniqueidentifier,
+                                @TRANSACTIONCURRENCYID uniqueidentifier,
+                                @BASEEXCHANGERATEID uniqueidentifier,
+                                @EXCHANGERATE decimal(20,8),
+                                @HADSPOTRATE bit,
+                                @RATECHANGED bit,
+                                @UPDATERECOGNITIONOPTION bit,
+                                @DONOTACKNOWLEDGE bit,
+                                @DONORCONTACTCODEID uniqueidentifier,
+                                @OVERRIDEFLAG bit
+                        )
+                        as
+                        set nocount on;
+
+                        declare @FROMSPONSORSHIPID uniqueidentifier;
+                        declare @TOSPONSORSHIPID uniqueidentifier;
+                        declare @SPONSORSHIPOPPORTUNITYID uniqueidentifier
+
+                begin try
+
+
+                    -- if this is not an override, then just complete the transfer
+                    if @OVERRIDEFLAG = 0 or @OVERRIDEFLAG is null
+						begin																			
+							exec dbo.USP_GETPENDINGTRANSFERSPONSORSHIPS
+								@ID,
+								@FROMSPONSORSHIPID output,
+								@TOSPONSORSHIPID output
+
+							if @FROMSPONSORSHIPID is not null and @TOSPONSORSHIPID is not null
+								exec dbo.USP_SPONSORSHIP_COMPLETETRANSFER
+									@TOSPONSORSHIPID,
+									@FROMSPONSORSHIPID,
+									1,
+									@CHANGEAGENTID
+							else
+								raiserror('BBERR_NOPENDINGTRANSFER', 13, 1);
+						end
+                    
+					if @OVERRIDEFLAG = 1
+                        begin
+                            -- do the override procedure, this is all OOB CRM from blackbaud:                                       
+                            declare @NEWID uniqueidentifier
+                            set @NEWID = newid()
+					
+                            if @CHANGEAGENTID is null
+                                exec dbo.USP_CHANGEAGENT_GETORCREATECHANGEAGENT @CHANGEAGENTID output
+
+                            set @SPONSORSHIPOPPORTUNITYID = isnull(@SPONSORSHIPOPPORTUNITYIDCHILD,@SPONSORSHIPOPPORTUNITYIDPROJECT)
+
+                            if @SPONSORSHIPOPPORTUNITYID is null and @RESERVEDOPPORTUNITYIDCHILD is not null
+                                set @SPONSORSHIPOPPORTUNITYID = @RESERVEDOPPORTUNITYIDCHILD
+
+                            if @SPONSORSHIPOPPORTUNITYID is not null
+                                begin
+                                    set @SPONSORSHIPLOCATIONID = null;
+                                    set @GENDERCODE = 0;
+                                    set @SPROPPAGERANGEID = null;
+                                    set @ISHIVPOSITIVECODE = 0;
+                                    set @HASCONDITIONCODE = 0;
+                                    set @ISORPHANEDCODE = 0;
+                                    set @SPROPPPROJECTCATEGORYCODEID = null;
+                                end
+
+                            if @SPONSORSHIPOPPORTUNITYID is null and @MATCHEDOPPORTUNITYID is not null
+                                set @SPONSORSHIPOPPORTUNITYID = @MATCHEDOPPORTUNITYID
+
+                            if @SPONSORSHIPOPPORTUNITYID is null
+                                raiserror('BBERR_NOOPPORTUNITYSPECIFIED',13,1);
+
+                            if @GENDERCODE is null
+                                set @GENDERCODE = 0
+                            if @ISHIVPOSITIVECODE is null
+                                set @ISHIVPOSITIVECODE = 0
+                            if @HASCONDITIONCODE is null
+                                set @HASCONDITIONCODE = 0
+                            if @ISORPHANEDCODE is null
+                                set @ISORPHANEDCODE = 0
+                            if @FINDERNUMBER is null
+                                set @FINDERNUMBER = 0
+
+							-- moved this up above so it's not duplicated
+                            exec dbo.USP_GETPENDINGTRANSFERSPONSORSHIPS
+                                @ID,
+                                @FROMSPONSORSHIPID output,
+                                @TOSPONSORSHIPID output
+
+                            if @FROMSPONSORSHIPID is not null and @TOSPONSORSHIPID is not null
+                                begin
+                                    exec dbo.USP_SPONSORSHIP_OVERRIDETRANSFER
+										@NEWID output,
+										@FROMSPONSORSHIPID,
+										@TOSPONSORSHIPID,
+										@SPONSORSHIPREASONID,
+										0,--@MATCHRULE,
+										@SPONSORSHIPPROGRAMID,
+										@SPONSORSHIPLOCATIONID,
+										@GENDERCODE,
+										@SPROPPAGERANGEID,
+										@ISHIVPOSITIVECODE,
+										@HASCONDITIONCODE,
+										@ISORPHANEDCODE,
+										@SPROPPPROJECTCATEGORYCODEID,
+										@SPONSORSHIPOPPORTUNITYID,
+										@ISSOLESPONSORSHIP,
+										1,
+										@CHANGEAGENTID,
+										@PLANNEDENDDATE,
+										@EXPIRATIONREASONID,
+										1
+
+                                    declare @REVENUEID uniqueidentifier;
+
+                                    select @REVENUEID = REVENUESPLIT.REVENUEID
+                                    from dbo.SPONSORSHIP
+                                    left outer join dbo.REVENUESPLIT on REVENUESPLIT.ID = SPONSORSHIP.REVENUESPLITID
+                                    left outer join dbo.REVENUESCHEDULE on REVENUESCHEDULE.ID = REVENUESPLIT.REVENUEID
+                                    where SPONSORSHIP.ID = @NEWID
+
+									if @REVENUEID is not null
+										begin
+											declare @DATE datetime;
+											declare @SPLITS xml;
+											declare @GIVENANONYMOUSLY bit;
+											declare @SCHEDULESEEDDATE datetime;
+
+											exec dbo.USP_DATAFORMTEMPLATE_EDITLOAD_RECURRINGGIFT_2
+													@ID = @REVENUEID,
+													@DATE = @DATE output,
+													@SPLITS = @SPLITS output,
+													@GIVENANONYMOUSLY = @GIVENANONYMOUSLY output,
+													@SCHEDULESEEDDATE = @SCHEDULESEEDDATE output;
+
+											set @SPLITS.modify('replace value of (SPLITS/ITEM/AMOUNT[1]/text())[1] with sql:variable("@AMOUNT")')
+
+											exec dbo.USP_DATAFORMTEMPLATE_EDIT_RECURRINGGIFT_6
+													@REVENUEID,
+													@CHANGEAGENTID,
+													@DATE,
+													@AMOUNT,
+													@SPLITS,
+													@FREQUENCYCODE,
+													@REVENUESCHEDULEENDDATE,
+													@REVENUESCHEDULESTARTDATE,
+													@FINDERNUMBER,
+													@SOURCECODE,
+													@APPEALID,
+													@GIVENANONYMOUSLY,
+													@MAILINGID,
+													@CHANNELCODEID,
+													@DONOTACKNOWLEDGE,
+													@REFERENCE,
+													@CATEGORYCODEID,
+													@SENDREMINDER,
+													@NEXTINSTALLMENTID,
+													@REVENUEDEVELOPMENTFUNCTIONCODEID,
+													@TRANSACTIONCURRENCYID,
+													@BASEEXCHANGERATEID,
+													@EXCHANGERATE,
+													@HADSPOTRATE,
+													@RATECHANGED,
+													@UPDATERECOGNITIONOPTION,
+													null,
+													@SCHEDULESEEDDATE
+										end
+										
+									-- set the @TOSPONSORSHIPID to the newly created sponsorship ID of the overridden/transferred child:
+									set @TOSPONSORSHIPID = @NEWID;
+										
+                                end
+                            else  --if @FROMSPONSORSHIPID is not null and @TOSPONSORSHIPID is not null
+                                raiserror('BBERR_NOPENDINGTRANSFER', 13, 1);
+							
+                        end  -- isoverride = true
+
+						-- do this whether override or just completing transfer:
+                        declare @FROMCHILDID uniqueidentifier = null;
+                        declare @TOCHILDID uniqueidentifier = null;
+                        declare @sponsorId uniqueidentifier = null;
+                                
+                        set @FROMCHILDID = (select SPONSORSHIPOPPORTUNITYID from dbo.SPONSORSHIP where ID = @FROMSPONSORSHIPID) 
+						
+						-- if this is an override, then the user has changed the transfer to child:
+						-- and the @SPONSORSHIPOPPORTUNITYID is the child the user selected
+						if @OVERRIDEFLAG = 1
+							set @TOCHILDID = (select SPONSORSHIPOPPORTUNITYID from dbo.SPONSORSHIP where ID = @SPONSORSHIPOPPORTUNITYID)
+						else
+							set @TOCHILDID = (select SPONSORSHIPOPPORTUNITYID from dbo.SPONSORSHIP where ID = @TOSPONSORSHIPID)
+								
+						-- if this isn't an override, the @SPONSORSHIPOPPORTUNITYID will be blank, so set it to the transfer child:
+						if @SPONSORSHIPOPPORTUNITYID is null
+							set @SPONSORSHIPOPPORTUNITYID = @TOCHILDID;
+
+                        select @sponsorId = CONSTITUENTID
+                        from dbo.SPONSORSHIP
+                        where ID = @ID
+
+                        if @sponsorId is null
+                            RAISERROR 1000000 'Unable to locate the Sponsor from this SponsorshipID.'
+                        else
+                            begin
+								-- perform the custom procedure after transfer's been done
+								exec dbo.USR_USP_SPONSORSHIP_HANDLE_DEPARTURETRANSFERCOMPLETION
+										@sponsorId = @sponsorId,
+										@transferSponsorshipId = @TOSPONSORSHIPID,
+										@departedSponsorshipId = @FROMSPONSORSHIPID,
+										@transferChildId = @SPONSORSHIPOPPORTUNITYID,
+										@departedChildId = @FROMCHILDID,
+										@changeAgentID = @CHANGEAGENTID,
+										@sponsorContactCodeId = @DONORCONTACTCODEID
+                            end
+                                
+        
+                    end try
+                        
+                    begin catch
+                            exec dbo.USP_RAISE_ERROR;
+                            return 1;
+                    end catch
+
+                    return 0;        
+                                ]]>
+			</common:CreateProcedureSQL>
+			<common:ExpectedDBExceptions>
+				<common:Constraints>
+					<common:Constraint Name="CK_SPONSORSHIP_OPPORTUNITYUNIQUEFORCONSTITUENTACTIVESPONSORSHIPS" Field="SPONSORSHIPCONSTITUENTID" Type="Format">
+						<common:CustomErrorMsg>This sponsor already has an active sponsorship to the selected opportunity.</common:CustomErrorMsg>
+					</common:Constraint>
+					<common:Constraint Name="CK_DIRECTDEBITPAYMENTMETHODDETAIL_CONSTITUENTACCOUNTID_REQUIRED" Field="CONSTITUENTACCOUNTID" Type="Required" />
+					<common:Constraint Name="CK_REVENUESCHEDULE_ENDDATEVALID" Field="REVENUESCHEDULEENDDATE" Type="Format">
+						<common:CustomErrorMsg>The end date cannot be before the start date.</common:CustomErrorMsg>
+					</common:Constraint>
+					<common:Constraint Name="CK_SPONSORSHIP_STARTDATEAFTERPLANNEDENDDATE" Field="PLANNEDENDDATE" Type="Format">
+						<common:CustomErrorMsg>The expiration date must be greater than or equal to the start date.</common:CustomErrorMsg>
+					</common:Constraint>
+					<common:Constraint Name="REVENUESCHEDULE.FREQUENCYCODE" Field="FREQUENCYCODE" Type="Required">
+						<common:CustomErrorMsg>The frequency code is not valid for the selected schedule.</common:CustomErrorMsg>
+					</common:Constraint>
+					<common:Constraint Name="CK_REVENUESCHEDULE_NEXTTRANSACTIONDATEVALID" Field="REVENUESCHEDULEENDDATE" Type="Format">
+						<common:CustomErrorMsg>The next transaction date has passed the end date. Please reschedule.</common:CustomErrorMsg>
+					</common:Constraint>
+					<common:Constraint Name="FK_CREDITCARD_CREDITTYPECODEID" Field="CREDITTYPECODEID" Type="ForeignKey" />
+				</common:Constraints>
+				<common:CustomExceptions>
+					<common:Exception Field="AMOUNT" SearchText="CK_REVENUESPLIT_VALIDAMOUNT">
+						<common:CustomErrorMsg>One or more designation amounts is invalid.</common:CustomErrorMsg>
+					</common:Exception>
+					<common:Exception Field="SPONSORSHIPOPPORTUNITYIDCHILD" SearchText="BBERR_NOOPPORTUNITYSPECIFIED">
+						<common:CustomErrorMsg>You must choose an opportunity to sponsor.</common:CustomErrorMsg>
+					</common:Exception>
+					<common:Exception Field="SPONSORSHIPOPPORTUNITYIDCHILD" SearchText="BBERR_OPPORTUNITYNOTAVAILABLE">
+						<common:CustomErrorMsg>The selected sponsorship opportunity is no longer available.  Please choose another sponsorship opportunity.</common:CustomErrorMsg>
+					</common:Exception>
+					<common:Exception Field="SPONSORSHIPOPPORTUNITYIDPROJECT" SearchText="BBERR_SPONSORSPEROPPORTUNITYINVALID">
+						<common:CustomErrorMsg>The selected sponsorship opportunity already has the maximum number of sponsors that are allowed by this program.</common:CustomErrorMsg>
+					</common:Exception>
+					<common:Exception Field="SPONSORSHIPOPPORTUNITYIDPROJECT" SearchText="BBERR_NODESIGNATIONFOUND">
+						<common:CustomErrorMsg>A designation could not be found for this sponsorship's opportunity.</common:CustomErrorMsg>
+					</common:Exception>
+					<common:Exception Field="SPONSORSHIPCONSTITUENTID" SearchText="HOUSEHOLDSCANNOTBEDONORS">
+						<common:CustomErrorMsg>The 'Households can be donors' configuration setting is currently set to prohibit revenue from being applied to households.</common:CustomErrorMsg>
+					</common:Exception>
+					<common:Exception Field="SPONSORSHIPCONSTITUENTID" SearchText="GROUPCANNOTBEDONOR">
+						<common:CustomErrorMsg>The 'Group can be donor' setting for this type of constituent group is currently set to prohibit revenue from being applied to this group.</common:CustomErrorMsg>
+					</common:Exception>
+					<common:Exception Field="SPONSORSHIPPROGRAMID" SearchText="BBERR_AFFILIATETONONAFFILIATE">
+						<common:CustomErrorMsg>An affiliate sponsorship can not be transferred to a non-affiliate program.</common:CustomErrorMsg>
+					</common:Exception>
+					<common:Exception Field="SPONSORSHIPPROGRAMID" SearchText="BBERR_NONAFFILIATETOAFFILIATE">
+						<common:CustomErrorMsg>A non-affiliate sponsorship can not be transferred to an affiliate program.</common:CustomErrorMsg>
+					</common:Exception>
+					<common:Exception Field="SPONSORSHIPOPPORTUNITYIDCHILD" SearchText="BBERR_CHILDOPPORTUNITYTOOYOUNG">
+						<common:CustomErrorMsg>The selected child is too young for sponsorship.</common:CustomErrorMsg>
+					</common:Exception>
+					<common:Exception Field="SPONSORSHIPOPPORTUNITYIDCHILD" SearchText="BBERR_CHILDOPPORTUNITYTOOOLD">
+						<common:CustomErrorMsg>The selected child is too old for sponsorship.</common:CustomErrorMsg>
+					</common:Exception>
+					<common:Exception Field="STARTDATE" SearchText="BBERR_RECURRINGGIFT_STARTDATEBEFOREDATE">
+						<common:CustomErrorMsg>The schedule cannot start before the gift date.</common:CustomErrorMsg>
+					</common:Exception>
+					<common:Exception Field="REVENUESCHEDULESTARTDATE" SearchText="BBERR_RECURRINGGIFT_NEXTTRANSACTIONBEFORESTARTDATE">
+						<common:CustomErrorMsg>The next transaction cannot be before the schedule start date.</common:CustomErrorMsg>
+					</common:Exception>
+				</common:CustomExceptions>
+			</common:ExpectedDBExceptions>
+		</SaveImplementation>
+	</SPDataForm>
+	<common:FormMetaData FixedDialog="true">
+		<common:FormFields>
+			<common:FormField FieldID="FORMTITLE" ReadOnly="true" MaxLength="100" />
+			<common:FormField FieldID="SPONSORSHIPREASONID" DataType="Guid" Caption="Reason" CaptionResourceKey="$$reason">
+				<common:SimpleDataList SimpleDataListID="c8d3128e-a2eb-4413-b0b4-1585ad5bf001">
+					<common:Params>
+						<common:Param ID="TYPE">
+							<common:Value>5</common:Value>
+						</common:Param>
+					</common:Params>
+				</common:SimpleDataList>
+			</common:FormField>
+			<common:FormField FieldID="SPROPPPROJECTCATEGORYCODEID" DataType="Guid" Caption="Category" CaptionResourceKey="$$category">
+				<common:CodeTable CodeTableName="SPROPPPROJECTCATEGORYCODE" />
+			</common:FormField>
+			<common:FormField FieldID="ORIGINALOPPORTUNITYID" DataType="Guid" ReadOnly="true" Hidden="true" />
+			<common:FormField FieldID="SPONSORSHIPCONSTITUENTID" DataType="Guid" ReadOnly="true" Caption="Corresponding sponsor" CaptionResourceKey="$$corresponding_sponsor">
+				<common:SearchList SearchListID="23c5c603-d7d8-4106-aecc-65392b563887" EnableQuickFind="true">
+					<common:FormFieldOverrides>
+						<common:FormFieldOverride FieldID="INCLUDENONCONSTITUENTRECORDS" Hidden="true" DefaultValueText="true" />
+						<common:FormFieldOverride FieldID="FORMHEADER" DefaultValueText="Record Search" />
+					</common:FormFieldOverrides>
+					<common:AddDataForms>
+						<common:AddDataForm ID="6949e415-6cd0-4af5-be9f-acebd318f478" Caption="Individual" CaptionResourceKey="$$individual" />
+						<common:AddDataForm ID="d846a816-46c7-470e-9ad0-973b2730e836" Caption="Household" CaptionResourceKey="$$household" />
+						<common:AddDataForm ID="f0f6426a-fccd-48bb-846b-eb3d1a4a0ed4" Caption="Group" CaptionResourceKey="$$group" />
+						<common:AddDataForm ID="0706d187-af1a-4bd6-8365-8fb7419e5600" Caption="Organization" CaptionResourceKey="$$organization" />
+					</common:AddDataForms>
+				</common:SearchList>
+			</common:FormField>
+			<common:FormField FieldID="REVENUECONSTITUENTID" DataType="Guid" ReadOnly="true" Caption="Financial sponsor" CaptionResourceKey="$$financial_sponsor">
+				<common:SearchList SearchListID="23c5c603-d7d8-4106-aecc-65392b563887" EnableQuickFind="true">
+					<common:FormFieldOverrides>
+						<common:FormFieldOverride FieldID="INCLUDENONCONSTITUENTRECORDS" Hidden="true" DefaultValueText="true" />
+						<common:FormFieldOverride FieldID="FORMHEADER" DefaultValueText="Record Search" />
+					</common:FormFieldOverrides>
+					<common:AddDataForms>
+						<common:AddDataForm ID="6949e415-6cd0-4af5-be9f-acebd318f478" Caption="Individual" CaptionResourceKey="$$individual" />
+						<common:AddDataForm ID="d846a816-46c7-470e-9ad0-973b2730e836" Caption="Household" CaptionResourceKey="$$household" />
+						<common:AddDataForm ID="f0f6426a-fccd-48bb-846b-eb3d1a4a0ed4" Caption="Group" CaptionResourceKey="$$group" />
+						<common:AddDataForm ID="0706d187-af1a-4bd6-8365-8fb7419e5600" Caption="Organization" CaptionResourceKey="$$organization" />
+					</common:AddDataForms>
+				</common:SearchList>
+			</common:FormField>
+			<common:FormField FieldID="GIFTRECIPIENT" DataType="Boolean" ReadOnly="true" Caption="Gift" CaptionResourceKey="$$gift" />
+			<common:FormField FieldID="SPONSORSHIPPROGRAMID" DataType="Guid" Caption="Program" CaptionResourceKey="$$program">
+				<common:SimpleDataList SimpleDataListID="fca96cc4-1aad-4072-8bca-ba010e9e4e31">
+					<common:Params>
+						<common:Param ID="TYPE">
+							<common:Value>0</common:Value>
+						</common:Param>
+					</common:Params>
+				</common:SimpleDataList>
+			</common:FormField>
+			<common:FormField FieldID="SPONSORSHIPLOCATIONID" DataType="Guid" Caption="Location" CaptionResourceKey="$$location">
+				<common:SearchList SearchListID="7d7ac450-86f7-42f7-9299-e2458592ad14" EnableQuickFind="true">
+					<common:FormFieldOverrides>
+						<common:FormFieldOverride FieldID="WITHINLOCATION" Hidden="true" />
+						<common:FormFieldOverride FieldID="WITHINLOCATIONDISPLAY" Hidden="true" />
+					</common:FormFieldOverrides>
+				</common:SearchList>
+			</common:FormField>
+			<common:FormField FieldID="SPROPPAGERANGEID" DataType="Guid" Caption="Age range" CaptionResourceKey="$$age_range">
+				<common:SimpleDataList SimpleDataListID="b2b6fb02-19df-49d4-8092-de9611e98b2a" />
+			</common:FormField>
+			<common:FormField FieldID="GENDERCODE" DataType="Integer" Caption="Gender" CaptionResourceKey="$$gender">
+				<common:ValueList>
+					<common:Items>
+						<common:Item>
+							<common:Value>1</common:Value>
+							<common:Label>Male</common:Label>
+						</common:Item>
+						<common:Item>
+							<common:Value>2</common:Value>
+							<common:Label>Female</common:Label>
+						</common:Item>
+					</common:Items>
+				</common:ValueList>
+			</common:FormField>
+			<common:FormField FieldID="ISHIVPOSITIVECODE" DataType="Integer" Caption="HIV positive" CaptionResourceKey="$$hiv_positive">
+				<common:ValueList>
+					<common:Items>
+						<common:Item>
+							<common:Value>1</common:Value>
+							<common:Label>Yes</common:Label>
+						</common:Item>
+						<common:Item>
+							<common:Value>2</common:Value>
+							<common:Label>No</common:Label>
+						</common:Item>
+					</common:Items>
+				</common:ValueList>
+			</common:FormField>
+			<common:FormField FieldID="HASCONDITIONCODE" DataType="Integer" Caption="Disability/Illness" CaptionResourceKey="$$disability/illness">
+				<common:ValueList>
+					<common:Items>
+						<common:Item>
+							<common:Value>1</common:Value>
+							<common:Label>Yes</common:Label>
+						</common:Item>
+						<common:Item>
+							<common:Value>2</common:Value>
+							<common:Label>No</common:Label>
+						</common:Item>
+					</common:Items>
+				</common:ValueList>
+			</common:FormField>
+			<common:FormField FieldID="ISORPHANEDCODE" DataType="Integer" Caption="Orphaned" CaptionResourceKey="$$orphaned">
+				<common:ValueList>
+					<common:Items>
+						<common:Item>
+							<common:Value>1</common:Value>
+							<common:Label>Yes</common:Label>
+						</common:Item>
+						<common:Item>
+							<common:Value>2</common:Value>
+							<common:Label>No</common:Label>
+						</common:Item>
+					</common:Items>
+				</common:ValueList>
+			</common:FormField>
+
+			<common:FormField FieldID="SPONSORSHIPOPPORTUNITYIDCHILD" DataType="Guid" Caption="Child" CaptionResourceKey="$$child">
+				<common:SearchList SearchListID="f9183b88-9f54-40de-848e-c8fbacf92e79" EnableQuickFind="false">
+					<common:FormFieldOverrides>
+						<common:FormFieldOverride FieldID="SPONSORSHIPPROGRAMID" ReadOnly="false" DefaultValueText="Fields!SPONSORSHIPPROGRAMID" />
+						<common:FormFieldOverride FieldID="ELIGIBILITYCODE" ReadOnly="false" DefaultValueText="1" />
+						<common:FormFieldOverride FieldID="AVAILABILITYCODE" ReadOnly="false" DefaultValueText="1" />
+						<common:FormFieldOverride FieldID="RESTRICTFORSOLESPONSORSHIP" Caption="Only include unsponsored" DefaultValueText="True" />
+						<common:FormFieldOverride FieldID="SPONSORSHIPOPPORTUNITYGROUPID" ReadOnly="false" />
+						<common:FormFieldOverride FieldID="RESERVATIONKEYID" ReadOnly="false" />
+						<common:FormFieldOverride FieldID="CORRESPONDINGSPONSORID" Hidden="true" DefaultValueText="Fields!SPONSORSHIPCONSTITUENTID" />
+						<common:FormFieldOverride FieldID="FINANCIALSPONSORID" Hidden="true" DefaultValueText="Fields!REVENUECONSTITUENTID" />
+					</common:FormFieldOverrides>
+				</common:SearchList>
+			</common:FormField>
+
+			<!--<common:FormField FieldID="SPONSORSHIPOPPORTUNITYIDCHILD" DataType="Guid" Caption="Child" CaptionResourceKey="$$child">
+                                <common:SearchList SearchListID="ab076868-114a-4696-afe9-8d590677708c" EnableQuickFind="true">
+                                        <common:FormFieldOverrides>
+                                                <common:FormFieldOverride FieldID="SPONSORSHIPPROGRAMID" ReadOnly="true" DefaultValueText="Fields!SPONSORSHIPPROGRAMID" />
+                                                <common:FormFieldOverride FieldID="ELIGIBILITYCODE" ReadOnly="true" DefaultValueText="1" />
+                                                <common:FormFieldOverride FieldID="AVAILABILITYCODE" ReadOnly="true" DefaultValueText="0" />
+                                                <common:FormFieldOverride FieldID="RESTRICTFORSOLESPONSORSHIP" Caption="Only include unsponsored" DefaultValueText="Fields!ISSOLESPONSORSHIP" />
+                                                <common:FormFieldOverride FieldID="EXCLUDEOPPORTUNITYID" ReadOnly="true" Hidden="true" DefaultValueText="Fields!ORIGINALOPPORTUNITYID" />
+                                                <common:FormFieldOverride FieldID="SPONSORSHIPOPPORTUNITYGROUPID" ReadOnly="true" />
+                                                <common:FormFieldOverride FieldID="RESERVATIONKEYID" ReadOnly="true" />
+                                                <common:FormFieldOverride FieldID="CORRESPONDINGSPONSORID" Hidden="true" DefaultValueText="Fields!SPONSORSHIPCONSTITUENTID" />
+                                                <common:FormFieldOverride FieldID="FINANCIALSPONSORID" Hidden="true" DefaultValueText="Fields!REVENUECONSTITUENTID" />
+                                        </common:FormFieldOverrides>
+                                </common:SearchList>
+                        </common:FormField>-->
+
+
+			<common:FormField FieldID="SPONSORSHIPOPPORTUNITYIDPROJECT" DataType="Guid" Caption="Project" CaptionResourceKey="$$project">
+				<common:SearchList SearchListID="b095dc74-4c09-40c9-9c9d-e8ff55b584ce" EnableQuickFind="true">
+					<common:FormFieldOverrides>
+						<common:FormFieldOverride FieldID="SPONSORSHIPPROGRAMID" ReadOnly="true" DefaultValueText="Fields!SPONSORSHIPPROGRAMID" />
+						<common:FormFieldOverride FieldID="ELIGIBILITYCODE" ReadOnly="true" DefaultValueText="1" />
+						<common:FormFieldOverride FieldID="AVAILABILITYCODE" ReadOnly="true" DefaultValueText="0" />
+						<common:FormFieldOverride FieldID="RESTRICTFORSOLESPONSORSHIP" Caption="Only include unsponsored" DefaultValueText="Fields!ISSOLESPONSORSHIP" />
+						<common:FormFieldOverride FieldID="EXCLUDEOPPORTUNITYID" ReadOnly="true" Hidden="true" DefaultValueText="Fields!ORIGINALOPPORTUNITYID" />
+						<common:FormFieldOverride FieldID="SPONSORSHIPOPPORTUNITYGROUPID" ReadOnly="true" />
+						<common:FormFieldOverride FieldID="CORRESPONDINGSPONSORID" Hidden="true" DefaultValueText="Fields!SPONSORSHIPCONSTITUENTID" />
+						<common:FormFieldOverride FieldID="FINANCIALSPONSORID" Hidden="true" DefaultValueText="Fields!REVENUECONSTITUENTID" />
+					</common:FormFieldOverrides>
+				</common:SearchList>
+			</common:FormField>
+			<common:FormField FieldID="STARTDATE" DataType="Date" ReadOnly="true" Caption="Transfer date" CaptionResourceKey="$$transfer_date" />
+			<common:FormField FieldID="ISSOLESPONSORSHIP" DataType="Boolean" Caption="Sole sponsorship" CaptionResourceKey="$$sole_sponsorship" />
+			<common:FormField FieldID="PLANNEDENDDATE" DataType="Date" Caption="Expiration date" CaptionResourceKey="$$expiration_date" />
+			<common:FormField FieldID="AMOUNT" DataType="Money" Required="true" Caption="Amount" CaptionResourceKey="$$amount">
+				<common:CurrencyField CurrencyFieldID="TRANSACTIONCURRENCYID" />
+			</common:FormField>
+			<common:FormField FieldID="AUTOPAY" DataType="Boolean" ReadOnly="true" Caption="Pay installments automatically by:" CaptionResourceKey="$$pay_installments_automatically_by:" />
+			<common:FormField FieldID="PAYMENTMETHODCODE" DataType="TinyInt" ReadOnly="true" Caption="Payment method" CaptionResourceKey="$$payment_method">
+				<common:ValueList>
+					<common:Items>
+						<common:Item>
+							<common:Value>2</common:Value>
+							<common:Label>Credit card</common:Label>
+						</common:Item>
+						<common:Item>
+							<common:Value>3</common:Value>
+							<common:Label>Direct debit</common:Label>
+						</common:Item>
+					</common:Items>
+				</common:ValueList>
+			</common:FormField>
+			<common:FormField FieldID="CONSTITUENTACCOUNTID" DataType="Guid" ReadOnly="true" Caption="Account" CaptionResourceKey="$$account">
+				<common:SimpleDataList SimpleDataListID="0dd77a47-21b4-4953-abac-190e313b2d32">
+					<common:Params>
+						<common:Param ID="CONSTITUENTID">
+							<common:Value>Fields!SPONSORSHIPCONSTITUENTID</common:Value>
+						</common:Param>
+					</common:Params>
+					<common:AddDataForms>
+						<common:AddDataForm ID="87c4e1ae-2ff3-48e0-9a74-874d39ded3ac" ContextID="Fields!SPONSORSHIPCONSTITUENTID" Caption="Add account" CaptionResourceKey="$$add_account" />
+					</common:AddDataForms>
+				</common:SimpleDataList>
+			</common:FormField>
+			<common:FormField FieldID="REFERENCENUMBER" ReadOnly="true" MaxLength="20" Caption="Reference no." CaptionResourceKey="$$reference_no" />
+			<common:FormField FieldID="REFERENCEDATE" DataType="FuzzyDate" ReadOnly="true" Caption="Reference date" CaptionResourceKey="$$reference_date" />
+			<common:FormField FieldID="FREQUENCYCODE" DataType="TinyInt" Caption="Frequency" CaptionResourceKey="$$frequency">
+				<common:ValueList>
+					<common:Items>
+						<common:Item>
+							<common:Value>0</common:Value>
+							<common:Label>Annually</common:Label>
+						</common:Item>
+						<common:Item>
+							<common:Value>1</common:Value>
+							<common:Label>Semi-annually</common:Label>
+						</common:Item>
+						<common:Item>
+							<common:Value>2</common:Value>
+							<common:Label>Quarterly</common:Label>
+						</common:Item>
+						<common:Item>
+							<common:Value>6</common:Value>
+							<common:Label>Bimonthly</common:Label>
+						</common:Item>
+						<common:Item>
+							<common:Value>3</common:Value>
+							<common:Label>Monthly</common:Label>
+						</common:Item>
+						<common:Item>
+							<common:Value>7</common:Value>
+							<common:Label>Semi-monthly</common:Label>
+						</common:Item>
+						<common:Item>
+							<common:Value>8</common:Value>
+							<common:Label>Biweekly</common:Label>
+						</common:Item>
+						<common:Item>
+							<common:Value>9</common:Value>
+							<common:Label>Weekly</common:Label>
+						</common:Item>
+					</common:Items>
+				</common:ValueList>
+			</common:FormField>
+			<common:FormField FieldID="REVENUESCHEDULESTARTDATE" DataType="Date" Required="true" Caption="Starting on" CaptionResourceKey="$$starting_on" />
+			<common:FormField FieldID="REVENUESCHEDULEENDDATE" DataType="Date" Caption="Ending on" CaptionResourceKey="$$ending_on" />
+			<common:FormField FieldID="CREDITCARDNUMBER" ReadOnly="true" MaxLength="20" Caption="Card number" CaptionResourceKey="$$card_number" />
+			<common:FormField FieldID="CARDHOLDERNAME" ReadOnly="true" MaxLength="100" Caption="Name on card" CaptionResourceKey="$$name_on_card" />
+			<common:FormField FieldID="EXPIRESON" DataType="FuzzyDate" ReadOnly="true" Caption="Expires on" CaptionResourceKey="$$expires_on" />
+			<common:FormField FieldID="CREDITCARDTOKEN" DataType="Guid" ReadOnly="true">
+				<common:CreditCard CardNumberFieldID="CREDITCARDNUMBER" CardHolderFieldID="CARDHOLDERNAME" ExpirationDateFieldID="EXPIRESON" CardTypeFieldID="CREDITTYPECODEID" />
+			</common:FormField>
+			<common:FormField FieldID="CREDITTYPECODEID" DataType="Guid" ReadOnly="true" Caption="Card type" CaptionResourceKey="$$card_type">
+				<common:CodeTable CodeTableName="CREDITTYPECODE" />
+			</common:FormField>
+			<common:FormField FieldID="RESERVEDOPPORTUNITYIDCHILD" DataType="Guid" Caption="Child" CaptionResourceKey="$$child">
+				<common:SearchList SearchListID="ab076868-114a-4696-afe9-8d590677708c" EnableQuickFind="true">
+					<common:FormFieldOverrides>
+						<common:FormFieldOverride FieldID="SPONSORSHIPPROGRAMID" ReadOnly="true" DefaultValueText="Fields!SPONSORSHIPPROGRAMID" />
+						<common:FormFieldOverride FieldID="ELIGIBILITYCODE" ReadOnly="true" DefaultValueText="1" />
+						<common:FormFieldOverride FieldID="AVAILABILITYCODE" ReadOnly="true" DefaultValueText="1" />
+						<common:FormFieldOverride FieldID="RESTRICTFORSOLESPONSORSHIP" Caption="Only include unsponsored" DefaultValueText="Fields!ISSOLESPONSORSHIP" />
+						<common:FormFieldOverride FieldID="SPONSORSHIPOPPORTUNITYGROUPID" ReadOnly="true" />
+						<common:FormFieldOverride FieldID="RESERVATIONKEYID" ReadOnly="true" DefaultValueText="Fields!RESERVATIONKEY" />
+						<common:FormFieldOverride FieldID="CORRESPONDINGSPONSORID" Hidden="true" DefaultValueText="Fields!SPONSORSHIPCONSTITUENTID" />
+						<common:FormFieldOverride FieldID="FINANCIALSPONSORID" Hidden="true" DefaultValueText="Fields!REVENUECONSTITUENTID" />
+					</common:FormFieldOverrides>
+				</common:SearchList>
+			</common:FormField>
+			<common:FormField FieldID="RESERVATIONKEY" DataType="Guid" Caption="Reservation key" CaptionResourceKey="$$reservation_key">
+				<common:SearchList SearchListID="617890dc-3770-4505-b963-b6072cadced7" EnableQuickFind="true">
+					<common:FormFieldOverrides>
+						<common:FormFieldOverride FieldID="INCLUDEINACTIVE" ReadOnly="true" DefaultValueText="0" />
+					</common:FormFieldOverrides>
+				</common:SearchList>
+			</common:FormField>
+			<common:FormField FieldID="MATCHEDOPPORTUNITYID" DataType="Guid" Hidden="true" />
+			<common:FormField FieldID="SENDREMINDER" DataType="Boolean" Caption="Send reminders" CaptionResourceKey="$$send_reminders" />
+			<common:FormField FieldID="NEXTINSTALLMENTID" DataType="Guid" Hidden="true" />
+			<common:FormField FieldID="FINDERNUMBER" DataType="Long" Caption="Finder number" CaptionResourceKey="$$finder_number" DoNotApplyFormat="true" />
+			<common:FormField FieldID="SOURCECODE" MaxLength="50" Caption="Source code" CaptionResourceKey="$$source_code" />
+			<common:FormField FieldID="APPEALID" DataType="Guid" Caption="Appeal" CaptionResourceKey="$$appeal">
+				<common:SearchList SearchListID="7d004826-2a51-4938-9f14-4eda9dade2df" EnableQuickFind="true">
+					<common:AddDataForms>
+						<common:AddDataForm ID="2736a8b5-ab2e-4330-ba15-98818321c643" Caption="Add" CaptionResourceKey="$$add" />
+					</common:AddDataForms>
+				</common:SearchList>
+			</common:FormField>
+			<common:FormField FieldID="MAILINGID" DataType="Guid" Caption="Effort" CaptionResourceKey="$$effort">
+				<common:SearchList SearchListID="349397cb-e2dd-43e8-a4ca-af5647c91d99" EnableQuickFind="true">
+					<common:FormFieldOverrides>
+						<common:FormFieldOverride FieldID="STATUS" Caption="Status" ReadOnly="true" Hidden="true" DefaultValueText="1" />
+						<common:FormFieldOverride FieldID="INCLUDEAPPEALMAILINGS" Caption="Include appeal mailings" ReadOnly="true" Hidden="true" DefaultValueText="true" />
+					</common:FormFieldOverrides>
+				</common:SearchList>
+			</common:FormField>
+			<common:FormField FieldID="CHANNELCODEID" DataType="Guid" Caption="Inbound channel" CaptionResourceKey="$$inbound_channel">
+				<common:CodeTable CodeTableName="CHANNELCODE" />
+			</common:FormField>
+			<common:FormField FieldID="REFERENCE" MaxLength="255" Caption="Reference" CaptionResourceKey="$$reference" AllowZoom="true" />
+			<common:FormField FieldID="CATEGORYCODEID" DataType="Guid" Caption="Revenue category" CaptionResourceKey="$$revenue_category">
+				<common:SimpleDataList SimpleDataListID="d9dd46ce-6651-4fcc-b9fe-e59162662224" />
+			</common:FormField>
+			<common:FormField FieldID="REVENUEDEVELOPMENTFUNCTIONCODEID" DataType="Guid" Caption="Revenue function" CaptionResourceKey="$$revenue_function">
+				<common:CodeTable CodeTableName="REVENUEDEVELOPMENTFUNCTIONCODE" />
+			</common:FormField>
+			<common:FormField FieldID="EDITSTARTDATE" DataType="Boolean" ReadOnly="true" Hidden="true" />
+			<common:FormField FieldID="LASTACTIVITYDATE" DataType="Date" ReadOnly="true" Hidden="true" />
+			<common:FormField FieldID="EXPIRATIONREASONID" DataType="Guid" Caption="Reason" CaptionResourceKey="$$reason">
+				<common:SimpleDataList SimpleDataListID="c8d3128e-a2eb-4413-b0b4-1585ad5bf001">
+					<common:Params>
+						<common:Param ID="TYPE">
+							<common:Value>11</common:Value>
+						</common:Param>
+					</common:Params>
+				</common:SimpleDataList>
+			</common:FormField>
+			<common:FormField FieldID="TRANSACTIONCURRENCYID" DataType="Guid" Caption="Transaction currency" CaptionResourceKey="$$transaction_currency">
+				<common:SimpleDataList SimpleDataListID="40bf0d4a-5e78-46f4-ab50-56d508e35516" />
+				<common:FormFieldHiddenCondition>
+					<common:DoesNotExistCondition Key="Multicurrency" />
+				</common:FormFieldHiddenCondition>
+			</common:FormField>
+			<common:FormField FieldID="BASEEXCHANGERATEID" DataType="Guid" Caption="Exchange rate" CaptionResourceKey="$$exchange_rate">
+				<common:SimpleDataList SimpleDataListID="c254b16d-ba67-4431-9f7e-ab7f75f4f246">
+					<common:Params>
+						<common:Param ID="FROMCURRENCYID">
+							<common:Value>Fields!TRANSACTIONCURRENCYID</common:Value>
+						</common:Param>
+						<common:Param ID="TOCURRENCYID">
+							<common:Value>Fields!BASECURRENCYID</common:Value>
+						</common:Param>
+						<common:Param ID="TYPECODE">
+							<common:Value>1</common:Value>
+						</common:Param>
+						<common:Param ID="ASOFDATE">
+							<common:Value>Fields!DATE</common:Value>
+						</common:Param>
+						<common:Param ID="INCLUDESPOTRATE">
+							<common:Value>1</common:Value>
+						</common:Param>
+						<common:Param ID="CURRENTEXCHANGERATEID">
+							<common:Value>Fields!BASEEXCHANGERATEID</common:Value>
+						</common:Param>
+					</common:Params>
+				</common:SimpleDataList>
+				<common:FormFieldHiddenCondition>
+					<common:DoesNotExistCondition Key="Multicurrency" />
+				</common:FormFieldHiddenCondition>
+			</common:FormField>
+			<common:FormField FieldID="EXCHANGERATE" DataType="Decimal" Caption="Exchange rate" Precision="20" Scale="8" CaptionResourceKey="$$exchange_rate">
+				<common:FormFieldHiddenCondition>
+					<common:DoesNotExistCondition Key="Multicurrency" />
+				</common:FormFieldHiddenCondition>
+			</common:FormField>
+			<common:FormField FieldID="BASECURRENCYID" DataType="Guid" ReadOnly="true" Hidden="true" />
+			<common:FormField FieldID="BASEAMOUNT" DataType="Money" ReadOnly="true" Caption="Base amount" CaptionResourceKey="$$base_amount">
+				<common:CurrencyField CurrencyFieldID="BASECURRENCYID" />
+				<common:FormFieldHiddenCondition>
+					<common:DoesNotExistCondition Key="Multicurrency" />
+				</common:FormFieldHiddenCondition>
+			</common:FormField>
+			<common:FormField FieldID="BASECURRENCYDECIMALDIGITS" DataType="TinyInt" ReadOnly="true" Hidden="true" Caption="Base currency decimal digits" />
+			<common:FormField FieldID="BASECURRENCYROUNDINGTYPECODE" DataType="TinyInt" ReadOnly="true" Hidden="true" Caption="Base currency rounding type code" />
+			<common:FormField FieldID="HADSPOTRATE" DataType="Boolean" Hidden="true" Caption="Had spot rate" AvailableToClient="false" />
+			<common:FormField FieldID="RATECHANGED" DataType="Boolean" Hidden="true" Caption="Rate changed" AvailableToClient="false" />
+			<common:FormField FieldID="UPDATERECOGNITIONOPTION" DataType="Boolean" Hidden="true" AvailableToClient="false" />
+			<common:FormField FieldID="DONOTACKNOWLEDGE" DataType="Boolean" Caption="Do not acknowledge" CaptionResourceKey="$$do_not_acknowledge" />
+
+			<common:FormField FieldID="OVERRIDEFLAG" Caption="Override" DataType="Boolean"  />
+
+			<common:FormField FieldID="SPONSORID" Caption="Sponsor" DataType="Guid" ReadOnly="true">
+				<common:SearchList SearchListID="23c5c603-d7d8-4106-aecc-65392b563887" />
+			</common:FormField>
+			<common:FormField FieldID="FROMCHILDID" Caption="Departed Child" DataType="Guid" ReadOnly="true">
+				<common:SearchList SearchListID="AB076868-114A-4696-AFE9-8D590677708C" />
+			</common:FormField>
+			<common:FormField FieldID="TOCHILDID" Caption="Transfer Child" DataType="Guid" ReadOnly="true">
+				<common:SearchList SearchListID="AB076868-114A-4696-AFE9-8D590677708C" />
+			</common:FormField>
+
+			<common:FormField FieldID="DONORCONTACTCODEID" Caption="Donor Contact" DataType="Guid">
+				<common:CodeTable CodeTableName="USR_INTERACTIONEXTENSIONLETTERTYPECODE" />
+			</common:FormField>
+
+
+		</common:FormFields>
+
+		<common:WebUIComponent>
+			<common:UIModel AssemblyName="MoM.Sponsorship.UIModel.dll" ClassName="MoM.Sponsorship.UIModel.CompleteOrOverridePendingTransferFormUIModel" />
+			<common:WebUI>
+				<common:ExternalResource Url="browser/htmlforms/custom/CompleteOrOverridePendingTransferForm.html" />
+			</common:WebUI>
+		</common:WebUIComponent>
+
+		<common:FieldGroups>
+			<common:FieldGroup ID="GENERALINFORMATION" Caption="General" CaptionResourceKey="$$general">
+				<common:Fields>
+					<common:Field>REVENUECONSTITUENTID</common:Field>
+					<common:Field>FINDERNUMBER</common:Field>
+					<common:Field>GIFTRECIPIENT</common:Field>
+					<common:Field>SPONSORSHIPCONSTITUENTID</common:Field>
+					<common:Field>SPONSORSHIPPROGRAMID</common:Field>
+					<common:Field>STARTDATE</common:Field>
+					<common:Field>SPONSORSHIPREASONID</common:Field>
+				</common:Fields>
+			</common:FieldGroup>
+			<common:FieldGroup ID="SPONSORSHIPOPPORTUNITY" Caption="Sponsorship Opportunity" CaptionResourceKey="$$sponsorship_opportunity">
+				<common:Fields>
+					<common:Field>SPONSORSHIPOPPORTUNITYIDCHILD</common:Field>
+					<common:Field>SPONSORSHIPOPPORTUNITYIDPROJECT</common:Field>
+					<common:Field>RESERVATIONKEY</common:Field>
+					<common:Field>RESERVEDOPPORTUNITYIDCHILD</common:Field>
+					<common:Field>SPONSORSHIPLOCATIONID</common:Field>
+					<common:Field>GENDERCODE</common:Field>
+					<common:Field>SPROPPAGERANGEID</common:Field>
+					<common:Field>ISORPHANEDCODE</common:Field>
+					<common:Field>ISHIVPOSITIVECODE</common:Field>
+					<common:Field>HASCONDITIONCODE</common:Field>
+					<common:Field>SPROPPPROJECTCATEGORYCODEID</common:Field>
+					<common:Field>ISSOLESPONSORSHIP</common:Field>
+				</common:Fields>
+			</common:FieldGroup>
+			<common:FieldGroup ID="PAYMENTSCHEDULE" Caption="Schedule" CaptionResourceKey="$$schedule">
+				<common:Fields>
+					<common:Field>FREQUENCYCODE</common:Field>
+					<common:Field>REVENUESCHEDULESTARTDATE</common:Field>
+					<common:Field>REVENUESCHEDULEENDDATE</common:Field>
+					<common:Field>RGSCHEDULE</common:Field>
+				</common:Fields>
+			</common:FieldGroup>
+			<common:FieldGroup ID="PAYMENTINFORMATION" Caption="Payment information" CaptionResourceKey="$$payment_information">
+				<common:Fields>
+					<common:Field>AUTOPAY</common:Field>
+					<common:Field>PAYMENTMETHODCODE</common:Field>
+					<common:Field>CREDITTYPECODEID</common:Field>
+					<common:Field>REFERENCENUMBER</common:Field>
+					<common:Field>CONSTITUENTACCOUNTID</common:Field>
+					<common:Field>EXPIRESON</common:Field>
+				</common:Fields>
+			</common:FieldGroup>
+			<common:FieldGroup ID="MATCHEDOPPORTUNITY" Caption="Matched opportunity" CaptionResourceKey="$$matched_opportunity">
+				<common:Fields>
+					<common:Field>MOPPORTUNITYNAME</common:Field>
+					<common:Field>MOPPORTUNITYLOCATION</common:Field>
+					<common:Field>MOPPORTUNITYLOOKUPID</common:Field>
+					<common:Field>MOPPORTUNITYGENDER</common:Field>
+					<common:Field>MOPPORTUNITYBIRTHDATE</common:Field>
+				</common:Fields>
+			</common:FieldGroup>
+		</common:FieldGroups>
+		<common:Tabs>
+			<common:Tab ID="TAB_SPONSORSHIP" Caption="Sponsorship" CaptionResourceKey="$$sponsorship" />
+			<common:Tab ID="TAB_PAYMENT" Caption="Payment" CaptionResourceKey="$$payment" />
+			<common:Tab ID="TAB_EXPIRATION" Caption="Expiration" CaptionResourceKey="$$expiration" />
+		</common:Tabs>
+		<common:UIFields>
+			<common:FormField FieldID="SELECTOPPORTUNITYID" DataType="TinyInt" Caption="Select Opportunity" DefaultValueText="2" CaptionResourceKey="$$select_opportunity">
+				<common:ValueList UseRadioButtons="true">
+					<common:Items>
+						<common:Item>
+							<common:Value>0</common:Value>
+							<common:Label>Choose a specific opportunity</common:Label>
+						</common:Item>
+						<common:Item>
+							<common:Value>1</common:Value>
+							<common:Label>Choose a reserved opportunity</common:Label>
+						</common:Item>
+						<common:Item>
+							<common:Value>2</common:Value>
+							<common:Label>Find a matching opportunity of greatest need</common:Label>
+						</common:Item>
+					</common:Items>
+				</common:ValueList>
+			</common:FormField>
+			<common:FormField FieldID="ISFIXEDTERMSPONSORSHIP" DataType="Boolean" Caption="This is a fixed-term sponsorship" CaptionResourceKey="$$this_is_a_fixed-term_sponsorship" />
+			<common:FormField FieldID="RGSCHEDULE" DataType="XML" />
+			<common:FormField FieldID="MOPPORTUNITYNAME" Caption="Name" CaptionResourceKey="$$name" />
+			<common:FormField FieldID="MOPPORTUNITYLOCATION" Caption="Location" CaptionResourceKey="$$location" />
+			<common:FormField FieldID="MOPPORTUNITYLOOKUPID" Caption="Lookup ID" CaptionResourceKey="$$lookup_id" />
+			<common:FormField FieldID="MOPPORTUNITYGENDER" Caption="Gender" CaptionResourceKey="$$gender" />
+			<common:FormField FieldID="MOPPORTUNITYBIRTHDATE" Caption="Birthdate" CaptionResourceKey="$$birthdate" />
+			<common:FormField FieldID="MOPPORTUNITYIMAGE" Hidden="true" />
+			<common:FormField FieldID="FINDERNUMBERSTRING" Caption="Finder number" CaptionResourceKey="$$finder_number" />
+			<common:FormField FieldID="INVALIDFINDERNUMBERIMAGE" Caption="Invalid finder number" CaptionResourceKey="$$invalid_finder_number" />
+			<common:FormField FieldID="INSTALLMENTS" DataType="XML">
+				<common:Collection>
+					<common:Fields>
+						<common:FormField FieldID="DATE" DataType="Date" Required="true" Caption="Date" CaptionResourceKey="$$date" />
+						<common:FormField FieldID="AMOUNT" DataType="Money" Required="true" Caption="Amount" CaptionResourceKey="$$amount">
+							<common:CurrencyField CurrencyFieldID="TRANSACTIONCURRENCYID" />
+						</common:FormField>
+						<common:FormField FieldID="TRANSACTIONCURRENCYID" DataType="Guid" Hidden="true" Caption="Transaction currency" />
+					</common:Fields>
+				</common:Collection>
+			</common:FormField>
+			<common:FormField FieldID="ISOVERRIDE" Caption="Override transfer"  DataType="Boolean" />
+		</common:UIFields>
+		<common:UIActions>
+			<common:UIAction ActionID="FINDOPPORTUNITY" Caption="Find" CaptionResourceKey="$$find" />
+			<common:UIAction ActionID="SOURCECODELOOKUP" Description="Look up a source code to associate with this gift" DescriptionResourceKey="$$look_up_a_source_code_to_associate_with_this_gift" ImageKey="RES:findsmall">
+				<common:ShowSearch SearchListID="ef764bb7-fdf0-45c2-a50f-294bf460f200" />
+			</common:UIAction>
+			<common:UIAction ActionID="CURRENCYACTION" Description="Edit the currency and exchange rate information for this pledge" DescriptionResourceKey="$$edit_the_currency_and_exchange_rate_information_for_this_pledge" ImageKey="catalog:Blackbaud.AppFx.Currency.Catalog.dll,Blackbaud.AppFx.Currency.Catalog.multicurrency_16.png">
+				<common:ShowCustomForm>
+					<common:ModelComponent AssemblyName="Blackbaud.AppFx.Fundraising.UIModel.dll" ClassName="Blackbaud.AppFx.Fundraising.UIModel.CurrencyFormUIModel" />
+				</common:ShowCustomForm>
+			</common:UIAction>
+		</common:UIActions>
+	</common:FormMetaData>
+
+</EditDataFormTemplateSpec>
