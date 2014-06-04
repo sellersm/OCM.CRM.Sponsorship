@@ -89,7 +89,8 @@ SponsorshipNumberOfInstallments as
 select 
 	MEMBERID, 
 	RECURRINGGIFTID,
-	sum (INSTALLMENTTOTALPAYMENTS/INSTALLMENTAMOUNT) as NUMBEROFINSTALLMENTSPAID
+	sum (INSTALLMENTTOTALPAYMENTS/INSTALLMENTAMOUNT) as PERCENTAGEOFINSTALLMENTSPAID,
+	count (INSTALLMENTDATE) as NUMBEROFINSTALLMENTSPAID
 from 
 	SponsorshipPayments 
 group by 
@@ -99,8 +100,9 @@ group by
 
 select 
 	s.*,
-	ni.NUMBEROFINSTALLMENTSPAID,
-	dateadd(d, day(NEXTTRANSACTIONDATE)-1, dateadd ( m, ceiling(NUMBEROFINSTALLMENTSPAID), '7/1/14')) as NEWNEXTTRANSACTIONDATE,
+	ni.PERCENTAGEOFINSTALLMENTSPAID,
+	coalesce(ni.NUMBEROFINSTALLMENTSPAID,1) as NUMBEROFINSTALLMENTSPAID,
+	dateadd(d, day(NEXTTRANSACTIONDATE)-1, dateadd ( m, ceiling(coalesce(ni.PERCENTAGEOFINSTALLMENTSPAID,1)), '6/1/14')) as NEWNEXTTRANSACTIONDATE,
 	case 
 		when exists (select MEMBERID from SponsorshipPayments where MEMBERID = s.MEMBERID and INSTALLMENTAMOUNT > 40) then 'DO NOT USE NEW NTD- NOT MONTHLY'
 		else 'ok to use new NTD'
@@ -108,7 +110,7 @@ select
 	
 from 
 	MemberSponsorships s
-	join SponsorshipNumberOfInstallments ni on ni.MEMBERID = s.MEMBERID and ni.RECURRINGGIFTID  = s.RECURRINGGIFTID 
+	left join SponsorshipNumberOfInstallments ni on ni.MEMBERID = s.MEMBERID and ni.RECURRINGGIFTID  = s.RECURRINGGIFTID 
 
 			]]>
 		</ViewSQL>
@@ -129,6 +131,7 @@ from
 			<OutputField Name="RECURRINGGIFTID" Caption="Recurring Gift ID" Category="System Fields" DataType="Guid" />
 			<OutputField Name="RGLOOKUPID" Caption="Recurring Gift Lookup ID" DataType="String" />
 			<OutputField Name="NEXTTRANSACTIONDATE" Caption="Next Transaction Date" DataType="Date" />
+			<OutputField Name="PERCENTAGEOFINSTALLMENTSPAID" Caption="Percentage of Installments Paid" DataType="Decimal" />
 			<OutputField Name="NUMBEROFINSTALLMENTSPAID" Caption="Number of Installments Paid" DataType="Integer" />
 			<OutputField Name="NEWNEXTTRANSACTIONDATE" Caption="New Next Transaction Date" DataType="Date" />
 			<OutputField Name="VALIDNTD" Caption="Valid NTD?" DataType="String" />
