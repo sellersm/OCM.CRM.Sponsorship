@@ -17,6 +17,7 @@
 	History:
 	Date			Modified By		Comments
     03-Jun-2014		Memphis			Initial Version
+	09-Jun-2014		Memphis			Took out the EFTSTATUS Column.
 	-->
 	
 	
@@ -34,7 +35,7 @@
 			CARDNUMBER, 
 			CARDEXPIRATION, 
 			CHILDINFO, 
-			EFTSTATUS, 
+			--EFTSTATUS, 
 			USR_EFTDECLINE_BATCH_SPONSORS.REVENUELOOKUPID, 
 			CARDHOLDERNAME, 
 			ACCOUNTINFO,
