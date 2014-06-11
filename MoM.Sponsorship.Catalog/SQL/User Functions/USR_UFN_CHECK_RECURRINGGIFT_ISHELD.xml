@@ -15,6 +15,7 @@
 	History:
 	Date            Modified By     Comments
 	28-Apr-2013		Memphis			Initial Version
+	10-Jun-2014		Memphis			Changed to use the new ISEFTDECLINED field in the recurring gift extension table.
 	-->
 	
 	<CreateFunctionSQL>
@@ -28,13 +29,12 @@ as begin
 	-- do work here and return a value
 	declare @isHeld bit = 0;  -- default to No
 	if exists (select 1
-		from dbo.ATTRIBUTE58705B2A658B4396A8F1BBC9003B9DCA
-		where (REVENUEID = (select REVENUEID from dbo.REVENUESPLIT where ID = @REVENUESPLITID)
-		and ENDDATE is null
-		and BOOLEANCODE = 1)
+		from dbo.USR_FINANCIALTRANSACTION_EXTENSION
+		where (ID = (select REVENUEID from dbo.REVENUESPLIT where REVENUEID = @REVENUESPLITID)
+		and ISEFTDECLINED = 1)
 		)
 		set @isHeld = 1;
-	
+		
 	return @isHeld;
 end
 		]]>
