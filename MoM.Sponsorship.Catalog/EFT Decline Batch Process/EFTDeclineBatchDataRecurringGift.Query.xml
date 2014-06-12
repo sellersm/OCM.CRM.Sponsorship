@@ -18,6 +18,7 @@
 	Date			Modified By		Comments
     03-Jun-2014		Memphis			Initial Version
 	09-Jun-2014		Memphis			Took out the EFTSTATUS Column.
+	12-Jun-2014		Memphis			Took out all joins to batch tables so it works when the batches are removed...
 	-->
 	
 	
@@ -38,14 +39,15 @@
 			--EFTSTATUS, 
 			USR_EFTDECLINE_BATCH_SPONSORS.REVENUELOOKUPID, 
 			CARDHOLDERNAME, 
-			ACCOUNTINFO,
-			c.ID as CONSTITUENTID
+			ACCOUNTINFO
+			--c.ID as CONSTITUENTID
 	FROM dbo.USR_EFTDECLINE_BATCH_SPONSORS
-		join dbo.CONSTITUENT c on c.LOOKUPID = SPONSORLOOKUPID
-		join batch b on b.BATCHNUMBER = USR_EFTDECLINE_BATCH_SPONSORS.BATCHNUMBER
-		join batchrevenue br on br.BATCHID = b.ID and CONSTITUENTID = c.ID
-		join BATCHREVENUEAPPLICATION  bra on bra.BATCHREVENUEID= br.ID
-		join REVENUE r on r.ID = bra.REVENUEID and r.LOOKUPID = USR_EFTDECLINE_BATCH_SPONSORS.REVENUELOOKUPID				
+		--join dbo.CONSTITUENT c on c.LOOKUPID = SPONSORLOOKUPID
+		--join batch b on b.BATCHNUMBER = USR_EFTDECLINE_BATCH_SPONSORS.BATCHNUMBER
+		--join batchrevenue br on br.BATCHID = b.ID and CONSTITUENTID = c.ID
+		--join BATCHREVENUEAPPLICATION  bra on bra.BATCHREVENUEID= br.ID
+		--join REVENUE r on r.ID = bra.REVENUEID and r.LOOKUPID = USR_EFTDECLINE_BATCH_SPONSORS.REVENUELOOKUPID
+		join REVENUE r on r.LOOKUPID = USR_EFTDECLINE_BATCH_SPONSORS.REVENUELOOKUPID
 			]]>
 		</ViewSQL>
 	</ViewImplementation>
@@ -66,7 +68,7 @@
 			<OutputField Name="REVENUELOOKUPID" Caption="Revenue Id" DataType="String" />
 			<OutputField Name="CARDHOLDERNAME" Caption="Cardholder" DataType="String" />
 			<OutputField Name="ACCOUNTINFO" Caption="Account Info" DataType="String" />
-			<OutputField Name="CONSTITUENTID" Caption="Constituent ID" DataType="Guid" IsHidden="true" />
+			<!--<OutputField Name="CONSTITUENTID" Caption="Constituent ID" DataType="Guid" IsHidden="true" />-->
 		</OutputFields>
 	</Output>
 
