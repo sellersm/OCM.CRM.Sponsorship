@@ -16,6 +16,7 @@
 	Date            Modified By     Comments
 	28-Apr-2013		Memphis			Initial Version
 	10-Jun-2014		Memphis			Changed to use the new ISEFTDECLINED field in the recurring gift extension table.
+	13-Jun-2014		Memphis			Fix bug in where clause of select from revenuesplit table.
 	-->
 	
 	<CreateFunctionSQL>
@@ -30,7 +31,7 @@ as begin
 	declare @isHeld bit = 0;  -- default to No
 	if exists (select 1
 		from dbo.USR_FINANCIALTRANSACTION_EXTENSION
-		where (ID = (select REVENUEID from dbo.REVENUESPLIT where REVENUEID = @REVENUESPLITID)
+		where (ID = (select REVENUEID from dbo.REVENUESPLIT where ID = @REVENUESPLITID)
 		and ISEFTDECLINED = 1)
 		)
 		set @isHeld = 1;
