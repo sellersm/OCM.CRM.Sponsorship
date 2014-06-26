@@ -546,6 +546,9 @@ declare @D2ChildrenList table (
                             if (@createInteractions = 1 and @writeToExceptionLog = 0)
                                 begin
                                     -- number of months past due should be between 0 and 2:
+									-- BUG:  the following line should be filtering out the non-monthly ones where @numberOfMonthsPastDue = -1
+									-- *TODO*: for now, though, leave it wrong so Pamela doesn't have to manually create them:
+									--if (@numberOfMonthsPastDue=-1 or (@numberOfMonthsPastDue >= 0 and @numberOfMonthsPastDue < 2))
                                     if (@numberOfMonthsPastDue >= 0 and @numberOfMonthsPastDue < 2)
                                         begin
     										set @createInteractions = 0;
