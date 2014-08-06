@@ -1,0 +1,45 @@
+﻿<TableSpec 
+	xmlns="bb_appfx_table"
+	xmlns:common="bb_appfx_commontypes" 
+	ID="670F2683-5963-4F16-99EA-7DB2EF6159B4"
+	Name="Prospect Terminate Business Process Results"
+	Description="Stores results of the prospect terminate business process."
+	Author="Cary Mayeda"
+	Tablename="USR_PROSPECTTERMINATE_BUSINESSPROCESS_RESULTS"		   
+	>
+
+	<!-- 
+	Remarks:    
+
+	History:
+	Date            Modified By     Comments
+	28-Jul-2014		Memphis			Initial Version 
+	-->
+
+	<!-- define fields on the table -->
+	<Fields>
+		<DateField Name="PROSPECTTERMINATEDATE" DefaultValue="GETDATE()" IncludeTime="true" Description="Prospect Terminate Date" Required="true" />
+		<TextField Name="SPONSORLOOKUPID" Description="Sponsor Lookup ID" Length="10" Required="true"/>
+		<TextField Name="SPONSORNAME" Description="Sponsor Name" Length="155" />
+		<TextField Name="CHILDLOOKUPID" Description="Child Lookup ID" Length="10" Required="true"/>
+		<TextField Name="CHILDNAME" Description="Child Name" Length="155" />
+		<BooleanField Name="TERMINATESUCCESS" Description="Status of the terminate process for this sponsor / child"/>
+		<TextField Name="ERRORMESSAGE" Description="Error message" Length="1000"/>
+	</Fields>
+
+	<!-- define any additional check constraints on the table -->
+	<!--<CheckConstraints>
+
+	</CheckConstraints>-->
+
+	<!-- define any indexes on the table -->
+	<!--<Indexes>
+
+	</Indexes>-->
+		
+	<!-- define any triggers on the table -->
+	<!--<Triggers>
+
+	</Triggers>-->
+
+</TableSpec>

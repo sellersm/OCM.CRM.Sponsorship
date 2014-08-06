@@ -1,0 +1,225 @@
+﻿<SQLStoredProcedureSpec
+	xmlns="bb_appfx_sqlstoredprocedure"
+	xmlns:common="bb_appfx_commontypes" 
+	ID="7E064AFE-09ED-400C-8E07-6E696C57A41E"
+	Name="USR_USP_PROSPECTTERMINATE_BUSINESSPROCESS"
+	Description="Prospect Terminate stored procedure used for the business process."
+	Author="Memphis Sellers"
+	SPName="USR_USP_PROSPECTTERMINATE_BUSINESSPROCESS"
+	GrantServiceRolePermission="true"
+	>
+
+	<!-- 
+	Remarks:    
+
+	History:
+	Date            Modified By     Comments
+	28-Jul-2014		Memphis			Initial Version 
+	-->
+
+	<CreateProcedureSQL>
+		<![CDATA[
+
+create procedure dbo.USR_USP_PROSPECTTERMINATE_BUSINESSPROCESS (
+	@idSetRegisterID uniqueidentifier,		-- Specify a Selection Set ID if the sproc should process all the children in a query selection
+	@changeAgentID uniqueidentifier,		-- Used to specify change agent for ChangedByID and AddedByID fields
+	@successCount int = 0 output,
+	@exceptionCount int = 0 output
+)
+as
+begin
+	set @successCount = 0 
+	set @exceptionCount = 0 
+
+	declare @results table (
+		SPONSORLOOKUPID nvarchar(10),
+		SPONSORNAME nvarchar(155),
+		CHILDLOOKUPID nvarchar(10),
+		CHILDNAME nvarchar(155), 
+		TERMINATESUCCESS bit, 
+		ERRORMESSAGE nvarchar (1000), 
+		ADDEDBYID uniqueidentifier, 
+		DATEADDED datetime, 
+		CHANGEDBYID uniqueidentifier, 
+		DATECHANGED datetime
+	)
+	
+	declare @currentDate date = Cast(GETDATE() as date)
+
+	-- var to hold the Formerly Prospect Sponsored code id:
+	declare @prospectFormerlySponsoredCurrentStatusId uniqueidentifier = null;	-- current 'Formerly Prospect Sponsored'
+	declare @prospectSponsoredCurrentStatusId uniqueidentifier = null;			-- current 'Prospect Sponsored'
+	declare @formerlySponsoredCurrentStatusId uniqueidentifier = null;	-- current 'Formerly Sponsored'
+	
+	-- populate the code id vars:
+	set @prospectFormerlySponsoredCurrentStatusId = dbo.USR_UFN_CURRENTOPPORTUNITYSPONSORSHIPSTATUSCODE_GETID_FORDESCRIPTION('Formerly Prospect Sponsored')
+	set @prospectSponsoredCurrentStatusId = dbo.USR_UFN_CURRENTOPPORTUNITYSPONSORSHIPSTATUSCODE_GETID_FORDESCRIPTION('Prospect Sponsored')
+	set @formerlySponsoredCurrentStatusId = dbo.USR_UFN_CURRENTOPPORTUNITYSPONSORSHIPSTATUSCODE_GETID_FORDESCRIPTION('Formerly Sponsored')
+	
+	begin try
+		if @changeAgentID is null
+			exec dbo.USP_CHANGEAGENT_GETORCREATECHANGEAGENT @changeAgentID output;
+
+		if @prospectFormerlySponsoredCurrentStatusId is null
+			raiserror 100000 'Unable to locate current status code: "Formerly Prospect Sponsored" Unable to continue.'
+		if @prospectSponsoredCurrentStatusId is null
+			raiserror 100000 'Unable to locate current status code: "Prospect Sponsored" Unable to continue.'
+		if @formerlySponsoredCurrentStatusId is null
+			raiserror 100000 'Unable to locate current status code: "Formerly Sponsored" Unable to continue.'
+	end try
+	begin catch
+		exec dbo.USP_RAISE_ERROR
+		return 1;
+	end catch
+
+
+	declare @sponsorshipToTerminate uniqueidentifier = null
+	declare @statusCode tinyint 
+	declare @sponsorID uniqueidentifier = null
+	declare @SponsorLookupID nvarchar(100) = ''
+	declare @sponsorName nvarchar(255) = ''
+	declare @sponsorshipOpportunityChildID uniqueidentifier = null
+	declare @childLookupID nvarchar(100) = ''
+	declare @childName nvarchar(255) = ''
+	
+	declare sponsorshipsToTerminateCursor cursor for
+	select	s.ID, 
+			s.STATUSCODE,
+			s.CONSTITUENTID as SPONSORID,
+			sponsor.LOOKUPID as SPONSORLOOKUPID,
+			sponsor.KEYNAME,
+			s.SPONSORSHIPOPPORTUNITYID,
+			so.LOOKUPID,
+			so_child.NAME
+	  from dbo.UFN_IDSETREADER_GETRESULTS (@IDSETREGISTERID) selection
+	  join dbo.SPONSORSHIP s on  s.ID = selection.ID
+	  join dbo.SPONSORSHIPOPPORTUNITY so on s.SPONSORSHIPOPPORTUNITYID = so.ID
+	  join dbo.SPONSORSHIPOPPORTUNITYCHILD so_child on s.SPONSORSHIPOPPORTUNITYID = so_child.ID
+	  join dbo.CONSTITUENT sponsor on sponsor.ID = s.CONSTITUENTID
+
+	open sponsorshipsToTerminateCursor 
+	fetch next from sponsorshipsToTerminateCursor 
+		into @sponsorshipToTerminate, @statusCode, @sponsorID, @SponsorLookupID, @sponsorName, @sponsorshipOpportunityChildID, @childLookupID, @childName
+		
+	-- Process each sponsorship in the selection 
+	while @@FETCH_STATUS = 0
+	begin try
+		if @statusCode <> 2 -- Inactive then
+			begin
+				insert USR_PROSPECTTERMINATE_BUSINESSPROCESS_RESULTS (SPONSORLOOKUPID, SPONSORNAME, CHILDLOOKUPID, CHILDNAME, TERMINATESUCCESS, ERRORMESSAGE, ADDEDBYID, DATEADDED, CHANGEDBYID, DATECHANGED)
+				select @SponsorLookupID, @sponsorName, @childLookupID, @childName, 0, 'Sponsorship not terminated', @changeAgentID, getdate(), @changeAgentID, getdate()
+
+				insert @results (SPONSORLOOKUPID, SPONSORNAME, CHILDLOOKUPID, CHILDNAME, TERMINATESUCCESS, ERRORMESSAGE, ADDEDBYID, DATEADDED, CHANGEDBYID, DATECHANGED)
+				select @SponsorLookupID, @sponsorName, @childLookupID, @childName, 0, 'Sponsorship not terminated', @changeAgentID, getdate(), @changeAgentID, getdate()
+			end
+		else
+			begin
+			
+				begin transaction terminateTransaction
+			
+				-- Set TERMINATEHOLDSTARTDATE to today's date
+				update dbo.USR_CHILDEXTENSION set
+					TERMINATEHOLDSTARTDATE = @currentDate,
+					CHANGEDBYID = @changeAgentID,
+					DATECHANGED = @currentDate
+				where SPONSORSHIPOPPORTUNITYCHILDID = @sponsorshipOpportunityChildID
+			
+
+			-- *** Copied from USR_USP_HANDLE_SPONSORSHIP_CANCELLATION
+				-- this manages the constituency code cancellation logic and the sponsorship extension updating:
+				-- manage the constituency code cancellation here:
+				-- first check if this is the only sponsorship for this sponsor, otherwise don't cancel
+				declare @SPONSORSHIPCOUNT int = 0;
+				set @SPONSORSHIPCOUNT = dbo.USR_UFN_SPONSORSHIP_GETACTIVECHILDSPONSORSHIPSFORSPONSOR(@sponsorID)
+				
+				-- if this is the only Child sponsorship, then cancel the sponsor constituency code:
+				if @SPONSORSHIPCOUNT = 0
+					begin
+						exec dbo.USR_USP_SPONSORSHIP_CANCEL_SPONSORSHIP_CONSTITUENCYCODES 
+									@CONSTITUENTID = @sponsorID
+					end
+				
+				-- update the sponsorship extension table setting the currentstatuscode to "Formerly Sponsored"
+				-- This will need to be removed when this is done in the trigger
+				-- Fogbugz Case 973: need to check the current status before updating, if it's "Prospect Sponsored", then
+				--                   set to "Formerly Prospect Sponsored", otherwise set to "Formerly Sponsored".
+				declare @currentStatusCodeID uniqueidentifier = null;
+				select @currentStatusCodeID = CURRENTOPPORTUNITYSPONSORSHIPSTATUSCODEID
+				from dbo.USR_SPONSORSHIPEXTENSION
+				where ID = @sponsorshipToTerminate
+				  and ISCURRENT = 1
+				
+				declare @STATUSCODEID uniqueidentifier;
+				set @STATUSCODEID = (case when @currentStatusCodeID = @prospectSponsoredCurrentStatusId then @prospectFormerlySponsoredCurrentStatusId else @formerlySponsoredCurrentStatusId end)
+				
+				update dbo.USR_SPONSORSHIPEXTENSION
+				   set CURRENTOPPORTUNITYSPONSORSHIPSTATUSCODEID = @STATUSCODEID
+			  	where ID = @sponsorshipToTerminate
+				and ISCURRENT = 1
+				
+			-- *** End of Copied from USR_USP_HANDLE_SPONSORSHIP_CANCELLATION section 
+				
+				-- Memphis: per Pamela, do NOT cancel any Child interactions for Prospect Terminates:
+--				-- Cancel pending child letters
+--				exec USR_USP_INTERACTION_CHILD_CANCELPENDINGLETTERS 
+--					@sponsorshipOpportunityChildID = @sponsorshipOpportunityChildID,
+--					@comment = 'Sponsorship auto cancelled', 
+--					@changeAgentID = @changeAgentID
+	               
+			    -- Cancel pending interactions (or remove from multiple children interactions) on the sponsor (both financial and correspondent) for this child
+				exec dbo.USR_USP_INTERACTION_SPONSOR_CANCELPENDINGCHILDINTERACTIONS 
+					@sponsorshipID = @sponsorshipToTerminate,
+					@sponsorshipOpportunityChildID = @sponsorshipOpportunityChildID,	
+					@cancelComment = 'Sponsorship auto cancelled',
+					@removeChildComment = 'was removed due to sponsorship termination',
+					@changeAgentID = @changeAgentID
+
+				            		
+				-- This should add the Sponsorship Terminate Hold pending reason
+				exec dbo.USR_USP_CHILD_CHECKELIGIBILITY
+					@sponsorshipOpportunityChildID = @sponsorshipOpportunityChildID ,    -- Sponsorship Opportunity Child ID (same as Sponsorship Opportunity ID) to check eligibility
+					@changeAgentID = @changeAgentID										 -- The ChangeAgentID to be used for AddedBy and ModifiedBy fields
+		
+				-- This should set the the child to Pending
+				exec dbo.USR_USP_CHILD_SETELIGIBLEORPENDING
+					@sponsorshipOpportunityChildID = @sponsorshipOpportunityChildID,		-- Specify a Sponsorship Opportunity ID (same as the child's ID) if the sproc should only process a single child
+					@includeIneligibleInUpdate = 0,											-- Whether to include Ineligible children in updates.  0 = Do not include Ineligible children, 1 = Include Ineligible children
+					@CHANGEAGENTID = @changeAgentID
+				
+				insert USR_PROSPECTTERMINATE_BUSINESSPROCESS_RESULTS (SPONSORLOOKUPID, SPONSORNAME, CHILDLOOKUPID, CHILDNAME, TERMINATESUCCESS, ERRORMESSAGE, ADDEDBYID, DATEADDED, CHANGEDBYID, DATECHANGED)
+				select @SponsorLookupID, @sponsorName, @childLookupID, @childName, 1, '', @changeAgentID, getdate(), @changeAgentID, getdate()
+
+				insert @results (SPONSORLOOKUPID, SPONSORNAME, CHILDLOOKUPID, CHILDNAME, TERMINATESUCCESS, ERRORMESSAGE, ADDEDBYID, DATEADDED, CHANGEDBYID, DATECHANGED)
+				select @SponsorLookupID, @sponsorName, @childLookupID, @childName, 1, '', @changeAgentID, getdate(), @changeAgentID, getdate()
+
+				commit transaction terminateTransaction
+			end
+			
+		fetch next from sponsorshipsToTerminateCursor 
+		into @sponsorshipToTerminate, @statusCode, @sponsorID, @SponsorLookupID, @sponsorName, @sponsorshipOpportunityChildID, @childLookupID, @childName
+			
+	end try
+		
+	begin catch
+		rollback transaction terminateTransaction
+		close sponsorshipsToTerminateCursor
+		deallocate sponsorshipsToTerminateCursor
+		
+		exec dbo.USP_RAISE_ERROR
+		return 1;
+	end catch
+
+	close sponsorshipsToTerminateCursor
+	deallocate sponsorshipsToTerminateCursor
+	
+	set @successCount = (select count(*) from @results where TERMINATESUCCESS = 1)
+
+	set @exceptionCount = (select count(*) from @results where TERMINATESUCCESS = 0)
+
+end
+
+
+		]]>
+	</CreateProcedureSQL>
+
+</SQLStoredProcedureSpec>

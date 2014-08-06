@@ -1,0 +1,27 @@
+﻿<TaskSpec 
+	xmlns:xsd="http://www.w3.org/2001/XMLSchema" 
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+	ID="1EB14350-376C-4B32-A764-C969B5D681E0" 
+	Name="Prospect Terminate Business Process" 
+	Description="View the Prospect Terminate Business Process page" 
+	Author="Memphis Sellers" 
+	ImageKey="RES:goto_round" 
+	SmallImageKey="RES:goto_round" 
+	FunctionalAreaID="9ea48d9c-7e2d-42e6-91cc-210792618017" 
+	TaskGroup="Administration" 
+	Sequence="99"
+	DisplayAsAction="true"
+	xmlns="bb_appfx_task"
+	>
+
+	<!-- 
+	Remarks:    
+
+	History:
+	Date            Modified By     Comments
+	30-May-2013		CMayeda			Initial Version 
+	-->
+
+	<ShowPage PageID="275345C4-4127-4B51-B0C5-5EC364CB46FE" TabID="C856BFC2-7A6B-4BCA-88BF-BF22A4F4D0C5" xmlns="bb_appfx_commontypes" />		
+	
+</TaskSpec>
