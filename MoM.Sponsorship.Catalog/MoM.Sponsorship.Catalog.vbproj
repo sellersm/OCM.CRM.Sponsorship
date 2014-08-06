@@ -76,6 +76,7 @@
     <Compile Include="EFT Decline Batch Process\EFTDeclineBatch.BusinessProcess.vb" />
     <Compile Include="My Project\AssemblyInfo.vb" />
     <Compile Include="Prospect Conversion Business Process\ProspectConversion.BusinessProcess.vb" />
+    <Compile Include="Prospect Terminate Business Process\ProspectTerminate.BusinessProcess.vb" />
     <Compile Include="Sponsor Terminate Business Process\SponsorTerminate.BusinessProcess.vb" />
   </ItemGroup>
   <ItemGroup>
@@ -642,6 +643,28 @@
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="EFT Decline Batch Process\EFTDeclineBatchDataRecurringGift.Query.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Prospect Terminate Business Process\ProspectTerminate.BusinessProcess.xml" />
+    <EmbeddedResource Include="Prospect Terminate Business Process\ProspectTerminate.PreBizProcess.Query.xml" />
+    <EmbeddedResource Include="Prospect Terminate Business Process\ProspectTerminateBusinessProcess.Add.xml" />
+    <EmbeddedResource Include="Prospect Terminate Business Process\ProspectTerminateBusinessProcess.DeleteParameterSet.RecordOperation.xml" />
+    <EmbeddedResource Include="Prospect Terminate Business Process\ProspectTerminateBusinessProcess.Edit.xml" />
+    <EmbeddedResource Include="Prospect Terminate Business Process\ProspectTerminateBusinessProcess.Package.xml" />
+    <EmbeddedResource Include="Prospect Terminate Business Process\ProspectTerminateBusinessProcess.Page.xml" />
+    <EmbeddedResource Include="Prospect Terminate Business Process\ProspectTerminateBusinessProcess.PageExpression.View.xml" />
+    <EmbeddedResource Include="Prospect Terminate Business Process\ProspectTerminateBusinessProcess.StatusReport.DataList.xml" />
+    <EmbeddedResource Include="Prospect Terminate Business Process\ProspectTerminateBusinessProcess.Summary.View.xml" />
+    <EmbeddedResource Include="Prospect Terminate Business Process\ProspectTerminateBusinessProcess.Table.xml" />
+    <EmbeddedResource Include="Prospect Terminate Business Process\ProspectTerminateBusinessProcess.Task.xml" />
+    <EmbeddedResource Include="Prospect Terminate Business Process\ProspectTerminateBusinessProcessParameters.DataList.xml" />
+    <EmbeddedResource Include="Prospect Terminate Business Process\ProspectTerminateBusinessProcessResults.Page.xml" />
+    <EmbeddedResource Include="Prospect Terminate Business Process\ProspectTerminateBusinessProcessResults.Query.xml" />
+    <EmbeddedResource Include="Prospect Terminate Business Process\ProspectTerminateBusinessProcessResults.Table.xml" />
+    <EmbeddedResource Include="Prospect Terminate Business Process\ProspectTerminateBusinessProcessStatus.DataList.xml" />
+    <EmbeddedResource Include="Prospect Terminate Business Process\ProspectTerminateBusinessProcessStatus.Page.xml" />
+    <EmbeddedResource Include="Prospect Terminate Business Process\USR_USP_PROSPECTTERMINATEPROCESS_GETPARAMETERS.xml" />
+    <EmbeddedResource Include="Prospect Terminate Business Process\USR_USP_PROSPECTTERMINATE_BUSINESSPROCESS.xml" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.VisualBasic.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

@@ -1,0 +1,63 @@
+﻿<QueryViewSpec
+	xmlns="bb_appfx_queryview"
+	xmlns:common="bb_appfx_commontypes" 
+	ID="8873FE8F-CE11-4A58-9A27-A4B65EF20EC2"
+	Name="Prospect Terminate Business Process Results Query"
+	Description="Query to display results of Prospect Terminate business process"
+	Author="Memphis Sellers"
+	IsRoot="true"
+	PrimaryKeyField="ID"
+	RecordType="Constituent"
+	common:SecurityUIFolder="Sponsorship\Business Process\Sponsor Terminate"
+	>
+
+	<!-- 
+	Remarks:    
+
+	History:
+	Date            Modified By     Comments
+	28-Jul-2014		Memphis			Initial Version 
+	-->
+
+	<!-- define the view used to return data for the query -->
+	<ViewImplementation ViewName="USR_V_QUERY_PROSPECTTERMINATE_BUSINESSPROCESS_RESULTS">
+		<ViewSQL>
+			<![CDATA[
+
+SELECT	c.ID, 
+		r.ID as RESULTID,
+		r.SPONSORLOOKUPID,
+		c.NAME as SPONSORNAME,		
+		r.CHILDLOOKUPID, 
+		r.CHILDNAME,
+		r.DATEADDED, 
+		r.TERMINATESUCCESS,
+		r.ERRORMESSAGE
+FROM dbo.USR_PROSPECTTERMINATE_BUSINESSPROCESS_RESULTS r
+join dbo.CONSTITUENT c on r.SPONSORLOOKUPID = c.LOOKUPID
+
+	]]>
+		</ViewSQL>
+	</ViewImplementation>
+
+	<!-- describe each field in the view output -->
+	<Output>
+		<OutputFields>
+			<OutputField Name="ID" Caption="Sponsor record ID" Category="System Fields" DataType="Guid"/>
+			<OutputField Name="RESULTID" Caption="System record ID" Category="System Fields" />
+			<OutputField Name="SPONSORLOOKUPID" Caption="Sponsor Lookup ID" DataType="String" />
+			<OutputField Name="SPONSORNAME" Caption="Sponsor Name" DataType="String" />
+			<OutputField Name="CHILDLOOKUPID" Caption="Child Lookup ID" DataType="String" />
+			<OutputField Name="CHILDNAME" Caption="Child Name" DataType="String" />
+			<OutputField Name="DATEADDED" Caption="Date Added" DataType="Date" />
+			<OutputField Name="TERMINATESUCCESS" Caption="Success?" DataType="Boolean" />
+			<OutputField Name="ERRORMESSAGE" Caption="Error Message" DataType="String" />
+		</OutputFields>
+	</Output>
+
+	
+	<RelationshipOperations>
+		<AddRelatedView RelatedView="V_QUERY_CONSTITUENT" PathAlias="Sponsor" Field="ID" RelatedField="ID"/>
+	</RelationshipOperations>
+</QueryViewSpec>
+

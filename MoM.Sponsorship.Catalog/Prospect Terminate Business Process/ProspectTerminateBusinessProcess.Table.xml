@@ -1,0 +1,61 @@
+﻿<TableSpec 
+	xmlns="bb_appfx_table"
+	xmlns:common="bb_appfx_commontypes" 
+	ID="76711185-4FBF-42DA-92DF-172546EBCDA4"
+	Name="Prospect Terminate Business Process"
+	Description="Parameter table for the Prospect Terminate business process."
+	Author="Memphis Sellers"
+	Tablename="USR_PROSPECTTERMINATE_BUSINESSPROCESS"		   
+	>
+
+	<!-- 
+	Remarks:	Trigger is used to delete rows in system business process table - BUSINESSPROCESSINSTANCE
+				Currently QUERYVIEWID isn't being used.
+				
+	History:
+	Date			Modified By		Comments
+	28-Jul-2014		Memphis			Initial Version 
+	-->
+
+
+	<!-- define fields on the table -->
+	<Fields>
+		<TextField Name="NAME" Length="100" Required="true" IsUnique="true" Description="The name of the parameter set"/>
+		<TextField Name="DESCRIPTION" Length="255" Description="Details describing this parameter set"/>
+		<ForeignKeyField Name="IDSETREGISTERID" ForeignTable="IDSETREGISTER" Cardinality="ManyToOne" Required="true" OnDelete="CascadeDelete"/>
+		<ForeignKeyField Name="QUERYVIEWID" Cardinality="ManyToOne" ForeignTable="QUERYVIEWCATALOG" Required="false"/>
+	</Fields>
+
+	<!-- define any additional check constraints on the table --><!--
+	<CheckConstraints>
+
+	</CheckConstraints>
+
+	--><!-- define any indexes on the table --><!--
+	<Indexes>
+
+	</Indexes>-->
+		
+	<!-- define any triggers on the table -->
+	<Triggers>
+		<Trigger Name="TR_USR_PROSPECTTERMINATE_BUSINESSPROCESS_DELETE_BUSINESSPROCESSINSTANCE"
+             Enabled="true"
+             Description="Used to delete the common business process records associated with this record.">
+			<CreateTriggerSQL>
+				<![CDATA[
+
+create trigger TR_USR_PROSPECTTERMINATE_BUSINESSPROCESS_DELETE_BUSINESSPROCESSINSTANCE 
+		on dbo.USR_PROSPECTTERMINATE_BUSINESSPROCESS 
+		after delete not for replication
+as begin
+
+	delete from dbo.BUSINESSPROCESSINSTANCE
+	 where BUSINESSPROCESSPARAMETERSETID in (select ID from deleted) 
+ 	   and BUSINESSPROCESSCATALOGID = '94B4AA0A-06F6-4E6C-A569-809EF942DA6E'; -- guid is the ID from business process spec - see SponsorTerminate.BusinessProcess.xml
+end 
+				]]>
+			</CreateTriggerSQL>
+		</Trigger>
+	</Triggers>
+
+</TableSpec>

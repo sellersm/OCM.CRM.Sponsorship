@@ -1,0 +1,63 @@
+﻿<DataListSpec 
+	xmlns="bb_appfx_datalist"
+	xmlns:common="bb_appfx_commontypes" 
+	ID="66038F24-F8F3-4FA6-BDAE-EA6934BFBCC4" 
+	Name="Prospect Terminate Business Process Results Report Data List"
+	Description="Displays the results of the given instance of the Prospect Terminate business process." 
+	Author="Memphis Sellers"
+	common:SecurityUIFolder="Sponsorship">
+
+	<!-- 
+	Remarks:    
+
+	History:
+	Date            Modified By     Comments
+	28-Jul-2014		Memphis			Initial Version copied from Cary's Sponsor Terminate Business Process Results Report Data List
+	-->
+
+	<!-- define the SP that returns the data for the datalist -->
+	<SPDataList SPName="USR_USP_DATALIST_PROSPECTTERMINATEBUSINESSPROCESS_RESULTSLIST">
+		<common:CreateProcedureSQL>
+			<![CDATA[
+create procedure dbo.USR_USP_DATALIST_PROSPECTTERMINATEBUSINESSPROCESS_RESULTSLIST(@CONTEXTID date)
+as
+	set nocount on;
+	
+	select  ID
+			, SPONSORLOOKUPID
+			, D4CAMPAIGNDATE
+			, (case when CAMPAIGNTYPE = 0 then 'Cash'
+				when CAMPAIGNTYPE = 1 then 'EFT Active'
+				when CAMPAIGNTYPE = 2 then 'EFT Held' end) as 'TYPE'
+			, D4INTERACTIONSTATUS
+	from dbo.USR_D4_CAMPAIGN_BUSINESSPROCESS_RESULTS
+	where D4CAMPAIGNDATE = Cast(@CONTEXTID as Date)
+
+			]]>
+		</common:CreateProcedureSQL>
+	</SPDataList>
+
+	<!-- describe the context ID parameter for the SP (if applicable)-->
+	<Context ContextRecordType="D4Campaign Business Process" RecordIDParameter="CONTEXTID"/>
+
+	<!-- describe any parameters (other than the context ID) defined on the SP
+	<Parameters>
+		<common:FormMetaData>
+			<common:FormFields>
+				<common:FormField FieldID="PARAMETER1" Caption="Paramter1" DataType="REPLACE_WITH_DATATYPE"/>
+			</common:FormFields>
+		</common:FormMetaData>
+	</Parameters>-->
+
+	<!-- define the output fields in the list -->
+	<Output>
+		<OutputFields>
+			<OutputField FieldID="ID" Caption="ID" IsHidden="true" DataType="Guid" DisplaySequence="1" />
+			<OutputField FieldID="SPONSORLOOKUPID" Caption="Sponsor" DataType="String"  DisplaySequence="2" />
+			<OutputField FieldID="D4CAMPAIGNDATE" Caption="Campaign Date" DataType="Date"  DisplaySequence="4" />
+			<OutputField FieldID="TYPE" Caption="Campaign Type" DataType="String" DisplaySequence="5" />
+			<OutputField FieldID="D4INTERACTIONSTATUS" Caption="Result" DataType="String" DisplaySequence="6" />
+		</OutputFields>
+	</Output>
+
+</DataListSpec>
