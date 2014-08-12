@@ -15,6 +15,7 @@
 	History:
 	Date            Modified By     Comments
 	21-Oct-2012		Memphis			Initial Version
+	12-Aug-2014		Memphis			Must pass in the ISCURRENT value, so default it to 1 in this sproc.
 	-->
 
 
@@ -77,6 +78,7 @@ begin try
             @SPONSORSHIPID = @SPONSORSHIPID,
             @INITIALOPPORTUNITYSPONSORSHIPSTATUSCODEID = null,
             @CURRENTOPPORTUNITYSPONSORSHIPSTATUSCODEID = @currentStatusId,
+			@ISCURRENT = 1,
             @CONVERSIONDATE = null,
             @SPONSORSHIPOPPORTUNITYID = @SPONSORSHIPOPPORTUNITYID,
             @DAYSTOCONVERT = 0,
