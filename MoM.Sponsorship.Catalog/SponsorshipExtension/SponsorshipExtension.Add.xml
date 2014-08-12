@@ -10,6 +10,16 @@
 	common:SecurityUIFolder="Sponsorship"
 	>
 
+	<!-- 
+	Remarks:    Inserts a row into the USR_SPONSORSHIPEXTENSION table.
+
+	History:
+	Date            Modified By     Comments
+	25-Sep-2012		Memphis			Initial Version.
+	12-Aug-2014		Memphis			Added the field value ISCURRENT so user can set whether this new row is the current row or not, don't default it.
+-->
+
+
 	<SPDataForm>
 		<!-- describe the preload SP (if applicable), which should be used to fetch field default values from the database.  If no
 		preload is needed, then this section can be removed -->
@@ -52,6 +62,7 @@ create procedure dbo.USR_USP_DATAFORMTEMPLATE_ADD_SPONSORSHIPEXTENSION
     @CHANGEAGENTID uniqueidentifier = null,
 	@INITIALOPPORTUNITYSPONSORSHIPSTATUSCODEID uniqueidentifier = null,
 	@CURRENTOPPORTUNITYSPONSORSHIPSTATUSCODEID uniqueidentifier = null,
+	@ISCURRENT bit = null,
 	@SPONSORSHIPOPPORTUNITYID uniqueidentifier
 )
 as
@@ -75,6 +86,7 @@ begin try
 		@SPONSORSHIPID = @SPONSORSHIPID,
 		@INITIALOPPORTUNITYSPONSORSHIPSTATUSCODEID = @INITIALOPPORTUNITYSPONSORSHIPSTATUSCODEID,
 		@CURRENTOPPORTUNITYSPONSORSHIPSTATUSCODEID = @CURRENTOPPORTUNITYSPONSORSHIPSTATUSCODEID,
+		@ISCURRENT = @ISCURRENT,
 		@CONVERSIONDATE = null,
 		@SPONSORSHIPOPPORTUNITYID = @SPONSORSHIPOPPORTUNITYID,
 		@DAYSTOCONVERT = 0,
@@ -109,6 +121,8 @@ return 0
 			<common:FormField FieldID="CURRENTOPPORTUNITYSPONSORSHIPSTATUSCODEID" Caption="Current status" DataType="Guid" >
 				<common:CodeTable CodeTableName="USR_CURRENTOPPORTUNITYSPONSORSHIPSTATUSCODE"/>
 			</common:FormField>
+
+			<common:FormField FieldID="ISCURRENT" Caption="Current record?" DataType="Boolean" />
 			
 			<common:FormField FieldID="SPONSORSHIPOPPORTUNITYID" Caption="Sponsorship opportunity id" DataType="Guid" Hidden="true" Required="true"/>
 		</common:FormFields>
