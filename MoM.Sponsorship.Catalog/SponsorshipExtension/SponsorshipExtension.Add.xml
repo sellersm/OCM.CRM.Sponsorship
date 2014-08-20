@@ -17,6 +17,8 @@
 	Date            Modified By     Comments
 	25-Sep-2012		Memphis			Initial Version.
 	12-Aug-2014		Memphis			Added the field value ISCURRENT so user can set whether this new row is the current row or not, don't default it.
+	20-Aug-2014		Memphis			Undoing changes, will need to refactor by NOT calling the SPROC when saving, but put the content of the SPROC
+									directly here into this form so it's self-contained.
 -->
 
 
@@ -62,7 +64,7 @@ create procedure dbo.USR_USP_DATAFORMTEMPLATE_ADD_SPONSORSHIPEXTENSION
     @CHANGEAGENTID uniqueidentifier = null,
 	@INITIALOPPORTUNITYSPONSORSHIPSTATUSCODEID uniqueidentifier = null,
 	@CURRENTOPPORTUNITYSPONSORSHIPSTATUSCODEID uniqueidentifier = null,
-	@ISCURRENT bit = null,
+	--@ISCURRENT bit = null,
 	@SPONSORSHIPOPPORTUNITYID uniqueidentifier
 )
 as
@@ -86,7 +88,7 @@ begin try
 		@SPONSORSHIPID = @SPONSORSHIPID,
 		@INITIALOPPORTUNITYSPONSORSHIPSTATUSCODEID = @INITIALOPPORTUNITYSPONSORSHIPSTATUSCODEID,
 		@CURRENTOPPORTUNITYSPONSORSHIPSTATUSCODEID = @CURRENTOPPORTUNITYSPONSORSHIPSTATUSCODEID,
-		@ISCURRENT = @ISCURRENT,
+		--@ISCURRENT = @ISCURRENT,
 		@CONVERSIONDATE = null,
 		@SPONSORSHIPOPPORTUNITYID = @SPONSORSHIPOPPORTUNITYID,
 		@DAYSTOCONVERT = 0,
@@ -122,7 +124,7 @@ return 0
 				<common:CodeTable CodeTableName="USR_CURRENTOPPORTUNITYSPONSORSHIPSTATUSCODE"/>
 			</common:FormField>
 
-			<common:FormField FieldID="ISCURRENT" Caption="Current record?" DataType="Boolean" />
+			<!--<common:FormField FieldID="ISCURRENT" Caption="Current record?" DataType="Boolean" />-->
 			
 			<common:FormField FieldID="SPONSORSHIPOPPORTUNITYID" Caption="Sponsorship opportunity id" DataType="Guid" Hidden="true" Required="true"/>
 		</common:FormFields>
