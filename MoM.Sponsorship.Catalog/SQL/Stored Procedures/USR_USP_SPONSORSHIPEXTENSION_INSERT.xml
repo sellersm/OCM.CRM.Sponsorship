@@ -19,6 +19,7 @@
 									it will set all rows to NOT current, before doing the insert, but if the insert fails, 
 									then there’s no longer a CURRENT ROW!
 	12-Aug-2014		Memphis			Added the ISCURRENT parameter so user can always set the value.
+	20-Aug-2014		Memphis			Undid the changes done above. Don't need them...
 -->	
 	
 	<CreateProcedureSQL>
@@ -27,7 +28,6 @@ create procedure dbo.USR_USP_SPONSORSHIPEXTENSION_INSERT (
 	@SPONSORSHIPID uniqueidentifier,
 	@INITIALOPPORTUNITYSPONSORSHIPSTATUSCODEID uniqueidentifier,
 	@CURRENTOPPORTUNITYSPONSORSHIPSTATUSCODEID uniqueidentifier,
-	@ISCURRENT bit,
 	@CONVERSIONDATE date = null,
 	@SPONSORSHIPOPPORTUNITYID uniqueidentifier,
 	@DAYSTOCONVERT smallint = 0,
@@ -48,9 +48,8 @@ if @DATEADDED is null
 if @DATECHANGED is null
 	set @DATECHANGED = getdate();
 
--- Memphis 8/12/14: took this out, it's now a parameter.
 -- set the inserted row to be the current row for this opportunity:
---declare @ISCURRENT bit = 1;
+declare @ISCURRENT bit = 1;
 
 --10/22/12 Memphis add a transaction so there's no updating if the insert fails for some reason!
 begin transaction updateInsert;
@@ -58,50 +57,46 @@ begin transaction updateInsert;
 	-- check for the existence of this sponsorship row already, as it may have already been inserted through some other process
 	declare @Id uniqueidentifier;
 	select @Id = ID
-	from dbo.usr_sponsorshipextension
-	where ID = @SPONSORSHIPID;
+		from dbo.usr_sponsorshipextension
+		where ID = @SPONSORSHIPID;
 
 	-- if we have an ID, then the Sponsorship row already exists, so do nothing
 	if @Id is null
-		begin
-			-- before inserting, set all rows to be not current
-			-- only if the user is setting the new row to be current
-			if @ISCURRENT = 1
-				begin
-					update dbo.USR_SPONSORSHIPEXTENSION
-					set ISCURRENT = 0
-					where SPONSORSHIPOPPORTUNITYID = @SPONSORSHIPOPPORTUNITYID
-				end
+	begin
+		-- before inserting, set all rows to be not current
+		update dbo.USR_SPONSORSHIPEXTENSION
+		set ISCURRENT = 0
+		where SPONSORSHIPOPPORTUNITYID = @SPONSORSHIPOPPORTUNITYID
 
-			INSERT INTO [dbo].[USR_SPONSORSHIPEXTENSION]
-					   (
-					   [ID]
-					   ,[INITIALOPPORTUNITYSPONSORSHIPSTATUSCODEID]
-					   ,[CURRENTOPPORTUNITYSPONSORSHIPSTATUSCODEID]
-					   ,[CONVERSIONDATE]
-					   ,[SPONSORSHIPOPPORTUNITYID]
-					   ,[DAYSTOCONVERT]
-					   ,[ISCURRENT]
-					   ,[ADDEDBYID]
-					   ,[CHANGEDBYID]
-					   ,[DATEADDED]
-					   ,[DATECHANGED]
-					   )
-				 VALUES
-					   (
-						@SPONSORSHIPID
-					   ,@INITIALOPPORTUNITYSPONSORSHIPSTATUSCODEID
-					   ,@CURRENTOPPORTUNITYSPONSORSHIPSTATUSCODEID
-					   ,@CONVERSIONDATE
-					   ,@SPONSORSHIPOPPORTUNITYID
-					   ,@DAYSTOCONVERT
-					   ,@ISCURRENT
-					   ,@CHANGEAGENTID
-					   ,@CHANGEAGENTID
-					   ,@DATEADDED
-					   ,@DATECHANGED
-					   )
-		end
+		INSERT INTO [dbo].[USR_SPONSORSHIPEXTENSION]
+				   (
+				   [ID]
+				   ,[INITIALOPPORTUNITYSPONSORSHIPSTATUSCODEID]
+				   ,[CURRENTOPPORTUNITYSPONSORSHIPSTATUSCODEID]
+				   ,[CONVERSIONDATE]
+				   ,[SPONSORSHIPOPPORTUNITYID]
+				   ,[DAYSTOCONVERT]
+				   ,[ISCURRENT]
+				   ,[ADDEDBYID]
+				   ,[CHANGEDBYID]
+				   ,[DATEADDED]
+				   ,[DATECHANGED]
+				   )
+			 VALUES
+				   (
+					@SPONSORSHIPID
+				   ,@INITIALOPPORTUNITYSPONSORSHIPSTATUSCODEID
+				   ,@CURRENTOPPORTUNITYSPONSORSHIPSTATUSCODEID
+				   ,@CONVERSIONDATE
+				   ,@SPONSORSHIPOPPORTUNITYID
+				   ,@DAYSTOCONVERT
+				   ,@ISCURRENT
+				   ,@CHANGEAGENTID
+				   ,@CHANGEAGENTID
+				   ,@DATEADDED
+				   ,@DATECHANGED
+				   )
+	end
 
 commit transaction updateInsert;
 
