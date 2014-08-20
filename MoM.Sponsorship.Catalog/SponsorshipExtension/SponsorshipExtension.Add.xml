@@ -17,7 +17,7 @@
 	Date            Modified By     Comments
 	25-Sep-2012		Memphis			Initial Version.
 	12-Aug-2014		Memphis			Added the field value ISCURRENT so user can set whether this new row is the current row or not, don't default it.
-	20-Aug-2014		Memphis			Undoing changes, will need to refactor by NOT calling the SPROC when saving, but put the content of the SPROC
+	20-Aug-2014		Memphis			Refactored by NOT calling the SPROC when saving, but put the content of the SPROC
 									directly here into this form so it's self-contained.
 -->
 
@@ -64,7 +64,7 @@ create procedure dbo.USR_USP_DATAFORMTEMPLATE_ADD_SPONSORSHIPEXTENSION
     @CHANGEAGENTID uniqueidentifier = null,
 	@INITIALOPPORTUNITYSPONSORSHIPSTATUSCODEID uniqueidentifier = null,
 	@CURRENTOPPORTUNITYSPONSORSHIPSTATUSCODEID uniqueidentifier = null,
-	--@ISCURRENT bit = null,
+	@ISCURRENT bit = null,
 	@SPONSORSHIPOPPORTUNITYID uniqueidentifier
 )
 as
@@ -77,24 +77,74 @@ if @ID is null
 if @CHANGEAGENTID is null  
     exec dbo.USP_CHANGEAGENT_GETORCREATECHANGEAGENT @CHANGEAGENTID output
 
-declare @CURRENTDATE datetime
-set @CURRENTDATE = getdate()
+--declare @CURRENTDATE datetime
+--set @CURRENTDATE = getdate()
+
+declare	@DATEADDED datetime = null;
+declare @DATECHANGED datetime = null;
+
 
 begin try
-	-- handle inserting the data
-	-- call the sproc that inserts:
+	-- Memphis 8/20/14: below is the content of the USR_USP_SPONSORSHIPEXTENSION_INSERT sproc, added so this is now self-contained:
 
-	exec dbo.USR_USP_SPONSORSHIPEXTENSION_INSERT
-		@SPONSORSHIPID = @SPONSORSHIPID,
-		@INITIALOPPORTUNITYSPONSORSHIPSTATUSCODEID = @INITIALOPPORTUNITYSPONSORSHIPSTATUSCODEID,
-		@CURRENTOPPORTUNITYSPONSORSHIPSTATUSCODEID = @CURRENTOPPORTUNITYSPONSORSHIPSTATUSCODEID,
-		--@ISCURRENT = @ISCURRENT,
-		@CONVERSIONDATE = null,
-		@SPONSORSHIPOPPORTUNITYID = @SPONSORSHIPOPPORTUNITYID,
-		@DAYSTOCONVERT = 0,
-		@CHANGEAGENTID = @CHANGEAGENTID,
-		@DATEADDED = @CURRENTDATE,
-		@DATECHANGED = null
+	-- strip out the time for the dateadded
+	if @DATEADDED is null
+		set @DATEADDED = DATEADD(dd, 0, DATEDIFF(dd, 0, getdate()));
+	
+	if @DATECHANGED is null
+		set @DATECHANGED = getdate();
+
+	-- set the inserted row to be the current row for this opportunity:
+	--declare @ISCURRENT bit = 1;
+
+	--10/22/12 Memphis add a transaction so there's no updating if the insert fails for some reason!
+	begin transaction updateInsert;
+
+		-- check for the existence of this sponsorship row already, as it may have already been inserted through some other process
+		declare @SponExId uniqueidentifier;
+		select @SponExId = ID
+		from dbo.usr_sponsorshipextension
+		where ID = @SPONSORSHIPID;
+
+		-- if we have an ID, then the Sponsorship row already exists, so do nothing
+		if @SponExId is null
+			begin
+				-- before inserting, set all rows to be not current
+				update dbo.USR_SPONSORSHIPEXTENSION
+				set ISCURRENT = 0
+				where SPONSORSHIPOPPORTUNITYID = @SPONSORSHIPOPPORTUNITYID
+
+				INSERT INTO [dbo].[USR_SPONSORSHIPEXTENSION]
+						   (
+						   [ID]
+						   ,[INITIALOPPORTUNITYSPONSORSHIPSTATUSCODEID]
+						   ,[CURRENTOPPORTUNITYSPONSORSHIPSTATUSCODEID]
+						   ,[CONVERSIONDATE]
+						   ,[SPONSORSHIPOPPORTUNITYID]
+						   ,[DAYSTOCONVERT]
+						   ,[ISCURRENT]
+						   ,[ADDEDBYID]
+						   ,[CHANGEDBYID]
+						   ,[DATEADDED]
+						   ,[DATECHANGED]
+						   )
+					 VALUES
+						   (
+							@SPONSORSHIPID
+						   ,@INITIALOPPORTUNITYSPONSORSHIPSTATUSCODEID
+						   ,@CURRENTOPPORTUNITYSPONSORSHIPSTATUSCODEID
+						   ,NULL
+						   ,@SPONSORSHIPOPPORTUNITYID
+						   ,0
+						   ,@ISCURRENT
+						   ,@CHANGEAGENTID
+						   ,@CHANGEAGENTID
+						   ,@DATEADDED
+						   ,@DATECHANGED
+						   )
+			end
+
+	commit transaction updateInsert;	
 	
 end try
 
@@ -124,7 +174,7 @@ return 0
 				<common:CodeTable CodeTableName="USR_CURRENTOPPORTUNITYSPONSORSHIPSTATUSCODE"/>
 			</common:FormField>
 
-			<!--<common:FormField FieldID="ISCURRENT" Caption="Current record?" DataType="Boolean" />-->
+			<common:FormField FieldID="ISCURRENT" Caption="Current record?" DataType="Boolean" />
 			
 			<common:FormField FieldID="SPONSORSHIPOPPORTUNITYID" Caption="Sponsorship opportunity id" DataType="Guid" Hidden="true" Required="true"/>
 		</common:FormFields>

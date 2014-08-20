@@ -39,10 +39,13 @@ from dbo.sponsorship s
 	left join dbo.REVENUEPAYMENTMETHOD rpm on payment.FINANCIALTRANSACTIONID = rpm.REVENUEID   -- this gives us the payment method of the RG
 	left join dbo.CONSTITUENT c on c.ID = s.CONSTITUENTID
 	left join dbo.SPONSORSHIPCOMMITMENT sc on sc.ID = s.SPONSORSHIPCOMMITMENTID
+	left join dbo.SPONSORSHIPOPPORTUNITY so ON so.ID = s.SPONSORSHIPOPPORTUNITYID
+	left join dbo.SPONSORSHIPOPPORTUNITYCHILD soc ON soc.ID = so.ID
 where (currentStatus.[DESCRIPTION] = 'Prospect Sponsored'
 and s.STARTDATE <= dateadd(d, -60, getdate())
 and (rgactivity.AMOUNT = 0 or rgactivity.AMOUNT is null)   -- payment received?
-and (rpm.PAYMENTMETHODCODE in (1, 9) or rpm.PAYMENTMETHODCODE is null))  -- paymethod is Cash
+and (rpm.PAYMENTMETHODCODE in (1, 9) or rpm.PAYMENTMETHODCODE is null)  -- paymethod is Cash
+and soc.ID IS NOT NULL)  -- only Children Sponsorships
 
 			]]>
 		</ViewSQL>
