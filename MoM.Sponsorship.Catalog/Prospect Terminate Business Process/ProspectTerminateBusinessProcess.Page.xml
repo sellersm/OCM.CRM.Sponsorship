@@ -33,14 +33,14 @@
 					</DataList>
 					<Actions>
 						<Action ID="B49A6802-9222-4661-80E6-D007960CF509" Caption="Go to process" ImageKey="RES:goto_round" AppendSeparator="true" >
-							<ShowPage xmlns="bb_appfx_commontypes" PageID="DC36FBD8-ADE1-4BAE-8BBE-5CF15A6B1C55" TabID="00000000-0000-0000-0000-000000000000">
+							<ShowPage xmlns="bb_appfx_commontypes" PageID="e0e3fece-956c-4210-8213-0c994ebeb80f" TabID="00000000-0000-0000-0000-000000000000">
 								<ActionContext>
 									<SectionField>ID</SectionField>
 								</ActionContext>
 							</ShowPage>
 						</Action>
 						<Action ID="A183C5D4-A10E-4757-A22B-77E5B90297F5" Caption="Start process" ImageKey="RES:businessprocessspec" AppendSeparator="true" >
-							<StartBusinessProcess xmlns="bb_appfx_commontypes" BusinessProcessID="94B4AA0A-06F6-4E6C-A569-809EF942DA6E" StatusPageID="DC36FBD8-ADE1-4BAE-8BBE-5CF15A6B1C55" StatusTabID="00000000-0000-0000-0000-000000000000" PreprocessEditFormID="00000000-0000-0000-0000-000000000000">
+							<StartBusinessProcess xmlns="bb_appfx_commontypes" BusinessProcessID="94B4AA0A-06F6-4E6C-A569-809EF942DA6E" StatusPageID="e0e3fece-956c-4210-8213-0c994ebeb80f" StatusTabID="00000000-0000-0000-0000-000000000000" PreprocessEditFormID="00000000-0000-0000-0000-000000000000">
 								<ActionContext>
 									<SectionField>ID</SectionField>
 								</ActionContext>
