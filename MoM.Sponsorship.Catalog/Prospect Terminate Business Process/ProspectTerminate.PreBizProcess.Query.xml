@@ -17,17 +17,14 @@
 			<![CDATA[
 select	s.ID,
 		c.LOOKUPID as SPONSORID,
+		c.[NAME] as SPONSORNAME,
+		so.LOOKUPID as CHILDID,
+		soc.[NAME] as CHILDNAME,
 		sc.LOOKUPID as SPONCOMMITMENTID,
 		rpm.PAYMENTMETHOD, 
 		rev.LOOKUPID as REVENUEID, 
 		rgactivity.AMOUNT as PAYMENTAMOUNT, 
 		s.STARTDATE as SONSORSHIPSTARTDATE
-		--payment.[TYPE] as PaymentType, 
-		--rgactivity.[TYPE] as RGActivityType, 
-		--rpm.PAYMENTMETHODCODE, 
-		--dateadd(d, -60, getdate()) as '60_Days_Ago', 
-		--currentStatus.[DESCRIPTION], 
-	   --fte.* --rgactivity.*, payment.*
 from dbo.sponsorship s
 	left join dbo.USR_SPONSORSHIPEXTENSION se ON se.ID = s.ID
 	left join dbo.USR_CURRENTOPPORTUNITYSPONSORSHIPSTATUSCODE currentStatus ON currentStatus .ID = se.CURRENTOPPORTUNITYSPONSORSHIPSTATUSCODEID
@@ -45,7 +42,11 @@ where (currentStatus.[DESCRIPTION] = 'Prospect Sponsored'
 and s.STARTDATE <= dateadd(d, -60, getdate())
 and (rgactivity.AMOUNT = 0 or rgactivity.AMOUNT is null)   -- payment received?
 and (rpm.PAYMENTMETHODCODE in (1, 9) or rpm.PAYMENTMETHODCODE is null)  -- paymethod is Cash
-and soc.ID IS NOT NULL)  -- only Children Sponsorships
+and soc.ID IS NOT NULL  -- only Children Sponsorships
+and s.STATUSCODE = 1   -- active
+-- We don't want any sponsors that have the Prevent Auto Cancel constituency code.
+and dbo.USR_UFN_CONSTITUENT_HAS_CONSTITUENCYCODE(s.CONSTITUENTID, (select ID from dbo.constituencycode where [DESCRIPTION] = 'Prevent Auto Cancel'))  = 0
+)
 
 			]]>
 		</ViewSQL>
@@ -56,6 +57,9 @@ and soc.ID IS NOT NULL)  -- only Children Sponsorships
 		<OutputFields>
 			<OutputField Caption="System record ID" Category="System Fields" Name="ID" />
 			<OutputField Name="SPONSORID" Caption="Sponsor Id" DataType="String" />
+			<OutputField Name="SPONSORNAME" Caption="Sponsor" DataType="String" />
+			<OutputField Name="CHILDID" Caption="Child Id" DataType="String" />
+			<OutputField Name="CHILDNAME" Caption="Child" DataType="String" />
 			<OutputField Name="SPONCOMMITMENTID" Caption="Commitment Id" DataType="String" />
 			<OutputField Name="PAYMENTMETHOD" Caption="Pay Method" DataType="String" />
 			<OutputField Name="REVENUEID" Caption="Revenue Id" DataType="String" />
