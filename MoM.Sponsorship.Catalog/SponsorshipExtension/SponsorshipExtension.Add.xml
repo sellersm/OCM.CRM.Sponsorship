@@ -19,6 +19,7 @@
 	12-Aug-2014		Memphis			Added the field value ISCURRENT so user can set whether this new row is the current row or not, don't default it.
 	20-Aug-2014		Memphis			Refactored by NOT calling the SPROC when saving, but put the content of the SPROC
 									directly here into this form so it's self-contained.
+	21-Aug-2014		Memphis			Fix bug: only UNcheck the ISCurrent flag if user is setting this new one to Current (IsCurrent=1).
 -->
 
 
@@ -109,10 +110,13 @@ begin try
 		-- if we have an ID, then the Sponsorship row already exists, so do nothing
 		if @SponExId is null
 			begin
-				-- before inserting, set all rows to be not current
-				update dbo.USR_SPONSORSHIPEXTENSION
-				set ISCURRENT = 0
-				where SPONSORSHIPOPPORTUNITYID = @SPONSORSHIPOPPORTUNITYID
+				-- before inserting, set all rows to be not current but only if user is setting this one to Current!
+				if @ISCURRENT = 1
+					begin
+						update dbo.USR_SPONSORSHIPEXTENSION
+						set ISCURRENT = 0
+						where SPONSORSHIPOPPORTUNITYID = @SPONSORSHIPOPPORTUNITYID
+					end
 
 				INSERT INTO [dbo].[USR_SPONSORSHIPEXTENSION]
 						   (
