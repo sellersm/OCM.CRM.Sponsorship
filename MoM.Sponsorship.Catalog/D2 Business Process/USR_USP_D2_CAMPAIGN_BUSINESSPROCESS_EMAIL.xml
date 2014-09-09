@@ -25,6 +25,7 @@
 									what the NTD says.
 	10-Nov-2013		Memphis			Fixed bug in D2ChildrenList CTE to filter out Project Sponsorships 
 	11-Feb-2014		Memphis			Removed the CTE and replaced with temp tables to help improve performance.
+	09-Sep-2014		Memphis			Added the call to Cary's UFN to calculate number of months past due.
 	-->
 
 
@@ -191,9 +192,12 @@ begin
 		set @firstDayPreviousMonth =  DATEADD(MONTH, DATEDIFF(MONTH, 0, GETDATE()) - 1, 0)
 
 		--'First Day of 2 Months ago'
-		declare @secondDayTwoMonthsAgo date;
-		set @secondDayTwoMonthsAgo =  DATEADD(MONTH, DATEDIFF(MONTH, 0, GETDATE()) - 2, 0)
-		set @secondDayTwoMonthsAgo = DATEADD(DAY, 1, @secondDayTwoMonthsAgo)
+		--declare @secondDayTwoMonthsAgo date;
+		--set @secondDayTwoMonthsAgo =  DATEADD(MONTH, DATEDIFF(MONTH, 0, GETDATE()) - 2, 0)
+		--set @secondDayTwoMonthsAgo = DATEADD(DAY, 1, @secondDayTwoMonthsAgo)
+		declare @secondDayThreeMonthsAgo date;
+		set @secondDayThreeMonthsAgo =  DATEADD(MONTH, DATEDIFF(MONTH, 0, GETDATE()) - 3, 0)
+		set @secondDayThreeMonthsAgo = DATEADD(DAY, 1, @secondDayThreeMonthsAgo)
 
 		declare @d2ResultsTable table (
 				CHILDID uniqueidentifier, 
@@ -345,20 +349,21 @@ declare @D2ChildrenList table (
 			   , payMethod
 			   , sponsorshipRevenueId
 			   , isHeld
-               ,case 
-                	when REVENUESCHEDULE.FREQUENCYCODE = 3 then dbo.UFN_RECURRINGGIFT_GETPASTDUEAMOUNT(rev.ID, null) / rev.TRANSACTIONAMOUNT -- Monthly
-                	when REVENUESCHEDULE.FREQUENCYCODE = 6 then dbo.UFN_RECURRINGGIFT_GETPASTDUEAMOUNT(rev.ID, null) / ((rev.TRANSACTIONAMOUNT * 6)/12) -- Bimonthly
-                	when REVENUESCHEDULE.FREQUENCYCODE = 7 then dbo.UFN_RECURRINGGIFT_GETPASTDUEAMOUNT(rev.ID, null) / ((rev.TRANSACTIONAMOUNT * 24)/12) -- Semi-Monthly
-                	when REVENUESCHEDULE.FREQUENCYCODE = 8 then dbo.UFN_RECURRINGGIFT_GETPASTDUEAMOUNT(rev.ID, null) / ((rev.TRANSACTIONAMOUNT * 26)/12) -- Biweekly
-                	when REVENUESCHEDULE.FREQUENCYCODE = 9 then dbo.UFN_RECURRINGGIFT_GETPASTDUEAMOUNT(rev.ID, null) / ((rev.TRANSACTIONAMOUNT * 52)/12) -- Weekly
-                	else -1        
-                end NumberOfMonthsPastDue
+               --,case 
+               -- 	when REVENUESCHEDULE.FREQUENCYCODE = 3 then dbo.UFN_RECURRINGGIFT_GETPASTDUEAMOUNT(rev.ID, null) / rev.TRANSACTIONAMOUNT -- Monthly
+               -- 	when REVENUESCHEDULE.FREQUENCYCODE = 6 then dbo.UFN_RECURRINGGIFT_GETPASTDUEAMOUNT(rev.ID, null) / ((rev.TRANSACTIONAMOUNT * 6)/12) -- Bimonthly
+               -- 	when REVENUESCHEDULE.FREQUENCYCODE = 7 then dbo.UFN_RECURRINGGIFT_GETPASTDUEAMOUNT(rev.ID, null) / ((rev.TRANSACTIONAMOUNT * 24)/12) -- Semi-Monthly
+               -- 	when REVENUESCHEDULE.FREQUENCYCODE = 8 then dbo.UFN_RECURRINGGIFT_GETPASTDUEAMOUNT(rev.ID, null) / ((rev.TRANSACTIONAMOUNT * 26)/12) -- Biweekly
+               -- 	when REVENUESCHEDULE.FREQUENCYCODE = 9 then dbo.UFN_RECURRINGGIFT_GETPASTDUEAMOUNT(rev.ID, null) / ((rev.TRANSACTIONAMOUNT * 52)/12) -- Weekly
+               -- 	else -1        
+               -- end NumberOfMonthsPastDue
+			   , dbo.USR_UFN_RECURRINGGIFT_GETNUMBEROFMONTHSPASTDUE(rev.ID, dateadd(day, 1, dateadd(month, datediff(month, 0, getdate()), 0))) as NumberOfMonthsPastDue			   
 		from @D2ChildrenList
         join	dbo.REVENUESPLIT revsplit on revenueSplitId = revsplit.ID
         join	dbo.REVENUE rev on revsplit.REVENUEID = rev.ID
         join	dbo.REVENUESCHEDULE on REVENUESCHEDULE.ID = rev.ID --REVENUE.ID		
 		where ((case when REVENUESCHEDULE.NEXTTRANSACTIONDATE > REVENUESCHEDULE.ENDDATE then null else REVENUESCHEDULE.NEXTTRANSACTIONDATE end) 
-			between @secondDayTwoMonthsAgo and @firstDayPreviousMonth
+			between @secondDayThreeMonthsAgo and @firstDayPreviousMonth
 		and isHeld = case when @campaignType in (0,1) then 0 else 1 end
 		)
 		order by NTD;
@@ -549,7 +554,8 @@ declare @D2ChildrenList table (
 									-- BUG:  the following line should be filtering out the non-monthly ones where @numberOfMonthsPastDue = -1
 									-- *TODO*: for now, though, leave it wrong so Pamela doesn't have to manually create them:
 									--if (@numberOfMonthsPastDue=-1 or (@numberOfMonthsPastDue >= 0 and @numberOfMonthsPastDue < 2))
-                                    if (@numberOfMonthsPastDue >= 0 and @numberOfMonthsPastDue < 2)
+                                    --if (@numberOfMonthsPastDue >= 0 and @numberOfMonthsPastDue < 2)
+									if (@numberOfMonthsPastDue < 2 or @numberOfMonthsPastDue >= 3)
                                         begin
     										set @createInteractions = 0;
     										set @writeToExceptionLog = 1;
