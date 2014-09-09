@@ -8,6 +8,18 @@
 	DBFunctionName="USR_UFN_GET_D2_PRECAMPAIGN_QA_RESULTS"
 	>
 
+	
+	<!-- 
+	Remarks:    This gets the records for D2 campaign, so Pamela can preview the results from a Query before running the process.
+
+	History:
+	Date            Modified By     Comments
+	16-Jan-2013		Memphis			Initial Version.  
+	09-Sep-2014		Memphis			Added the call to Cary's UFN to calculate number of months past due.	
+	-->
+	
+	
+	
 	<CreateFunctionSQL>
 		<![CDATA[
 CREATE FUNCTION [dbo].[USR_UFN_GET_D2_PRECAMPAIGN_QA_RESULTS] ()
@@ -46,9 +58,13 @@ BEGIN
 		set @firstDayPreviousMonth =  DATEADD(MONTH, DATEDIFF(MONTH, 0, GETDATE()) - 1, 0)
 
 		--'First Day of 2 Months ago'
-		declare @secondDayTwoMonthsAgo date;
-		set @secondDayTwoMonthsAgo =  DATEADD(MONTH, DATEDIFF(MONTH, 0, GETDATE()) - 2, 0)
-		set @secondDayTwoMonthsAgo = DATEADD(DAY, 1, @secondDayTwoMonthsAgo)
+		--declare @secondDayTwoMonthsAgo date;
+		--set @secondDayTwoMonthsAgo =  DATEADD(MONTH, DATEDIFF(MONTH, 0, GETDATE()) - 2, 0)
+		--set @secondDayTwoMonthsAgo = DATEADD(DAY, 1, @secondDayTwoMonthsAgo)
+		declare @secondDayThreeMonthsAgo date;
+		set @secondDayThreeMonthsAgo =  DATEADD(MONTH, DATEDIFF(MONTH, 0, GETDATE()) - 3, 0)
+		set @secondDayThreeMonthsAgo = DATEADD(DAY, 1, @secondDayThreeMonthsAgo)
+		
 
 		declare @d2ResultsTable table (
 				CHILDID uniqueidentifier, 
@@ -178,20 +194,21 @@ BEGIN
 			   , payMethod
 			   , sponsorshipRevenueId
 			   , isHeld
-               ,case 
-                	when REVENUESCHEDULE.FREQUENCYCODE = 3 then dbo.UFN_RECURRINGGIFT_GETPASTDUEAMOUNT(rev.ID, null) / rev.TRANSACTIONAMOUNT -- Monthly
-                	when REVENUESCHEDULE.FREQUENCYCODE = 6 then dbo.UFN_RECURRINGGIFT_GETPASTDUEAMOUNT(rev.ID, null) / ((rev.TRANSACTIONAMOUNT * 6)/12) -- Bimonthly
-                	when REVENUESCHEDULE.FREQUENCYCODE = 7 then dbo.UFN_RECURRINGGIFT_GETPASTDUEAMOUNT(rev.ID, null) / ((rev.TRANSACTIONAMOUNT * 24)/12) -- Semi-Monthly
-                	when REVENUESCHEDULE.FREQUENCYCODE = 8 then dbo.UFN_RECURRINGGIFT_GETPASTDUEAMOUNT(rev.ID, null) / ((rev.TRANSACTIONAMOUNT * 26)/12) -- Biweekly
-                	when REVENUESCHEDULE.FREQUENCYCODE = 9 then dbo.UFN_RECURRINGGIFT_GETPASTDUEAMOUNT(rev.ID, null) / ((rev.TRANSACTIONAMOUNT * 52)/12) -- Weekly
-                	else -1        
-                end NumberOfMonthsPastDue
+               --,case 
+               -- 	when REVENUESCHEDULE.FREQUENCYCODE = 3 then dbo.UFN_RECURRINGGIFT_GETPASTDUEAMOUNT(rev.ID, null) / rev.TRANSACTIONAMOUNT -- Monthly
+               -- 	when REVENUESCHEDULE.FREQUENCYCODE = 6 then dbo.UFN_RECURRINGGIFT_GETPASTDUEAMOUNT(rev.ID, null) / ((rev.TRANSACTIONAMOUNT * 6)/12) -- Bimonthly
+               -- 	when REVENUESCHEDULE.FREQUENCYCODE = 7 then dbo.UFN_RECURRINGGIFT_GETPASTDUEAMOUNT(rev.ID, null) / ((rev.TRANSACTIONAMOUNT * 24)/12) -- Semi-Monthly
+               -- 	when REVENUESCHEDULE.FREQUENCYCODE = 8 then dbo.UFN_RECURRINGGIFT_GETPASTDUEAMOUNT(rev.ID, null) / ((rev.TRANSACTIONAMOUNT * 26)/12) -- Biweekly
+               -- 	when REVENUESCHEDULE.FREQUENCYCODE = 9 then dbo.UFN_RECURRINGGIFT_GETPASTDUEAMOUNT(rev.ID, null) / ((rev.TRANSACTIONAMOUNT * 52)/12) -- Weekly
+               -- 	else -1        
+               -- end NumberOfMonthsPastDue
+			   , dbo.USR_UFN_RECURRINGGIFT_GETNUMBEROFMONTHSPASTDUE(rev.ID, dateadd(day, 1, dateadd(month, datediff(month, 0, getdate()), 0))) as NumberOfMonthsPastDue     
 		from D2ChildrenList
 		join	dbo.REVENUESPLIT revsplit on revenueSplitId = revsplit.ID
 		join	dbo.REVENUE rev on revsplit.REVENUEID = rev.ID
 		join	dbo.REVENUESCHEDULE on REVENUESCHEDULE.ID = rev.ID --REVENUE.ID		
 		where ((case when REVENUESCHEDULE.NEXTTRANSACTIONDATE > REVENUESCHEDULE.ENDDATE then null else REVENUESCHEDULE.NEXTTRANSACTIONDATE end) 
-			between @secondDayTwoMonthsAgo and @firstDayPreviousMonth
+			between @secondDayThreeMonthsAgo and @firstDayPreviousMonth
 		--and isHeld = case when @campaignType in (0,1) then 0 else 1 end
 		)
 		order by NTD;
