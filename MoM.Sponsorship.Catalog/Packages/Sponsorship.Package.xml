@@ -105,6 +105,9 @@
 	11-Feb-2014		TGupta			Added Rate Increase tab on Sponsor page
 	25-Feb-2014		CMayeda			Added Sponsorship.MultipleCommitmentsForSponsorChild.Query.xml
 	29-May-2014		CMayeda			Added RevenueExtension.Query.xml and RecurringGiftExtension.NonSchedule.Edit.xml
+	15-Sep-2014		Memphis			Added these for the new Delinquency Campaign Query:
+									USR_UFN_GET_DELINQUENCY_SPONSORSHIPS.xml
+									DelinquencyCampaignsSponsorshipsInfo.Query.xml
 	
 	-->
 
@@ -237,6 +240,7 @@
 		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.USR_UFN_CHECK_RECURRINGGIFT_ISHELD.xml" />
 		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.USR_UFN_GET_UNPAIDSPONSORED_FINANCIALCOMMITMENTS_BYSPONSOR.xml" />
 		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.USR_UFN_SPONSORSHIP_GETUNPAID_SPONSOREDCHILDREN_FORSPONSOR.xml" />
+		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.USR_UFN_GET_DELINQUENCY_SPONSORSHIPS.xml" />
 
 		<!-- Smart Fields -->
 		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.NextTransactionDateDelinquency.SmartField.xml" />
@@ -311,7 +315,8 @@
 		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.Sponsorship.ProspectsToConversion.Query.xml" />
 		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.Sponsorship.MultipleCommitmentsForSponsorChild.Query.xml" />
 		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.RevenueExtension.Query.xml" />
-		
+		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.DelinquencyCampaignsSponsorshipsInfo.Query.xml" />
+
 		<!-- Tasks -->
 		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.SponsorshipAdd_Wrapped.Task.xml" />
 		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.AddProspectSponsorship.Task.xml" />
