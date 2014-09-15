@@ -1,0 +1,61 @@
+﻿<QueryViewSpec
+	xmlns="bb_appfx_queryview"
+	xmlns:common="bb_appfx_commontypes" 
+	ID="4dadf4c2-ceb9-471a-8d95-010fb2842b29"
+	Name="Delinquency Campaigns Sponsorships Info Query"
+	Description="Displays sponsorship info for delinquencies"
+	Author="Memphis Sellers"
+	IsRoot="true"
+	PrimaryKeyField="ID"
+	RecordType="Sponsorship"
+	common:SecurityUIFolder="Sponsorship"
+	>
+
+	<!-- define the view used to return data for the query -->
+	<ViewImplementation ViewName="USR_V_QUERY_DELINQUENCIES_SPONSORSHIP_INFO">
+		<ViewSQL>
+			<![CDATA[
+	select  ISHELD,
+			CHILDLOOKUPID,
+			SPONSORLOOKUPID,
+			SPONSORNAME,
+			REVENUELOOKUPID,
+			NTD,
+			PAYMETHOD,
+			NUMBEROFMONTHSPASTDUE,
+			REVENUEID,
+			COMMITMENTID,
+			PASTDUEAMOUNT,
+			GIFTAMOUNT,
+			ISEFTDECLINED,
+			SPONSORSHIPID as ID
+    from dbo.USR_UFN_GET_DELINQUENCY_SPONSORSHIPS()
+    --where NUMBEROFMONTHSPASTDUE >= 3.000 --between 2.000 and 2.999   --between 0.0 and 1.999
+    -- between 2.0 and 2.9
+    -- >= 3.0
+			]]>
+		</ViewSQL>		
+	</ViewImplementation>
+
+	<!-- describe each field in the view output -->
+	<Output>
+		<OutputFields>
+			<OutputField Caption="System record ID" Category="System Fields" Name="ID" />
+			<OutputField Name="ISHELD" Caption="Held?" DataType="Boolean" />
+			<OutputField Name="CHILDLOOKUPID" Caption="Child ID" DataType="String" />
+			<OutputField Name="SPONSORLOOKUPID" Caption="Sponsor ID" DataType="String" />
+			<OutputField Name="SPONSORNAME" Caption="Sponsor" DataType="String" />
+			<OutputField Name="REVENUELOOKUPID" Caption="Revenue ID" DataType="String" />
+			<OutputField Name="NTD" Caption="NTD" DataType="Date" />
+			<OutputField Name="PAYMETHOD" Caption="Pay Method" DataType="String" />
+			<OutputField Name="NUMBEROFMONTHSPASTDUE" Caption="Number of Months Past Due" DataType="Decimal" />
+			<OutputField Name="REVENUEID" Caption="Revenue ID" DataType="String" />
+			<OutputField Name="COMMITMENTID" Caption="Commitment ID" DataType="String" />
+			<OutputField Name="PASTDUEAMOUNT" Caption="Past Due" DataType="Money" />
+			<OutputField Name="GIFTAMOUNT" Caption="Gift Amount" DataType="Money" />
+			<OutputField Name="ISEFTDECLINED" Caption="EFT Declined" DataType="Boolean" />			
+		</OutputFields>
+	</Output>
+
+</QueryViewSpec>
+
