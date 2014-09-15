@@ -26,7 +26,7 @@ as begin
 				when rsch.FREQUENCYCODE in (0,1,2) then -- Annually, Semi-annually, Quarterly
 					case                                        
 						when day (rsch.NEXTTRANSACTIONDATE) < day (@asOfDate) then 
-							DATEDIFF(m, rsch.NEXTTRANSACTIONDATE, @asOfDate))+ 1
+							DATEDIFF(m, rsch.NEXTTRANSACTIONDATE, @asOfDate)+ 1
 						else 0
 					end
 			-- This get's the past due amount as of the 2nd of the current month
