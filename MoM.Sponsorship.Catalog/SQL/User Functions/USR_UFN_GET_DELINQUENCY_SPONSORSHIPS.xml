@@ -8,9 +8,21 @@
 	DBFunctionName="USR_UFN_GET_DELINQUENCY_SPONSORSHIPS"
 	>
 
+	<!-- 
+	Remarks:  This returns delinquent sponsorships based on the AsOfDate parameter.
+
+	History:
+	Date            Modified By     Comments
+	15-Sep-2014		Memphis			Initial Version
+	17-Sep-2014		Memphis			Removed the where clause and changed so it returns rows where NumberOfMonthsPastDue > 0.
+									Added the parameter AsOfDate so caller can determine how the number of months past due is calculated:
+										2nd of current month, or
+										Today's date
+	-->	
+	
 	<CreateFunctionSQL>
 		<![CDATA[
-create function dbo.USR_UFN_GET_DELINQUENCY_SPONSORSHIPS()
+create function dbo.USR_UFN_GET_DELINQUENCY_SPONSORSHIPS (@AsOfDate date)
 	RETURNS @DelinquencyCampaignResults table
 	(
 		[ISHELD] bit NULL, 
@@ -196,7 +208,8 @@ as begin
 			   , payMethod
 			   , sponsorshipRevenueId
 			   , isHeld
-			   , dbo.USR_UFN_RECURRINGGIFT_GETNUMBEROFMONTHSPASTDUE(rev.ID, dateadd(day, 1, dateadd(month, datediff(month, 0, getdate()), 0))) as NumberOfMonthsPastDue     
+			   --, dbo.USR_UFN_RECURRINGGIFT_GETNUMBEROFMONTHSPASTDUE(rev.ID, dateadd(day, 1, dateadd(month, datediff(month, 0, getdate()), 0))) as NumberOfMonthsPastDue     
+			   , dbo.USR_UFN_RECURRINGGIFT_GETNUMBEROFMONTHSPASTDUE(rev.ID, @AsOfDate) as NumberOfMonthsPastDue     
 			   , commitmentId
 			   , dbo.UFN_RECURRINGGIFT_GETPASTDUEAMOUNT(rev.ID, null) as PASTDUEAMOUNT
 			   , rev.AMOUNT as GIFTAMOUNT
@@ -206,10 +219,10 @@ as begin
 		join	dbo.REVENUE rev on revsplit.REVENUEID = rev.ID
 		join	dbo.REVENUESCHEDULE on REVENUESCHEDULE.ID = rev.ID --REVENUE.ID		
 		left join dbo.USR_FINANCIALTRANSACTION_EXTENSION fte on fte.ID = rev.ID
-		where ((case when REVENUESCHEDULE.NEXTTRANSACTIONDATE > REVENUESCHEDULE.ENDDATE then null else REVENUESCHEDULE.NEXTTRANSACTIONDATE end) 
-			between @secondDayThreeMonthsAgo and @firstDayPreviousMonth
+		--where ((case when REVENUESCHEDULE.NEXTTRANSACTIONDATE > REVENUESCHEDULE.ENDDATE then null else REVENUESCHEDULE.NEXTTRANSACTIONDATE end) 
+		--	between @secondDayThreeMonthsAgo and @firstDayPreviousMonth
 		--and isHeld = case when @campaignType in (0,1) then 0 else 1 end
-		)
+		--)
 		order by NTD;
 
     BEGIN
@@ -233,6 +246,7 @@ as begin
     		join dbo.CONSTITUENT c on SPONSORID = c.ID
     		join dbo.REVENUESPLIT rs on rs.ID = REVENUESPLITID
     		join dbo.REVENUE r on r.ID = rs.REVENUEID
+			where NUMBEROFMONTHSPASTDUE > 0
     END;
 	
 	RETURN;

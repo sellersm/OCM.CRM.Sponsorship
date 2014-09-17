@@ -678,6 +678,9 @@
   <ItemGroup>
     <EmbeddedResource Include="Query Views\DelinquencyCampaignsSponsorshipsInfo.Query.xml" />
   </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Query Views\DelinquencyCampaignsSponsorshipsInfoAsOfToday.Query.xml" />
+  </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.VisualBasic.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
