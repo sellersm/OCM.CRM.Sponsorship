@@ -108,6 +108,7 @@
 	15-Sep-2014		Memphis			Added these for the new Delinquency Campaign Query:
 									USR_UFN_GET_DELINQUENCY_SPONSORSHIPS.xml
 									DelinquencyCampaignsSponsorshipsInfo.Query.xml
+	17-Sep-2014		Memphis			Added a new query:  DelinquencyCampaignsSponsorshipsInfoAsOfToday.Query.xml
 	
 	-->
 
@@ -316,6 +317,7 @@
 		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.Sponsorship.MultipleCommitmentsForSponsorChild.Query.xml" />
 		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.RevenueExtension.Query.xml" />
 		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.DelinquencyCampaignsSponsorshipsInfo.Query.xml" />
+		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.DelinquencyCampaignsSponsorshipsInfoAsOfToday.Query.xml" />
 
 		<!-- Tasks -->
 		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.SponsorshipAdd_Wrapped.Task.xml" />

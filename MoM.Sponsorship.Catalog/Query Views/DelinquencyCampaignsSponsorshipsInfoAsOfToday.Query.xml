@@ -1,9 +1,9 @@
 ﻿<QueryViewSpec
 	xmlns="bb_appfx_queryview"
 	xmlns:common="bb_appfx_commontypes" 
-	ID="4dadf4c2-ceb9-471a-8d95-010fb2842b29"
-	Name="Delinquency Campaigns Sponsorships Info Query"
-	Description="Displays sponsorship info for delinquencies as of 2nd of current month."
+	ID="71d205fa-085f-4c25-a390-02fcd7214b61"
+	Name="Delinquency Campaigns Sponsorships Info As Of Today Query"
+	Description="Displays sponsorship info for delinquencies as of today."
 	Author="Memphis Sellers"
 	IsRoot="true"
 	PrimaryKeyField="ID"
@@ -11,18 +11,8 @@
 	common:SecurityUIFolder="Sponsorship"
 	>
 
-	<!-- 
-	Remarks:  This displays delinquent sponsorships as of the 2nd of current month.
-
-	History:
-	Date            Modified By     Comments
-	15-Sep-2014		Memphis			Initial Version
-	17-Sep-2014		Memphis			Added the parameter to the UFN for 2nd of current month
-	-->
-
-
 	<!-- define the view used to return data for the query -->
-	<ViewImplementation ViewName="USR_V_QUERY_DELINQUENCIES_SPONSORSHIP_INFO">
+	<ViewImplementation ViewName="USR_V_QUERY_DELINQUENCIES_SPONSORSHIP_INFO_ASOFTODAY">
 		<ViewSQL>
 			<![CDATA[
 	select  ISHELD,
@@ -39,9 +29,9 @@
 			GIFTAMOUNT,
 			ISEFTDECLINED,
 			SPONSORSHIPID as ID
-    from dbo.USR_UFN_GET_DELINQUENCY_SPONSORSHIPS(dateadd(day, 1, dateadd(month, datediff(month, 0, getdate()), 0)))
+    from dbo.USR_UFN_GET_DELINQUENCY_SPONSORSHIPS(getdate())
 			]]>
-		</ViewSQL>		
+		</ViewSQL>
 	</ViewImplementation>
 
 	<!-- describe each field in the view output -->
@@ -60,7 +50,7 @@
 			<OutputField Name="COMMITMENTID" Caption="Commitment ID" DataType="String" />
 			<OutputField Name="PASTDUEAMOUNT" Caption="Past Due" DataType="Money" />
 			<OutputField Name="GIFTAMOUNT" Caption="Gift Amount" DataType="Money" />
-			<OutputField Name="ISEFTDECLINED" Caption="EFT Declined" DataType="Boolean" />			
+			<OutputField Name="ISEFTDECLINED" Caption="EFT Declined" DataType="Boolean" />
 		</OutputFields>
 	</Output>
 
