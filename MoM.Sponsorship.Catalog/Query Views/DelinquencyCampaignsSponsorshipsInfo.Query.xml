@@ -2,7 +2,7 @@
 	xmlns="bb_appfx_queryview"
 	xmlns:common="bb_appfx_commontypes" 
 	ID="4dadf4c2-ceb9-471a-8d95-010fb2842b29"
-	Name="Delinquency Campaigns Sponsorships Info Query"
+	Name="Delinquency - Campaigns"
 	Description="Displays sponsorship info for delinquencies as of 2nd of current month."
 	Author="Memphis Sellers"
 	IsRoot="true"
