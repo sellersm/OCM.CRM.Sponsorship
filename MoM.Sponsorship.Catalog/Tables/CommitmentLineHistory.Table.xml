@@ -14,6 +14,7 @@
 	History:
 	Date            Modified By     Comments
 	07-May-2014		CMayeda			Initial Prototype Version
+	30-Oct-2014		Memphis			Added Reassign column, and new value in Type of "N/A" which must be used when Reassign = Yes/true
 	-->
 
 	<!--
@@ -59,8 +60,10 @@ GO
 				<EnumValue ID="2" Translation="Prospect"/>
 				<EnumValue ID="3" Translation="Conversion"/>
 				<EnumValue ID="4" Translation="Account Correction"/>
+				<EnumValue ID="5" Translation="N/A"/>
 			</EnumValues>
 		</EnumField>
+		<BooleanField Name="ISREASSIGN" Description="Reassign"/>
 		<TextField Name="SOURCE" Description="Appeal of the first sponsorship" Length="100"/>
 		<TextField Name="SOURCECATEGORY" Description="this should be a code table" Length="100"/>
 		<TextField Name="PACKAGE" Description="'Package' of the first sponsorship" Length="100"/>

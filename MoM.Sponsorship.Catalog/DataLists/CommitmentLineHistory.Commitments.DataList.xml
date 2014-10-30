@@ -13,6 +13,7 @@
 	History:
 	Date            Modified By     Comments
 	07-May-2014		CMayeda			Initial Prototype Version
+	30-Oct-2014		Memphis			Added new ISREASSIGN column
 	-->
 
 	<common:DependencyList>
@@ -51,6 +52,7 @@ select
 	clh.STARTDATE,
 	clh.ENDDATE,
 	clh.TYPE,
+	clh.ISREASSIGN,
 	clh.STATUS,
 	case
 		when CANCELSPONSORSHIPREASONID is null then ''
@@ -94,6 +96,7 @@ select
 	(select min(STARTDATE) from dbo.SPONSORSHIP where SPONSORSHIP.SPONSORSHIPCOMMITMENTID = SPONSORSHIPCOMMITMENT.ID) STARTDATE,
 	case when LASTTRANSACTION.ACTIONCODE in(2,3,5) then LASTSPONSORSHIP.ENDDATE end ENDDATE,
 	'' as TYPE,
+	null ISREASSIGN,
 	case when LASTTRANSACTION.ACTIONCODE in(2,3) or (LASTTRANSACTION.ACTIONCODE = 5 and LASTSPONSORSHIP.ENDDATE is not null) then 'Inactive'
 	when LASTTRANSACTION.ACTIONCODE = 6 then 'Active (Transfer pending)'
 	else 'Active' end STATUS,
@@ -145,6 +148,7 @@ select
 	SPONSORSHIP.STARTDATE,
 	SPONSORSHIP.ENDDATE,
 	'' as TYPE,
+	null ISREASSIGN,
 	case SPONSORSHIP.STATUSCODE
 	when 1 then
 	case LASTTRANSACTION.ACTIONCODE
@@ -238,24 +242,25 @@ end
 				<OutputField FieldID="STARTDATE" Caption="Start date" DataType="Date" CaptionResourceKey="$$start_date" DisplaySequence="13" />
 				<OutputField FieldID="ENDDATE" Caption="End date" DataType="Date" CaptionResourceKey="$$end_date" DisplaySequence="14" />
 				<OutputField FieldID="TYPE" Caption="Type" DataType="String" DisplaySequence="15" />
-				<OutputField FieldID="STATUS" Caption="Status" DataType="String" CaptionResourceKey="$$status" DisplaySequence="16" />
-				<OutputField FieldID="REASON" Caption="Reason" DataType="String" CaptionResourceKey="$$reason" DisplaySequence="17" />
-				<OutputField FieldID="TRANSACTIONID" Caption="TRANSACTIONID" IsHidden="true" DataType="Guid" DisplaySequence="18" />
-				<OutputField FieldID="ACTIONCODE" Caption="ACTIONCODE" IsHidden="true" DataType="TinyInt" DisplaySequence="19" />
-				<OutputField FieldID="DELETEALLOWED" Caption="DELETEALLOWED" IsHidden="true" DataType="Boolean" DisplaySequence="20" />
-				<OutputField FieldID="REACTIVATEALLOWED" Caption="REACTIVATEALLOWED" IsHidden="true" DataType="Boolean" DisplaySequence="21" />
-				<OutputField FieldID="REASSIGNEDCONSTITUENTID" Caption="REASSIGNEDCONSTITUENTID" IsHidden="true" DataType="Guid" DisplaySequence="22" />
-				<OutputField FieldID="REASSIGNEDCONSTITUENTNAME" Caption="REASSIGNEDCONSTITUENTNAME" IsHidden="true" DataType="String" DisplaySequence="23" />
-				<OutputField FieldID="PAIDFORBY" Caption="Gift sponsorship donor" DataType="String" CaptionResourceKey="$$gift_sponsorship_donor" DisplaySequence="24" />
-				<OutputField FieldID="PAIDFORBYID" Caption="PAIDFORBYID" IsHidden="true" DataType="Guid" DisplaySequence="25" />
-				<OutputField FieldID="REVENUEID" Caption="REVENUEID" IsHidden="true" DataType="Guid" DisplaySequence="26" />
+				<OutputField FieldID="ISREASSIGN" Caption="Reassign" DataType="Boolean" DisplaySequence="16" />
+				<OutputField FieldID="STATUS" Caption="Status" DataType="String" CaptionResourceKey="$$status" DisplaySequence="17" />
+				<OutputField FieldID="REASON" Caption="Reason" DataType="String" CaptionResourceKey="$$reason" DisplaySequence="18" />
+				<OutputField FieldID="TRANSACTIONID" Caption="TRANSACTIONID" IsHidden="true" DataType="Guid" DisplaySequence="19" />
+				<OutputField FieldID="ACTIONCODE" Caption="ACTIONCODE" IsHidden="true" DataType="TinyInt" DisplaySequence="20" />
+				<OutputField FieldID="DELETEALLOWED" Caption="DELETEALLOWED" IsHidden="true" DataType="Boolean" DisplaySequence="21" />
+				<OutputField FieldID="REACTIVATEALLOWED" Caption="REACTIVATEALLOWED" IsHidden="true" DataType="Boolean" DisplaySequence="22" />
+				<OutputField FieldID="REASSIGNEDCONSTITUENTID" Caption="REASSIGNEDCONSTITUENTID" IsHidden="true" DataType="Guid" DisplaySequence="23" />
+				<OutputField FieldID="REASSIGNEDCONSTITUENTNAME" Caption="REASSIGNEDCONSTITUENTNAME" IsHidden="true" DataType="String" DisplaySequence="24" />
+				<OutputField FieldID="PAIDFORBY" Caption="Gift sponsorship donor" DataType="String" CaptionResourceKey="$$gift_sponsorship_donor" DisplaySequence="25" />
+				<OutputField FieldID="PAIDFORBYID" Caption="PAIDFORBYID" IsHidden="true" DataType="Guid" DisplaySequence="26" />
+				<OutputField FieldID="REVENUEID" Caption="REVENUEID" IsHidden="true" DataType="Guid" DisplaySequence="27" />
 				<OutputField FieldID="COMMITMENTLINEHISTORYLOOKUPID" Caption="Comm Line History ID" DataType="String" DisplaySequence="9" />
 				<OutputField FieldID="COMMITMENTID" Caption="Commitment ID" DataType="String" CaptionResourceKey="$$commitment_id" DisplaySequence="10" />
 				<OutputField FieldID="CHILDPROJECTLOOKUPID" Caption="Lookup ID" DataType="String" DisplaySequence="11"/>
-				<OutputField FieldID="SOURCECATEGORY" Caption="Source Category" DataType="String" DisplaySequence="27" />
-				<OutputField FieldID="SOURCE" Caption="Source" DataType="String" DisplaySequence="28" />
-				<OutputField FieldID="PACKAGE" Caption="Package" DataType="String" DisplaySequence="29" />
-				<OutputField FieldID="INBOUNDCHANNEL" Caption="Inbound Channel" DataType="String" DisplaySequence="30" />
+				<OutputField FieldID="SOURCECATEGORY" Caption="Source Category" DataType="String" DisplaySequence="28" />
+				<OutputField FieldID="SOURCE" Caption="Source" DataType="String" DisplaySequence="29" />
+				<OutputField FieldID="PACKAGE" Caption="Package" DataType="String" DisplaySequence="30" />
+				<OutputField FieldID="INBOUNDCHANNEL" Caption="Inbound Channel" DataType="String" DisplaySequence="31" />
 
 		</OutputFields>
 	</Output>
