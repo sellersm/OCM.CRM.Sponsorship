@@ -1,0 +1,73 @@
+﻿<QueryViewSpec
+	xmlns="bb_appfx_queryview"
+	xmlns:common="bb_appfx_commontypes" 
+	ID="bd70c3c0-754b-4184-9182-18dbf87ce2d1"
+	Name="EFT Decline Batch Data for Constituent Query"
+	Description="EFT Decline Batch Data for Constituent Query"
+	Author="Memphis Sellers"
+	IsRoot="true"
+	PrimaryKeyField="ID"
+	RecordType="Constituent"
+	common:SecurityUIFolder="EFTBatch"	
+	>
+
+	<!-- 
+	Remarks:	Displays the records from the USR_EFTDECLINE_BATCH_SPONSORS table that holds declines from EFT Decline biz process.
+				
+	History:
+	Date			Modified By		Comments
+    03-Jun-2014		Memphis			Initial Version
+	-->
+
+	<!-- define the view used to return data for the query -->
+	<ViewImplementation ViewName="USR_V_QUERY_EFTDECLINE_BATCH_SPONSORS_DATA_CONSTITUENT">
+		<ViewSQL>
+			<![CDATA[
+	SELECT 	c.ID, 
+			BATCHDATE, 
+			USR_EFTDECLINE_BATCH_SPONSORS.BATCHNUMBER, 
+			BATCHTYPE, 
+			SPONSORLOOKUPID, 
+			SPONSORNAME, 
+			DECLINEREASON, 
+			CARDNUMBER, 
+			CARDEXPIRATION, 
+			CHILDINFO, 
+			REVENUELOOKUPID, 
+			CARDHOLDERNAME, 
+			ACCOUNTINFO,
+			--USR_EFTDECLINE_BATCH_SPONSORS.DATEADDED, 
+			--USR_EFTDECLINE_BATCH_SPONSORS.DATECHANGED,
+			c.ID as CONSTITUENTID 
+	FROM dbo.USR_EFTDECLINE_BATCH_SPONSORS
+		 join dbo.CONSTITUENT c on c.LOOKUPID = SPONSORLOOKUPID
+			]]>
+		</ViewSQL>
+	</ViewImplementation>
+
+	<!-- describe each field in the view output -->
+	<Output>
+		<OutputFields>
+			<OutputField Caption="System record ID" Category="System Fields" Name="ID" />
+			<OutputField Name="BATCHDATE" Caption="Batch Date" DataType="Date" />
+			<OutputField Name="BATCHNUMBER" Caption="Batch Number" DataType="String" />
+			<OutputField Name="BATCHTYPE" Caption="Batch Type" DataType="String" />
+			<OutputField Name="SPONSORLOOKUPID" Caption="Sponsor Id" DataType="String" />
+			<OutputField Name="SPONSORNAME" Caption="Sponsor Name" DataType="String" />
+			<OutputField Name="DECLINEREASON" Caption="Decline Reason" DataType="String" />
+			<OutputField Name="CARDNUMBER" Caption="Card Number" DataType="String" />
+			<OutputField Name="CARDEXPIRATION" Caption="Card Expiration" DataType="FuzzyDate" />
+			<OutputField Name="CHILDINFO" Caption="Child Info" DataType="String" />
+			<OutputField Name="REVENUELOOKUPID" Caption="Revenue Id" DataType="String" />
+			<OutputField Name="CARDHOLDERNAME" Caption="Cardholder" DataType="String" />
+			<OutputField Name="ACCOUNTINFO" Caption="Account Info" DataType="String" />
+			<OutputField Name="CONSTITUENTID" Caption="Constituent ID" DataType="Guid" IsHidden="true" />
+		</OutputFields>
+	</Output>
+
+	<RelationshipOperations>
+		<AddRelatedView RelatedView="V_QUERY_CONSTITUENT" PathAlias="Constituent" Field="CONSTITUENTID" RelatedField="ID"/>
+	</RelationshipOperations>
+
+</QueryViewSpec>
+

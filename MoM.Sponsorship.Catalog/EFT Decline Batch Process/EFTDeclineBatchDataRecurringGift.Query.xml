@@ -1,0 +1,80 @@
+﻿<QueryViewSpec
+	xmlns="bb_appfx_queryview"
+	xmlns:common="bb_appfx_commontypes" 
+	ID="7a606d2b-0eb3-427b-931f-e81fd3af7968"
+	Name="EFT Decline Batch Data Recurring Gift Query"
+	Description="EFT Decline Batch Data Recurring Gift Query"
+	Author="Memphis Sellers"
+	IsRoot="true"
+	PrimaryKeyField="ID"
+	RecordType="Revenue"
+	common:SecurityUIFolder="EFTBatch"
+	>
+
+	<!-- 
+	Remarks:	Displays the records from the USR_EFTDECLINE_BATCH_SPONSORS table related to Recurring Gift.
+				
+	History:
+	Date			Modified By		Comments
+    03-Jun-2014		Memphis			Initial Version
+	09-Jun-2014		Memphis			Took out the EFTSTATUS Column.
+	12-Jun-2014		Memphis			Took out all joins to batch tables so it works when the batches are removed...
+	-->
+	
+	
+	<!-- define the view used to return data for the query -->
+	<ViewImplementation ViewName="USR_V_QUERY_EFTDECLINE_BATCH_SPONSORS_DATA_RECURRINGGIFT">
+		<ViewSQL>
+			<![CDATA[
+	SELECT 	r.ID, 
+			BATCHDATE, 
+			USR_EFTDECLINE_BATCH_SPONSORS.BATCHNUMBER, 
+			BATCHTYPE, 
+			SPONSORLOOKUPID, 
+			SPONSORNAME, 
+			DECLINEREASON, 
+			CARDNUMBER, 
+			CARDEXPIRATION, 
+			CHILDINFO, 
+			--EFTSTATUS, 
+			USR_EFTDECLINE_BATCH_SPONSORS.REVENUELOOKUPID, 
+			CARDHOLDERNAME, 
+			ACCOUNTINFO
+			--c.ID as CONSTITUENTID
+	FROM dbo.USR_EFTDECLINE_BATCH_SPONSORS
+		--join dbo.CONSTITUENT c on c.LOOKUPID = SPONSORLOOKUPID
+		--join batch b on b.BATCHNUMBER = USR_EFTDECLINE_BATCH_SPONSORS.BATCHNUMBER
+		--join batchrevenue br on br.BATCHID = b.ID and CONSTITUENTID = c.ID
+		--join BATCHREVENUEAPPLICATION  bra on bra.BATCHREVENUEID= br.ID
+		--join REVENUE r on r.ID = bra.REVENUEID and r.LOOKUPID = USR_EFTDECLINE_BATCH_SPONSORS.REVENUELOOKUPID
+		join REVENUE r on r.LOOKUPID = USR_EFTDECLINE_BATCH_SPONSORS.REVENUELOOKUPID
+			]]>
+		</ViewSQL>
+	</ViewImplementation>
+
+	<!-- describe each field in the view output -->
+	<Output>
+		<OutputFields>
+			<OutputField Caption="System record ID" Category="System Fields" Name="ID" />
+			<OutputField Name="BATCHDATE" Caption="Batch Date" DataType="Date" />
+			<OutputField Name="BATCHNUMBER" Caption="Batch Number" DataType="String" />
+			<OutputField Name="BATCHTYPE" Caption="Batch Type" DataType="String" />
+			<OutputField Name="SPONSORLOOKUPID" Caption="Sponsor Id" DataType="String" />
+			<OutputField Name="SPONSORNAME" Caption="Sponsor Name" DataType="String" />
+			<OutputField Name="DECLINEREASON" Caption="Decline Reason" DataType="String" />
+			<OutputField Name="CARDNUMBER" Caption="Card Number" DataType="String" />
+			<OutputField Name="CARDEXPIRATION" Caption="Card Expiration" DataType="FuzzyDate" />
+			<OutputField Name="CHILDINFO" Caption="Child Info" DataType="String" />
+			<OutputField Name="REVENUELOOKUPID" Caption="Revenue Id" DataType="String" />
+			<OutputField Name="CARDHOLDERNAME" Caption="Cardholder" DataType="String" />
+			<OutputField Name="ACCOUNTINFO" Caption="Account Info" DataType="String" />
+			<!--<OutputField Name="CONSTITUENTID" Caption="Constituent ID" DataType="Guid" IsHidden="true" />-->
+		</OutputFields>
+	</Output>
+
+	<RelationshipOperations>
+		<AddRelatedView RelatedView="V_QUERY_REVENUE" RelatedField="ID" Field="ID" PathAlias="Revenue"/>
+	</RelationshipOperations>
+
+</QueryViewSpec>
+

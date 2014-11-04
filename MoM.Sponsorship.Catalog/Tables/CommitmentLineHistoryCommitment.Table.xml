@@ -1,0 +1,35 @@
+﻿<TableSpec
+	xmlns="bb_appfx_table"
+	xmlns:common="bb_appfx_commontypes"
+	ID="3271734c-3415-48b4-aa32-a12c7024bbbc"
+	Name="Commitment Line History Commitment"
+	Description="Used to track the Commitments in a Commitment Line History"
+	Author="Cary Mayeda"
+	Tablename="USR_COMMITMENTLINEHISTORYCOMMITMENTS">
+
+	<!-- 
+	Remarks:    
+
+	History:
+	Date            Modified By     Comments
+	07-May-2014		CMayeda			Initial Prototype Version
+	-->
+
+	<!-- define fields on the table -->
+	<Fields>
+		<ForeignKeyField Name="COMMITMENTLINEHISTORYID" Description="Commitment Line History ID" ForeignTable="USR_COMMITMENTLINEHISTORY" ForeignFieldName="ID" ForeignDataType="uniqueidentifier" Cardinality="ManyToOne" OnDelete="CascadeDelete"/>
+		<ForeignKeyField Name="COMMITMENTID" Description="Commitment ID" ForeignTable="SPONSORSHIPCOMMITMENT" ForeignFieldName="ID" ForeignDataType="uniqueidentifier" Cardinality="ManyToOne" OnDelete="CascadeDelete"/>		
+	</Fields>
+
+	<!-- define any indexes on the table -->
+	<Indexes>
+		<Index IsUnique ="false">
+			<IndexFields>
+				<IndexField Name="COMMITMENTID"/>
+			</IndexFields>
+		</Index>
+
+	</Indexes>
+
+
+</TableSpec>

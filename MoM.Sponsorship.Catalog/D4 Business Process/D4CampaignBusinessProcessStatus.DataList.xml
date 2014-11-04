@@ -1,0 +1,81 @@
+﻿<DataListSpec 
+	xmlns="bb_appfx_datalist"
+	xmlns:common="bb_appfx_commontypes" 
+	ID="947FE3ED-48DF-45C5-8107-DD5D258C54D3" 	
+	Name="D4 Campaign Business Process Status Data List"
+	Description="Returns a status list for the D4 Campaign business process.." 
+	Author="Cary Mayeda"
+	common:SecurityUIFolder="Sponsorship">
+
+	<!-- 
+	Remarks:    
+
+	History:
+	Date            Modified By     Comments
+	14-May-2013		CMayeda			Initial Version copied from Memphis' D2 Campaign Business Process Status Data List
+	-->
+
+	<CLRDataList AssemblyName="Blackbaud.AppFx.Platform.Catalog"
+               ClassName="Blackbaud.AppFx.Platform.Catalog.BusinessProcessStatusDatalist">
+		<common:GrantSelectList>
+			<common:GrantSelect>BUSINESSPROCESSCATALOG</common:GrantSelect>
+			<common:GrantSelect>BUSINESSPROCESSSTATUS</common:GrantSelect>
+			<common:GrantSelect>APPUSER</common:GrantSelect>
+		</common:GrantSelectList>
+		<common:StaticParameters>
+			<common:ParameterList>
+				<common:Param ID="BusinessProcessCatalogID">
+					<common:Value>0D586E6B-8B8A-4386-8167-EEB07A37A262</common:Value>
+				</common:Param>
+				<common:Param ID="ApplyParametersIDFilter">
+					<common:Value>True</common:Value>
+				</common:Param>
+			</common:ParameterList>
+		</common:StaticParameters>
+	</CLRDataList>
+	<Parameters>
+		<common:FormMetaData>
+			<common:FormFields>
+				<common:FormField FieldID="StatusCode" Caption="Status">
+					<common:ValueList>
+						<common:Items>
+							<common:Item>
+								<common:Value>0</common:Value>
+								<common:Label>Completed</common:Label>
+							</common:Item>
+							<common:Item>
+								<common:Value>1</common:Value>
+								<common:Label>Running</common:Label>
+							</common:Item>
+							<common:Item>
+								<common:Value>2</common:Value>
+								<common:Label>Did not finish</common:Label>
+							</common:Item>
+						</common:Items>
+					</common:ValueList>
+				</common:FormField>
+			</common:FormFields>
+		</common:FormMetaData>
+	</Parameters>
+	<Output>
+		<OutputFields>
+			<OutputField FieldID="ID" Caption="ID" IsHidden="true" DataType="Guid" />
+			<OutputField FieldID="Process name" Caption="Process name" IsHidden="true" DataType="String" />
+			<OutputField FieldID="Status" Caption="Status" DataType="String" />
+			<OutputField FieldID="Status message" Caption="Status message" DataType="String" />
+			<OutputField FieldID="Started by" Caption="Started by" DataType="String" />
+			<OutputField FieldID="Started on" Caption="Started on" DataType="Date" />
+			<OutputField FieldID="Ended on" Caption="Ended on" DataType="Date" />
+			<OutputField FieldID="Duration" Caption="Duration" DataType="String" />
+			<OutputField FieldID="Number of records processed" Caption="Number of records processed" DataType="String" />
+			<OutputField FieldID="NumberOfExceptionRecords" Caption="Number of exception records" DataType="String" />
+			<OutputField FieldID="Total count" Caption="Total count" IsHidden="true" DataType="String" />
+			<OutputField FieldID="Server name" Caption="Server name" DataType="String" />
+			<OutputField FieldID="ImageKey" Caption="ImageKey" IsHidden="true" DataType="String" />
+			<OutputField FieldID="Completed" Caption="Completed" IsHidden="true" DataType="String" />
+			<OutputField FieldID="EnableDownload" Caption="EnableDownload" IsHidden="true" DataType="String" />
+			<OutputField FieldID="EnableLetterMailMerge" Caption="EnableLetterMailMerge" IsHidden="true" DataType="String" />
+			<OutputField FieldID="EnableLabelMailMerge" Caption="EnableLabelMailMerge" IsHidden="true" DataType="String" />
+		</OutputFields>
+	</Output>
+</DataListSpec>

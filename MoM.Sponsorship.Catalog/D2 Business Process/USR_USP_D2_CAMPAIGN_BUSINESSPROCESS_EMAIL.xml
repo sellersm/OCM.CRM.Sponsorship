@@ -1,0 +1,768 @@
+﻿<SQLStoredProcedureSpec
+	xmlns="bb_appfx_sqlstoredprocedure"
+	xmlns:common="bb_appfx_commontypes" 
+	ID="249c1394-861a-4cb4-9ac2-66946ec79d2f"
+	Name="USR_USP_D2_CAMPAIGN_BUSINESSPROCESS_EMAIL"
+	Description="D2 Campaign that creates Email interactions only."
+	Author="Memphis Sellers"
+	SPName="USR_USP_D2_CAMPAIGN_BUSINESSPROCESS_EMAIL"
+	GrantServiceRolePermission="true"
+	>
+
+	<!-- 
+	Remarks:    This handles the work of creating interactions for the D2 Email Campaigns.
+				  This is the d2 campaign email business process sproc 
+				  It will only generate email interactions
+				  It only includes children that meet the given parameter payment type
+				  0=Email Cash, 1=Email EFT Active, 2=Email EFT Held Credit Card, 3=Email EFT Held Direct Debit, 4=Phone
+				  It will generate 1 Sponsor interaction per campaign type
+
+	History:
+	Date            Modified By     Comments
+	13-May-2013		Memphis			Initial Version.  
+	03-Jun-2013		Memphis			Fogbugz Case 1082. Added check based on number of months past due, similar to the D4 campaign process by Cary.
+									If the number of months past due isn't >=0 and <2 then it won't get an interaction, no matter
+									what the NTD says.
+	10-Nov-2013		Memphis			Fixed bug in D2ChildrenList CTE to filter out Project Sponsorships 
+	11-Feb-2014		Memphis			Removed the CTE and replaced with temp tables to help improve performance.
+	09-Sep-2014		Memphis			Added the call to Cary's UFN to calculate number of months past due.
+	03-Nov-2014		Memphis			Replaced USR_UFN_CHECK_RECURRINGGIFT_ISHELD with USR_UFN_CHECK_RECURRINGGIFT_ISEFTDECLINED and changed
+									all instances of ISHELD to ISEFTDECLINED.	
+	-->
+
+
+	<CreateProcedureSQL>
+		<![CDATA[
+create procedure dbo.USR_USP_D2_CAMPAIGN_BUSINESSPROCESS_EMAIL (
+	@CAMPAIGNTYPE tinyint,
+	@changeAgentID uniqueidentifier,
+	@outputTableName nvarchar(100),
+	@successCount int = 0 output,
+	@exceptionCount int = 0 output
+)
+as
+begin
+	-- passed in by the parameter set record user was on when biz proc was started:
+	--declare @campaignType tinyint = 2;  -- 0=Cash, 1=EFT Active, 2=EFT Held Credit Card, 3=EFT Held Direct Debit
+
+	if @CHANGEAGENTID is null
+			exec dbo.USP_CHANGEAGENT_GETORCREATECHANGEAGENT @CHANGEAGENTID output;
+
+	declare @currentDate date = Cast(GETDATE() as date)
+
+	declare @childIDList dbo.USR_UDT_CHILDIDLIST;
+
+	declare @successCounter int = 0;
+	declare @exceptionCounter int = 0;
+
+	set @successCount = 0;
+	set @exceptionCount = 0;
+
+	-- **** NOTE: THIS IS FOR TESTING ONLY ****
+	--declare @constituentId uniqueidentifier = '3AEA7B94-DE6F-483A-A29C-00279FDD4922';				
+	declare @doNotContactSolicitCodeId uniqueidentifier;
+	declare @affiliateOfficeId uniqueidentifier;
+	declare @sponsorLookupId nvarchar(10);
+
+	select @affiliateOfficeId = ID
+	from dbo.CONSTITUENCYCODE
+	where lower([DESCRIPTION]) = LOWER('Affiliate Office')
+
+	select @doNotContactSolicitCodeId = ID
+	from dbo.SOLICITCODE
+	where LOWER([DESCRIPTION]) = LOWER('Do not contact') -- lower('Do not contact')
+
+	-- Try to lookup ids
+	--exec dbo.USR_USP_INTERACTION_GETSUBCATEGORYID @subcategoryID output, @categoryName, @subcategoryName, @raiseErrorIfNotFound_True
+
+	declare @subcategoryID uniqueidentifier;
+
+	declare @interactionContactMethodId uniqueidentifier;
+	--declare @phoneContactMethodID uniqueidentifier;
+	declare @emailContactMethodID uniqueidentifier;
+
+	-- Phone
+	--select @phoneContactMethodID = ID from dbo.INTERACTIONTYPECODE where lower(DESCRIPTION) = lower ('Phone')
+	-- Email
+	select @emailContactMethodID = ID from dbo.INTERACTIONTYPECODE where lower(DESCRIPTION) = lower ('Email')
+
+	declare @interactionCategoryId uniqueidentifier;
+	select @interactionCategoryId = ID from dbo.INTERACTIONCATEGORY where LOWER(NAME) = LOWER('Sponsorship Delinquency')
+
+	declare @categoryName nvarchar(100) = 'Sponsorship Delinquency'
+	declare @cashSubcategoryName nvarchar(100) = 'Delinquent 2 Month - Non-EFT';
+	declare @heldEFTCreditCardSubcategoryName nvarchar(100) = 'Delinquent 2 Month - Credit Card';
+	declare @heldEFTDirectDebitSubcategoryName nvarchar(100) = 'Delinquent 2 Month - Direct Debit';
+	declare @activeEFTSubcategoryName nvarchar(100) = 'Delinquent 2 Month - EFT';
+	declare @raiseErrorIfNotFound_True bit = 1
+
+	declare @writeToExceptionLog bit = 0;		-- flag to identify when to write a record to the output table indicating no interaction was created
+
+	declare @subcategoryName nvarchar(100);		-- will hold one of the category name values above based on campaign type
+
+	if @campaignType = 0 -- cash
+		set @subcategoryName = @cashSubcategoryName;
+
+	if @campaignType = 1 -- eft active
+		set @subcategoryName = @activeEFTSubcategoryName;
+
+
+	--declare @contactMethodDesc_Phone nvarchar (100) = 'Phone';
+	declare @contactMethodDesc_Email nvarchar (100) = 'Email';
+	declare @contactMethodDesc nvarchar(100);   -- this will get populated by either of the above values before creating the interaction
+
+    declare @exceptionMessage nvarchar(100) = '';
+    declare @amountException bit = 0;
+    declare @noEmailMessage nvarchar(100) = '';
+
+	declare @expectedDate date = cast(getdate() as date);
+    
+	declare @solicitCodeList table (CODEDESCRIPTION nvarchar(100))
+	declare @isNoEmailOrLetters bit = 0;
+	declare @isNoCalls bit = 0;
+
+	declare @interactionSummary nvarchar(100);		-- holds the value of the interaction objective, based on payment type
+	declare @interactionContactMethod nvarchar(100);-- holds the contact method which is based on solicit code
+	declare @interactionSubcategory nvarchar(100);	-- holds the subcategory which is based on payment type & held or not
+
+	declare @sponsorshipPayMethod nvarchar(100);	-- holds whether this is Cash or EFT
+	declare @eftType tinyint = 0;					-- holds whether this is CC (1) or Direct Debit (2), compare agains the constant values instead of the literal 1 or 2
+	declare @CREDITCARD_EFTTYPE tinyint = 1;		-- constant value for CC eft type of 1, used for checking @eftTYPE values
+	declare @DIRECTDEBIT_EFTTYPE tinyint = 2;		-- constant value for DirectDebit eft type of 2, used for checking @eftTYPE values
+	declare @CASH_PAYMETHOD nvarchar(100) = 'CASH'	-- constant value for the CASH payment method type used for @sponsorshipPayMethod
+	declare @EFT_PAYMETHOD nvarchar(100) = 'EFT'	--constant value for the EFT payment method type used for @sponsorshipPayMethod
+
+	declare @statusCode_Pending tinyint = 1;		-- this is the one we use in the interactions created in this biz process
+	declare @statusCode_Completed tinyint = 2
+	declare @statusCode_Unsuccessful tinyint = 3
+	declare @statusCode_Cancelled tinyint = 4
+	declare @statusCode_Declined tinyint = 5
+
+	declare @isNewSponsor bit = 0;					-- flag to keep track of when sponsor changes
+	declare @currentSponsorId uniqueidentifier;		-- holds the sponsorid that was just looped in the cursor, used to identify when sponsorId changes in the cursor loop
+	--declare @doPhoneProcess bit = 0;				-- flag that says to perform the phone interaction workflow
+	declare @createInteractions bit = 0;			-- flag to identify to create the interactions or not
+
+	declare @childrenExistForSponsor bit = 0;		-- flag identifying if this sponsor has kids for the given campaign type:
+	declare @giftFinancialSponsorId uniqueidentifier = null;  -- used to ensure this isn't a corresponding sponsor
+	declare @isCorrespondent bit = 0;				-- flag to identify if correspondent sponsorship
+
+	-- Response Category descriptions
+	declare @interactionResponseCategory_DonorContact nvarchar(100) = 'Donor Contact'
+	declare @interactionResponseCategory_LeftMessage nvarchar(100) = 'Left Message'
+	declare @interactionResponseCategory_MessageType nvarchar(100) = 'Message Type'
+	declare @interactionResponseCategory_Cancelled nvarchar(100) = 'Cancelled'
+
+	declare @interactionResponseCategory_EFTReceived nvarchar(100) = 'EFT Received'
+	declare @interactionResponse_No nvarchar(100) = 'No';
+	declare @interactionResponse_None nvarchar(100) = 'None';
+	declare @interactionOwner uniqueidentifier = null;  -- this will hold the @callCenterManagerConstituentID if a Phone Call type of interaction
+
+	declare @callCenterManagerConstituentID uniqueidentifier = 'B25168DC-4DD4-46ED-B4DD-C5A26A965667';	-- This constituent is hard coded via a script
+	declare @sponsorInteractionId uniqueidentifier;
+
+
+	begin try
+		-- this sproc won't process Phone campaigns, so throw an exception if that campaign type is passed in:
+		if @CAMPAIGNTYPE > 3
+			raiserror 100000 'Unable to process the given Campaign Parameter Type of Phone.'
+  
+		if @doNotContactSolicitCodeId is null
+			raiserror 100000 'Unable to locate solicit code: Do Not Contact! Unable to continue.'
+
+		if @affiliateOfficeId is null
+			raiserror 100000 'Unable to locate constituency code: Affiliate Office! Unable to continue.'
+				
+--		if @phoneContactMethodID is null 
+--			RAISERROR 1000000 'Unable to locate the contact method: Phone.'
+		
+		if @emailContactMethodID is null
+			RAISERROR 1000000 'Unable to locate the contact method: Email.'
+		
+		if @interactionCategoryId is null
+			RAISERROR 1000000 'Unable to locate the interaction category: Sponsorship Delinquency.'
+
+	end try
+
+	begin catch
+		exec dbo.USP_RAISE_ERROR
+	end catch
+
+	begin try
+		--'First Day of Previous Month'
+		declare @firstDayPreviousMonth date;
+		set @firstDayPreviousMonth =  DATEADD(MONTH, DATEDIFF(MONTH, 0, GETDATE()) - 1, 0)
+
+		--'First Day of 2 Months ago'
+		--declare @secondDayTwoMonthsAgo date;
+		--set @secondDayTwoMonthsAgo =  DATEADD(MONTH, DATEDIFF(MONTH, 0, GETDATE()) - 2, 0)
+		--set @secondDayTwoMonthsAgo = DATEADD(DAY, 1, @secondDayTwoMonthsAgo)
+		declare @secondDayThreeMonthsAgo date;
+		set @secondDayThreeMonthsAgo =  DATEADD(MONTH, DATEDIFF(MONTH, 0, GETDATE()) - 3, 0)
+		set @secondDayThreeMonthsAgo = DATEADD(DAY, 1, @secondDayThreeMonthsAgo)
+
+		declare @d2ResultsTable table (
+				CHILDID uniqueidentifier, 
+				REVENUESPLITID uniqueidentifier, 
+				SPONSORID uniqueidentifier, 
+				SPONSORSHIPID uniqueidentifier,
+				NTD date, 
+				PAYMETHOD tinyint, 
+				SPONSORSHIPREVENUEID uniqueidentifier, 
+				ISEFTDECLINED bit,
+                NUMBEROFMONTHSPASTDUE decimal(3,1));
+		
+		declare @childId uniqueidentifier, @revenueSplitId uniqueidentifier, @sponsorId uniqueidentifier, @sponsorshipId uniqueidentifier;
+		declare @NTD date, @payMethod tinyint, @sponsorshipRevenueId uniqueidentifier, @isEftDeclined bit, @numberOfMonthsPastDue decimal(3,1);
+
+		set @payMethod = 99;  -- default to neither cash nor eft
+        set @numberOfMonthsPastDue = -1;
+
+    -- ** NEW **: get only the children for the given  Campaign payment method type, so use this variable to compare against each child's paymethod!
+    --                  based on these campaign type values and payment method values:
+    --      0=Cash, 1=EFT Active, 2=EFT Held Credit Card, 3=EFT Held Direct Debit
+		/*  
+            [PAYMENTMETHODCODE] (0) = 'Cash' (1) ='Check' (2) ='Credit card' (3) ='Direct debit' 
+            (4) ='Stock' (5) ='Property' (6) ='Gift-in-kind' (9) ='None' (10) ='Other' 
+            (11) ='Standing order'  
+		*/        
+
+		-- constants used for checking what payment type is this sponsorship:
+		declare @CASHPAYMENT_VALUE tinyint = 0;
+		declare @EFTPAYMENT_VALUE tinyint = 1;
+
+		declare @SHOWHISTORY bit = 0;
+		-- ******************** A. Get qualifying sponsors  **********************************
+
+		/*
+		 -- Get the financial sponsors that:
+			1.1
+			 Do NOT have a solicit code of “Do not contact”.
+			1.2
+			 Do NOT have any interaction with a completed Category of Sponsorship Delinquency in the previous month (based on Expected date).
+			1.3
+			 Do NOT have the constituency code of “Affiliate Office”?
+		*/
+		-- first get the sponsors that meet 1.1 - 1.3
+		
+		declare @D2SponsorList table (
+    	   [sponsorId] uniqueidentifier
+    		)
+		
+		
+		--;with D2SponsorList (sponsorId)
+		--as
+		--(
+		insert into @D2SponsorList
+			select distinct dbo.SPONSORSHIP.CONSTITUENTID
+			from dbo.SPONSORSHIP
+			where (not exists (select 1 from dbo.INTERACTION
+					where (dbo.INTERACTION.INTERACTIONSUBCATEGORYID in (select ID from dbo.INTERACTIONSUBCATEGORY 
+							where dbo.INTERACTIONSUBCATEGORY.INTERACTIONCATEGORYID = @interactionCategoryId)
+				and (dbo.INTERACTION.CONSTITUENTID = dbo.SPONSORSHIP.CONSTITUENTID
+				and lower(COMMENT) like '%d2%'
+				and STATUSCODE = 2
+				and (DATEPART(m, EXPECTEDDATE) = DATEPART(m, DATEADD(m, -1, getdate()))
+				AND YEAR(EXPECTEDDATE) = YEAR(DATEADD(m, -1, getdate())))))
+				)
+			and not exists (select 1 from dbo.CONSTITUENCY where (dbo.CONSTITUENCY.CONSTITUENTID = dbo.SPONSORSHIP.CONSTITUENTID 
+				  and dbo.CONSTITUENCY.CONSTITUENCYCODEID = @affiliateOfficeId and (dbo.CONSTITUENCY.DATETO is null or dbo.CONSTITUENCY.DATETO > GETDATE())))
+			and not exists (select 1 from dbo.CONSTITUENTSOLICITCODE where (dbo.CONSTITUENTSOLICITCODE.CONSTITUENTID = dbo.SPONSORSHIP.CONSTITUENTID
+				  and dbo.CONSTITUENTSOLICITCODE.SOLICITCODEID = @doNotContactSolicitCodeId and (dbo.CONSTITUENTSOLICITCODE.ENDDATE is null or dbo.CONSTITUENTSOLICITCODE.ENDDATE > GETDATE())))
+			)      
+		--)
+		/*
+			1.4
+			 Has child sponsorship one of “Active”, “Active (transfer pending)” or “Active (reassign)”
+			1.5
+			 The current sponsorship status for the child must be “Sponsored”
+			1.6
+			 The recurring gift NTD>= 1st of the month 2 months back
+			  NTD is between 1st day of current month -1 and 2nd day of current month -2, INCLUSIVE
+			  -- <=1st day of current month -1 and >= 2nd day of current month -2
+				(For example, currentNTDis 5/1/13 then the date range used would be 3/2/13 to 4/1/2013)	 
+		*/
+
+
+		-- then get the children for each sponsor that meet 1.4-1.6
+		
+declare @D2ChildrenList table (
+    	   [childId] uniqueidentifier,
+           revenueSplitId uniqueidentifier,
+           sponsorId uniqueidentifier,
+           sponsorshipId uniqueidentifier,
+           payMethod int,
+           sponsorshipRevenueId uniqueidentifier,
+           isEftDeclined bit
+    	)
+    			
+		--, D2ChildrenList (childId, revenueSplitId, sponsorId, sponsorshipId, payMethod, sponsorshipRevenueId, isEftDeclined)
+		--as
+		--(
+		insert into @D2ChildrenList
+			select dbo.SPONSORSHIP.SPONSORSHIPOPPORTUNITYID,
+				   dbo.SPONSORSHIP.REVENUESPLITID,
+				   dbo.SPONSORSHIP.CONSTITUENTID,
+				   dbo.SPONSORSHIP.ID,
+				   dbo.USR_UFN_GET_PAYMENTMETHODCODE_BY_REVENUESPLITID(dbo.SPONSORSHIP.REVENUESPLITID) as PAYMETHOD,
+				   (select REVENUEID from dbo.REVENUESPLIT where ID = dbo.SPONSORSHIP.REVENUESPLITID) as SPONSORSHIPREVENUEID,
+				   --dbo.USR_UFN_CHECK_RECURRINGGIFT_ISHELD(dbo.SPONSORSHIP.REVENUESPLITID) as ISHELD  -- 0 false, 1 true
+				   dbo.USR_UFN_CHECK_RECURRINGGIFT_ISEFTDECLINED(dbo.SPONSORSHIP.REVENUESPLITID) as ISEFTDECLINED  -- 0 false, 1 true
+			from dbo.SPONSORSHIP
+			join dbo.USR_SPONSORSHIPEXTENSION se on se.ID = dbo.SPONSORSHIP.ID
+			join dbo.USR_CURRENTOPPORTUNITYSPONSORSHIPSTATUSCODE statusCode on statusCode.ID = se.CURRENTOPPORTUNITYSPONSORSHIPSTATUSCODEID and statusCode.DESCRIPTION = 'Sponsored'
+			left outer join dbo.SPONSORSHIPOPPORTUNITYCHILD on  dbo.SPONSORSHIPOPPORTUNITYCHILD.ID = SPONSORSHIP.SPONSORSHIPOPPORTUNITYID  -- this will help us identify only children commitments      
+			where (dbo.SPONSORSHIP.CONSTITUENTID IN (select sponsorId from @D2SponsorList)
+			and STATUSCODE = 1   -- status of 'Active'
+			and (dbo.UFN_SPONSORSHIP_GIFTFINANCIALSPONSORID(dbo.SPONSORSHIP.ID) is null	
+				 or dbo.UFN_SPONSORSHIP_GIFTFINANCIALSPONSORID(dbo.SPONSORSHIP.ID) = dbo.SPONSORSHIP.CONSTITUENTID)	-- filter out correspondent kids and sponsorships
+			and dbo.SPONSORSHIPOPPORTUNITYCHILD.ID is not null  -- filter out project sponsorships         
+			)
+			union
+			-- This is the logic from the USR_UFN_GETACTIVE_FINANCIALCOMMITMENTS_BYSPONSOR, 
+			-- to get the children for which this sponsor is a financial sponsor, then join with the above select:
+			select
+				ACTIVESPONSORSHIP.SPONSORSHIPOPPORTUNITYID,
+				ACTIVESPONSORSHIP.REVENUESPLITID,
+				ACTIVESPONSORSHIP.CONSTITUENTID,
+				ACTIVESPONSORSHIP.ID,
+				dbo.USR_UFN_GET_PAYMENTMETHODCODE_BY_REVENUESPLITID(ACTIVESPONSORSHIP.REVENUESPLITID) as PAYMETHOD,
+				(select REVENUEID from dbo.REVENUESPLIT where ID = ACTIVESPONSORSHIP.REVENUESPLITID) as SPONSORSHIPREVENUEID,
+				--dbo.USR_UFN_CHECK_RECURRINGGIFT_ISHELD(ACTIVESPONSORSHIP.REVENUESPLITID) as ISHELD  -- 0 false, 1 true
+				dbo.USR_UFN_CHECK_RECURRINGGIFT_ISEFTDECLINED(ACTIVESPONSORSHIP.REVENUESPLITID) as ISEFTDECLINED  -- 0 false, 1 true
+			from dbo.SPONSORSHIPTRANSACTION GIFTSTART
+			inner join dbo.SPONSORSHIPCOMMITMENT on SPONSORSHIPCOMMITMENT.ID = GIFTSTART.SPONSORSHIPCOMMITMENTID
+			left join dbo.SPONSORSHIPTRANSACTION GIFTEND on GIFTEND.SPONSORSHIPCOMMITMENTID = GIFTSTART.SPONSORSHIPCOMMITMENTID and GIFTEND.TRANSACTIONSEQUENCE = (select min(MINSEQ.TRANSACTIONSEQUENCE) from dbo.SPONSORSHIPTRANSACTION MINSEQ where MINSEQ.SPONSORSHIPCOMMITMENTID = GIFTSTART.SPONSORSHIPCOMMITMENTID and MINSEQ.TRANSACTIONSEQUENCE > GIFTSTART.TRANSACTIONSEQUENCE and MINSEQ.ACTIONCODE in(2,3,5,9))
+			left join dbo.SPONSORSHIP GIFTENDSPONSORSHIP on GIFTENDSPONSORSHIP.ID = GIFTEND.CONTEXTSPONSORSHIPID
+			left join dbo.SPONSORSHIP ACTIVESPONSORSHIP on ACTIVESPONSORSHIP.SPONSORSHIPCOMMITMENTID = GIFTSTART.SPONSORSHIPCOMMITMENTID and ACTIVESPONSORSHIP.STATUSCODE = 1
+			join dbo.USR_SPONSORSHIPEXTENSION se on se.ID = ACTIVESPONSORSHIP.ID
+			join dbo.USR_CURRENTOPPORTUNITYSPONSORSHIPSTATUSCODE statusCode on statusCode.ID = se.CURRENTOPPORTUNITYSPONSORSHIPSTATUSCODEID and statusCode.DESCRIPTION = 'Sponsored'
+			left outer join dbo.SPONSORSHIPOPPORTUNITYCHILD on  dbo.SPONSORSHIPOPPORTUNITYCHILD.ID = ACTIVESPONSORSHIP.SPONSORSHIPOPPORTUNITYID  -- this will help us identify only children commitments
+			where (GIFTSTART.GIFTFINANCIALSPONSORID IN (select sponsorId from @D2SponsorList)
+			and ACTIVESPONSORSHIP.STATUSCODE = 1   -- status of 'Active'
+			and (@SHOWHISTORY = 1 or GIFTEND.ID is null)
+			and dbo.SPONSORSHIPOPPORTUNITYCHILD.ID is not null)  -- filter out project sponsorships
+		--)
+		-- ************   I THINK this is where we filter out the records based on the campaign type passed in! *********************
+		insert into @d2ResultsTable
+		select childId
+			   , revenueSplitId
+			   , sponsorId
+			   , sponsorshipId
+			   , case when REVENUESCHEDULE.NEXTTRANSACTIONDATE > REVENUESCHEDULE.ENDDATE then null else REVENUESCHEDULE.NEXTTRANSACTIONDATE end as 'NTD'
+			   , payMethod
+			   , sponsorshipRevenueId
+			   , isEftDeclined
+               --,case 
+               -- 	when REVENUESCHEDULE.FREQUENCYCODE = 3 then dbo.UFN_RECURRINGGIFT_GETPASTDUEAMOUNT(rev.ID, null) / rev.TRANSACTIONAMOUNT -- Monthly
+               -- 	when REVENUESCHEDULE.FREQUENCYCODE = 6 then dbo.UFN_RECURRINGGIFT_GETPASTDUEAMOUNT(rev.ID, null) / ((rev.TRANSACTIONAMOUNT * 6)/12) -- Bimonthly
+               -- 	when REVENUESCHEDULE.FREQUENCYCODE = 7 then dbo.UFN_RECURRINGGIFT_GETPASTDUEAMOUNT(rev.ID, null) / ((rev.TRANSACTIONAMOUNT * 24)/12) -- Semi-Monthly
+               -- 	when REVENUESCHEDULE.FREQUENCYCODE = 8 then dbo.UFN_RECURRINGGIFT_GETPASTDUEAMOUNT(rev.ID, null) / ((rev.TRANSACTIONAMOUNT * 26)/12) -- Biweekly
+               -- 	when REVENUESCHEDULE.FREQUENCYCODE = 9 then dbo.UFN_RECURRINGGIFT_GETPASTDUEAMOUNT(rev.ID, null) / ((rev.TRANSACTIONAMOUNT * 52)/12) -- Weekly
+               -- 	else -1        
+               -- end NumberOfMonthsPastDue
+			   , dbo.USR_UFN_RECURRINGGIFT_GETNUMBEROFMONTHSPASTDUE(rev.ID, dateadd(day, 1, dateadd(month, datediff(month, 0, getdate()), 0))) as NumberOfMonthsPastDue			   
+		from @D2ChildrenList
+        join	dbo.REVENUESPLIT revsplit on revenueSplitId = revsplit.ID
+        join	dbo.REVENUE rev on revsplit.REVENUEID = rev.ID
+        join	dbo.REVENUESCHEDULE on REVENUESCHEDULE.ID = rev.ID --REVENUE.ID		
+		where ((case when REVENUESCHEDULE.NEXTTRANSACTIONDATE > REVENUESCHEDULE.ENDDATE then null else REVENUESCHEDULE.NEXTTRANSACTIONDATE end) 
+			between @secondDayThreeMonthsAgo and @firstDayPreviousMonth
+		and isEftDeclined = case when @campaignType in (0,1) then 0 else 1 end
+		)
+		order by NTD;
+
+
+		-- put the results into a cursor so we can create the necessary interactions, one-by-one and do all the various pieces of work required
+		declare d2resultsCursor cursor local fast_forward for
+		select *
+		from @d2ResultsTable
+		order by SPONSORID;
+
+		open d2resultsCursor;
+							
+		fetch next from d2resultsCursor into @childId, @revenueSplitId, @sponsorId, @sponsorshipId, @NTD, @payMethod, @sponsorshipRevenueId, @isEftDeclined, @numberOfMonthsPastDue;
+
+		-- set the new sponsor flag for the first sponsor
+		set @isNewSponsor = 1;
+
+		-- set flag identifying if this sponsor has kids for the given campaign type:
+		set @childrenExistForSponsor = 0;
+		
+		-- for each Sponsorship we have: 
+		while (@@FETCH_STATUS = 0) 
+			begin			
+				 --make sure this sponsor is NOT the corresponding sponsor for this sponsorship!
+				select @giftFinancialSponsorId = dbo.UFN_SPONSORSHIP_GIFTFINANCIALSPONSORID(@sponsorshipId);
+								
+				-- compare this sponsorship id with the gift financial sponsor id and throw it out if it doesn't matches:
+				if @giftFinancialSponsorId is not null
+					begin
+						-- we don't want to process this because this is the corresponding sponsor for this sponsorship
+						GOTO SKIP_THIS_RECORD;
+					end
+
+				if @isNewSponsor = 1 
+					begin					
+						set @createInteractions = 0;				
+						set @currentSponsorId = @sponsorId
+				
+						-- rebuild the solicit code stuff for the new sponsor
+						-- do the work of creating interactions based on payment method, etc.
+						insert @solicitCodeList
+						select * from dbo.USR_UFN_GET_CONSTITUENT_SOLICITCODES_LIST(@sponsorId)
+
+						if exists(select 1 from @solicitCodeList where lower(CODEDESCRIPTION) in ('do not email', 'no system letters'))
+                            begin
+    							set @isNoEmailOrLetters = 1;  -- true
+                                set @noEmailMessage = 'Solicit Code of Do Not Email or No System Letters';
+                            end
+						else 
+                            begin
+    							set @isNoEmailOrLetters = 0;  -- false
+                                set @noEmailMessage = '';
+                            end
+
+
+						--  *** B. Build a list of the delinquent children for each sponsor  ***
+						--         but only do this ONCE per Sponsor!
+						/*
+						if @campaignType = 0  -- CASH: 3rd priority
+							begin
+								if not exists (select 1 from @d2ResultsTable where (PAYMETHOD in (2,3) and SPONSORID = @sponsorId))
+									begin
+										-- insert all the kids
+										insert @childIDList 
+										select CHILDID
+										from @d2ResultsTable 
+										where SPONSORID = @sponsorId	
+									end
+							end
+				
+						if @campaignType = 1  -- EFT Active: 2nd priority
+							begin
+								if not exists (select 1 from @d2ResultsTable where (PAYMETHOD in (2,3) and SPONSORID = @sponsorId and ISEFTDECLINED = 1))
+									begin
+										if exists (select 1 from @d2ResultsTable where (PAYMETHOD in (2,3) and SPONSORID = @sponsorId))
+											begin
+												-- add all the kids for this sponsor											
+												insert @childIDList 
+												select CHILDID
+												from @d2ResultsTable 
+												where SPONSORID = @sponsorId
+											end
+									end
+							end
+					
+						if @campaignType = 2  -- EFT Held: top priority
+							begin
+								if exists (select 1 from @d2ResultsTable where (PAYMETHOD in (2,3) and SPONSORID = @sponsorId and ISEFTDECLINED = 1))
+									begin
+										-- add all the kids 
+										insert @childIDList 
+										select CHILDID
+										from @d2ResultsTable 
+										where SPONSORID = @sponsorId
+									end
+							end
+						*/
+
+						if @campaignType = 0  -- CASH
+							begin
+								insert @childIDList 
+								select CHILDID
+								from @d2ResultsTable 
+								where (SPONSORID = @sponsorId
+								and PAYMETHOD in (0,1,9))
+							end
+				
+						if @campaignType = 1  -- EFT Active
+							begin
+								insert @childIDList 
+								select CHILDID
+								from @d2ResultsTable 
+								where (SPONSORID = @sponsorId
+								and PAYMETHOD in (2,3)
+								and ISEFTDECLINED = 0)
+							end
+					
+						if @campaignType = 2  -- EFT Held Credit Card
+							begin
+								insert @childIDList 
+								select CHILDID
+								from @d2ResultsTable 
+								where (SPONSORID = @sponsorId
+								and PAYMETHOD = 2
+								and ISEFTDECLINED = 1)
+							end
+              
+						if @campaignType = 3  -- EFT Held Direct Debit
+							begin
+								insert @childIDList 
+								select CHILDID
+								from @d2ResultsTable 
+								where (SPONSORID = @sponsorId
+								and PAYMETHOD = 3
+								and ISEFTDECLINED = 1)
+							end
+
+						-- this sponsor may not have children for this campaigntype, so see if there are any kids in the list:
+						if exists (select 1 from @childIDList)
+							begin
+								set @childrenExistForSponsor = 1;
+								--print 'Children exist for this sponsor: ' + Cast(@payMethod as nvarchar(4)) + Cast(@isEftDeclined as nvarchar(2));
+							end
+						else
+							begin
+								set @childrenExistForSponsor = 0;
+								--print 'No children exist for this sponsor: ' + Cast(@payMethod as nvarchar(4)) + Cast(@isEftDeclined as nvarchar(2));
+							end
+								
+					end
+		
+
+					if @childrenExistForSponsor = 1 
+						begin			
+							-- check if sponsor has valid primary email address:
+							if dbo.USR_UFN_CONSTITUENT_HASVALID_PRIMARY_EMAIL(@sponsorId) = 1
+								begin
+									-- check if 2.3 Does the financial sponsor have one or more of the solicit codes: 
+									-- Do not email, No System Letters
+									if @isNoEmailOrLetters = 1
+										begin
+											--do not create email interaction
+											--set @doPhoneProcess = 1;										
+											set @createInteractions = 0;
+                                            set @writeToExceptionLog = 1;
+										end
+									else
+                                        begin
+									        set @createInteractions = 1;
+                                            set @writeToExceptionLog = 0;
+                                        end
+								end
+							else
+								-- sponsor does not have a valid primary email, so do tests for phone interaction
+								begin
+									--2.2 goes here, no email so can't create any interaction for this sponsor
+									set @createInteractions = 0;
+                                    set @writeToExceptionLog = 1;
+                                    set @noEmailMessage = 'No valid primary email';
+								end
+
+                            -- new Memphis 6/3/13: check the number of months past due to determine if this really is delinquent 2 months or not:
+                            -- but only if we're about to create an interaction, otherwise we don't care:
+                            if (@createInteractions = 1 and @writeToExceptionLog = 0)
+                                begin
+                                    -- number of months past due should be between 0 and 2:
+									-- BUG:  the following line should be filtering out the non-monthly ones where @numberOfMonthsPastDue = -1
+									-- *TODO*: for now, though, leave it wrong so Pamela doesn't have to manually create them:
+									--if (@numberOfMonthsPastDue=-1 or (@numberOfMonthsPastDue >= 0 and @numberOfMonthsPastDue < 2))
+                                    --if (@numberOfMonthsPastDue >= 0 and @numberOfMonthsPastDue < 2)
+									if (@numberOfMonthsPastDue < 2 or @numberOfMonthsPastDue >= 3)
+                                        begin
+    										set @createInteractions = 0;
+    										set @writeToExceptionLog = 1;
+                                            set @amountException = 1;
+                                            set @noEmailMessage = '';
+                                        end
+                                    else
+                                        begin
+                                            set @createInteractions = 1;
+                                            set @amountException = 0;
+                                            set @writeToExceptionLog = 0;
+                                            set @noEmailMessage = '';
+                                        end
+                                end
+                            else
+                                set @amountException = 0;
+
+
+							if @createInteractions = 1
+								begin
+									set @interactionSummary = case when @payMethod in (0,1,9) then 'Cash – D2 Campaign'
+										when @payMethod IN (2,3) and @isEftDeclined = 0 then 'Active EFT – D2 Campaign'
+										when @payMethod IN (2,3) and @isEftDeclined = 1 then 'Held EFT – D2 Campaign' 
+										end;
+
+									-- prevent this from creating multiple sponsor interactions per child
+									if not exists (select 1 from dbo.INTERACTION
+										where (dbo.INTERACTION.INTERACTIONSUBCATEGORYID in (select ID from dbo.INTERACTIONSUBCATEGORY 
+												where dbo.INTERACTIONSUBCATEGORY.INTERACTIONCATEGORYID = @interactionCategoryId)
+										and dbo.INTERACTION.CONSTITUENTID = @sponsorId
+										and Cast(EXPECTEDDATE as date) = CAST(getdate() as DATE)
+										and OBJECTIVE = @interactionSummary))
+										begin									
+											-- create the interactions here
+											-- set the subcategory name based on payment method if this is eft held:
+											-- (2) ='Credit card' (3) ='Direct debit' 
+											if @campaignType = 2 or @campaignType = 3
+												set @subcategoryName = case when @payMethod = 3 then @heldEFTDirectDebitSubcategoryName
+																			when @payMethod = 2 then @heldEFTCreditCardSubcategoryName
+																	   end;
+								
+											exec dbo.USR_USP_INTERACTION_GETSUBCATEGORYID @subcategoryID output, @categoryName, @subcategoryName, @raiseErrorIfNotFound_True
+									  
+											-- set these values for email interactions, since this only creates email types of interactions:
+											set @contactMethodDesc = @contactMethodDesc_Email;
+											set @interactionOwner = null;                      
+								
+											exec dbo.USR_USP_INTERACTION_SPONSOR_ADD_PENDING 
+													@id = @sponsorInteractionId output,
+													@constituentID = @sponsorId,
+													@summary = @interactionSummary,
+													@categoryName = @categoryName,
+													@subcategoryName = @subcategoryName,
+													@expectedDate = @expectedDate,
+													@owner = @interactionOwner,
+													@contactMethodDesc = @contactMethodDesc,
+													@comment = 'D2 Campaign',                                                                      
+													@letterTypeDesc = '',
+													@fulfillmentStatusDesc = '',
+													@eftBrochureCode = 0,
+													@resendCode = 0,
+													@changeAgentID = @CHANGEAGENTID  
+								
+											-- add the delinquent children to the interaction just created:
+											if @sponsorInteractionId  is not null
+												begin
+													exec dbo.USR_USP_INTERACTION_SPONSOR_ADDCHILDREN 
+														@interactionID = @sponsorInteractionId,
+														@childIDList = @childIDList,
+														@changeAgentID = null
+													
+													--increment the successcounter
+													set @successCounter = @successCounter + 1;
+
+													select @sponsorLookupId = LOOKUPID
+													from dbo.CONSTITUENT
+													where ID = @sponsorId;
+					
+													if @sponsorLookupId is not null
+														begin
+															insert into dbo.USR_D2_CAMPAIGN_BUSINESSPROCESS_RESULTS 
+																(SPONSORLOOKUPID
+																, D2CAMPAIGNDATE
+																, CAMPAIGNTYPE
+																, D2INTERACTIONSTATUS
+																, ADDEDBYID
+																, DATEADDED
+																, CHANGEDBYID
+																, DATECHANGED
+																)
+															values 
+																(@sponsorLookupId
+																, CAST(GETDATE() as date)
+																, @CAMPAIGNTYPE
+																, @contactMethodDesc + ' interaction created'
+																, @changeAgentID
+																, @currentDate
+																, @changeAgentID
+																, @currentDate
+																);
+														end
+												end
+								
+											-- if this is a Phone type of interaction, add the responses:
+											/*
+											Interaction Responses:
+												Donor Contact = No
+												EFT Received = No
+												Left Message = No
+												Message Type = None
+												Cancelled = No
+											*/
+										end  -- if this interaction doesn't exist
+								end  -- if @createInteractions = 1
+						end  -- if @childrenExistForSponsor = 1
+
+				if @writeToExceptionLog = 1
+					begin
+						select @sponsorLookupId = LOOKUPID
+						from dbo.CONSTITUENT
+						where ID = @sponsorId;
+                        
+                        set @exceptionMessage = case when @amountException = 1 then 'NTD and Amount Past Due do not match: ' + Cast(ISNULL(@NTD, '') as nvarchar(30)) + '  ' + Cast(@numberOfMonthsPastDue as nvarchar(5))
+                                                     when @amountException = 0 then 'No D2 email interaction created: ' + @noEmailMessage
+                                                     end;
+				
+						if @sponsorLookupId is not null
+							begin
+								insert into dbo.USR_D2_CAMPAIGN_BUSINESSPROCESS_RESULTS 
+									(SPONSORLOOKUPID
+									, D2CAMPAIGNDATE
+									, CAMPAIGNTYPE
+									, D2INTERACTIONSTATUS
+									, ADDEDBYID
+									, DATEADDED
+									, CHANGEDBYID
+									, DATECHANGED
+									)
+								values 
+									(@sponsorLookupId
+									, CAST(GETDATE() as date)
+									, @CAMPAIGNTYPE
+									, @exceptionMessage
+									, @changeAgentID
+									, @currentDate
+									, @changeAgentID
+									, @currentDate
+									);
+							end
+						
+						set @exceptionCounter = @exceptionCounter + 1;
+                        -- clear out the variables used for exception message
+                        set @noEmailMessage = '';
+                        set @amountException = 0;
+                        set @exceptionMessage = '';
+                        set @writeToExceptionLog = 0;
+				
+					end
+			
+				SKIP_THIS_RECORD:
+		        fetch next from d2resultsCursor into @childId, @revenueSplitId, @sponsorId, @sponsorshipId, @NTD, @payMethod, @sponsorshipRevenueId, @isEftDeclined, @numberOfMonthsPastDue;
+		
+				-- check for a different sponsor
+				if @currentSponsorId <> @sponsorId
+					begin
+						set @isNewSponsor = 1;
+						set @currentSponsorId = @sponsorId;
+				
+						-- reset stuff that's specific to the sponsor:	
+						delete from @solicitCodeList;
+				
+						set @isNoEmailOrLetters = 0;	-- false
+						set @isNoCalls = 0;				-- false								
+						set @childrenExistForSponsor = 0;
+						--set @doPhoneProcess = 0;
+                        set @noEmailMessage = '';
+                        set @amountException = 0;
+                        set @writeToExceptionLog = 0;
+				
+						delete from @childIDList;
+				
+					end
+				else
+					set @isNewSponsor = 0;
+					--print 'same sponsor...';
+			end
+
+		close d2resultsCursor;
+		deallocate d2resultsCursor;
+
+		set @successCount = @successCounter;
+		set @exceptionCount = @exceptionCounter;
+
+	end try
+
+	begin catch
+		exec dbo.USP_RAISE_ERROR
+		return 1;
+	end catch
+
+end
+
+		]]>
+	</CreateProcedureSQL>
+
+</SQLStoredProcedureSpec>

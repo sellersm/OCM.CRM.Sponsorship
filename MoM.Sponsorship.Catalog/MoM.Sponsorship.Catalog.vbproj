@@ -1,0 +1,695 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="4.0">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>8.0.50727</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{41F646E8-7F65-43F9-BAF1-F3D2A17837CD}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <RootNamespace>MoM.Sponsorship.Catalog</RootNamespace>
+    <AssemblyName>MoM.Sponsorship.Catalog</AssemblyName>
+    <MyType>Windows</MyType>
+    <OptionStrict>Off</OptionStrict>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <FileUpgradeFlags>
+    </FileUpgradeFlags>
+    <OldToolsVersion>2.0</OldToolsVersion>
+    <UpgradeBackupLocation />
+    <TargetFrameworkProfile />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <DefineDebug>true</DefineDebug>
+    <DefineTrace>true</DefineTrace>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DocumentationFile>
+    </DocumentationFile>
+    <NoWarn>42016,41999,42017,42018,42019,42032,42036,42020,42021,42022,42353,42354,42355</NoWarn>
+    <RunCodeAnalysis>true</RunCodeAnalysis>
+    <CodeAnalysisRules>-Blackbaud.CatalogRules#BB008;-Blackbaud.CatalogRules#BB017;-Blackbaud.UI#BB011;-Blackbaud.UI#BB012;-Blackbaud.UI#BB001;-Blackbaud.UI#BB005;-Blackbaud.UI#BB013;-Blackbaud.UI#BB007;-Blackbaud.UI#BB015;-Blackbaud.UI#BB014;-Blackbaud.UI#BB002;-Microsoft.Design#CA1012;-Microsoft.Design#CA2210;-Microsoft.Design#CA1040;-Microsoft.Design#CA1005;-Microsoft.Design#CA1020;-Microsoft.Design#CA1021;-Microsoft.Design#CA1010;-Microsoft.Design#CA1011;-Microsoft.Design#CA1009;-Microsoft.Design#CA1050;-Microsoft.Design#CA1026;-Microsoft.Design#CA1019;-Microsoft.Design#CA1031;-Microsoft.Design#CA1047;-Microsoft.Design#CA1000;-Microsoft.Design#CA1048;-Microsoft.Design#CA1051;-Microsoft.Design#CA1002;-Microsoft.Design#CA1061;-Microsoft.Design#CA1006;-Microsoft.Design#CA1046;-Microsoft.Design#CA1045;-Microsoft.Design#CA1038;-Microsoft.Design#CA1008;-Microsoft.Design#CA1028;-Microsoft.Design#CA1004;-Microsoft.Design#CA1035;-Microsoft.Design#CA1063;-Microsoft.Design#CA1032;-Microsoft.Design#CA1023;-Microsoft.Design#CA1033;-Microsoft.Design#CA1039;-Microsoft.Design#CA1016;-Microsoft.Design#CA1014;-Microsoft.Design#CA1017;-Microsoft.Design#CA1018;-Microsoft.Design#CA1027;-Microsoft.Design#CA1059;-Microsoft.Design#CA1060;-Microsoft.Design#CA1034;-Microsoft.Design#CA1013;-Microsoft.Design#CA1036;-Microsoft.Design#CA1044;-Microsoft.Design#CA1041;-Microsoft.Design#CA1025;-Microsoft.Design#CA1052;-Microsoft.Design#CA1053;-Microsoft.Design#CA1057;-Microsoft.Design#CA1058;-Microsoft.Design#CA1001;-Microsoft.Design#CA1049;-Microsoft.Design#CA1054;-Microsoft.Design#CA1056;-Microsoft.Design#CA1055;-Microsoft.Design#CA1030;-Microsoft.Design#CA1003;-Microsoft.Design#CA1007;-Microsoft.Design#CA1043;-Microsoft.Design#CA1024;-Microsoft.Design#CA1062;-Microsoft.Globalization#CA1301;-Microsoft.Globalization#CA1302;-Microsoft.Globalization#CA1303;-Microsoft.Globalization#CA1306;-Microsoft.Globalization#CA1304;-Microsoft.Globalization#CA1305;-Microsoft.Globalization#CA1300;-Microsoft.Interoperability#CA1403;-Microsoft.Interoperability#CA1406;-Microsoft.Interoperability#CA1413;-Microsoft.Interoperability#CA1402;-Microsoft.Interoperability#CA1407;-Microsoft.Interoperability#CA1404;-Microsoft.Interoperability#CA1410;-Microsoft.Interoperability#CA1411;-Microsoft.Interoperability#CA1405;-Microsoft.Interoperability#CA1409;-Microsoft.Interoperability#CA1415;-Microsoft.Interoperability#CA1408;-Microsoft.Interoperability#CA1414;-Microsoft.Interoperability#CA1412;-Microsoft.Interoperability#CA1400;-Microsoft.Interoperability#CA1401;-Microsoft.Maintainability#CA1502;-Microsoft.Maintainability#CA1501;-Microsoft.Maintainability#CA1500;-Microsoft.Mobility#CA1600;-Microsoft.Mobility#CA1601;-Microsoft.Naming#CA1718;-Microsoft.Naming#CA1720;-Microsoft.Naming#CA1700;-Microsoft.Naming#CA1712;-Microsoft.Naming#CA1713;-Microsoft.Naming#CA1709;-Microsoft.Naming#CA1708;-Microsoft.Naming#CA1715;-Microsoft.Naming#CA1710;-Microsoft.Naming#CA1707;-Microsoft.Naming#CA1722;-Microsoft.Naming#CA1711;-Microsoft.Naming#CA1716;-Microsoft.Naming#CA1705;-Microsoft.Naming#CA1725;-Microsoft.Naming#CA1719;-Microsoft.Naming#CA1721;-Microsoft.Naming#CA1706;-Microsoft.Naming#CA1724;-Microsoft.Naming#CA1726;-Microsoft.Performance#CA1809;-Microsoft.Performance#CA1812;-Microsoft.Performance#CA1807;-Microsoft.Performance#CA1813;-Microsoft.Performance#CA1816;-Microsoft.Performance#CA1817;-Microsoft.Performance#CA1800;-Microsoft.Performance#CA1805;-Microsoft.Performance#CA1810;-Microsoft.Performance#CA1822;-Microsoft.Performance#CA1815;-Microsoft.Performance#CA1814;-Microsoft.Performance#CA1819;-Microsoft.Performance#CA1820;-Microsoft.Performance#CA1802;-Microsoft.Portability#CA1901;-Microsoft.Portability#CA1900;-Microsoft.Reliability#CA2000;-Microsoft.Reliability#CA2002;-Microsoft.Reliability#CA2003;-Microsoft.Reliability#CA2004;-Microsoft.Reliability#CA2006;-Microsoft.Security#CA2116;-Microsoft.Security#CA2117;-Microsoft.Security#CA2105;-Microsoft.Security#CA2115;-Microsoft.Security#CA2104;-Microsoft.Security#CA2122;-Microsoft.Security#CA2114;-Microsoft.Security#CA2123;-Microsoft.Security#CA2111;-Microsoft.Security#CA2108;-Microsoft.Security#CA2107;-Microsoft.Security#CA2103;-Microsoft.Security#CA2100;-Microsoft.Security#CA2118;-Microsoft.Security#CA2109;-Microsoft.Security#CA2119;-Microsoft.Security#CA2106;-Microsoft.Security#CA2112;-Microsoft.Security#CA2110;-Microsoft.Security#CA2120;-Microsoft.Security#CA2101;-Microsoft.Security#CA2121;-Microsoft.Security#CA2126;-Microsoft.Security#CA2124;-Microsoft.Usage#CA2209;-Microsoft.Usage#CA2236;-Microsoft.Usage#CA2227;-Microsoft.Usage#CA2213;-Microsoft.Usage#CA2216;-Microsoft.Usage#CA2215;-Microsoft.Usage#CA2214;-Microsoft.Usage#CA2222;-Microsoft.Usage#CA2202;-Microsoft.Usage#CA1806;-Microsoft.Usage#CA2217;-Microsoft.Usage#CA2212;-Microsoft.Usage#CA2219;-Microsoft.Usage#CA2201;-Microsoft.Usage#CA2228;-Microsoft.Usage#CA2221;-Microsoft.Usage#CA2220;-Microsoft.Usage#CA2240;-Microsoft.Usage#CA2229;-Microsoft.Usage#CA2238;-Microsoft.Usage#CA2207;-Microsoft.Usage#CA2208;-Microsoft.Usage#CA2235;-Microsoft.Usage#CA2237;-Microsoft.Usage#CA2232;-Microsoft.Usage#CA2223;-Microsoft.Usage#CA2211;-Microsoft.Usage#CA2233;-Microsoft.Usage#CA2225;-Microsoft.Usage#CA2226;-Microsoft.Usage#CA2231;-Microsoft.Usage#CA2224;-Microsoft.Usage#CA2218;-Microsoft.Usage#CA2234;-Microsoft.Usage#CA2241;-Microsoft.Usage#CA2239;-Microsoft.Usage#CA2200;-Microsoft.Usage#CA1801;-Microsoft.Usage#CA2205;-Microsoft.Usage#CA2230</CodeAnalysisRules>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <DefineDebug>false</DefineDebug>
+    <DefineTrace>true</DefineTrace>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DocumentationFile>
+    </DocumentationFile>
+    <NoWarn>42016,41999,42017,42018,42019,42032,42036,42020,42021,42022,42353,42354,42355</NoWarn>
+  </PropertyGroup>
+  <PropertyGroup>
+    <OptionExplicit>On</OptionExplicit>
+  </PropertyGroup>
+  <PropertyGroup>
+    <OptionCompare>Binary</OptionCompare>
+  </PropertyGroup>
+  <PropertyGroup>
+    <OptionInfer>On</OptionInfer>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Blackbaud.AppFx.Server">
+      <HintPath>..\..\..\References\Third Party\Blackbaud.AppFx.Server.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Blackbaud.AppFx.XmlTypes">
+      <HintPath>..\..\..\References\Third Party\Blackbaud.AppFx.XmlTypes.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Import Include="Microsoft.VisualBasic" />
+    <Import Include="System" />
+    <Import Include="System.Collections" />
+    <Import Include="System.Collections.Generic" />
+    <Import Include="System.Data" />
+    <Import Include="System.Diagnostics" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="D2 Business Process\D2Campaign.BusinessProcess.vb" />
+    <Compile Include="D4 Business Process\D4Campaign.BusinessProcess.vb" />
+    <Compile Include="EFT Decline Batch Process\EFTDeclineBatch.BusinessProcess.vb" />
+    <Compile Include="My Project\AssemblyInfo.vb" />
+    <Compile Include="Prospect Conversion Business Process\ProspectConversion.BusinessProcess.vb" />
+    <Compile Include="Prospect Terminate Business Process\ProspectTerminate.BusinessProcess.vb" />
+    <Compile Include="Sponsor Terminate Business Process\SponsorTerminate.BusinessProcess.vb" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Global Changes\" />
+    <Folder Include="Images\" />
+    <Folder Include="SearchLists\" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="DataLists\Sponsorship.PackageVersion.DataList.xml">
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Tables\Code Tables\Sponsorship.Performance.CodeTable.xml">
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="View Forms\MoM.Sponsorship.UIModelVersion.View.xml" />
+    <EmbeddedResource Include="Add Forms\SponsorshipAdd_Wrapped.Add.xml">
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="DataLists\ChildrenToSponsor.SimpleList.xml" />
+    <EmbeddedResource Include="DataLists\SponsorshipOpportunityMatchCustom.DataList.xml" />
+    <EmbeddedResource Include="Packages\Sponsorship.Package.xml">
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="RecordOperations\DeleteChildSelectedForSponsorshipLock.RecordOperation.xml" />
+    <EmbeddedResource Include="RecordOperations\LockSelectedChild.RecordOperation.xml" />
+    <EmbeddedResource Include="SearchForms\SponsorshipOpportunityChild_MoMCustom.Search.xml" />
+    <EmbeddedResource Include="SponsorshipLocation\SponsorshipLocationHierarchyExtension.Add.xml" />
+    <EmbeddedResource Include="SponsorshipLocation\SponsorshipLocationExtension.Add.xml" />
+    <EmbeddedResource Include="SponsorshipLocation\SponsorshipLocationExtension.Alter.Page.xml">
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Tables\SponsorshipLocationExtension.Table.xml">
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="SponsorshipLocation\SponsorshipLocationExtension.Edit.xml">
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="SponsorshipLocation\SponsorshipLocationHierarchyMoM.DataList.xml">
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="SQL\Stored Procedures\USR_DELETE_LOCK_CHILD_FOR_SPONSORSHIP_SELECTION.xml" />
+    <EmbeddedResource Include="SQL\Stored Procedures\USR_USP_INSERT_LOCK_CHILD_FOR_SPONSORSHIP_SELECTION.xml" />
+    <EmbeddedResource Include="SQL\Stored Procedures\USR_USP_SPONSORSHIP_ACQUIREOPPORTUNITY_MOMCUSTOM.xml" />
+    <EmbeddedResource Include="SQL\Stored Procedures\USR_USP_SPONSORSHIP_MATCHOPPORTUNITY_MOMCUSTOM.xml" />
+    <EmbeddedResource Include="SQL\User Functions\USR_UFN_CHILDREN_FOR_SPONSORSHIP_FROMITEMLISTXML.xml" />
+    <EmbeddedResource Include="SQL\User Functions\USR_UFN_IS_SELECTED_CHILD_LOCKED_FOR_SPONSORSHIP_SELECTION.xml" />
+    <EmbeddedResource Include="SQL\User Functions\USR_UFN_SPONSORSHIP_MATCHEDOPPORTUNITY_CHILDSPONSORSHIP.xml" />
+    <EmbeddedResource Include="Tables\USR_CHILD_SELECTED_FOR_SPONSORSHIP_LOCK.Table.xml" />
+    <EmbeddedResource Include="Tasks\SponsorshipAdd_Wrapped.Task.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="DataLists\Sponsorship.WithLookupID.DataList.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Tables\Sponsorship.ProgramAnOpportunityConsistentGroup.Table.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="SQL\User Functions\UFN_SPONSORSHIP_PROGRAMANDOPPORTUNITYCONSISTENT.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="SQL\User Functions\USR_UFN_SPONSORSHIP_GETFINANCIALSPONSOR.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="SQL\User Functions\USR_UFN_SPONSORSHIP_GETCORRESPONDENT.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="SponsorshipLocation\USR_UFN_SPONSORSHIPLOCATION_GETRECIPIENTS_BYFIELDOFFICEID.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="SQL\Stored Procedures\USR_USP_CREATE_PARTNERSHIP_RELATIONSHIP_WITH_SPONSOR.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="SponsorshipLocation\SponsorshipLocationExtension.ReportRecipient.Delete.RecordOperation.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="SearchForms\SponsorshipLocation.MoM.Custom.Search.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="SearchForms\SponsorshipLocation_BB_Original.Search.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Tables\Code Tables\Sponsorship.Add.InteractionType.CodeTable.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Add Forms\ProspectSponsorship.Add.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Tasks\AddProspectSponsorship.Task.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="SQL\User Functions\USR_UFN_VALIDATE_SPONSORSHIP_CANCELLATION_REASON.xml" />
+    <EmbeddedResource Include="Tables\Code Tables\SponsorshipCancellationInteractionType.CodeTable.xml" />
+    <EmbeddedResource Include="Edit Forms\ActiveSponsorshipCancellationWrapped.Edit.xml">
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="SQL\User Functions\USR_UFN_SPONSORSHIPOPPORTUNTITY_GETID_BYLOOKUPID.xml" />
+    <EmbeddedResource Include="SQL\Stored Procedures\USR_USP_SPONSORSHIP_CREATENEWPROSPECTSPONSORSHIPINTERACTIONS.xml" />
+    <EmbeddedResource Include="SQL\Stored Procedures\USR_USP_SPONSORSHIP_CREATEUNAVAILABLESPONSORSHIPINTERACTIONS.xml" />
+    <EmbeddedResource Include="SQL\User Functions\USR_UFN_GETSPONSORSHIPREASON_FOROPPORTUNITY.xml" />
+    <EmbeddedResource Include="Pages\AlterSponsor.Page.xml" />
+    <EmbeddedResource Include="Edit Forms\PendingSponsorshipCancellationWrapped.Edit.xml" />
+    <EmbeddedResource Include="Pages\AlterSponsorship.Page.xml">
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="SQL\User Functions\USR_UFN_SPONSORSHIP_GETACTIVECHILDSPONSORSHIPSFORSPONSOR.xml" />
+    <EmbeddedResource Include="SQL\User Functions\USR_UFN_SPONSORSHIP_GETSPONSORSHIPID.xml" />
+    <EmbeddedResource Include="SQL\User Functions\USR_UFN_UNAVAILABLECHILDREN_FOR_TRANSFERSPONSORSHIP_FROMITEMLISTXML.xml" />
+    <EmbeddedResource Include="Tasks\AddUnavailableSponsorship.Task.xml" />
+    <EmbeddedResource Include="Tables\Code Tables\UnavailableContact.CodeTable.xml" />
+    <EmbeddedResource Include="Tables\SponsorshipOpportunity.ReservationExtension.Table.xml" />
+    <EmbeddedResource Include="Tables\Code Tables\ProspectSponsorship.Add.InteractionType.CodeTable.xml" />
+    <EmbeddedResource Include="SQL\Stored Procedures\USR_USP_SPONSORSHIP_CREATENEWSPONSORSHIPINTERACTIONS.xml" />
+    <EmbeddedResource Include="Reservation\SponsorshipOpportunityReserveBusinessProcessExtension.Edit.xml" />
+    <EmbeddedResource Include="Reservation\SponsorshipOpportunityReserveBusinessProcessExtension.Add.xml" />
+    <EmbeddedResource Include="Add Forms\UnavailableSubstitutionSponsorship.Add.xml">
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="DataLists\TransferChildrenToSponsor.SimpleList.xml" />
+    <EmbeddedResource Include="DataLists\DoesSponsorHaveConstituencyCode.DataList.xml" />
+    <EmbeddedResource Include="DataLists\GetConstituencyCodeId.DataList.xml" />
+    <EmbeddedResource Include="DataLists\GetFundraiserForAppealId.DataList.xml" />
+    <EmbeddedResource Include="SQL\Stored Procedures\USR_USP_ADD_SOLICITOR_TO_RECURRING_GIFT_CHILDSPONSORSHIP.xml" />
+    <EmbeddedResource Include="SQL\User Functions\USR_UFN_SPONSORSHIP_GETFINANCIALSPONSOR_BYSPONSORSHIPOPP.xml" />
+    <EmbeddedResource Include="SQL\User Functions\USR_UFN_SPONSORSHIP_ISEFT.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Tables\Code Tables\CurrentSponsorshipOpportunityStatus.CodeTable.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Tables\SponsorshipExtension.Table.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Tables\Code Tables\InitialSponsorshipOpportunityStatus.CodeTable.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="SQL\Stored Procedures\USR_USP_SPONSORSHIPEXTENSION_INSERT.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="SQL\Stored Procedures\USR_USP_UPDATE_USR_SPONSORSHIPEXTENSION.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Tasks\AddProjectSponsorship.Task.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Add Forms\ProjectSponsorship.Add.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="SQL\Stored Procedures\USR_USP_SPONSORSHIP_ACQUIREPROJECTOPPORTUNITY_OCMCUSTOM.xml" />
+    <EmbeddedResource Include="SQL\Stored Procedures\USR_USP_SPONSORSHIP_MATCHPROJECTOPPORTUNITY_OCMCUSTOM.xml" />
+    <EmbeddedResource Include="Tables\Code Tables\PaidProjectSponsorshipInteractionType.CodeTable.xml" />
+    <EmbeddedResource Include="Tables\Code Tables\ProspectProjectSponsorshipInteractionType.CodeTable.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="SQL\User Functions\USR_UFN_SPONSORSHIP_MATCHEDOPPORTUNITY_PROJECTSPONSORSHIP.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="DataLists\ProjectsAvailableForSponsorship.SimpleList.xml" />
+    <EmbeddedResource Include="DataLists\SponsorshipProjectOpportunityMatchCustom.DataList.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="View Forms\RecurringGift_FinancialExtension.View.xml" />
+    <EmbeddedResource Include="SQL\Stored Procedures\USR_USP_FINANCIALTRANSACTION_EXTENSION_UPDATEROW.xml" />
+    <EmbeddedResource Include="SQL\Stored Procedures\USR_USP_FINANCIALTRANSACTION_EXTENSION_INSERTROW.xml" />
+    <EmbeddedResource Include="SQL\Stored Procedures\USR_USP_INSERTNEWSPONSORSHIP_SPONSORSHIPEXTENSION.xml" />
+    <EmbeddedResource Include="SQL\Stored Procedures\USR_USP_SPONSORSHIP_CREATESPONSORSHIPCANCELLATIONINTERACTIONS.xml" />
+    <EmbeddedResource Include="SQL\Stored Procedures\USR_USP_SPONSORSHIP_CANCEL_SPONSORSHIP_CONSTITUENCYCODES.xml" />
+    <EmbeddedResource Include="SQL\Stored Procedures\USR_USP_HANDLE_SPONSORSHIP_CANCELLATION.xml" />
+    <EmbeddedResource Include="SQL\Stored Procedures\USR_USP_HANDLE_CREDIT_DEBIT_PAYMENTSCHEDULE_INSERTING.xml" />
+    <EmbeddedResource Include="Edit Forms\RecurringGiftExtension.Edit.xml">
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="SQL\Stored Procedures\USR_USP_SPONSORSHIP_CREATENEWPROJECTSPONSORSHIPINTERACTIONS.xml" />
+    <EmbeddedResource Include="SQL\User Functions\USR_UFN_CURRENTOPPORTUNITYSPONSORSHIPSTATUSCODE_GETID_FORDESCRIPTION.xml" />
+    <EmbeddedResource Include="SQL\User Functions\USR_UFN_GETFINANCIALTRANSACTIONID_FORSPONSORSHIP.xml" />
+    <EmbeddedResource Include="SQL\User Functions\USR_UFN_INITIALOPPORTUNITYSPONSORSHIPSTATUSCODE_GETID_FORDESCRIPTION.xml" />
+    <EmbeddedResource Include="Tables\FinancialTransactionExtension.Table.xml" />
+    <EmbeddedResource Include="Tables\Code Tables\DirectDebitSchedule.CodeTable.xml" />
+    <EmbeddedResource Include="Tables\Code Tables\CreditCardSchedule.CodeTable.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="DataLists\Website.SponsorshipCheckoutSource.DataList.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="SQL\Stored Procedures\USR_USP_HANDLE_SPONSORSHIP_ADD_PARTNERSHIP.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="SQL\User Functions\USR_UFN_SPONSORSHIP_GETCURRENTOPPORTUNITYSTATUSCODEID.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Edit Forms\Sponsorship.CompletePendingTransfer.Edit.xml" />
+    <EmbeddedResource Include="Edit Forms\Sponsorship.CompleteTransfer.Edit.xml">
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="SQL\Stored Procedures\USR_USP_SPONSORSHIP_CREATECOMPLETETRANSFERINTERACTIONS.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Tables\Code Tables\Sponsorship.CompleteTransferInteraction.CodeTable.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="SQL\User Functions\USR_UFN_VALIDATE_SPONSORSHIP_CANCELLATION_INTERACTIONTYPECODE.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Pages\AlterRecurringGift.Page.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Tables\SponsorshipConversion.Table.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="DataLists\SponsorshipExtensionConversion.DataList.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="DataLists\SponsorshipDataListCustomized.DataList.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="RecordOperations\DeleteFinancialTransactionExtensionRecord.RecordOperation.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="SQL\Stored Procedures\USR_USP_INSERT_MULTIPLE_SPONSORSHIPEXTENSION.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="SQL\User Functions\USR_UFN_SPONSORSHIP_GET_SPONSORSHIPREASON_BY_REASONID.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Conversion Utilities\USR_USP_POPULATE_SPONSORSHIPEXTENSION.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Conversion Utilities\RunSponsorshipExtensionPopulation.RecordOperation.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Conversion Utilities\ConversionUtilities.Package.xml">
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Conversion Utilities\RecurringGiftConversionIssues.DataList.xml">
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Conversion Utilities\Sponsorship.NoSponsorshipExtensionRow.DataList.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Conversion Utilities\USR_USP_MOVE_RECURRING_GIFT.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Conversion Utilities\ReassignOrphanRecurringGift.Add.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="SQL\User Functions\USR_UFN_SPONSORSHIP_HASPAYMENT.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="SQL\User Functions\USR_UFN_SPONSORSHIP_GET_NEXT_TRANSACTIONDATE_BY_SPONSORSHIPID.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="SQL\User Functions\USR_UFN_CALCULATE_NTD_DELINQUENCY.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Smart Fields\NextTransactionDateDelinquency.SmartField.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="SponsorshipExtension\SponsorshipExtension.Edit.xml" />
+    <EmbeddedResource Include="SponsorshipExtension\SponsorshipExtension.Add.xml" />
+    <EmbeddedResource Include="Query Views\Sponsorship.ActiveSponsorshipsWithNoPayments.Query.xml" />
+    <EmbeddedResource Include="Query Views\RevenueSchedule.Query.xml" />
+    <EmbeddedResource Include="Query Views\Sponsorship.ActiveSponsorshipsWithInactiveRG.Query.xml" />
+    <EmbeddedResource Include="Page Expressions\Sponsorship.ExpressionDataForm.View.xml" />
+    <EmbeddedResource Include="Query Views\SponsorshipExtension.Query.xml">
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Query Views\SponsorshipNTDChange.Query.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="SQL\Stored Procedures\USR_USP_CONVERT_PROSPECT_SPONSOR.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="RecordOperations\ConvertProspectSponsor.RecordOperation.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Conversion Utilities\NTDFixFromTR2.Table.xml" />
+    <EmbeddedResource Include="Conversion Utilities\NTDFixValidation.DataList.xml" />
+    <EmbeddedResource Include="Conversion Utilities\NTDFixValidation.Query.xml" />
+    <EmbeddedResource Include="Conversion Utilities\NTDFixValidation.Table.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Conversion Utilities\USR_USP_POPULATE_NTDFIX_VALIDATIONTABLE.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Query Views\Sponsorship.ProspectsToConversion.Query.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Copy Credit Card\CopyCreditCard.Add.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Copy Credit Card\USR_USP_COPYCREDITCARD.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Edit Forms\CompleteOrOverridePendingTransfer.Edit.xml">
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="SQL\User Functions\USR_UFN_SPONSORSHIP_GETACTIVELYSPONSOREDCHILDREN_FORSPONSOR.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="SQL\User Functions\USR_UFN_ISSPONSORSHIP_PAIDAHEAD.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="SQL\Stored Procedures\USR_USP_SPONSORSHIP_HANDLE_DEPARTURETRANSFERCOMPLETION.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="RecordOperations\SetIsMostRecentCommitment.RecordOperation.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="SQL\Stored Procedures\USR_USP_SET_ISMOSTRECENTCOMMITMENTFLAG_FOR_SPONSORSHIP.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Conversion Utilities\ConversionUtilities.PackageVersion.DataList.xml">
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="SQL\User Functions\USR_UFN_GET_PREDEPARTUREGIFTSTATUS.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Edit Forms\RecurringGift.PreDepartureGiftStatus.Edit.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="View Forms\ViewSponsorshipDetails.View.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Conversion Utilities\AssignRecurringGift.Add.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Conversion Utilities\Sponsorship.SetRevenueSplitIDToNull.RecordOperation.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Conversion Utilities\FinancialSponsor.SponsorDateRange.Edit.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Conversion Utilities\Sponsorship.DeleteWithoutSPOpReactivate.RecordOperation.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Copy Credit Card\ReplaceCCNoValidation.Add.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Edit Forms\Sponsorship.UpdateReason.Edit.xml">
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="SQL\Stored Procedures\USR_USP_CANCELPENDINGTRANSFER.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="RecordOperations\CancelPendingTransfer.RecordOperation.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Prospect Conversion Business Process\USR_USP_PROSPECT_CONVERSION_BUSINESSPROCESS.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Prospect Conversion Business Process\ProspectConversion.BusinessProcess.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Prospect Conversion Business Process\USR_USP_CONVERT_PROSPECTSPONSOR_FORBUSINESSPROCESS.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Prospect Conversion Business Process\ProspectConversionBusinessProcess.Package.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Prospect Conversion Business Process\ProspectConversionProcessResults.Table.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Prospect Conversion Business Process\ProspectConversionBusinessProcess.Page.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Prospect Conversion Business Process\ProspectConversionBusinessProcess.View.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Prospect Conversion Business Process\ProspectConversionBusinessProcessStatusReport.Page.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Prospect Conversion Business Process\ProspectConversionBusinessProcess.StatusReport.DataList.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Prospect Conversion Business Process\ProspectConversion.BusinessProcess.Table.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Prospect Conversion Business Process\ProspectConversion.BusinessProcess.PageExpression.View.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Prospect Conversion Business Process\ProspectConversionBusinessProcess.Task.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Prospect Conversion Business Process\ProspectConversion.BusinessProcessResults.DataList.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Prospect Conversion Business Process\ProspectConversion.BusinessProcess.Errors.DataList.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Query Views\D4SponsorshipsToCancel.Query.xml" />
+    <EmbeddedResource Include="Sponsor Terminate Business Process\SponsorTerminateBusinessProcessResults.Query.xml" />
+    <EmbeddedResource Include="Sponsor Terminate Business Process\SponsorTerminateBusinessProcess.Summary.View.xml" />
+    <EmbeddedResource Include="Sponsor Terminate Business Process\SponsorTerminate.BusinessProcess.xml" />
+    <EmbeddedResource Include="Sponsor Terminate Business Process\SponsorTerminateBusinessProcess.Add.xml" />
+    <EmbeddedResource Include="Sponsor Terminate Business Process\SponsorTerminateBusinessProcess.DeleteParameterSet.RecordOperation.xml" />
+    <EmbeddedResource Include="Sponsor Terminate Business Process\SponsorTerminateBusinessProcess.Edit.xml" />
+    <EmbeddedResource Include="Sponsor Terminate Business Process\SponsorTerminateBusinessProcess.Package.xml" />
+    <EmbeddedResource Include="Sponsor Terminate Business Process\SponsorTerminateBusinessProcess.Page.xml" />
+    <EmbeddedResource Include="Sponsor Terminate Business Process\SponsorTerminateBusinessProcess.PageExpression.View.xml" />
+    <EmbeddedResource Include="Sponsor Terminate Business Process\SponsorTerminateBusinessProcess.StatusReport.DataList.xml" />
+    <EmbeddedResource Include="Sponsor Terminate Business Process\SponsorTerminateBusinessProcess.Table.xml" />
+    <EmbeddedResource Include="Sponsor Terminate Business Process\SponsorTerminateBusinessProcess.Task.xml" />
+    <EmbeddedResource Include="Sponsor Terminate Business Process\SponsorTerminateBusinessProcessParameters.DataList.xml" />
+    <EmbeddedResource Include="Sponsor Terminate Business Process\SponsorTerminateBusinessProcessResults.Page.xml" />
+    <EmbeddedResource Include="Sponsor Terminate Business Process\SponsorTerminateBusinessProcessResults.Table.xml" />
+    <EmbeddedResource Include="Sponsor Terminate Business Process\SponsorTerminateBusinessProcessStatus.DataList.xml" />
+    <EmbeddedResource Include="Sponsor Terminate Business Process\SponsorTerminateBusinessProcessStatus.Page.xml" />
+    <EmbeddedResource Include="Sponsor Terminate Business Process\USR_USP_SPONSORTERMINATEPROCESS_GETPARAMETERS.xml" />
+    <EmbeddedResource Include="Sponsor Terminate Business Process\USR_USP_SPONSORTERMINATE_BUSINESSPROCESS.xml" />
+    <EmbeddedResource Include="SponsorshipExtension\SponsorshipExtension.DataList.xml" />
+    <EmbeddedResource Include="SQL\User Functions\USR_UFN_GET_UNPAIDSPONSORED_FINANCIALCOMMITMENTS_BYSPONSOR.xml" />
+    <EmbeddedResource Include="SQL\User Functions\USR_UFN_SPONSORSHIP_GETUNPAID_SPONSOREDCHILDREN_FORSPONSOR.xml" />
+    <EmbeddedResource Include="D2 Business Process\D2Campaign.BusinessProcess.xml" />
+    <EmbeddedResource Include="D2 Business Process\D2BusinessProcess.Package.xml" />
+    <EmbeddedResource Include="D2 Business Process\USR_USP_D2_CAMPAIGN_BUSINESSPROCESS.xml" />
+    <EmbeddedResource Include="D2 Business Process\D2CampaignBusinessProcessResults.Table.xml" />
+    <EmbeddedResource Include="D2 Business Process\D2CampaignBusinessPreProcess.Edit.xml" />
+    <EmbeddedResource Include="D2 Business Process\D2CampaignBusinessProcess.Table.xml" />
+    <EmbeddedResource Include="D2 Business Process\D2CampaignBusinessProcessParameters.Add.xml" />
+    <EmbeddedResource Include="D2 Business Process\D2CampaignBusinessProcessParameters.DataList.xml" />
+    <EmbeddedResource Include="D2 Business Process\D2CampaignBusinessProcess.View.xml" />
+    <EmbeddedResource Include="D2 Business Process\D2CampaignBusinessProcessStatus.DataList.xml" />
+    <EmbeddedResource Include="D2 Business Process\D2CampaignBusinessProcess.PageExpression.View.xml" />
+    <EmbeddedResource Include="D2 Business Process\USR_USP_D2CAMPAIGNPROCESS_GETPARAMETERS.xml" />
+    <EmbeddedResource Include="D2 Business Process\D2CampaignBusinessProcess.StatusReport.DataList.xml" />
+    <EmbeddedResource Include="D2 Business Process\D2CampaignBusinessProcess.Summary.View.xml" />
+    <EmbeddedResource Include="D2 Business Process\D2CampaignBusinessProcess.Page.xml" />
+    <EmbeddedResource Include="D2 Business Process\D2CampaignBusinessProcessResults.Page.xml" />
+    <EmbeddedResource Include="D2 Business Process\D2CampaignBusinessProcess.Task.xml" />
+    <EmbeddedResource Include="D2 Business Process\D2CampaignBusinessProcessParameters.Edit.xml" />
+    <EmbeddedResource Include="D2 Business Process\D2CampaignBusinessProcess.DeleteParameterSet.RecordOperation.xml" />
+    <EmbeddedResource Include="D2 Business Process\USR_USP_D2_CAMPAIGN_BUSINESSPROCESS_EMAIL.xml" />
+    <EmbeddedResource Include="D4 Business Process\D4BusinessProcess.Package.xml" />
+    <EmbeddedResource Include="D4 Business Process\D4Campaign.BusinessProcess.xml" />
+    <EmbeddedResource Include="D4 Business Process\D4CampaignBusinessPreProcess.Edit.xml" />
+    <EmbeddedResource Include="D4 Business Process\D4CampaignBusinessProcess.DeleteParameterSet.RecordOperation.xml" />
+    <EmbeddedResource Include="D4 Business Process\D4CampaignBusinessProcess.Page.xml" />
+    <EmbeddedResource Include="D4 Business Process\D4CampaignBusinessProcess.PageExpression.View.xml" />
+    <EmbeddedResource Include="D4 Business Process\D4CampaignBusinessProcess.StatusReport.DataList.xml" />
+    <EmbeddedResource Include="D4 Business Process\D4CampaignBusinessProcess.Summary.View.xml" />
+    <EmbeddedResource Include="D4 Business Process\D4CampaignBusinessProcess.Table.xml" />
+    <EmbeddedResource Include="D4 Business Process\D4CampaignBusinessProcess.Task.xml" />
+    <EmbeddedResource Include="D4 Business Process\D4CampaignBusinessProcess.View.xml" />
+    <EmbeddedResource Include="D4 Business Process\D4CampaignBusinessProcessParameters.Add.xml" />
+    <EmbeddedResource Include="D4 Business Process\D4CampaignBusinessProcessParameters.DataList.xml" />
+    <EmbeddedResource Include="D4 Business Process\D4CampaignBusinessProcessParameters.Edit.xml" />
+    <EmbeddedResource Include="D4 Business Process\D4CampaignBusinessProcessResults.Page.xml" />
+    <EmbeddedResource Include="D4 Business Process\D4CampaignBusinessProcessResults.Table.xml" />
+    <EmbeddedResource Include="D4 Business Process\D4CampaignBusinessProcessStatus.DataList.xml" />
+    <EmbeddedResource Include="D4 Business Process\USR_USP_D4CAMPAIGNPROCESS_GETPARAMETERS.xml" />
+    <EmbeddedResource Include="D4 Business Process\USR_USP_D4_CAMPAIGN_BUSINESSPROCESS.xml" />
+    <EmbeddedResource Include="D2 Business Process\D2CampaignBusinessProcessResults.Query.xml" />
+    <EmbeddedResource Include="D4 Business Process\D4CampaignBusinessProcessResults.Query.xml" />
+    <EmbeddedResource Include="DataLists\Sponsorship.ActiveOnlyWithGiftInfo.DataList.xml" />
+    <EmbeddedResource Include="DataLists\Sponsorship.Reasons.DataList.xml" />
+    <EmbeddedResource Include="SQL\User Functions\USR_UFN_CHECK_RECURRINGGIFT_ISHELD.xml" />
+    <EmbeddedResource Include="SQL\User Functions\USR_UFN_GET_PAYMENTMETHODCODE_BY_REVENUESPLITID.xml" />
+    <EmbeddedResource Include="Replace Batch Number\UpdateBatchNumber.Edit.xml" />
+    <EmbeddedResource Include="SQL\User Functions\USR_UFN_GETACTIVE_FINANCIALCOMMITMENTS_BYSPONSOR.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Query Views\CorrespondentSponsorsChildrenWithDCFix.Query.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="DataLists\Sponsorship.SmartFields.DataList.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Smart Fields\Child.CountOfSponsorshipsPerChild.SmartField.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="D2 Business Process\D2PreCampaignQA.Query.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="D2 Business Process\USR_UFN_GET_D2_PRECAMPAIGN_QA_RESULTS.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="View Forms\ViewRateChangeAppeal.View.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="DataLists\RateIncreaseResponses.DataList.xml">
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Edit Forms\RateIncreaseResponses.Edit.xml">
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Add Forms\RateIncreaseResponses.Add.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Query Views\Sponsorship.MultipleCommitmentsForSponsorChild.Query.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="EFT Decline Batch Process\DeclinedEFTTab.DataList.xml" />
+    <EmbeddedResource Include="EFT Decline Batch Process\EFTDeclineBatch.BusinessProcess.xml" />
+    <EmbeddedResource Include="EFT Decline Batch Process\EFTDeclineBatchPreProcess.Edit.xml" />
+    <EmbeddedResource Include="EFT Decline Batch Process\EFTDeclineBatchProcess.DataList.xml" />
+    <EmbeddedResource Include="EFT Decline Batch Process\EFTDeclineBatchProcess.View.xml" />
+    <EmbeddedResource Include="EFT Decline Batch Process\EFTDeclineBatchProcessParameters.Table.xml" />
+    <EmbeddedResource Include="EFT Decline Batch Process\EFTDeclineBatchProcessResults.DataList.xml" />
+    <EmbeddedResource Include="EFT Decline Batch Process\EFTDeclineBatchProcessResults.Table.xml" />
+    <EmbeddedResource Include="EFT Decline Batch Process\EFTDeclineBusinessProcess.Package.xml" />
+    <EmbeddedResource Include="EFT Decline Batch Process\EFTDeclineBusinessProcess.Page.xml" />
+    <EmbeddedResource Include="EFT Decline Batch Process\EFTDeclined.Table.xml" />
+    <EmbeddedResource Include="EFT Decline Batch Process\EFTDeclineProcessExceptionLog.Query.xml" />
+    <EmbeddedResource Include="EFT Decline Batch Process\USR_USP_EFTDECLINEBATCH_BUSINESSPROCESS.xml" />
+    <EmbeddedResource Include="EFT Decline Batch Process\USR_USP_EFTDECLINEBATCH_PROCESS_GETPARAMETERS.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="EFT Decline Batch Process\DeclinedEFTTab.Edit.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="EFT Decline Batch Process\DeclinedEFTTab.RecordOperation.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="RecordOperations\SwitchRecurringGift.EFTDeclinedFieldValue.RecordOperation.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="DataLists\CommitmentLineHistory.Commitments.DataList.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Query Views\RevenueExtension.Query.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Tables\CommitmentLineHistory.Table.xml" />
+    <EmbeddedResource Include="Tables\CommitmentLineHistoryCommitment.Table.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="View Forms\CommitmentLineHistory.View.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Edit Forms\RecurringGiftExtension.NonSchedule.Edit.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Query Views\HT018Closure.Report.Query.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Query Views\HT018Closure.FindAllSponsorships.Query.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="EFT Decline Batch Process\RunEFTDeclineBusinessProcess.Task.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Query Views\HT018Closure.NewNTD.Query.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Query Views\HT018Closure.NewNTDDetails.Query.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="EFT Decline Batch Process\EFTDeclineBatchDataConstituent.Query.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="EFT Decline Batch Process\EFTDeclineBatchDataRecurringGift.Query.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Prospect Terminate Business Process\ProspectTerminate.BusinessProcess.xml" />
+    <EmbeddedResource Include="Prospect Terminate Business Process\ProspectTerminate.PreBizProcess.Query.xml" />
+    <EmbeddedResource Include="Prospect Terminate Business Process\ProspectTerminateBusinessProcess.Add.xml" />
+    <EmbeddedResource Include="Prospect Terminate Business Process\ProspectTerminateBusinessProcess.DeleteParameterSet.RecordOperation.xml" />
+    <EmbeddedResource Include="Prospect Terminate Business Process\ProspectTerminateBusinessProcess.Edit.xml" />
+    <EmbeddedResource Include="Prospect Terminate Business Process\ProspectTerminateBusinessProcess.Package.xml" />
+    <EmbeddedResource Include="Prospect Terminate Business Process\ProspectTerminateBusinessProcess.Page.xml" />
+    <EmbeddedResource Include="Prospect Terminate Business Process\ProspectTerminateBusinessProcess.PageExpression.View.xml" />
+    <EmbeddedResource Include="Prospect Terminate Business Process\ProspectTerminateBusinessProcess.StatusReport.DataList.xml" />
+    <EmbeddedResource Include="Prospect Terminate Business Process\ProspectTerminateBusinessProcess.Summary.View.xml" />
+    <EmbeddedResource Include="Prospect Terminate Business Process\ProspectTerminateBusinessProcess.Table.xml" />
+    <EmbeddedResource Include="Prospect Terminate Business Process\ProspectTerminateBusinessProcess.Task.xml" />
+    <EmbeddedResource Include="Prospect Terminate Business Process\ProspectTerminateBusinessProcessParameters.DataList.xml" />
+    <EmbeddedResource Include="Prospect Terminate Business Process\ProspectTerminateBusinessProcessResults.Page.xml" />
+    <EmbeddedResource Include="Prospect Terminate Business Process\ProspectTerminateBusinessProcessResults.Query.xml" />
+    <EmbeddedResource Include="Prospect Terminate Business Process\ProspectTerminateBusinessProcessResults.Table.xml" />
+    <EmbeddedResource Include="Prospect Terminate Business Process\ProspectTerminateBusinessProcessStatus.DataList.xml" />
+    <EmbeddedResource Include="Prospect Terminate Business Process\ProspectTerminateBusinessProcessStatus.Page.xml" />
+    <EmbeddedResource Include="Prospect Terminate Business Process\USR_USP_PROSPECTTERMINATEPROCESS_GETPARAMETERS.xml" />
+    <EmbeddedResource Include="Prospect Terminate Business Process\USR_USP_PROSPECTTERMINATE_BUSINESSPROCESS.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Query Views\Sponsorship.Delinquency.Query.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="SQL\User Functions\USR_UFN_RECURRINGGIFT_GETNUMBEROFMONTHSPASTDUE.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="SQL\User Functions\USR_UFN_GET_DELINQUENCY_SPONSORSHIPS.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Query Views\DelinquencyCampaignsSponsorshipsInfo.Query.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Query Views\DelinquencyCampaignsSponsorshipsInfoAsOfToday.Query.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="SQL\User Functions\USR_UFN_CHECK_RECURRINGGIFT_ISEFTDECLINED.xml" />
+  </ItemGroup>
+  <Import Project="$(MSBuildBinPath)\Microsoft.VisualBasic.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

@@ -1,0 +1,88 @@
+﻿<SQLFunctionSpec
+	xmlns="bb_appfx_sqlfunction"
+	xmlns:common="bb_appfx_commontypes" 
+	ID="b11d219c-05e0-45d6-bbfa-3a7b329b4a5d"
+	Name="USR_UFN_RECURRINGGIFT_GETNUMBEROFMONTHSPASTDUE"
+	Description="Returns the number of months a recurring gift is past due."
+	Author="Cary Mayeda"
+	DBFunctionName="USR_UFN_RECURRINGGIFT_GETNUMBEROFMONTHSPASTDUE"
+	>
+	<!-- 
+	Remarks:    
+
+	History:
+	Date            		Modified By     Comments
+	25-Aug-2014				CMayeda			Initial Version
+	04-Nov-2014				CMayeda			Updated to handle non-monthly frequencies
+	-->
+
+	<CreateFunctionSQL>
+		<![CDATA[
+create function dbo.USR_UFN_RECURRINGGIFT_GETNUMBEROFMONTHSPASTDUE(
+	@revenueID uniqueidentifier,
+	@asOfDate date = null
+)
+returns decimal(6,3)
+with execute as caller
+as begin
+
+	declare @numberOfMonthsPastDue decimal (6,3)
+
+	select 
+		@numberOfMonthsPastDue = 
+					
+			case 
+				when rsch.FREQUENCYCODE in (0,1,2) then -- Annually, Semi-annually, Quarterly
+					case                                        
+						-- if the NTD is less than the @asOfDate, then calculate a value otherwise return 0
+						when day (rsch.NEXTTRANSACTIONDATE) < day (@asOfDate) then 
+							-- Determine how many months since the NTD
+							(DATEDIFF(m, rsch.NEXTTRANSACTIONDATE, @asOfDate)+ 1) 
+							
+							-
+
+							-- subtract the number of months paid on open transactions
+														
+							(((ceiling (cast ((DATEDIFF(m, rsch.NEXTTRANSACTIONDATE, @asOfDate)+ 1) as decimal(6,3)) / 
+								 		case
+											when rsch.FREQUENCYCODE = 0 then 12
+											when rsch.FREQUENCYCODE = 1 then 6
+											when rsch.FREQUENCYCODE = 2 then 3
+										end 
+									  ) 
+								* ft.TRANSACTIONAMOUNT
+							)
+								- dbo.UFN_RECURRINGGIFT_GETPASTDUEAMOUNT(ft.ID, @asOfDate) 
+							)
+								* 	case
+										when rsch.FREQUENCYCODE = 0 then cast (12 as decimal (6,3)) / ft.TRANSACTIONAMOUNT
+										when rsch.FREQUENCYCODE = 1 then cast (6 as decimal (6,3)) / ft.TRANSACTIONAMOUNT
+										when rsch.FREQUENCYCODE = 2 then cast (3 as decimal (6,3)) / ft.TRANSACTIONAMOUNT
+									end 
+							)										
+						else 0
+					end
+					
+				-- This get's the past due amount as of the 2nd of the @asOfDate
+				when rsch.FREQUENCYCODE = 3 then dbo.UFN_RECURRINGGIFT_GETPASTDUEAMOUNT(ft.ID, @asOfDate) / ft.TRANSACTIONAMOUNT -- Monthly
+				when rsch.FREQUENCYCODE = 6 then dbo.UFN_RECURRINGGIFT_GETPASTDUEAMOUNT(ft.ID, @asOfDate) / ((ft.TRANSACTIONAMOUNT * 6)/12) -- Bimonthly
+				when rsch.FREQUENCYCODE = 7 then dbo.UFN_RECURRINGGIFT_GETPASTDUEAMOUNT(ft.ID, @asOfDate) / ((ft.TRANSACTIONAMOUNT * 24)/12) -- Semi-Monthly
+				when rsch.FREQUENCYCODE = 8 then dbo.UFN_RECURRINGGIFT_GETPASTDUEAMOUNT(ft.ID, @asOfDate) / ((ft.TRANSACTIONAMOUNT * 26)/12) -- Biweekly
+				when rsch.FREQUENCYCODE = 9 then dbo.UFN_RECURRINGGIFT_GETPASTDUEAMOUNT(ft.ID, @asOfDate) / ((ft.TRANSACTIONAMOUNT * 52)/12) -- Weekly
+				else 0
+			end 
+
+	from
+		dbo.FINANCIALTRANSACTION ft 
+		join dbo.REVENUESCHEDULE rsch on ft.id = rsch.id
+
+	where 
+		ft.ID = @revenueID 
+
+	return @numberOfMonthsPastDue
+
+end
+		]]>
+	</CreateFunctionSQL>
+
+</SQLFunctionSpec>

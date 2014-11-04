@@ -1,0 +1,45 @@
+﻿<BusinessProcessSpec
+	xmlns="bb_appfx_businessprocess"
+	xmlns:common="bb_appfx_commontypes"
+	ID="3cb4a9f8-ede0-4497-acff-c351057f8a87"
+	Name="EFT Decline Batch Business Process"
+	Description="Processes the EFT Decline Batches"
+	Author="Memphis Sellers"
+	GeneratesOutput="false"
+	ParameterTableName="USR_EFTDECLINEBATCH_BUSINESSPROCESS"
+	RecordType="EFTBatch"
+	common:SecurityUIFolder="EFTBatch">
+	
+	<ProcessorComponent AssemblyName="MoM.Sponsorship.Catalog" ClassName="MoM.Sponsorship.Catalog.EFTDeclineBatchBusinessProcess" >
+		<common:GrantExecuteList>
+			<common:GrantExecute>dbo.USR_USP_EFTDECLINEBATCH_PROCESS_GETPARAMETERS</common:GrantExecute>
+		</common:GrantExecuteList>
+		<common:GrantSelectList>
+			<common:GrantSelect>dbo.USR_EFTDECLINEBATCH_BUSINESSPROCESS_RESULTS</common:GrantSelect>
+			<common:GrantSelect>dbo.USR_EFTDECLINEBATCH_BUSINESSPROCESS</common:GrantSelect>
+			<common:GrantSelect>dbo.USR_EFTDECLINE_BATCH_SPONSORS</common:GrantSelect>
+		</common:GrantSelectList>
+	</ProcessorComponent>
+	
+	<common:FormMetaData>
+		<common:FormFields>
+			<!--<common:FormField Caption="Batch Date" DataType="Date" Description="Batch Date" FieldID="BATCHDATE" Required="true" />-->
+			<common:FormField Caption="Batch Number" DataType="String" Description="Batch Number" FieldID="BATCHNUMBER" Required="true" />
+			<common:FormField Caption="Batch Type" DataType="Integer" Description="Batch Type" FieldID="BATCHTYPE" Required="true" >
+				<common:ValueList UseRadioButtons="true">
+					<common:Items>
+						<common:Item>
+							<common:Value>0</common:Value>
+							<common:Label>Direct Debit</common:Label>
+						</common:Item>
+						<common:Item>
+							<common:Value>1</common:Value>
+							<common:Label>Credit Card</common:Label>
+						</common:Item>
+					</common:Items>
+				</common:ValueList>
+			</common:FormField>
+		</common:FormFields>
+	</common:FormMetaData>
+	
+</BusinessProcessSpec>

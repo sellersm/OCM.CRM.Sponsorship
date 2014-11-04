@@ -1,0 +1,46 @@
+﻿<RecordOperationSpec 
+	xmlns="bb_appfx_recordoperation"
+	xmlns:common="bb_appfx_commontypes" 
+	ID="4f8ebbc9-b8ae-49af-b5bf-cae3fa9cb9c9" 
+	Name="Declined EFT Table Delete Record Operation" 
+	Description="Deletes record from EFT Decline table."
+	Author="Memphis Sellers"
+	OperationType="Delete"
+	RecordType="EFTBatch"
+	common:SecurityUIFolder="EFTBatch"
+	>
+
+	<SPRecord>
+		<SPOperationImplementation SPName="USR_USP_EFTDECLINEBATCH_SPONSORS_DELETE">
+			<common:CreateProcedureSQL>
+				<![CDATA[
+create procedure dbo.USR_USP_EFTDECLINEBATCH_SPONSORS_DELETE
+(
+	@ID uniqueidentifier,
+	@CHANGEAGENTID uniqueidentifier = null
+)
+as begin
+	-- use the system generated delete routine to allow proper recording of the deleting agent
+	DECLARE @RC int
+
+	if @CHANGEAGENTID is null  
+		exec dbo.USP_CHANGEAGENT_GETORCREATECHANGEAGENT @CHANGEAGENTID output
+
+	EXECUTE @RC = [dbo].[USP_USR_EFTDECLINE_BATCH_SPONSORS_DELETEBYID_WITHCHANGEAGENTID] 
+	   @ID
+	  ,@CHANGEAGENTID
+
+	return 0;
+	
+end
+				]]>
+			</common:CreateProcedureSQL>
+		</SPOperationImplementation>
+	</SPRecord>
+
+	<!-- optionally, offer a prompt before executing the record operation -->
+	<Prompt>
+		<StandardPrompt Text="Are you sure you want to delete this EFT Decline record?" />
+	</Prompt>
+
+</RecordOperationSpec>

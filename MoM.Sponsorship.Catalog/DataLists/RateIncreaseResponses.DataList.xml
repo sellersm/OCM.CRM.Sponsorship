@@ -1,0 +1,78 @@
+﻿<DataListSpec 
+	xmlns="bb_appfx_datalist"
+	xmlns:common="bb_appfx_commontypes" 
+	ID="c32a5449-87d1-470a-bcad-b5946021ba72" 
+	Name="Rate Increase Responses Data List"
+	Description="Rate Increase Responses Data List" 
+	Author="Trucmai Gupta">
+
+	<!-- define the SP that returns the data for the datalist -->
+	<SPDataList SPName="USR_USP_DATALIST_RATEINCREASERESPONSES">
+		<common:CreateProcedureSQL>
+			<![CDATA[
+create procedure dbo.USR_USP_DATALIST_RATEINCREASERESPONSES
+(
+  @CONSTITUENTID uniqueidentifier = null
+)
+as
+	set nocount on;
+  
+	select  distinct srs.ID,
+          srs.SPONSORID,
+          srs.SPONSORSHIPID,
+          srs.CHANGEYEAR,
+          srs.INCREASERATE,
+          srs.RESPONSEDATE,
+          srs.RESPONDAFTERRATECHANGEUPDATED,
+          srs.ORIGINALSPONSORSHIPGIFTAMOUNT,
+          srs.UPDATEDSPONSORSHIPGIFTAMOUNT,
+          (select Description from dbo.USR_RESPONSE_AFTER_RATECHANGE_IMPLEMENTED_CODE 
+            where ID = srs.RESPONSEIFAFTERRATECHANGEIMPLEMENTEDCODEID) 
+            as RESPONSEIFAFTERRATECHANGEIMPLEMENTEDCODE,
+            Commitmentid = sc.lookupid,
+          srs.NOAPPEALRESPONSEDATE,
+          (select description from dbo.USR_NO_RATEINCREASEAPPEAL_RESPONSECODE
+            where ID = srs.NOAPPEALRESPONSECODEID) 
+            as NOAPPEALRESPONSECODE 
+	from dbo.USR_SPONSOR_RATECHANGE_SPONSORSHIPS srs
+  --join dbo.CONSTITUENT c on c.id = srs.sponsorid
+  join sponsorship sp on sp.id = srs.sponsorshipid --sp.constituentid
+  join SPONSORSHIPCOMMITMENT sc on sp.sponsorshipcommitmentid = sc.id
+	where srs.SPONSORID = @CONSTITUENTID
+  
+			]]>
+		</common:CreateProcedureSQL>
+	</SPDataList>
+
+	<!-- describe the context ID parameter for the SP (if applicable)-->
+	<Context ContextRecordType="SPONSORSHIP" RecordIDParameter="CONSTITUENTID"/>
+
+	<!-- describe any parameters (other than the context ID) defined on the SP
+	<Parameters>
+		<common:FormMetaData>
+			<common:FormFields>
+				<common:FormField FieldID="PARAMETER1" Caption="Paramter1" DataType="REPLACE_WITH_DATATYPE"/>
+			</common:FormFields>
+		</common:FormMetaData>
+	</Parameters>-->
+
+	<!-- define the output fields in the list -->
+	<Output>
+		<OutputFields>
+      <OutputField FieldID="ID" Caption="ID" DataType="Guid" IsHidden="true" />
+			<OutputField FieldID="SPONSORID" Caption="Sponsor ID" DataType="Guid" IsHidden="true" />
+			<OutputField FieldID="SPONSORSHIPID" Caption="Sponsorship ID" DataType="Guid" IsHidden="true"/>
+			<OutputField FieldID="CHANGEYEAR" Caption="Rate Increase Year" DataType="Year" IsHidden="true"/>
+      <OutputField FieldID="INCREASERATE" Caption="Is Rate Increase?" DataType="Boolean" />
+      <OutputField FieldID="RESPONSEDATE" Caption="Response Date" DataType="Date" />
+      <OutputField FieldID="RESPONDAFTERRATECHANGEUPDATED" Caption="Response After Rate Change Updated?" DataType="Boolean" IsHidden="true"/>
+      <OutputField FieldID="ORIGINALSPONSORSHIPGIFTAMOUNT" Caption="Original Amount" DataType="Money" />
+      <OutputField FieldID="UPDATEDSPONSORSHIPGIFTAMOUNT" Caption="New Amount" DataType="Money" />
+      <OutputField FieldID="RESPONSEIFAFTERRATECHANGEIMPLEMENTEDCODE" Caption="Response after implementation?" DataType="String" />
+      <OutputField FieldID="COMMITMENTID" Caption="Commitment Id" DataType="String"  />
+      <OutputField FieldID="NOAPPEALRESPONSEDATE" Caption="No Appeal Response Date" DataType="Date"  />
+      <OutputField FieldID="NOAPPEALRESPONSECODE" Caption="No Appeal Response Code" DataType="String"  />
+		</OutputFields>
+	</Output>
+
+</DataListSpec>

@@ -1,0 +1,31 @@
+﻿<SQLFunctionSpec
+	xmlns="bb_appfx_sqlfunction"
+	xmlns:common="bb_appfx_commontypes" 
+	ID="326a0e83-0588-4cf3-acc2-17a27787d56a"
+	Name="USR_UFN_SPONSORSHIP_GETCURRENTOPPORTUNITYSTATUSCODEID"
+	Description="Get the current opportunity sponsorship status (Sponsored, Prospect Sponsored, Formerly Sponsored, ...)"
+	Author="Cary Mayeda"
+	DBFunctionName="USR_UFN_SPONSORSHIP_GETCURRENTOPPORTUNITYSTATUSCODEID"
+	>
+
+	<CreateFunctionSQL>
+		<![CDATA[
+create function dbo.USR_UFN_SPONSORSHIP_GETCURRENTOPPORTUNITYSTATUSCODEID (
+	@sponsorshipID uniqueidentifier = null
+)
+returns uniqueidentifier
+with execute as caller
+as begin
+	declare @statusID uniqueidentifier
+
+	if @sponsorshipID is not null
+		select @statusID = CURRENTOPPORTUNITYSPONSORSHIPSTATUSCODEID 
+		from dbo.USR_SPONSORSHIPEXTENSION 
+		where ID = @sponsorshipID
+	
+	return @statusID
+end
+		]]>
+	</CreateFunctionSQL>
+
+</SQLFunctionSpec>

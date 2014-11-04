@@ -1,0 +1,16 @@
+﻿<TaskSpec xmlns:xsd="http://www.w3.org/2001/XMLSchema" 
+		  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+		  ID="36325735-6a13-4013-a592-c1444623fc0d" 
+		  Name="Run EFT Decline Batch Business Process" 
+		  Description="Run EFT Decline Batch Business Process" 
+		  Author="Memphis Sellers" 
+		  ImageKey="RES:goto_round" 
+		  SmallImageKey="RES:goto_round" 
+		  FunctionalAreaID="9ea48d9c-7e2d-42e6-91cc-210792618017" 
+		  TaskGroup="Administration" 
+		  Sequence="99" 
+		  DisplayAsAction="true" 
+		  xmlns="bb_appfx_task">
+	
+	<RunBusinessProcess BusinessProcessParameterSetID="3cb4a9f8-ede0-4497-acff-c351057f8a87" PageID="6992dbfe-35f0-414f-af77-59195d4f70ab" TabID="00000000-0000-0000-0000-000000000000" xmlns="bb_appfx_commontypes" />
+</TaskSpec>

@@ -1,0 +1,78 @@
+﻿<SQLFunctionSpec
+	xmlns="bb_appfx_sqlfunction"
+	xmlns:common="bb_appfx_commontypes" 
+	ID="328b7663-ea05-47f2-9278-91826d77209a"
+	Name="USR_UFN_SPONSORSHIPLOCATION_GETRECIPIENTS_BYFIELDOFFICEID"
+	Description="Get list of report recipients for a sponsorship location (include hierarchy above)"
+	Author="Cary Mayeda"
+	DBFunctionName="USR_UFN_SPONSORSHIPLOCATION_GETRECIPIENTS_BYFIELDOFFICEID" >
+	
+	<!-- 
+	Remarks:    This finds all the report recipients of a particular location including all repcipients of locations above in the hierarchy (up to 3 levels above)
+				This takes the field office id, which corresponds to the child project id.
+
+	History:
+	Date            Modified By     Comments
+	24-Aug-2012		CMayeda			Initial Version
+	-->
+
+	<CreateFunctionSQL>
+		<![CDATA[
+create function dbo.USR_UFN_SPONSORSHIPLOCATION_GETRECIPIENTS_BYFIELDOFFICEID ( 
+	@fieldOfficeID uniqueidentifier = null)
+returns nvarchar(max)
+with execute as caller
+as begin
+
+	declare @reportRecipient nvarchar(max) = ''
+
+	select	@reportRecipient =
+				case
+					when parent3ext.REPORTRECIPIENTID is not null  then (select NAME from dbo.UFN_CONSTITUENT_DISPLAYNAME(parent3ext.REPORTRECIPIENTID)) + ' (' + (select DESCRIPTION from dbo.SPONSORSHIPLOCATIONTYPECODE where ID = parent3location.SPONSORSHIPLOCATIONTYPECODEID) + '), '
+					else ''
+				end	+
+				case
+					when parent2ext.REPORTRECIPIENTID is not null  then (select NAME from dbo.UFN_CONSTITUENT_DISPLAYNAME(parent2ext.REPORTRECIPIENTID)) + ' (' + (select DESCRIPTION from dbo.SPONSORSHIPLOCATIONTYPECODE where ID = parent2location.SPONSORSHIPLOCATIONTYPECODEID) + '), '
+					else ''
+				end	+
+				case
+					when parent1ext.REPORTRECIPIENTID is not null  then (select NAME from dbo.UFN_CONSTITUENT_DISPLAYNAME(parent1ext.REPORTRECIPIENTID)) + ' (' + (select DESCRIPTION from dbo.SPONSORSHIPLOCATIONTYPECODE where ID = parent1location.SPONSORSHIPLOCATIONTYPECODEID) + '), '
+					else ''
+				end	 +
+				case
+					when projectext.REPORTRECIPIENTID is not null  then (select NAME from dbo.UFN_CONSTITUENT_DISPLAYNAME(projectext.REPORTRECIPIENTID)) + ' (' + (select DESCRIPTION from dbo.SPONSORSHIPLOCATIONTYPECODE where ID = projectlocation.SPONSORSHIPLOCATIONTYPECODEID) + '), '
+					else ''
+				end	
+
+		  from  dbo.SPONSORSHIPLOCATION projectlocation
+	 left join	dbo.USR_SPONSORSHIPLOCATIONEXTENSION projectext on
+					projectlocation.ID = projectext.ID
+		
+	 left join  dbo.SPONSORSHIPLOCATION parent1location ON 
+					parent1location.HIERARCHYPATH = projectlocation.HIERARCHYPATH.GetAncestor(1)
+	 left join	dbo.USR_SPONSORSHIPLOCATIONEXTENSION parent1ext on
+					parent1location.ID = parent1ext.ID
+
+	 left join  dbo.SPONSORSHIPLOCATION parent2location ON 		
+					parent2location.HIERARCHYPATH = parent1location.HIERARCHYPATH.GetAncestor(1)
+	 left join	dbo.USR_SPONSORSHIPLOCATIONEXTENSION parent2ext on
+					parent2location.ID = parent2ext.ID
+					
+	 left join  dbo.SPONSORSHIPLOCATION parent3location ON 		
+					parent3location.HIERARCHYPATH = parent2location.HIERARCHYPATH.GetAncestor(1)
+	 left join	dbo.USR_SPONSORSHIPLOCATIONEXTENSION parent3ext on
+					parent3location.ID = parent3ext.ID
+
+	     where	projectlocation.FIELDOFFICEID = @fieldOfficeID
+
+set @reportRecipient = rtrim(@reportRecipient)
+if len(@reportRecipient) > 0 
+	set @reportRecipient = left (@reportRecipient, len(@reportRecipient)-1)
+
+
+	return @reportRecipient
+end
+		]]>
+	</CreateFunctionSQL>
+
+</SQLFunctionSpec>

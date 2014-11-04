@@ -1,0 +1,46 @@
+﻿<DataListSpec 
+	xmlns="bb_appfx_datalist"
+	xmlns:common="bb_appfx_commontypes" 
+	ID="8e3dfe81-7a9d-41f5-b73a-c24990d41072" 
+	Name="GetConstituencyCodeId Data List"
+	Description="Used by the unavailable sponsorship add form to get the constituency code Id for a given description." 
+	Author="Memphis Sellers"
+	common:SecurityUIFolder="Sponsorship">
+
+	<!-- define the SP that returns the data for the datalist -->
+	<SPDataList SPName="USR_USP_DATALIST_GETCONSTITUENCYCODEID">
+		<common:CreateProcedureSQL>
+			<![CDATA[
+create procedure dbo.USR_USP_DATALIST_GETCONSTITUENCYCODEID(
+	@CONSTITUENCYCODE nvarchar(100)
+)
+as
+	select ID
+	from dbo.CONSTITUENCYCODE
+	where LOWER ([DESCRIPTION]) = LOWER(@CONSTITUENCYCODE)
+
+			]]>
+		</common:CreateProcedureSQL>
+	</SPDataList>
+
+	<!-- describe the context ID parameter for the SP (if applicable)-->
+	<!--<Context ContextRecordType="REPLACE_WITH_RECORDTYPE" RecordIDParameter="CONTEXTID"/>-->
+
+	<!-- describe any parameters (other than the context ID) defined on the SP-->
+	<Parameters>
+		<common:FormMetaData>
+			<common:FormFields>
+				<common:FormField FieldID="CONSTITUENCYCODE" Caption="CONSTITUENCYCODE" DataType="String"/>
+				<!--<common:FormField FieldID="CONSTITUENCYCODEID" Caption="CONSTITUENCYCODEID" DataType="Guid"/>-->
+			</common:FormFields>
+		</common:FormMetaData>
+	</Parameters>
+
+	<!-- define the output fields in the list -->
+	<Output>
+		<OutputFields>
+			<OutputField FieldID="ID" Caption="CONSTITUENCYCODEID" DataType="Guid" />
+		</OutputFields>
+	</Output>
+
+</DataListSpec>

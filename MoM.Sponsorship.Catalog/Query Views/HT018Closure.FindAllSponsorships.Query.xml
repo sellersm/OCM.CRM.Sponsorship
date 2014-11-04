@@ -1,0 +1,78 @@
+﻿<QueryViewSpec
+	xmlns="bb_appfx_queryview"
+	xmlns:common="bb_appfx_commontypes" 
+	ID="cd6455f3-6607-4ff0-af23-5e553f21bef3"
+	Name="HT018 Closure Find all Sponsorships Query"
+	Description="All sponsorships, not just those for the partner"
+	Author="Cary Mayeda"
+	IsRoot="true"
+	PrimaryKeyField="SPONSORSHIPID"
+	RecordType="Sponsorship"
+	common:SecurityUIFolder="Sponsorship"
+	>
+
+	<!-- define the view used to return data for the query -->
+	<ViewImplementation ViewName="USR_V_QUERY_HT018CLOSURE_FINDALLSPONSORSHIPS">
+		<ViewSQL>
+			<![CDATA[
+			
+select
+	s.ID as SPONSORSHIPID,
+	member.ID as MEMBERID,
+	member.LOOKUPID as MEMBERLOOKUPID,
+	member.KEYNAME as MEMBERLASTNAME,
+	cast (r.STARTDATE as date) as MEMBERSTARTDATE,
+	(select COUNT(s2.ID) from dbo.SPONSORSHIP s2
+	                  join dbo.SPONSORSHIPOPPORTUNITYCHILD so_child2 on s2.SPONSORSHIPOPPORTUNITYID = so_child2.ID
+	                  join dbo.REVENUESPLIT revsplit2 on revsplit2.ID = s2.REVENUESPLITID
+	                  join dbo.FINANCIALTRANSACTION ft2 on ft2.ID = revsplit2.REVENUEID
+	                  where s2.STATUSCODE = 1 and ft2.CONSTITUENTID = member.ID) as ACTIVESPONSORSHIPCOUNT,
+	coalesce (slocation.LOOKUPID,'') as PROJECTLOOKUPID,
+	so.LOOKUPID as CHILDID,
+	so_child.NAME as CHILDNAME,
+	so_child.GENDER,
+	so_child.AGE,
+	cast (s.ENDDATE as date) as ENDDATE,
+	s.STATUSCODE,
+	s.STATUS
+
+ from 
+	dbo.SPONSORSHIP s 
+	inner join dbo.SPONSORSHIPOPPORTUNITY so on so.ID = s.SPONSORSHIPOPPORTUNITYID
+	inner join dbo.SPONSORSHIPOPPORTUNITYCHILD so_child on so_child.ID = s.SPONSORSHIPOPPORTUNITYID
+	inner join dbo.SPONSORSHIPLOCATION slocation on so.SPONSORSHIPLOCATIONID = slocation.ID 	
+	inner join dbo.REVENUESPLIT r_split on s.REVENUESPLITID = r_split.ID
+	inner join dbo.CONSTITUENT member on member.ID =  s.constituentid
+	left join dbo.RELATIONSHIP r on r.RELATIONSHIPCONSTITUENTID = s.constituentid and r.ENDDATE is null and r.RECIPROCALCONSTITUENTID = '88a71416-4e3d-4dfa-8abe-9c48b12168ab'
+	left join dbo.RELATIONSHIPTYPECODE rc on r.RELATIONSHIPTYPECODEID = rc.ID and rc.DESCRIPTION = 'Church Member'
+where
+	s.STATUSCODE = 1
+and slocation.LOOKUPID = 'HT-018'
+
+			]]>
+		</ViewSQL>
+	</ViewImplementation>
+
+	<!-- describe each field in the view output -->
+	<Output>
+		<OutputFields>
+			<OutputField Caption="Sponsorship system record ID" Category="System Fields" Name="SPONSORSHIPID" />
+			<OutputField Name="MEMBERID" Caption="Church Member system record ID" Category="System Fields" DataType="Guid" />
+			<OutputField Name="MEMBERLOOKUPID" Caption="Church Member Lookup ID" DataType="String" />
+			<OutputField Name="MEMBERLASTNAME" Caption="Church Member Last Name" DataType="String" />
+			<OutputField Name="MEMBERSTARTDATE" Caption="Member Relationship Start Date" DataType="Date" />
+			<OutputField Name="ACTIVESPONSORSHIPCOUNT" Caption="Number of Active Sponsorships" DataType="Integer" />
+			<OutputField Name="PROJECTLOOKUPID" Caption="Project Lookup ID" DataType="String" />
+			<OutputField Name="CHILDID" Caption="Child Lookup ID" DataType="String" />
+			<OutputField Name="CHILDNAME" Caption="Child Name" DataType="String" />
+			<OutputField Name="GENDER" Caption="Gender" DataType="String" />
+			<OutputField Name="AGE" Caption="Age" DataType="Integer" />
+			<OutputField Name="ENDDATE" Caption ="End Date" DataType="Date" />
+			<OutputField Name="STATUSCODE" Caption="Status Code" DataType="Integer" />
+			<OutputField Name="STATUS" Caption="Status" DataType="String" />
+
+		</OutputFields>
+	</Output>
+
+</QueryViewSpec>
+

@@ -1,0 +1,843 @@
+﻿<SQLStoredProcedureSpec
+	xmlns="bb_appfx_sqlstoredprocedure"
+	xmlns:common="bb_appfx_commontypes" 
+	ID="177d287b-07d1-49a3-815c-5a4abb5177a4"
+	Name="USR_USP_EFTDECLINEBATCH_BUSINESSPROCESS"
+	Description="EFT Decline batch biz process implementation."
+	Author="Memphis Sellers"
+	SPName="USR_USP_EFTDECLINEBATCH_BUSINESSPROCESS"
+	GrantServiceRolePermission="true"
+	>
+
+	<!-- 
+	Remarks:    Business process to create Interactions for the EFT Decline Batch.
+
+	History:
+	Date            Modified By     Comments
+	16-Apr-2014		Memphis			Initial Version.
+	16-May-2014		Memphis			Per Pamela: change Interaction Summary and put exception message in Comment.
+	19-May-2014		Memphis			Changed BatchDate to be the date of the batch from the Batch table itself.
+									Added code to update the new USR_FINANCIALTRANSACTION_EXTENSION.ISEFTDECLINED 
+									field to identify on the recurring gift this payment method has been declined.
+	22-May-2014		Memphis			If the constituent has an invalid address and no primary/invalid email address – 
+									do not create interaction (exception) but add to the data list and EFT invalid to yes.
+									Other changes as well to capture non-sponsorship recurring gifts, etc.
+	28-May-2014		Memphis			Fixed multiple issues from Pamela's testing...
+	29-May-2014		Memphis			Added Order By to main select to help solve the 'two interactions being created' problem.
+	-->
+
+	<CreateProcedureSQL>
+		<![CDATA[
+create procedure dbo.USR_USP_EFTDECLINEBATCH_BUSINESSPROCESS(	
+	@BATCHNUMBER nvarchar(150),
+	@BATCHTYPE int,
+	@successCount int OUTPUT,
+	@exceptionCount int OUTPUT
+)
+as
+begin
+
+	-- Only for testing, COMMENT OUT WHEN CREATING THE SPROC ----
+	--declare @BATCHTYPE int = 1;  -- 0 directdebit, 1 creditcard  
+	--declare @BATCHNUMBER nvarchar(150) = '2014-455b' -- Direct Debit test batch: 2014-485b   -- this is for Credit Card testing '2014-455b';
+	--declare @successCount int;
+	--declare @exceptionCount int;
+	----  COMMENT THE ABOVE WHEN CREATING THE SPROC ---------
+
+	declare @exceptionOccurred bit;
+	declare @changeAgentID uniqueidentifier = null;
+	--declare @successCount int = 0;
+	--declare @exceptionCount int = 0;
+	declare @statusCode_Pending tinyint = 1;		-- this is the one we use in the interactions created in this biz process
+	declare @subcategoryID uniqueidentifier;
+	declare @subcategoryName nvarchar(100);		
+	declare @raiseErrorIfNotFound_True bit = 1;
+	declare @categoryName nvarchar(100) = 'Revenue'; -- 'Credit Card Decline Letter';
+	declare @expectedDate date = cast(getdate() as date);
+	declare @currentDate date = Cast(GETDATE() as date);
+	declare @successCounter int = 0;
+	declare @exceptionCounter int = 0;
+	declare @emailContactMethodID uniqueidentifier;
+	declare @mailContactMethodID uniqueidentifier;
+	declare @creditCardDeclineLetterSubcategoryId uniqueidentifier;
+	declare @directDebitDeclineLetterSubcategoryId uniqueidentifier;
+	declare @revenueCategoryId uniqueidentifier;
+	--declare @interactionTypeCodeId uniqueidentifier;   -- used when creating the interaction, may have either email or mail id value in it
+	declare @interactionOwner uniqueidentifier = null;
+	declare @contactMethodDesc_Email nvarchar (100) = 'Email';
+	declare @contactMethodDesc_Mail nvarchar (100) = 'Mail';
+	declare @contactMethodDesc nvarchar(100);   -- this will get populated by either of the above values before creating the interaction
+	declare @batchExceptionMessage nvarchar(150) = '';
+	declare @childIDList dbo.USR_UDT_CHILDIDLIST;
+	declare @solicitCodeList table (CODEDESCRIPTION nvarchar(100));  -- used to hold the solicit codes, if any, for the given sponsor
+	declare @allowEmail bit = 0;
+	declare @allowMail bit = 0;
+	declare @createInteractions bit = 0;
+	declare @sponsorInteractionId uniqueidentifier;
+	declare @isNewSponsor bit = 0;					-- flag to keep track of when sponsor changes
+	declare @currentSponsorId uniqueidentifier;		-- holds the sponsorid that was just looped in the cursor, used to identify when sponsorId changes in the cursor loop
+	declare @writeToExceptionLog bit = 0;
+	declare @exceptionMessage nvarchar(100) = '';
+	--declare @currentDate datetime = getdate();
+	declare @interactionSummary nvarchar(100);    -- gets set based on the batchType
+	declare @sponsorshipOpportunityId uniqueidentifier = null;
+	declare @isChildSponsorship bit = 0;
+
+	-- Direct Debit Decline Letter
+	select @creditCardDeclineLetterSubcategoryId = isc.ID
+	from dbo.INTERACTIONSUBCATEGORY isc
+	join dbo.INTERACTIONCATEGORY ic on ic.ID = isc.INTERACTIONCATEGORYID and lower(ic.NAME) = 'revenue'
+	where LOWER(isc.NAME) = 'direct debit decline letter'
+	
+	----print '@creditCardDeclineLetterSubcategoryId: ';
+	----print @creditCardDeclineLetterSubcategoryId;
+			
+	-- Credit Card Decline Letter
+	select @directDebitDeclineLetterSubcategoryId = isc.ID
+	from dbo.INTERACTIONSUBCATEGORY isc
+	join dbo.INTERACTIONCATEGORY ic on ic.ID = isc.INTERACTIONCATEGORYID and lower(ic.NAME) = 'revenue'
+	where LOWER(isc.NAME) = 'credit card decline letter'
+	
+	----print '@directDebitDeclineLetterSubcategoryId : ';
+	----print @directDebitDeclineLetterSubcategoryId;
+
+	-- email contact type code:
+	select @emailContactMethodID = ID 
+	from dbo.INTERACTIONTYPECODE 
+	where lower(DESCRIPTION) = lower ('Email');
+	
+	----print '@emailContactMethodID: ';
+	----print @emailContactMethodID;
+
+
+	if @BATCHTYPE = 0   --Direct Debit
+		begin
+			set @subcategoryName = 'Direct Debit Decline Letter';
+			set @interactionSummary = 'Direct Debit Decline';
+		end
+	else
+		begin
+			set @subcategoryName = 'Credit Card Decline Letter';
+			set @interactionSummary = 'Credit Card Decline';
+		end
+
+	if @CHANGEAGENTID is null
+		exec dbo.USP_CHANGEAGENT_GETORCREATECHANGEAGENT @CHANGEAGENTID output;
+
+	set @exceptionOccurred = 0;
+	set @successCount = 0;
+	set @exceptionCount = 0;
+
+	begin try
+
+	declare @EFTBatchTable table (
+			--ChildID uniqueidentifier,
+			--ChildInfo nvarchar(100),
+			RevenueSplitId uniqueidentifier,
+			REVENUEID uniqueidentifier,
+			RejectionMessage nvarchar(100),
+			DirectdebitIsRejected bit,
+			DirectDebitResultCode nvarchar(10),
+			CreditCardNumber nvarchar(4),
+			CardHolderName nvarchar(255),
+			ExpiryDate dbo.UDT_FUZZYDATE,
+			BatchSponsorId uniqueidentifier,
+			SponsorLookupId nvarchar(100),
+			SponsorName nvarchar(255),
+			AccountInfo nvarchar(4000),
+			--AccountName nvarchar(100),
+			EFTStatus nvarchar(10),
+			RevenueLookupId nvarchar(100),
+			BatchDate date
+	);
+
+	-- these are the variables used for the cursor	
+	declare @ChildId uniqueidentifier;
+	declare @ChildInfo nvarchar(100);
+	declare @RevenueSplitId uniqueidentifier;
+	declare @REVENUEID uniqueidentifier;
+	declare @RejectionMessage nvarchar(100);
+	declare @DirectdebitIsRejected bit;
+	declare @DirectDebitResultCode nvarchar(10);
+	declare @CreditCardNumber nvarchar(4);
+	declare @CardHolderName nvarchar(255);
+	declare @ExpiryDate dbo.UDT_FUZZYDATE;
+	declare @BatchSponsorId uniqueidentifier;
+	declare @SponsorLookupId nvarchar(100);
+	declare @SponsorName nvarchar(255);
+	declare @AccountInfo nvarchar(4000);
+	--declare @AccountName nvarchar(100);
+	declare @EFTStatus nvarchar(10);
+	declare @RevenueLookupId nvarchar(100);
+	declare @BATCHDATE date;
+
+	-- need this to get the full Account description info, it only shows what's shown in the Batch window, nothing confidential:
+	EXEC dbo.Usp_get_key_access;
+
+-- per Pamela 5/22/14: 
+-- I would like to have ALL matching revenue ID (recurring gifts) in the exception batch 
+--   to have the EFT marked invalid and Decline EFT data list updated no matter the situation.  
+
+-- **SOLUTION:  this means I need to get rid of join to Sponsorship and just use it to 'lookup stuff' when I need to create the Interactions!
+
+-- "Active sponsorships" = if exists select 1 from sponsorship for this revenuesplitid where status = 'Active'
+-- "Active Financial Transaction" = if not exists select 1 from sponsorship for this revenuesplitid
+--   AND the financial transaction record status is Active
+
+
+	-- populate the temp table for further processing:
+	insert into @EFTBatchTable
+	select --s.SPONSORSHIPOPPORTUNITYID,
+	      --dbo.USR_UFN_CHILD_GETCHILDLOOKUPID (s.SPONSORSHIPOPPORTUNITYID, 1),
+	      --REJECTIONMESSAGE,
+	      rs.ID as RevenueSplitId,
+	      r.ID as REVENUEID,
+	      case when charindex('.', REJECTIONMESSAGE) > 0 then PARSENAME(REJECTIONMESSAGE, 2) else REJECTIONMESSAGE end as REJECTIONMESSAGE,
+	      DIRECTDEBITISREJECTED,
+	      DIRECTDEBITRESULTCODE,
+	      cc.CREDITCARDPARTIALNUMBER,
+	      cc.CARDHOLDERNAME,
+	      ISNULL(cc.EXPIRESON, ''),
+	      br.CONSTITUENTID as BATCHCONSTITUENTID,
+	      c.LOOKUPID as ConLookupId,
+	      c.NAME as ConName,
+	      account.[DESCRIPTION] as AccountInfo,
+	      account.EFTSTATUS,
+	      r.LOOKUPID,
+	      cast(b.DATEADDED as date) as BATCHDATE
+	from 
+	      batchrevenue br
+	      join batch b on br.BATCHID = b.ID
+	      left join BATCHREVENUEAPPLICATION  bra on bra.BATCHREVENUEID= br.ID
+	      left join FINANCIALTRANSACTION ft on ft.ID = bra.REVENUEID
+	      left join CONSTITUENT c on c.ID = ft.CONSTITUENTID
+	      left join REVENUESPLIT rs on rs.REVENUEID = ft.ID
+	      left join REVENUE r on r.ID = ft.ID
+	      left join CREDITCARD cc on cc.ID = CREDITCARDID
+		  left join CONSTITUENTACCOUNT account on account.ID = br.CONSTITUENTACCOUNTID -- = account.ID
+	      --left join sponsorship s on s.REVENUESPLITID = rs.ID
+	where 
+	      b.batchnumber = @BATCHNUMBER --'2014-485b' --'2014-455b'
+		  --and s.[STATUS] = 'Active'
+		  --and c.lookupid = '283016'
+
+	-- close the key we used above
+	CLOSE SYMMETRIC KEY sym_BBInfinity;
+
+	-- TESTING ONLY:
+	/*
+	select  --ChildID,
+			--ChildInfo,
+			RejectionMessage,
+			DirectdebitIsRejected,
+			DirectDebitResultCode,
+			CreditCardNumber,
+			CardHolderName,
+			ExpiryDate,
+			BatchSponsorId,
+			SponsorLookupId,
+			SponsorName,
+			--AccountNumber,
+			AccountInfo,
+			EFTStatus,
+			RevenueLookupId,
+			BatchDate
+	from @EFTBatchTable;
+	*/
+
+	-- Cursor loop here:
+	declare eftBatchCursor cursor local fast_forward for
+	select  --ChildID,
+			--ChildInfo,
+			RevenueSplitId,
+			REVENUEID,
+			RejectionMessage,
+			DirectdebitIsRejected,
+			DirectDebitResultCode,
+			CreditCardNumber,
+			CardHolderName,
+			ExpiryDate,
+			BatchSponsorId,
+			SponsorLookupId,
+			SponsorName,
+			--AccountNumber,
+			AccountInfo,
+			EFTStatus,
+			RevenueLookupId,
+			BatchDate
+	from @EFTBatchTable
+	order by SponsorLookupId;
+
+	open eftBatchCursor;
+
+	--  ** NOTE: ** NEED to manage the interactionSummary value based on batch type!!!*****
+
+	--fetch next from eftBatchCursor into @ChildId, @ChildInfo, @RejectionMessage, @DirectdebitIsRejected, @DirectDebitResultCode, @CreditCardNumber, @CardHolderName, @ExpiryDate, @BatchSponsorId, @SponsorLookupId, @SponsorName, @AccountInfo, @EFTStatus, @RevenueLookupId, @BATCHDATE;
+	fetch next from eftBatchCursor into @RevenueSplitId, @REVENUEID, @RejectionMessage, @DirectdebitIsRejected, @DirectDebitResultCode, @CreditCardNumber, @CardHolderName, @ExpiryDate, @BatchSponsorId, @SponsorLookupId, @SponsorName, @AccountInfo, @EFTStatus, @RevenueLookupId, @BATCHDATE;
+
+	-- Need to track the current sponsor and only create the Interaction once per each unique Sponsor:
+	-- set the new sponsor flag for the first sponsor
+	set @isNewSponsor = 1;
+
+	while (@@FETCH_STATUS = 0) 
+		begin			
+			set @writeToExceptionLog = 0;
+			set @exceptionMessage = '';
+			set @sponsorshipOpportunityId = null;
+
+			-- TESTING ONLY ------------
+			--print 'main loop:';
+			--print @BatchSponsorId;
+			--print @SponsorLookupId;
+			--print @RejectionMessage;
+			--print @DirectDebitResultCode;
+			------- END TEST ------------
+			
+			-- determine the interaction values based on the batch type:
+			if @BATCHTYPE = 0  -- direct debit
+				begin
+					--direct debit uses the directdebit fields
+					set @batchExceptionMessage = coalesce(@DirectDebitResultCode, '');
+				end
+			else
+				begin
+					-- credit card uses rejection message value
+					set @batchExceptionMessage = coalesce(@RejectionMessage, '');
+					-- credit card doesn't have account info
+					set @AccountInfo = '';
+				end		
+			
+			--print 'getting the ChildInfo for these values';
+			--print '@RevenueSplitId';
+			--print @RevenueSplitId;
+			--print '@BatchSponsorId';
+			--print @BatchSponsorId;
+			
+			-- *** NEED: figure out how to get the ChildInfo here from the Sponsorship related to this batch record:
+			--select @sponsorshipOpportunityId = SPONSORSHIPOPPORTUNITYID
+			--from dbo.SPONSORSHIP
+			--where REVENUESPLITID = @RevenueSplitId
+			--and CONSTITUENTID = @BatchSponsorId
+			--and STATUS = 'Active';
+			select @sponsorshipOpportunityId = SPONSORSHIPOPPORTUNITYID
+			from dbo.SPONSORSHIP
+			join dbo.SPONSORSHIPOPPORTUNITYCHILD soc on soc.ID = SPONSORSHIPOPPORTUNITYID
+			join @EFTBatchTable eft on eft.RevenueSplitId = dbo.SPONSORSHIP.REVENUESPLITID and eft.BatchSponsorId = @BatchSponsorId and eft.RevenueSplitId = @RevenueSplitId
+			where STATUS = 'Active'
+			and soc.ID is not null;
+			
+			--print '@sponsorshipOpportunityId';
+			--print @sponsorshipOpportunityId;
+			
+			if @sponsorshipOpportunityId is not null
+				begin
+					set @ChildInfo = dbo.USR_UFN_CHILD_GETCHILDLOOKUPID (@sponsorshipOpportunityId, 1);		
+				end
+			else 
+				set @ChildInfo = '';
+			
+			--print '@ChildInfo';
+			--print @ChildInfo;
+			
+			-- perform this insert no matter what, no need to check for exception
+			-- Insert the decline batch data into the table:
+			INSERT INTO dbo.USR_EFTDECLINE_BATCH_SPONSORS(
+			   ID
+			  ,BATCHDATE
+			  ,DECLINEREASON
+			  ,CARDNUMBER
+			  ,CARDEXPIRATION
+			  ,BATCHNUMBER
+			  ,BATCHTYPE
+			  ,ADDEDBYID
+			  ,CHANGEDBYID
+			  ,DATEADDED
+			  ,DATECHANGED
+			  ,ACCOUNTINFO
+			  ,CHILDINFO
+			  ,EFTSTATUS
+			  ,REVENUELOOKUPID
+			  ,CARDHOLDERNAME
+			  ,SPONSORLOOKUPID
+			  ,SPONSORNAME
+			  --,ACCOUNTNAME
+			) VALUES (
+			   newid() 					-- ID - uniqueidentifier
+			  ,@BATCHDATE 				-- BATCHDATE - datetime
+			  ,@batchExceptionMessage 	-- DECLINEREASON - nvarchar(150)
+			  ,coalesce(@CreditCardNumber,'') -- CARDNUMBER - nvarchar(4)
+			  ,@ExpiryDate 				-- CARDEXPIRATION - nvarchar(10)
+			  ,@BATCHNUMBER 			-- BATCHNUMBER - nvarchar(100)
+			  ,case when @BATCHTYPE = 0 then 'Direct Debit' else 'Credit Card' end -- BATCHTYPE - nvarchar(20)
+			  ,@CHANGEAGENTID 			-- ADDEDBYID - uniqueidentifier
+			  ,@CHANGEAGENTID 			-- CHANGEDBYID - uniqueidentifier
+			  ,@currentDate 			-- DATEADDED - datetime
+			  ,@currentDate 			-- DATECHANGED - datetime
+			  ,coalesce(@AccountInfo,'')-- ACCOUNTINFO - nvarchar(4000)
+			  ,coalesce(@ChildInfo, '')	-- CHILDINFO - nvarchar(100)
+			  ,coalesce(@EFTStatus,'') 	-- EFTSTATUS - nvarchar(10)
+			  ,@RevenueLookupId 		-- REVENUELOOKUPID - nvarchar(100)
+			  ,coalesce(@CardHolderName,'') -- CARDHOLDERNAME - nvarchar(255)
+			  ,@SponsorLookupId 		-- SPONSORLOOKUPID - nvarchar(10)
+			  ,@SponsorName 			-- SPONSORNAME - nvarchar(255)
+			  --,coalesce(ACCOUNTNAME,'') -- ACCOUNTNAME - nvarchar(100)
+			)		
+			
+			-- Memphis: 5/20/14 update the recurring gift custom field:
+			-- if a row is not found, then do the insert:
+			declare @recurringGiftExtensionId uniqueidentifier = null;
+
+			select @recurringGiftExtensionId = ID 
+			from dbo.USR_FINANCIALTRANSACTION_EXTENSION
+			where ID = @REVENUEID;
+			
+			if @recurringGiftExtensionId is not null
+				begin
+					-- update the row
+					update dbo.USR_FINANCIALTRANSACTION_EXTENSION
+					set ISEFTDECLINED = 1
+					where ID = @recurringGiftExtensionId;
+				end
+			else
+				begin
+					-- insert the row
+					insert into dbo.USR_FINANCIALTRANSACTION_EXTENSION(
+					   ID
+					  ,DIRECTDEBITSCHEDULECODEID
+					  ,CREDITCARDSCHEDULECODEID
+					  ,ADDEDBYID
+					  ,CHANGEDBYID
+					  ,DATEADDED
+					  ,DATECHANGED
+					  ,PREDEPARTUREGIFTSTATUS
+					  ,ISEFTDECLINED
+					) values (
+					   @revenueId	  -- ID - uniqueidentifier
+					  ,NULL			  -- DIRECTDEBITSCHEDULECODEID - uniqueidentifier
+					  ,NULL			  -- CREDITCARDSCHEDULECODEID - uniqueidentifier
+					  ,@changeAgentID -- ADDEDBYID - uniqueidentifier
+					  ,@changeAgentID -- CHANGEDBYID - uniqueidentifier
+					  ,getdate()	  -- DATEADDED - datetime
+					  ,getdate()	  -- DATECHANGED - datetime
+					  ,N''			  -- PREDEPARTUREGIFTSTATUS - nvarchar(10)
+					  ,1
+					)
+				end
+			
+			-- check for a new sponsor, only do 1 interaction per sponsor:
+			if @isNewSponsor = 1 
+				begin			
+					-- TESTING ONLY:  
+					--print 'working with new sponsor:';
+					--print @BatchSponsorId;
+					--print @SponsorLookupId;
+					--print @RejectionMessage;
+					--print @DirectDebitResultCode;
+					-------- END TEST -----------------
+							
+					set @createInteractions = 1;
+					set @allowEmail = 1;
+					set @allowMail = 1;
+					set @currentSponsorId = @BatchSponsorId;
+					set @writeToExceptionLog = 0;
+					set @exceptionMessage = '';
+					set @isChildSponsorship = 0;
+					
+					-- we need to check the sponsor's solicit codes:
+					/*
+						•	Email Only – No Direct Mail, Do not mail – only send Email contact method interactions
+						•	Do not email – only send Mail contact method interactions
+						•	Blackout All Communications – do not create the interactions
+					*/
+					-- rebuild the solicit code stuff for the new sponsor
+					-- do the work of creating interactions based on payment method, etc.
+					insert @solicitCodeList
+					select * 
+					from dbo.USR_UFN_GET_CONSTITUENT_SOLICITCODES_LIST(@BatchSponsorId);
+					
+					-- TESTING ONLY ---
+					--select *
+					--from @solicitCodeList;
+
+					if exists(select 1 from @solicitCodeList where lower(CODEDESCRIPTION) in ('do not mail', 'email only - no direct mail'))
+						begin
+							--print 'found DO NOT MAIL or EMAIL ONLY - NO DIRECT MAIL codes!';
+							set @createInteractions = 1;
+							set @allowEmail = 1;  -- true
+							set @allowMail = 0;
+							--set @noEmailMessage = 'Solicit Code of Do Not Email or No System Letters';
+						end
+						
+					if exists(select 1 from @solicitCodeList where lower(CODEDESCRIPTION) = 'do not email')
+						begin
+							--print 'found DO NOT EMAIL code!';
+							set @createInteractions = 1;
+							set @allowEmail = 0;
+							set @allowMail = 1;  -- true
+							--set @noEmailMessage = 'Solicit Code of Do Not Email or No System Letters';
+						end
+					
+					if exists(select 1 from @solicitCodeList where lower(CODEDESCRIPTION) = 'blackout all communication')
+						begin
+							--print 'found BLACKOUT ALL COMMUNICATION';
+							-- no interactions at all
+							set @allowEmail = 0;
+							set @allowMail = 0;
+							set @createInteractions = 0;
+							set @writeToExceptionLog = 1;
+							set @exceptionMessage = 'Sponsor has Blackout All Communication code.';
+						end
+
+					-- check for a valid mailing address if we're going to send mail:
+					if @allowMail = 1
+						begin
+							if exists (SELECT 1 FROM dbo.ADDRESS where (constituentID = @BatchSponsorId and HISTORICALENDDATE is null and DONOTMAIL = 1 and ISPRIMARY = 1))
+								begin
+									set @allowMail = 0;									
+									--print 'NO Valid Mail address!';
+								end
+						end
+						
+
+					-- only do the following if we're OK to create an interaction anyway:
+					-- NOTE:  Just one interaction - default to the sponsorship which adds the child information.
+					if @createInteractions = 1
+						begin
+							-- 5/22/14 per Pamela:  need to determine if we have either active sponsorship or active gift for this Sponsor:	                
+							--   "Active sponsorships" = if exists select 1 from sponsorship for this revenuesplitid where status = 'Active'
+							-- this value is set above, test it again here to identify active sponsorship for this Sponsor:
+							if @sponsorshipOpportunityId is null
+								begin
+									-- NO interaction for this Sponsor's active sponsorship
+									-- 5/28/14: check if this revenue is for an inactive sponsorship that may have just been cancelled or something:
+									if exists (select 1 from dbo.SPONSORSHIP
+										join dbo.SPONSORSHIPOPPORTUNITYCHILD soc on soc.ID = SPONSORSHIPOPPORTUNITYID
+										join @EFTBatchTable eft on eft.RevenueSplitId = dbo.SPONSORSHIP.REVENUESPLITID and eft.BatchSponsorId = @BatchSponsorId and eft.RevenueSplitId = @RevenueSplitId										
+										where STATUS <> 'Active' and soc.ID is not null)
+											begin
+												-- this is for a non active sponsorship so do not create interaction
+												--      and do write to exception log:
+												set @createInteractions = 0;
+												set @isChildSponsorship = 0;
+												set @writeToExceptionLog = 1;
+												set @exceptionMessage = 'Sponsorship is no longer Active, no interaction created.';
+											end
+									else
+										begin
+											-- set these so we'll check below for any active financial transaction(s): gifts
+											set @createInteractions = 0;
+											set @isChildSponsorship = 0;
+										end
+								end
+							else
+								begin
+									set @createInteractions = 1;
+									set @isChildSponsorship = 1;
+								end
+							
+							--print '@isChildSponsorship';
+							--print @isChildSponsorship;
+							
+							-- if we already have a child sponsorship for this sponsor, don't need to check further:
+							if (@isChildSponsorship = 0 and @createInteractions = 0 and @writeToExceptionLog = 0)
+								begin
+									--   "Active Financial Transaction" = if not exists select 1 from sponsorship for this revenuesplitid
+									--    AND the financial transaction record status is Active
+									if not exists (select 1 from dbo.REVENUESCHEDULE where ID = @REVENUEID and STATUSCODE = 0)  -- rs.ID is same as Revenue ID: statuscode 0 is Active
+										begin
+											-- NO interaction needed for this Sponsor cuz no active recurring gifts
+											-- and there are no active or inactive child sponsorships
+											set @createInteractions = 0;
+											set @writeToExceptionLog = 1;
+											set @exceptionMessage = 'Sponsor has no active sponsorships nor any active gifts, no interaction created.';
+										end
+									else
+										begin
+											-- create an interaction for the recurring gift
+											set @createInteractions = 1;
+										end
+								end
+		            
+							-- 5/28/14 Memphis: we only want to add the children that are being rejected/declined, not all
+							--         the children for this Sponsor!
+							if (@createInteractions = 1 and @isChildSponsorship = 1)
+								begin
+									-- we only want the Children, not any Projects that are being Sponsored by this Sponsor:
+									-- 5/28/14: but we only want those that are being declined, not all of them:
+									-- **NEED** refactor this to just get the declined kids!
+									--insert @childIDList 
+									--select SPONSORSHIPOPPORTUNITYID
+									--from dbo.SPONSORSHIP
+									--join dbo.SPONSORSHIPOPPORTUNITYCHILD soc on soc.ID = SPONSORSHIPOPPORTUNITYID
+									--where dbo.SPONSORSHIP.CONSTITUENTID = @BatchSponsorId
+									--and STATUS = 'Active';
+									insert @childIDList 
+									select SPONSORSHIPOPPORTUNITYID
+									from dbo.SPONSORSHIP
+									join dbo.SPONSORSHIPOPPORTUNITYCHILD soc on soc.ID = SPONSORSHIPOPPORTUNITYID
+									join @EFTBatchTable eft on eft.RevenueSplitId = dbo.SPONSORSHIP.REVENUESPLITID and eft.BatchSponsorId = @BatchSponsorId
+									where STATUS = 'Active'
+									and soc.ID is not null;
+								end
+						end
+					
+					--print '@createInteractions';
+					--print @createInteractions;
+					
+				end
+			else
+				begin
+					-- do not create interaction, just do the insert into the batch table
+					set @createInteractions = 0;
+					--print 'same sponsor as before';
+					--print @BatchSponsorId;
+					--print @SponsorLookupId;
+				end
+			-- end of if @isNewSponsor = 1 
+	
+			--print '@createInteractions:';
+			--print @createInteractions;
+		
+			-- 1. did sponsor already receive a decline letter last month?
+			-- Look for either of these:  
+			--   Credit Card Decline Letter
+			--   Direct Debit Decline Letter
+			if @createInteractions = 1
+				begin
+					--print '@allowEmail: ';
+					--print @allowEmail;
+					--print '';
+					--print '@allowMail: ';
+					--print @allowMail;
+					
+					if exists (select 1
+						from dbo.INTERACTION
+						--join dbo.INTERACTIONSUBCATEGORY isc on isc.ID = INTERACTIONSUBCATEGORYID
+						where ((INTERACTIONSUBCATEGORYID = @creditCardDeclineLetterSubcategoryId or INTERACTIONSUBCATEGORYID = @directDebitDeclineLetterSubcategoryId) 
+						and CONSTITUENTID = @BatchSponsorId
+						-- expected date between 1st day of last last month and end of this month of this year
+						and EXPECTEDDATE between DATEADD(month, DATEDIFF(month, -1, GETDATE()) - 2, 0) and DATEADD(s, -1, DATEADD(m, DATEDIFF(m, 0, GETDATE())+2, 0))
+						-- and contact method must be Email
+						and dbo.INTERACTION.INTERACTIONTYPECODEID = @emailContactMethodID)
+						)
+						begin
+							--print 'FOUND an existing Interaction for this Sponsor!';
+							
+							-- set the contact method to mail only if the solicit code allows it:
+							if @allowMail = 1
+								begin
+									set @contactMethodDesc = @contactMethodDesc_Mail;
+								end
+							else
+								begin
+									-- per Pamela, if sponsor has valid email address, create another email interaction anyways:
+									if @allowEmail = 1
+										if dbo.USR_UFN_CONSTITUENT_HASVALID_PRIMARY_EMAIL(@BatchSponsorId) = 1
+											begin
+												set @writeToExceptionLog = 0;
+												set @createInteractions = 1;
+												set @contactMethodDesc = @contactMethodDesc_Email;
+											end
+										else
+											begin
+												set @writeToExceptionLog = 1;
+												set @exceptionMessage = 'Sponsor has DO NOT MAIL code, already has an Interaction but no valid email address.';
+											end
+									else
+										begin
+											-- no interaction created, write to exception log
+											set @writeToExceptionLog = 1;
+											set @exceptionMessage = 'Sponsor has DO NOT MAIL code and already has an Interaction.';
+											--set @contactMethodDesc = @contactMethodDesc_Email;
+										end
+								end
+						end
+					else
+						begin
+							--print 'Did NOT FIND an existing Interaction for this Sponsor!';
+							
+							-- 2. does sponsor have a valid primary email address?
+							if dbo.USR_UFN_CONSTITUENT_HASVALID_PRIMARY_EMAIL(@BatchSponsorId) = 1
+								begin				
+									--print 'This sponsor does have a valid email addy!';
+									
+									-- if yes, contactmethod = Email
+									-- set the contact method to email
+									-- can only email if solicit code allows:
+									if @allowEmail = 1
+										begin
+											set @contactMethodDesc = @contactMethodDesc_Email;
+										end
+									else
+										if @allowMail = 1
+											begin
+												set @contactMethodDesc = @contactMethodDesc_Mail;
+											end
+										else
+											begin											
+												set @writeToExceptionLog = 1;
+												set @exceptionMessage = 'Sponsor has DO NOT EMAIL and DO NOT MAIL codes.';										
+											end
+								end
+							else
+								begin
+									--print 'This sponsor does NOT have a valid email addy!';
+									
+									--   if no, contactmethod = Mail
+									--set @interactionTypeCodeId = @mailContactMethodID;
+									if @allowMail = 1
+										begin
+											set @contactMethodDesc = @contactMethodDesc_Mail;
+										end
+									else
+										begin
+											set @writeToExceptionLog = 1;
+											--set @exceptionMessage = 'Sponsor has no valid email and DO NOT MAIL code.';
+											set @exceptionMessage = 'Sponsor has no valid email and either DO NOT MAIL code or no valid mail address.';
+										end									
+								end
+						end
+					
+				end
+				-- Need to end the IF above here, so we'll insert even if not creating interactions!
+					
+					
+			--print '@writeToExceptionLog: ';
+			--print @writeToExceptionLog;
+			
+			-- only create interaction if allowed:
+			if @writeToExceptionLog = 0 and @createInteractions = 1
+				begin
+					-- 3. if no exceptions to this point, then create the interaction
+					set @interactionOwner = null;     
+					                 
+					
+					-- TESTING ONLY:
+					--print 'about to create interaction for sponsor:';
+					--print @SponsorLookupId;
+					--print @batchExceptionMessage;
+					--print @contactMethodDesc;
+					--select *
+					--from @childIDList;
+					--------- END TEST  ---------
+					
+					exec dbo.USR_USP_INTERACTION_SPONSOR_ADD_PENDING 
+							@id = @sponsorInteractionId output,
+							@constituentID = @BatchSponsorId,
+							@summary = @interactionSummary,
+							@categoryName = @categoryName,
+							@subcategoryName = @subcategoryName,
+							@expectedDate = @expectedDate,
+							@owner = @interactionOwner,
+							@contactMethodDesc = @contactMethodDesc,
+							@comment = @batchExceptionMessage,                                                                      
+							@letterTypeDesc = '',
+							@fulfillmentStatusDesc = '',
+							@eftBrochureCode = 0,
+							@resendCode = 0,
+							@changeAgentID = @CHANGEAGENTID  
+		
+					-- add the delinquent children to the interaction just created:
+					if @sponsorInteractionId  is not null
+						begin
+							-- populate the childIDList for this sponsor
+							exec dbo.USR_USP_INTERACTION_SPONSOR_ADDCHILDREN 
+								@interactionID = @sponsorInteractionId,
+								@childIDList = @childIDList,
+								@changeAgentID = null
+							
+							--increment the successcounter
+							set @successCounter = @successCounter + 1;
+						end
+				end
+			else
+				begin
+					if @writeToExceptionLog = 1
+						begin
+							--print 'inserting into the exception log table';
+							
+							-- insert into the exception log (process results) table:
+							INSERT INTO dbo.USR_EFTDECLINEBATCH_BUSINESSPROCESS_RESULTS(
+							   ID
+							  ,SPONSORLOOKUPID
+							  ,BATCHDATE
+							  ,BATCHTYPE
+							  ,INTERACTIONSTATUS
+							  ,ADDEDBYID
+							  ,CHANGEDBYID
+							  ,DATEADDED
+							  ,DATECHANGED
+							  ,BATCHNUMBER
+							) VALUES (
+							   newid()			-- ID - uniqueidentifier
+							  ,@SponsorLookupId -- SPONSORLOOKUPID - nvarchar(10)
+							  ,@BATCHDATE		-- BATCHDATE - date
+							  ,@BATCHTYPE	    -- BATCHTYPE - int
+							  ,@exceptionMessage	-- INTERACTIONSTATUS - nvarchar(1000)
+							  ,@CHANGEAGENTID	-- ADDEDBYID - uniqueidentifier
+							  ,@CHANGEAGENTID	-- CHANGEDBYID - uniqueidentifier
+							  ,@currentDate		-- DATEADDED - datetime
+							  ,@currentDate		-- DATECHANGED - datetime
+							  ,@BATCHNUMBER		-- BATCHNUMBER - nvarchar(150)
+							)	
+							
+							set @exceptionCounter = @exceptionCounter + 1;
+						end		
+				end
+						
+		
+			--fetch next from eftBatchCursor into @ChildId, @ChildInfo, @RejectionMessage, @DirectdebitIsRejected, @DirectDebitResultCode, @CreditCardNumber, @CardHolderName, @ExpiryDate, @BatchSponsorId, @SponsorLookupId, @SponsorName, @AccountInfo, @EFTStatus, @RevenueLookupId, @BATCHDATE;
+			fetch next from eftBatchCursor into @RevenueSplitId, @REVENUEID, @RejectionMessage, @DirectdebitIsRejected, @DirectDebitResultCode, @CreditCardNumber, @CardHolderName, @ExpiryDate, @BatchSponsorId, @SponsorLookupId, @SponsorName, @AccountInfo, @EFTStatus, @RevenueLookupId, @BATCHDATE;
+
+			-- check for a different sponsor
+			if @currentSponsorId <> @BatchSponsorId
+				begin
+					-- TESTING ONLY:
+					--print 'working with new sponsor:';
+					--print @BatchSponsorId;
+					--print @SponsorLookupId;
+					---- END TEST -------------------
+					
+					set @isNewSponsor = 1;
+					set @currentSponsorId = @BatchSponsorId;
+					set @writeToExceptionLog = 0;
+					set @exceptionMessage = '';
+					set @createInteractions = 1;
+			
+					-- reset stuff that's specific to the sponsor:	
+					delete from @solicitCodeList;		
+					delete from @childIDList;		
+				end
+			else
+				begin
+					set @createInteractions = 1;
+					set @isNewSponsor = 0;
+					set @writeToExceptionLog = 0;					
+					set @exceptionMessage = '';
+
+					--print 'same sponsor...';
+				end
+					
+		end
+	
+		close eftBatchCursor;
+		deallocate eftBatchCursor;
+
+		set @successCount = @successCounter;
+		set @exceptionCount = @exceptionCounter;
+
+		return 0;
+	
+	end try
+
+	begin catch
+		exec dbo.USP_RAISE_ERROR
+		return 1;
+	end catch	
+	
+end
+
+		]]>
+	</CreateProcedureSQL>
+
+</SQLStoredProcedureSpec>

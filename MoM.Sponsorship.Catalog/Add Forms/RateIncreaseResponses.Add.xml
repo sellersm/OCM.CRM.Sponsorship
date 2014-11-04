@@ -1,0 +1,110 @@
+﻿<AddDataFormTemplateSpec 
+	xmlns="bb_appfx_adddataformtemplate"
+	xmlns:common="bb_appfx_commontypes" 
+	ID="5f12d5d5-8b0d-459d-bb25-67b3dd1b8854" 
+	Name="Rate Increase Responses Add Data Form"
+	Description="Rate Increase Responses Add Data Form" 
+	Author="Trucmai Gupta"
+	DataFormInstanceID="8c264407-0155-4147-b528-b2b4110d7f7f" 
+	RecordType="CONSTITUENTAPPEALRESPONSE"
+	common:SecurityUIFolder="CONSTITUENTAPPEALRESPONSE"
+	>
+
+	<SPDataForm>
+		<!-- describe the preload SP (if applicable), which should be used to fetch field default values from the database.  If no
+		preload is needed, then this section can be removed -->
+		<!--<LoadImplementation SPName="USP_DATAFORMTEMPLATE_ADD_xxx_PRELOAD">
+			<common:CreateProcedureSQL>
+				<![CDATA[
+create procedure dbo.USP_DATAFORMTEMPLATE_ADD_xxx_PRELOAD
+(
+	@CONTEXTID uniqueidentifier,
+	@FIELD1 nvarchar(10) = null output
+)
+as
+	set nocount on;
+		
+	populate the fields that have default values that should be fetched from the database
+	select @FIELD1 = FIELD1
+	from dbo.SOMETABLE
+	where ID = @CONTEXTID
+	
+	return 0;				
+				]]>
+			</common:CreateProcedureSQL>
+		</LoadImplementation>-->
+
+		<!-- describe the save SP -->
+		<SaveImplementation SPName="USP_DATAFORMTEMPLATE_ADD_RATEINCREASERESPONSES">
+			<common:CreateProcedureSQL>
+				<![CDATA[
+create procedure dbo.USP_DATAFORMTEMPLATE_ADD_RATEINCREASERESPONSES
+(
+    @ID uniqueidentifier = null output,
+    @SPONSORID uniqueidentifier,
+    @CHANGEAGENTID uniqueidentifier = null,
+	@RESPONSEID uniqueidentifier
+)
+as
+
+set nocount on;
+Declare @CONSTITUENTAPPEALID uniqueidentifier
+
+if @ID is null
+    set @ID = newid()
+    
+select @CONSTITUENTAPPEALID = ID from dbo.CONSTITUENTAPPEAL where APPEALID =  (select ID
+                                                                            from dbo.APPEAL
+                                                                            where [NAME] like '%10555%') AND constituentid = @sponsorid 
+
+if @CHANGEAGENTID is null  
+    exec dbo.USP_CHANGEAGENT_GETORCREATECHANGEAGENT @CHANGEAGENTID output
+
+declare @CURRENTDATE datetime
+set @CURRENTDATE = getdate()
+
+begin try
+
+	-- handle inserting the data
+	insert into dbo.CONSTITUENTAPPEALRESPONSE
+		(ID, CONSTITUENTAPPEALID, RESPONSEID, DATE, ADDEDBYID, CHANGEDBYID, DATEADDED, DATECHANGED)
+    values
+		(@ID, @CONSTITUENTAPPEALID, @RESPONSEID, @CURRENTDATE, @CHANGEAGENTID, @CHANGEAGENTID, @CURRENTDATE, @CURRENTDATE)
+	
+end try
+
+begin catch
+    exec dbo.USP_RAISE_ERROR
+    return 1
+end catch
+
+return 0				
+				]]>
+			</common:CreateProcedureSQL>
+		</SaveImplementation>
+	</SPDataForm>
+
+	<!-- describe the context ID for this form (if applicable), which corresponds to a parameter in the SP. -->
+	<Context ContextRecordType="CONSTITUENT" RecordIDParameter="SPONSORID"/>
+
+	<!-- describe fields on the form, which correspond to parameters on the SP.  Note that system parameters 
+	like the context @ID, @CONTEXTID, and @CURRENTAPPUSERID need not be listed. -->
+	<common:FormMetaData FixedDialog="true">
+		<common:FormFields>
+      <common:FormField FieldID="RESPONSEID" DataType="Guid" Required="true" Caption="Response" CaptionResourceKey="$$response">
+        <common:SimpleDataList SimpleDataListID="e48745a4-b8cd-4e31-885a-3173d7374ea6">
+          <common:Params>
+            <common:Param ID="RESPONSECATEGORYID">
+              <common:Value>CD350A82-B50C-44ED-B887-3FC5A326F96D</common:Value>
+            </common:Param>
+          </common:Params>
+        </common:SimpleDataList>
+      </common:FormField>
+
+    </common:FormFields>
+
+
+		
+	</common:FormMetaData>
+
+</AddDataFormTemplateSpec>

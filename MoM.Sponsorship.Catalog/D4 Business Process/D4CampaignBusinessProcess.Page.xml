@@ -1,0 +1,117 @@
+﻿<PageDefinitionSpec 
+	xmlns:xsd="http://www.w3.org/2001/XMLSchema" 
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+	ID="9CD181DF-CB42-4F9F-899A-25CFC65D61F3" 
+	Name="D4 Campaign business process page" 
+	Description="D4 Campaign business process page" 
+	Author="Cary Mayeda" 
+	ExpressionDataFormID="7CED89DE-DE8A-4234-85EC-CCEB9EECDD81" 
+	ContextRecordType="D4 Campaign Business Process Results"
+	xmlns="bb_appfx_pagedefinition">
+
+	<!-- 
+	Remarks:    
+
+	History:
+	Date            Modified By     Comments
+	14-May-2013		CMayeda			Initial Version copied from Memphis' D2 Campaign business process page
+	-->
+
+	<PageHeader Caption="D4 Campaign business process page" />
+	<SummarySection ID="99928D46-502E-4CCE-A1B4-39849C487784" Caption="D4 Campaign Parameters">
+		<DataForm ID="5982650F-8485-4031-B9F4-CF68F2A536D8" />
+		<SectionContext>
+			<PageContextID xmlns="bb_appfx_commontypes" />
+		</SectionContext>
+	</SummarySection>
+	<Tabs>
+		<Tab Caption="Recent Status" ID="8FE8A330-3343-4E9B-A84F-FBE344446F64">
+			<Sections>
+				<Section ID="613A56AE-5B18-4B17-9D47-CC49865DBA58" Caption="Recent Status">
+					<DataForm ID="7cf7a0c1-5848-40b2-b3d6-88a1406efc8b" />
+					<SectionContext>
+						<PageContextID xmlns="bb_appfx_commontypes" />
+					</SectionContext>
+				</Section>
+			</Sections>
+		</Tab>
+		<Tab Caption="History" ID="3EFEA853-386C-440B-B5E4-B895D3AA8FC0">
+			<Sections>
+				<Section ID="86BE30EE-8B3D-4D2C-8139-8AEBEDEB22DA" Caption="History">
+					<DataList ID="BBCEB8C3-F3B9-4619-9ADF-045CF098E674">
+						<RenderStyle>
+							<StandardView />
+						</RenderStyle>
+					</DataList>
+					<SectionContext>
+						<PageContextID xmlns="bb_appfx_commontypes" />
+					</SectionContext>
+					<Actions>
+						<Action ID="AC787236-AEA3-48A8-BF53-F9A462958732" Caption="View Report" ImageKey="RES:reports">
+							<ShowPage PageID="A6F1670F-C86B-48DB-A543-5F99DBF3AA27" TabID="91275F52-5421-4E5F-A89B-C76B45D0155A" xmlns="bb_appfx_commontypes">
+								<ActionContext>
+									<SectionField>Started on</SectionField>
+								</ActionContext>
+							</ShowPage>
+						</Action>
+						<Action ID="068D8EE3-D4DA-44EA-BA99-D4E0EF0626DA" Caption="Delete" ImageKey="RES:delete">
+							<ExecuteRecordOperation RecordOperationID="cd7eb55f-22f7-412a-9363-dec8e192310c" xmlns="bb_appfx_commontypes">
+								<ActionContext>
+									<SectionField>ID</SectionField>
+								</ActionContext>
+							</ExecuteRecordOperation>
+						</Action> 
+					</Actions>
+				</Section>
+			</Sections>
+		</Tab>
+		<Tab Caption="Parameter Sets" ID="358788C7-4652-4EA5-85B5-FB2C2EF4E0FA">
+			<Sections>
+				<Section ID="5DC32CA5-8AAC-47AF-901E-3CC7F29547F4" Caption="D4 Campaign Parameters">
+					<DataList ID="D21D5B5B-297B-4C88-B868-B895F10FDD89">
+						<RenderStyle>
+							<StandardView />
+						</RenderStyle>
+					</DataList>
+					<Actions>
+						<Action ID="A6F525FC-F143-4941-9623-CFBFF043A0A3" Caption="Start D4 Campaign" ImageKey="RES:businessprocessspec">
+							<StartBusinessProcess BusinessProcessID="0D586E6B-8B8A-4386-8167-EEB07A37A262" StatusPageID="9CD181DF-CB42-4F9F-899A-25CFC65D61F3" StatusTabID="00000000-0000-0000-0000-000000000000" PreprocessEditFormID="00000000-0000-0000-0000-000000000000" xmlns="bb_appfx_commontypes">
+								<ActionContext>
+									<SectionField>ID</SectionField>
+								</ActionContext>
+							</StartBusinessProcess>
+						</Action>
+						<Action ID="F6C76231-87CC-4DA5-9C6C-0D76A30A1A2A" Caption="Add" ImageKey="RES:newitem">
+							<ShowAddDataForm DataFormID="F9B82C4B-D754-4952-B7F4-ECEB3B38672D" xmlns="bb_appfx_commontypes">
+								<PostActionEvent>
+									<RefreshSection />
+								</PostActionEvent>
+							</ShowAddDataForm>
+						</Action>
+						<Action ID="3068774C-3DA3-4E5B-9C42-C567D5FA4089" Caption="Edit" ImageKey="RES:edit">
+							<ShowDataForm DataFormID="6F82DB9C-1D63-4913-89AF-780C7804E9D2" xmlns="bb_appfx_commontypes">
+								<ActionContext>
+									<SectionField>ID</SectionField>
+								</ActionContext>
+								<PostActionEvent>
+									<RefreshSection />
+								</PostActionEvent>
+							</ShowDataForm>
+						</Action>
+						<Action ID="05DF7491-F117-4E18-B2D4-FA9EAF9C5F8B" Caption="Delete" ImageKey="RES:delete">
+							<ExecuteRecordOperation RecordOperationID="150B6574-36F2-4BC9-8D2C-63A3EBDD33EF" xmlns="bb_appfx_commontypes">
+								<ActionContext>
+									<SectionField>ID</SectionField>
+								</ActionContext>
+								<PostActionEvent>
+									<RefreshSection />
+								</PostActionEvent>
+							</ExecuteRecordOperation>
+						</Action>
+
+					</Actions>
+				</Section>
+			</Sections>
+		</Tab>
+	</Tabs>
+</PageDefinitionSpec>

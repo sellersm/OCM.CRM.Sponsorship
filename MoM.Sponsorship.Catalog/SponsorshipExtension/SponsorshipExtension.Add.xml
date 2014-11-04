@@ -1,0 +1,189 @@
+﻿<AddDataFormTemplateSpec 
+	xmlns="bb_appfx_adddataformtemplate"
+	xmlns:common="bb_appfx_commontypes" 
+	ID="041dc380-71c7-4d2f-bb94-3dee84e2ebc7" 
+	Name="SponsorshipExtension Add Data Form"
+	Description="Add a new row to SponsorshipExtension table." 
+	Author="Memphis Sellers"
+	DataFormInstanceID="50815777-9e09-4f2b-8b88-59c8bd6b2741" 
+	RecordType="SponsorshipExtension"
+	common:SecurityUIFolder="Sponsorship"
+	>
+
+	<!-- 
+	Remarks:    Inserts a row into the USR_SPONSORSHIPEXTENSION table.
+
+	History:
+	Date            Modified By     Comments
+	25-Sep-2012		Memphis			Initial Version.
+	12-Aug-2014		Memphis			Added the field value ISCURRENT so user can set whether this new row is the current row or not, don't default it.
+	20-Aug-2014		Memphis			Refactored by NOT calling the SPROC when saving, but put the content of the SPROC
+									directly here into this form so it's self-contained.
+	21-Aug-2014		Memphis			Fix bug: only UNcheck the ISCurrent flag if user is setting this new one to Current (IsCurrent=1).
+-->
+
+
+	<SPDataForm>
+		<!-- describe the preload SP (if applicable), which should be used to fetch field default values from the database.  If no
+		preload is needed, then this section can be removed -->
+		<LoadImplementation SPName="USR_USP_DATAFORMTEMPLATE_ADD_SPONSORSHIPEXTENSION_PRELOAD" >
+			<common:CreateProcedureSQL>
+				<![CDATA[
+create procedure dbo.USR_USP_DATAFORMTEMPLATE_ADD_SPONSORSHIPEXTENSION_PRELOAD
+(
+	@SPONSORSHIPID uniqueidentifier,
+	@SPONSORSHIPOPPORTUNITYID uniqueidentifier = null output
+)
+as 
+set nocount on;
+
+begin try
+	select @SPONSORSHIPOPPORTUNITYID = SPONSORSHIPOPPORTUNITYID
+	from dbo.sponsorship
+	where ID = @SPONSORSHIPID
+end try
+
+begin catch
+    exec dbo.USP_RAISE_ERROR
+    return 1
+end catch
+
+return 0;
+				]]>
+			</common:CreateProcedureSQL>
+		</LoadImplementation>
+
+
+		<!-- describe the save SP -->
+		<SaveImplementation SPName="USR_USP_DATAFORMTEMPLATE_ADD_SPONSORSHIPEXTENSION">
+			<common:CreateProcedureSQL>
+				<![CDATA[
+create procedure dbo.USR_USP_DATAFORMTEMPLATE_ADD_SPONSORSHIPEXTENSION
+(
+    @ID uniqueidentifier = null output,
+	@SPONSORSHIPID uniqueidentifier,
+    @CHANGEAGENTID uniqueidentifier = null,
+	@INITIALOPPORTUNITYSPONSORSHIPSTATUSCODEID uniqueidentifier = null,
+	@CURRENTOPPORTUNITYSPONSORSHIPSTATUSCODEID uniqueidentifier = null,
+	@ISCURRENT bit = null,
+	@SPONSORSHIPOPPORTUNITYID uniqueidentifier
+)
+as
+
+set nocount on;
+
+if @ID is null
+    set @ID = newid()
+
+if @CHANGEAGENTID is null  
+    exec dbo.USP_CHANGEAGENT_GETORCREATECHANGEAGENT @CHANGEAGENTID output
+
+--declare @CURRENTDATE datetime
+--set @CURRENTDATE = getdate()
+
+declare	@DATEADDED datetime = null;
+declare @DATECHANGED datetime = null;
+
+
+begin try
+	-- Memphis 8/20/14: below is the content of the USR_USP_SPONSORSHIPEXTENSION_INSERT sproc, added so this is now self-contained:
+
+	-- strip out the time for the dateadded
+	if @DATEADDED is null
+		set @DATEADDED = DATEADD(dd, 0, DATEDIFF(dd, 0, getdate()));
+	
+	if @DATECHANGED is null
+		set @DATECHANGED = getdate();
+
+	-- set the inserted row to be the current row for this opportunity:
+	--declare @ISCURRENT bit = 1;
+
+	--10/22/12 Memphis add a transaction so there's no updating if the insert fails for some reason!
+	begin transaction updateInsert;
+
+		-- check for the existence of this sponsorship row already, as it may have already been inserted through some other process
+		declare @SponExId uniqueidentifier;
+		select @SponExId = ID
+		from dbo.usr_sponsorshipextension
+		where ID = @SPONSORSHIPID;
+
+		-- if we have an ID, then the Sponsorship row already exists, so do nothing
+		if @SponExId is null
+			begin
+				-- before inserting, set all rows to be not current but only if user is setting this one to Current!
+				if @ISCURRENT = 1
+					begin
+						update dbo.USR_SPONSORSHIPEXTENSION
+						set ISCURRENT = 0
+						where SPONSORSHIPOPPORTUNITYID = @SPONSORSHIPOPPORTUNITYID
+					end
+
+				INSERT INTO [dbo].[USR_SPONSORSHIPEXTENSION]
+						   (
+						   [ID]
+						   ,[INITIALOPPORTUNITYSPONSORSHIPSTATUSCODEID]
+						   ,[CURRENTOPPORTUNITYSPONSORSHIPSTATUSCODEID]
+						   ,[CONVERSIONDATE]
+						   ,[SPONSORSHIPOPPORTUNITYID]
+						   ,[DAYSTOCONVERT]
+						   ,[ISCURRENT]
+						   ,[ADDEDBYID]
+						   ,[CHANGEDBYID]
+						   ,[DATEADDED]
+						   ,[DATECHANGED]
+						   )
+					 VALUES
+						   (
+							@SPONSORSHIPID
+						   ,@INITIALOPPORTUNITYSPONSORSHIPSTATUSCODEID
+						   ,@CURRENTOPPORTUNITYSPONSORSHIPSTATUSCODEID
+						   ,NULL
+						   ,@SPONSORSHIPOPPORTUNITYID
+						   ,0
+						   ,@ISCURRENT
+						   ,@CHANGEAGENTID
+						   ,@CHANGEAGENTID
+						   ,@DATEADDED
+						   ,@DATECHANGED
+						   )
+			end
+
+	commit transaction updateInsert;	
+	
+end try
+
+begin catch
+    exec dbo.USP_RAISE_ERROR
+    return 1
+end catch
+
+return 0				
+				]]>
+			</common:CreateProcedureSQL>
+		</SaveImplementation>
+	</SPDataForm>
+
+	<!-- describe the context ID for this form (if applicable), which corresponds to a parameter in the SP. -->
+	<Context ContextRecordType="Sponsorship" RecordIDParameter="SPONSORSHIPID"/>
+
+	<!-- describe fields on the form, which correspond to parameters on the SP.  Note that system parameters 
+	like the context @ID, @CONTEXTID, and @CURRENTAPPUSERID need not be listed. -->
+	<common:FormMetaData FixedDialog="true">
+		<common:FormFields>
+			<common:FormField FieldID="INITIALOPPORTUNITYSPONSORSHIPSTATUSCODEID" Caption="Initial status" DataType="Guid" >
+				<common:CodeTable CodeTableName="USR_INITIALOPPORTUNITYSPONSORSHIPSTATUSCODE" />
+			</common:FormField>
+
+			<common:FormField FieldID="CURRENTOPPORTUNITYSPONSORSHIPSTATUSCODEID" Caption="Current status" DataType="Guid" >
+				<common:CodeTable CodeTableName="USR_CURRENTOPPORTUNITYSPONSORSHIPSTATUSCODE"/>
+			</common:FormField>
+
+			<common:FormField FieldID="ISCURRENT" Caption="Current record?" DataType="Boolean" />
+			
+			<common:FormField FieldID="SPONSORSHIPOPPORTUNITYID" Caption="Sponsorship opportunity id" DataType="Guid" Hidden="true" Required="true"/>
+		</common:FormFields>
+
+
+	</common:FormMetaData>
+
+</AddDataFormTemplateSpec>

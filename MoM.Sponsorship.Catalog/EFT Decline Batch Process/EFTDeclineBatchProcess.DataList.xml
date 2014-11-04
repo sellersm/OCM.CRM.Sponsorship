@@ -1,0 +1,60 @@
+﻿<DataListSpec 
+	xmlns="bb_appfx_datalist"
+	xmlns:common="bb_appfx_commontypes" 
+	ID="e6d75983-625e-462a-803c-7e8ec943a8ee" 
+	Name="EFT Decline Batch Process Data List"
+	Description="EFT Decline Batch Process Data List." 
+	Author="Memphis Sellers"
+	common:SecurityUIFolder="EFTBatch">
+
+	<!-- define the SP that returns the data for the datalist -->
+	<SPDataList SPName="USR_USP_DATALIST_EFTDECLINEBATCH_BUSINESSPROCESS">
+		<common:CreateProcedureSQL>
+			<![CDATA[
+create procedure dbo.USR_USP_DATALIST_EFTDECLINEBATCH_BUSINESSPROCESS(
+	@CURRENTAPPUSERID uniqueidentifier = null
+)
+as
+	set nocount on;
+
+	select bizproc.ID,
+		   bizproc.NAME,
+		   bizproc.DESCRIPTION,
+		   bizproc.BATCHNUMBER,
+		   bizproc.BATCHTYPE,
+		   BPI.OWNERID
+	from dbo.USR_EFTDECLINEBATCH_BUSINESSPROCESS bizproc
+	LEFT JOIN
+		dbo.BUSINESSPROCESSINSTANCE BPI on bizproc.ID = BPI.BUSINESSPROCESSPARAMETERSETID
+	where 
+		dbo.UFN_SECURITY_APPUSER_GRANTED_BUSINESSPROCESSINSTANCE_IN_SYSTEMROLE(@CURRENTAPPUSERID, bizproc.ID) = 1
+	order by 
+		bizproc.NAME			]]>
+		</common:CreateProcedureSQL>
+	</SPDataList>
+
+	<!-- describe the context ID parameter for the SP (if applicable)-->
+	<!--<Context ContextRecordType="REPLACE_WITH_RECORDTYPE" RecordIDParameter="CONTEXTID"/>-->
+
+	<!-- describe any parameters (other than the context ID) defined on the SP
+	<Parameters>
+		<common:FormMetaData>
+			<common:FormFields>
+				<common:FormField FieldID="PARAMETER1" Caption="Paramter1" DataType="REPLACE_WITH_DATATYPE"/>
+			</common:FormFields>
+		</common:FormMetaData>
+	</Parameters>-->
+
+	<!-- define the output fields in the list -->
+	<Output>
+		<OutputFields>
+			<OutputField FieldID="ID" Caption="ID" DataType="Guid" IsHidden="true" />
+			<OutputField FieldID="NAME" Caption="Name" DataType="String" />
+			<OutputField FieldID="DESCRIPTION" Caption="Description" DataType="String" />
+			<OutputField FieldID="BATCHNUMBER" Caption="Batch Number" DataType="String" />
+			<OutputField FieldID="BATCHTYPE" Caption="Batch Type" DataType="Integer" />
+			<OutputField FieldID="OWNERID" Caption="Owner ID" DataType="Guid" IsHidden="true" />
+		</OutputFields>
+	</Output>
+
+</DataListSpec>
