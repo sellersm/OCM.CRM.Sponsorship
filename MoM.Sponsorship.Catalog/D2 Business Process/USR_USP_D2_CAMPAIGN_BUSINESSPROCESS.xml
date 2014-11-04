@@ -23,6 +23,8 @@
 									what the NTD says.
 	10-Nov-2013		Memphis			Fixed bug in D2ChildrenList CTE to filter out Project Sponsorships 
 	09-Sep-2014		Memphis			Added the call to Cary's UFN to calculate number of months past due.
+	03-Nov-2014		Memphis			Replaced USR_UFN_CHECK_RECURRINGGIFT_ISHELD with USR_UFN_CHECK_RECURRINGGIFT_ISEFTDECLINED and changed
+									all instances of ISHELD to ISEFTDECLINED.	
 	-->
 
 	
@@ -189,11 +191,11 @@ begin
 				NTD date, 
 				PAYMETHOD tinyint, 
 				SPONSORSHIPREVENUEID uniqueidentifier, 
-				ISHELD bit,
+				ISEFTDECLINED bit,
                 NUMBEROFMONTHSPASTDUE decimal(3,1));
 		
 		declare @childId uniqueidentifier, @revenueSplitId uniqueidentifier, @sponsorId uniqueidentifier, @sponsorshipId uniqueidentifier;
-		declare @NTD date, @payMethod tinyint, @sponsorshipRevenueId uniqueidentifier, @isHeld bit, @numberOfMonthsPastDue decimal(3,1);
+		declare @NTD date, @payMethod tinyint, @sponsorshipRevenueId uniqueidentifier, @isEftDeclined bit, @numberOfMonthsPastDue decimal(3,1);
 
 		set @payMethod = 99;  -- default to neither cash nor eft
         set @numberOfMonthsPastDue = -1;
@@ -255,7 +257,7 @@ begin
 
 
 		-- then get the children for each sponsor that meet 1.4-1.6
-		, D2ChildrenList (childId, revenueSplitId, sponsorId, sponsorshipId, payMethod, sponsorshipRevenueId, isHeld)
+		, D2ChildrenList (childId, revenueSplitId, sponsorId, sponsorshipId, payMethod, sponsorshipRevenueId, isEftDeclined)
 		as
 		(
 			select dbo.SPONSORSHIP.SPONSORSHIPOPPORTUNITYID,
@@ -264,7 +266,8 @@ begin
 				   dbo.SPONSORSHIP.ID,
 				   dbo.USR_UFN_GET_PAYMENTMETHODCODE_BY_REVENUESPLITID(dbo.SPONSORSHIP.REVENUESPLITID) as PAYMETHOD,
 				   (select REVENUEID from dbo.REVENUESPLIT where ID = dbo.SPONSORSHIP.REVENUESPLITID) as SPONSORSHIPREVENUEID,
-				   dbo.USR_UFN_CHECK_RECURRINGGIFT_ISHELD(dbo.SPONSORSHIP.REVENUESPLITID) as ISHELD  -- 0 false, 1 true
+				   --dbo.USR_UFN_CHECK_RECURRINGGIFT_ISHELD(dbo.SPONSORSHIP.REVENUESPLITID) as ISHELD  -- 0 false, 1 true
+				   dbo.USR_UFN_CHECK_RECURRINGGIFT_ISEFTDECLINED(dbo.SPONSORSHIP.REVENUESPLITID) as ISEFTDECLINED  -- 0 false, 1 true
 			from dbo.SPONSORSHIP
 			join dbo.USR_SPONSORSHIPEXTENSION se on se.ID = dbo.SPONSORSHIP.ID
 			join dbo.USR_CURRENTOPPORTUNITYSPONSORSHIPSTATUSCODE statusCode on statusCode.ID = se.CURRENTOPPORTUNITYSPONSORSHIPSTATUSCODEID and statusCode.DESCRIPTION = 'Sponsored'
@@ -285,7 +288,8 @@ begin
 				ACTIVESPONSORSHIP.ID,
 				dbo.USR_UFN_GET_PAYMENTMETHODCODE_BY_REVENUESPLITID(ACTIVESPONSORSHIP.REVENUESPLITID) as PAYMETHOD,
 				(select REVENUEID from dbo.REVENUESPLIT where ID = ACTIVESPONSORSHIP.REVENUESPLITID) as SPONSORSHIPREVENUEID,
-				dbo.USR_UFN_CHECK_RECURRINGGIFT_ISHELD(ACTIVESPONSORSHIP.REVENUESPLITID) as ISHELD  -- 0 false, 1 true
+				--dbo.USR_UFN_CHECK_RECURRINGGIFT_ISHELD(ACTIVESPONSORSHIP.REVENUESPLITID) as ISHELD  -- 0 false, 1 true
+				dbo.USR_UFN_CHECK_RECURRINGGIFT_ISEFTDECLINED(ACTIVESPONSORSHIP.REVENUESPLITID) as ISEFTDECLINED  -- 0 false, 1 true
 			from dbo.SPONSORSHIPTRANSACTION GIFTSTART
 			inner join dbo.SPONSORSHIPCOMMITMENT on SPONSORSHIPCOMMITMENT.ID = GIFTSTART.SPONSORSHIPCOMMITMENTID
 			left join dbo.SPONSORSHIPTRANSACTION GIFTEND on GIFTEND.SPONSORSHIPCOMMITMENTID = GIFTSTART.SPONSORSHIPCOMMITMENTID and GIFTEND.TRANSACTIONSEQUENCE = (select min(MINSEQ.TRANSACTIONSEQUENCE) from dbo.SPONSORSHIPTRANSACTION MINSEQ where MINSEQ.SPONSORSHIPCOMMITMENTID = GIFTSTART.SPONSORSHIPCOMMITMENTID and MINSEQ.TRANSACTIONSEQUENCE > GIFTSTART.TRANSACTIONSEQUENCE and MINSEQ.ACTIONCODE in(2,3,5,9))
@@ -308,7 +312,7 @@ begin
 			   , case when REVENUESCHEDULE.NEXTTRANSACTIONDATE > REVENUESCHEDULE.ENDDATE then null else REVENUESCHEDULE.NEXTTRANSACTIONDATE end as 'NTD'
 			   , payMethod
 			   , sponsorshipRevenueId
-			   , isHeld
+			   , isEftDeclined
                --,case 
                -- 	when REVENUESCHEDULE.FREQUENCYCODE = 3 then dbo.UFN_RECURRINGGIFT_GETPASTDUEAMOUNT(rev.ID, null) / rev.TRANSACTIONAMOUNT -- Monthly
                -- 	when REVENUESCHEDULE.FREQUENCYCODE = 6 then dbo.UFN_RECURRINGGIFT_GETPASTDUEAMOUNT(rev.ID, null) / ((rev.TRANSACTIONAMOUNT * 6)/12) -- Bimonthly
@@ -337,7 +341,7 @@ begin
 
 		open d2resultsCursor;
 							
-		fetch next from d2resultsCursor into @childId, @revenueSplitId, @sponsorId, @sponsorshipId, @NTD, @payMethod, @sponsorshipRevenueId, @isHeld, @numberOfMonthsPastDue;
+		fetch next from d2resultsCursor into @childId, @revenueSplitId, @sponsorId, @sponsorshipId, @NTD, @payMethod, @sponsorshipRevenueId, @isEftDeclined, @numberOfMonthsPastDue;
 
 		-- set the new sponsor flag for the first sponsor
 		set @isNewSponsor = 1;
@@ -397,7 +401,7 @@ begin
 				
 						if @campaignType = 1  -- EFT Active: 2nd priority
 							begin
-								if not exists (select 1 from @d2ResultsTable where (PAYMETHOD in (2,3) and SPONSORID = @sponsorId and ISHELD = 1))
+								if not exists (select 1 from @d2ResultsTable where (PAYMETHOD in (2,3) and SPONSORID = @sponsorId and ISEFTDECLINED = 1))
 									begin
 										if exists (select 1 from @d2ResultsTable where (PAYMETHOD in (2,3) and SPONSORID = @sponsorId))
 											begin
@@ -412,7 +416,7 @@ begin
 					
 						if @campaignType = 2  -- EFT Held: top priority
 							begin
-								if exists (select 1 from @d2ResultsTable where (PAYMETHOD in (2,3) and SPONSORID = @sponsorId and ISHELD = 1))
+								if exists (select 1 from @d2ResultsTable where (PAYMETHOD in (2,3) and SPONSORID = @sponsorId and ISEFTDECLINED = 1))
 									begin
 										-- add all the kids 
 										insert @childIDList 
@@ -500,13 +504,13 @@ begin
 										Cancelled = No						
 										*/
 										set @interactionSummary = case when @payMethod in (0,1,9) then 'Cash – D2 Campaign'
-											when @payMethod IN (2,3) and @isHeld = 0 then 'Active EFT – D2 Campaign'
-											when @payMethod IN (2,3) and @isHeld = 1 then 'Held EFT – D2 Campaign' 
+											when @payMethod IN (2,3) and @isEftDeclined = 0 then 'Active EFT – D2 Campaign'
+											when @payMethod IN (2,3) and @isEftDeclined = 1 then 'Held EFT – D2 Campaign' 
 											end;
 										
 										set @subcategoryName = case when @payMethod in (0,1,9) then @cashSubcategoryName
-																when @payMethod IN (2,3) and @isHeld = 1 then @heldEFTSubcategoryName
-																when @payMethod IN (2,3) and @isHeld = 0 then @activeEFTSubcategoryName
+																when @payMethod IN (2,3) and @isEftDeclined = 1 then @heldEFTSubcategoryName
+																when @payMethod IN (2,3) and @isEftDeclined = 0 then @activeEFTSubcategoryName
 																end;
                     
 										set @interactionContactMethodId = @phoneContactMethodID;
@@ -732,7 +736,7 @@ begin
 					end
 			
 				SKIP_THIS_RECORD:
-		        fetch next from d2resultsCursor into @childId, @revenueSplitId, @sponsorId, @sponsorshipId, @NTD, @payMethod, @sponsorshipRevenueId, @isHeld, @numberOfMonthsPastDue;
+		        fetch next from d2resultsCursor into @childId, @revenueSplitId, @sponsorId, @sponsorshipId, @NTD, @payMethod, @sponsorshipRevenueId, @isEftDeclined, @numberOfMonthsPastDue;
 		
 				-- check for a different sponsor
 				if @currentSponsorId <> @sponsorId
