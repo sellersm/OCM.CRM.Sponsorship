@@ -15,7 +15,7 @@
 	<ViewImplementation ViewName="USR_V_QUERY_D2_PRECAMPAIGN_QA">
 		<ViewSQL>
 			<![CDATA[
-		select ISHELD, 
+		select ISEFTDECLINED, 
 			CHILDLOOKUPID,
 			SPONSORLOOKUPID, 
 			REVENUELOOKUPID, 
@@ -35,7 +35,7 @@
 	<Output>
 		<OutputFields>
 			<OutputField Caption="System record ID" Category="System Fields" Name="REVENUEID" />
-			<OutputField Name="ISHELD" Caption="Is Held" DataType="Boolean" />				
+			<OutputField Name="ISEFTDECLINED" Caption="Is EFT Declined" DataType="Boolean" />				
 			<OutputField Name="CHILDLOOKUPID" Caption="Child Lookup Id" DataType="String" />
 			<OutputField Name="SPONSORLOOKUPID" Caption="Sponsor Lookup Id" DataType="String" />
 			<OutputField Name="REVENUELOOKUPID" Caption="Revenue Lookup Id" DataType="String" />

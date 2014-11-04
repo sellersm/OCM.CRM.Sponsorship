@@ -109,6 +109,7 @@
 									USR_UFN_GET_DELINQUENCY_SPONSORSHIPS.xml
 									DelinquencyCampaignsSponsorshipsInfo.Query.xml
 	17-Sep-2014		Memphis			Added a new query:  DelinquencyCampaignsSponsorshipsInfoAsOfToday.Query.xml
+	03-Nov-2014		Memphis			Added new UFN:  USR_UFN_CHECK_RECURRINGGIFT_ISEFTDECLINED
 	
 	-->
 
@@ -242,6 +243,7 @@
 		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.USR_UFN_GET_UNPAIDSPONSORED_FINANCIALCOMMITMENTS_BYSPONSOR.xml" />
 		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.USR_UFN_SPONSORSHIP_GETUNPAID_SPONSOREDCHILDREN_FORSPONSOR.xml" />
 		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.USR_UFN_GET_DELINQUENCY_SPONSORSHIPS.xml" />
+		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.USR_UFN_CHECK_RECURRINGGIFT_ISEFTDECLINED.xml" />
 
 		<!-- Smart Fields -->
 		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.NextTransactionDateDelinquency.SmartField.xml" />

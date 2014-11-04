@@ -15,7 +15,9 @@
 	History:
 	Date            Modified By     Comments
 	16-Jan-2013		Memphis			Initial Version.  
-	09-Sep-2014		Memphis			Added the call to Cary's UFN to calculate number of months past due.	
+	09-Sep-2014		Memphis			Added the call to Cary's UFN to calculate number of months past due.
+	03-Nov-2014		Memphis			Replaced USR_UFN_CHECK_RECURRINGGIFT_ISHELD with USR_UFN_CHECK_RECURRINGGIFT_ISEFTDECLINED and changed
+									all instances of ISHELD to ISEFTDECLINED.
 	-->
 	
 	
@@ -25,7 +27,7 @@
 CREATE FUNCTION [dbo].[USR_UFN_GET_D2_PRECAMPAIGN_QA_RESULTS] ()
 RETURNS @D2CampaignQAResults table
 (
-[ISHELD] bit NULL, 
+[ISEFTDECLINED] bit NULL, 
 [ChildLookupId] nvarchar(50) NULL, 
 [SponsorLookupId] nvarchar(50) NULL, 
 [RevenueLookupId] nvarchar(50) NULL, 
@@ -74,11 +76,11 @@ BEGIN
 				NTD date, 
 				PAYMETHOD tinyint, 
 				SPONSORSHIPREVENUEID uniqueidentifier, 
-				ISHELD bit,
+				ISEFTDECLINED bit,
                 NUMBEROFMONTHSPASTDUE decimal(3,1));
 		
 		declare @childId uniqueidentifier, @revenueSplitId uniqueidentifier, @sponsorId uniqueidentifier, @sponsorshipId uniqueidentifier;
-		declare @NTD date, @payMethod tinyint, @sponsorshipRevenueId uniqueidentifier, @isHeld bit, @numberOfMonthsPastDue decimal(3,1);
+		declare @NTD date, @payMethod tinyint, @sponsorshipRevenueId uniqueidentifier, @isEftDeclined bit, @numberOfMonthsPastDue decimal(3,1);
 
 		set @payMethod = 99;  -- default to neither cash nor eft
         set @numberOfMonthsPastDue = -1;
@@ -140,7 +142,7 @@ BEGIN
 
 
 		-- then get the children for each sponsor that meet 1.4-1.6
-		, D2ChildrenList (childId, revenueSplitId, sponsorId, sponsorshipId, payMethod, sponsorshipRevenueId, isHeld)
+		, D2ChildrenList (childId, revenueSplitId, sponsorId, sponsorshipId, payMethod, sponsorshipRevenueId, isEftDeclined)
 		as
 		(
 			select dbo.SPONSORSHIP.SPONSORSHIPOPPORTUNITYID,
@@ -149,7 +151,8 @@ BEGIN
 				   dbo.SPONSORSHIP.ID,
 				   dbo.USR_UFN_GET_PAYMENTMETHODCODE_BY_REVENUESPLITID(dbo.SPONSORSHIP.REVENUESPLITID) as PAYMETHOD,
 				   (select REVENUEID from dbo.REVENUESPLIT where ID = dbo.SPONSORSHIP.REVENUESPLITID) as SPONSORSHIPREVENUEID,
-				   dbo.USR_UFN_CHECK_RECURRINGGIFT_ISHELD(dbo.SPONSORSHIP.REVENUESPLITID) as ISHELD  -- 0 false, 1 true
+				   --dbo.USR_UFN_CHECK_RECURRINGGIFT_ISHELD(dbo.SPONSORSHIP.REVENUESPLITID) as ISHELD  -- 0 false, 1 true
+				   dbo.USR_UFN_CHECK_RECURRINGGIFT_ISEFTDECLINED(dbo.SPONSORSHIP.REVENUESPLITID) as ISEFTDECLINED  -- 0 false, 1 true
 			from dbo.SPONSORSHIP
 			join dbo.USR_SPONSORSHIPEXTENSION se on se.ID = dbo.SPONSORSHIP.ID
 			join dbo.USR_CURRENTOPPORTUNITYSPONSORSHIPSTATUSCODE statusCode on statusCode.ID = se.CURRENTOPPORTUNITYSPONSORSHIPSTATUSCODEID and statusCode.DESCRIPTION = 'Sponsored'
@@ -170,7 +173,8 @@ BEGIN
 				ACTIVESPONSORSHIP.ID,
 				dbo.USR_UFN_GET_PAYMENTMETHODCODE_BY_REVENUESPLITID(ACTIVESPONSORSHIP.REVENUESPLITID) as PAYMETHOD,
 				(select REVENUEID from dbo.REVENUESPLIT where ID = ACTIVESPONSORSHIP.REVENUESPLITID) as SPONSORSHIPREVENUEID,
-				dbo.USR_UFN_CHECK_RECURRINGGIFT_ISHELD(ACTIVESPONSORSHIP.REVENUESPLITID) as ISHELD  -- 0 false, 1 true
+				--dbo.USR_UFN_CHECK_RECURRINGGIFT_ISHELD(ACTIVESPONSORSHIP.REVENUESPLITID) as ISHELD  -- 0 false, 1 true
+				dbo.USR_UFN_CHECK_RECURRINGGIFT_ISEFTDECLINED(ACTIVESPONSORSHIP.REVENUESPLITID) as ISEFTDECLINED  -- 0 false, 1 true
 			from dbo.SPONSORSHIPTRANSACTION GIFTSTART
 			inner join dbo.SPONSORSHIPCOMMITMENT on SPONSORSHIPCOMMITMENT.ID = GIFTSTART.SPONSORSHIPCOMMITMENTID
 			left join dbo.SPONSORSHIPTRANSACTION GIFTEND on GIFTEND.SPONSORSHIPCOMMITMENTID = GIFTSTART.SPONSORSHIPCOMMITMENTID and GIFTEND.TRANSACTIONSEQUENCE = (select min(MINSEQ.TRANSACTIONSEQUENCE) from dbo.SPONSORSHIPTRANSACTION MINSEQ where MINSEQ.SPONSORSHIPCOMMITMENTID = GIFTSTART.SPONSORSHIPCOMMITMENTID and MINSEQ.TRANSACTIONSEQUENCE > GIFTSTART.TRANSACTIONSEQUENCE and MINSEQ.ACTIONCODE in(2,3,5,9))
@@ -193,7 +197,7 @@ BEGIN
 			   , case when REVENUESCHEDULE.NEXTTRANSACTIONDATE > REVENUESCHEDULE.ENDDATE then null else REVENUESCHEDULE.NEXTTRANSACTIONDATE end as 'NTD'
 			   , payMethod
 			   , sponsorshipRevenueId
-			   , isHeld
+			   , isEftDeclined
                --,case 
                -- 	when REVENUESCHEDULE.FREQUENCYCODE = 3 then dbo.UFN_RECURRINGGIFT_GETPASTDUEAMOUNT(rev.ID, null) / rev.TRANSACTIONAMOUNT -- Monthly
                -- 	when REVENUESCHEDULE.FREQUENCYCODE = 6 then dbo.UFN_RECURRINGGIFT_GETPASTDUEAMOUNT(rev.ID, null) / ((rev.TRANSACTIONAMOUNT * 6)/12) -- Bimonthly
@@ -215,7 +219,7 @@ BEGIN
 
     BEGIN
         INSERT @D2CampaignQAResults
-    		select ISHELD, 
+    		select ISEFTDECLINED, 
     			so.LOOKUPID as CHILDLOOKUPID,
     			c.LOOKUPID as SPONSORLOOKUPID, 
     			r.LOOKUPID as REVENUELOOKUPID, 
