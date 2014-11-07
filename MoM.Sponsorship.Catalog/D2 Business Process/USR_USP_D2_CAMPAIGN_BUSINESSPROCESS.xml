@@ -27,6 +27,7 @@
 									all instances of ISHELD to ISEFTDECLINED.	
 	06-Nov-2014		Memphis			Fixed bug with precision of decimal variable holding NumberOfMonthsPastDue to decimal(6,3)
 	07-Nov-2014		Memphis			Fixed bug with nvarchar size used to display the NumberOfMonthsPastDue which is decimal(6,3)
+									Changed the WHERE clause to be looking back 6 months: changed variable to 2nd day six months ago.
 	-->
 
 	
@@ -178,9 +179,9 @@ begin
 		--declare @secondDayTwoMonthsAgo date;
 		--set @secondDayTwoMonthsAgo =  DATEADD(MONTH, DATEDIFF(MONTH, 0, GETDATE()) - 2, 0)
 		--set @secondDayTwoMonthsAgo = DATEADD(DAY, 1, @secondDayTwoMonthsAgo)
-		declare @secondDayThreeMonthsAgo date;
-		set @secondDayThreeMonthsAgo =  DATEADD(MONTH, DATEDIFF(MONTH, 0, GETDATE()) - 3, 0)
-		set @secondDayThreeMonthsAgo = DATEADD(DAY, 1, @secondDayThreeMonthsAgo)
+		declare @secondDaySixMonthsAgo date;
+		set @secondDaySixMonthsAgo =  DATEADD(MONTH, DATEDIFF(MONTH, 0, GETDATE()) - 6, 0)
+		set @secondDaySixMonthsAgo = DATEADD(DAY, 1, @secondDaySixMonthsAgo)
 
 		----print @firstDayPreviousMonth;
 		----print @secondDayTwoMonthsAgo;
@@ -329,7 +330,7 @@ begin
 		join	dbo.REVENUE rev on revsplit.REVENUEID = rev.ID
 		join	dbo.REVENUESCHEDULE on REVENUESCHEDULE.ID = rev.ID --REVENUE.ID		
 		where ((case when REVENUESCHEDULE.NEXTTRANSACTIONDATE > REVENUESCHEDULE.ENDDATE then null else REVENUESCHEDULE.NEXTTRANSACTIONDATE end) 
-			between @secondDayThreeMonthsAgo and @firstDayPreviousMonth
+			between @secondDaySixMonthsAgo and @firstDayPreviousMonth
 		--and isHeld = case when @campaignType in (0,1) then 0 else 1 end
 		)
 		order by NTD;
