@@ -25,6 +25,7 @@
 	09-Sep-2014		Memphis			Added the call to Cary's UFN to calculate number of months past due.
 	03-Nov-2014		Memphis			Replaced USR_UFN_CHECK_RECURRINGGIFT_ISHELD with USR_UFN_CHECK_RECURRINGGIFT_ISEFTDECLINED and changed
 									all instances of ISHELD to ISEFTDECLINED.	
+	06-Nov-2014		Memphis			Fixed bug with precision of decimal variable holding NumberOfMonthsPastDue to decimal(6,3)
 	-->
 
 	
@@ -192,10 +193,10 @@ begin
 				PAYMETHOD tinyint, 
 				SPONSORSHIPREVENUEID uniqueidentifier, 
 				ISEFTDECLINED bit,
-                NUMBEROFMONTHSPASTDUE decimal(3,1));
+                NUMBEROFMONTHSPASTDUE decimal(6,3));
 		
 		declare @childId uniqueidentifier, @revenueSplitId uniqueidentifier, @sponsorId uniqueidentifier, @sponsorshipId uniqueidentifier;
-		declare @NTD date, @payMethod tinyint, @sponsorshipRevenueId uniqueidentifier, @isEftDeclined bit, @numberOfMonthsPastDue decimal(3,1);
+		declare @NTD date, @payMethod tinyint, @sponsorshipRevenueId uniqueidentifier, @isEftDeclined bit, @numberOfMonthsPastDue decimal(6,3);
 
 		set @payMethod = 99;  -- default to neither cash nor eft
         set @numberOfMonthsPastDue = -1;
