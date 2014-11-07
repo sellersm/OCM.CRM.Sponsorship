@@ -18,6 +18,7 @@
 	09-Sep-2014		Memphis			Added the call to Cary's UFN to calculate number of months past due.
 	03-Nov-2014		Memphis			Replaced USR_UFN_CHECK_RECURRINGGIFT_ISHELD with USR_UFN_CHECK_RECURRINGGIFT_ISEFTDECLINED and changed
 									all instances of ISHELD to ISEFTDECLINED.
+	07-Nov-2014		Memphis			Changed the WHERE clause to be looking back 6 months: changed variable to 2nd day six months ago.
 	-->
 	
 	
@@ -63,9 +64,9 @@ BEGIN
 		--declare @secondDayTwoMonthsAgo date;
 		--set @secondDayTwoMonthsAgo =  DATEADD(MONTH, DATEDIFF(MONTH, 0, GETDATE()) - 2, 0)
 		--set @secondDayTwoMonthsAgo = DATEADD(DAY, 1, @secondDayTwoMonthsAgo)
-		declare @secondDayThreeMonthsAgo date;
-		set @secondDayThreeMonthsAgo =  DATEADD(MONTH, DATEDIFF(MONTH, 0, GETDATE()) - 3, 0)
-		set @secondDayThreeMonthsAgo = DATEADD(DAY, 1, @secondDayThreeMonthsAgo)
+		declare @secondDaySixMonthsAgo date;
+		set @secondDaySixMonthsAgo =  DATEADD(MONTH, DATEDIFF(MONTH, 0, GETDATE()) - 6, 0)
+		set @secondDaySixMonthsAgo = DATEADD(DAY, 1, @secondDaySixMonthsAgo)
 		
 
 		declare @d2ResultsTable table (
@@ -212,7 +213,7 @@ BEGIN
 		join	dbo.REVENUE rev on revsplit.REVENUEID = rev.ID
 		join	dbo.REVENUESCHEDULE on REVENUESCHEDULE.ID = rev.ID --REVENUE.ID		
 		where ((case when REVENUESCHEDULE.NEXTTRANSACTIONDATE > REVENUESCHEDULE.ENDDATE then null else REVENUESCHEDULE.NEXTTRANSACTIONDATE end) 
-			between @secondDayThreeMonthsAgo and @firstDayPreviousMonth
+			between @secondDaySixMonthsAgo and @firstDayPreviousMonth
 		--and isHeld = case when @campaignType in (0,1) then 0 else 1 end
 		)
 		order by NTD;
