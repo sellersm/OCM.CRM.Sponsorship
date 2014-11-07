@@ -29,6 +29,7 @@
 	03-Nov-2014		Memphis			Replaced USR_UFN_CHECK_RECURRINGGIFT_ISHELD with USR_UFN_CHECK_RECURRINGGIFT_ISEFTDECLINED and changed
 									all instances of ISHELD to ISEFTDECLINED.	
 	06-Nov-2014		Memphis			Fixed bug with precision of decimal variable holding NumberOfMonthsPastDue to decimal(6,3)
+	07-Nov-2014		Memphis			Fixed bug with nvarchar size used to display the NumberOfMonthsPastDue which is decimal(6,3)
 	-->
 
 
@@ -683,7 +684,7 @@ declare @D2ChildrenList table (
 						from dbo.CONSTITUENT
 						where ID = @sponsorId;
                         
-                        set @exceptionMessage = case when @amountException = 1 then 'NTD and Amount Past Due do not match: ' + Cast(ISNULL(@NTD, '') as nvarchar(30)) + '  ' + Cast(@numberOfMonthsPastDue as nvarchar(5))
+                        set @exceptionMessage = case when @amountException = 1 then 'NTD and Amount Past Due do not match: ' + Cast(ISNULL(@NTD, '') as nvarchar(30)) + '  ' + Cast(@numberOfMonthsPastDue as nvarchar(15))
                                                      when @amountException = 0 then 'No D2 email interaction created: ' + @noEmailMessage
                                                      end;
 				
