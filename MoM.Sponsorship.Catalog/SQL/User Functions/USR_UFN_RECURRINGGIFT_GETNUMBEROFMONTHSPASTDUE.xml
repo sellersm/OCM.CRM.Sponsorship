@@ -35,7 +35,7 @@ as begin
 				when rsch.FREQUENCYCODE in (0,1,2) then -- Annually, Semi-annually, Quarterly
 					case                                        
 						-- if the NTD is less than the @asOfDate, then calculate a value otherwise return 0
-						when day (rsch.NEXTTRANSACTIONDATE) < day (@asOfDate) then 
+						when cast (rsch.NEXTTRANSACTIONDATE as date) < cast (@asOfDate as date) then 
 							-- Determine how many months since the NTD
 							(DATEDIFF(m, rsch.NEXTTRANSACTIONDATE, @asOfDate)+ 1) 
 							
