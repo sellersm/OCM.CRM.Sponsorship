@@ -31,6 +31,8 @@
 	06-Nov-2014		Memphis			Fixed bug with precision of decimal variable holding NumberOfMonthsPastDue to decimal(6,3)
 	07-Nov-2014		Memphis			Fixed bug with nvarchar size used to display the NumberOfMonthsPastDue which is decimal(6,3)
 									Changed the WHERE clause to be looking back 6 months: changed variable to 2nd day six months ago.
+									remove the rows that aren't between 2 & 3 months past due to fix the additional children added to
+									interaction issue.
 	-->
 
 
@@ -375,6 +377,10 @@ declare @D2ChildrenList table (
 		)
 		order by NTD;
 
+		-- 11/7/14 Memphis added:
+		-- remove the rows that aren't between 2 & 3 months past due:
+		delete from @d2ResultsTable
+		where (NUMBEROFMONTHSPASTDUE < 2 or numberOfMonthsPastDue >= 3);
 
 		-- put the results into a cursor so we can create the necessary interactions, one-by-one and do all the various pieces of work required
 		declare d2resultsCursor cursor local fast_forward for
