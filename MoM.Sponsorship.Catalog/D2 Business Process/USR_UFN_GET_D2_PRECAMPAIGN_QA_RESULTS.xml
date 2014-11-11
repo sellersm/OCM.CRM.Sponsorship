@@ -34,7 +34,7 @@ RETURNS @D2CampaignQAResults table
 [RevenueLookupId] nvarchar(50) NULL, 
 [NTD] date NULL, 
 [PAYMETHOD] int NULL, 
-[NUMBEROFMONTHSPASTDUE] nvarchar(50) NULL,
+[NUMBEROFMONTHSPASTDUE] decimal(6,3) NULL,
 [REVENUEID] uniqueidentifier NULL
 )
 WITH EXEC AS CALLER
@@ -78,10 +78,10 @@ BEGIN
 				PAYMETHOD tinyint, 
 				SPONSORSHIPREVENUEID uniqueidentifier, 
 				ISEFTDECLINED bit,
-                NUMBEROFMONTHSPASTDUE decimal(3,1));
+                NUMBEROFMONTHSPASTDUE decimal(6,3));
 		
 		declare @childId uniqueidentifier, @revenueSplitId uniqueidentifier, @sponsorId uniqueidentifier, @sponsorshipId uniqueidentifier;
-		declare @NTD date, @payMethod tinyint, @sponsorshipRevenueId uniqueidentifier, @isEftDeclined bit, @numberOfMonthsPastDue decimal(3,1);
+		declare @NTD date, @payMethod tinyint, @sponsorshipRevenueId uniqueidentifier, @isEftDeclined bit, @numberOfMonthsPastDue decimal(6,3);
 
 		set @payMethod = 99;  -- default to neither cash nor eft
         set @numberOfMonthsPastDue = -1;
