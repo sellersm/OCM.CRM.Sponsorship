@@ -1,0 +1,57 @@
+﻿<QueryViewSpec
+	xmlns="bb_appfx_queryview"
+	xmlns:common="bb_appfx_commontypes" 
+	ID="5bce4f5e-c068-40a7-879d-9f035c5ea15a"
+	Name="D2 Biz Process Records Not Processed Query"
+	Description="Displays the D2 Biz Process Records Not Processed"
+	Author="Memphis Sellers"
+	IsRoot="true"
+	PrimaryKeyField="SPONSORSHIPID"
+	RecordType="Sponsorship"
+	common:SecurityUIFolder="Sponsorship"	
+	>
+
+	<!-- define the view used to return data for the query -->
+	<ViewImplementation ViewName="USR_V_QUERY_D2_RECORDS_NOT_PROCESSED">
+		<ViewSQL>
+			<![CDATA[
+		select 
+			sponsor.LOOKUPID as SPONSORLOOKUPID
+			,child.LOOKUPID as CHILDLOOKUPID
+			--,CHILDID	
+			--,REVENUESPLITID	
+			,r.LOOKUPID as REVENUELOOKUPID
+			--,SPONSORID	
+			,NTD	
+			,PAYMETHOD	
+			,ISHELD	
+			,NUMBEROFMONTHSPASTDUE
+			,SPONSORSHIPID	
+			,SPONSORSHIPREVENUEID	
+		from dbo.USR_D2_RECORDS_NOT_PROCESSED
+		left join dbo.CONSTITUENT sponsor on sponsor.ID = SPONSORID
+		left join dbo.CONSTITUENT child on child.ID = CHILDID
+		left join dbo.revenuesplit rs on rs.ID = REVENUESPLITID
+		left join dbo.revenue r on r.ID = rs.REVENUEID
+	
+			]]>
+		</ViewSQL>
+	</ViewImplementation>
+
+	<!-- describe each field in the view output -->
+	<Output>
+		<OutputFields>
+			<OutputField Caption="System record ID" Category="System Fields" Name="SPONSORSHIPID" />
+			<OutputField Name="SPONSORLOOKUPID" Caption="Sponsor ID" DataType="String" />
+			<OutputField Name="CHILDLOOKUPID" Caption="Child ID" DataType="String" />
+			<OutputField Name="REVENUELOOKUPID" Caption="Revenue ID" DataType="String" />			
+			<OutputField Name="NTD" Caption="NTD" DataType="Date" />
+			<OutputField Name="PAYMETHOD" Caption="Payment Method" DataType="Integer" />
+			<OutputField Name="ISHELD" Caption="Is Held" DataType="Boolean" />
+			<OutputField Name="NUMBEROFMONTHSPASTDUE" Caption="Number Months Past Due" DataType="Decimal" />
+			<OutputField Name="SPONSORSHIPREVENUEID" Caption="SPONSORSHIP REVENUE ID" DataType="Guid" />
+		</OutputFields>
+	</Output>
+
+</QueryViewSpec>
+

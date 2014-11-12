@@ -18,6 +18,7 @@
 									Added the parameter AsOfDate so caller can determine how the number of months past due is calculated:
 										2nd of current month, or
 										Today's date
+	12-Nov-2014		Memphis			Added the ISNULL() to the ISEFTDECLINED column to prevent blanks from appearing in the results.
 	-->	
 	
 	<CreateFunctionSQL>
@@ -213,7 +214,7 @@ as begin
 			   , commitmentId
 			   , dbo.UFN_RECURRINGGIFT_GETPASTDUEAMOUNT(rev.ID, null) as PASTDUEAMOUNT
 			   , rev.AMOUNT as GIFTAMOUNT
-			   , fte.ISEFTDECLINED
+			   , ISNULL(fte.ISEFTDECLINED, 0) as ISEFTDECLINED
 		from DelinquencyChildrenList
 		join	dbo.REVENUESPLIT revsplit on revenueSplitId = revsplit.ID
 		join	dbo.REVENUE rev on revsplit.REVENUEID = rev.ID
