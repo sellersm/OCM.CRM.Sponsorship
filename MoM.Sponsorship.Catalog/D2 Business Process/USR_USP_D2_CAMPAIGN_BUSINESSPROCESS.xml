@@ -30,7 +30,8 @@
 									Changed the WHERE clause to be looking back 6 months: changed variable to 2nd day six months ago.
 									remove the rows that aren't between 2 & 3 months past due to fix the additional children added to
 									interaction issue.
-	-->
+	12-Nov-2014		Memphis			Added code to insert records not processed into table.
+-->
 
 	
 	
@@ -337,6 +338,13 @@ begin
 		)
 		order by NTD;
 
+		--11/12/14 Memphis added:
+		-- before we delete, copy the records we won't process:
+		select *
+		into dbo.USR_D2_RECORDS_NOT_PROCESSED
+		from @d2ResultsTable
+		where (NUMBEROFMONTHSPASTDUE < 2 or numberOfMonthsPastDue >= 3);
+		
 		-- 11/7/14 Memphis added:
 		-- remove the rows that aren't between 2 & 3 months past due:
 		delete from @d2ResultsTable
