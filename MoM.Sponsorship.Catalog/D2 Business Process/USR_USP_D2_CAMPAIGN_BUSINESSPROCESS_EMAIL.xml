@@ -379,11 +379,28 @@ declare @D2ChildrenList table (
 		order by NTD;
 
 		--11/12/14 Memphis added:
+		--11/12/14 Memphis added:
 		-- before we delete, copy the records we won't process:
-		select *
-		into dbo.USR_D2_RECORDS_NOT_PROCESSED
-		from @d2ResultsTable
-		where (NUMBEROFMONTHSPASTDUE < 2 or numberOfMonthsPastDue >= 3);
+		IF (EXISTS (SELECT * 
+						 FROM INFORMATION_SCHEMA.TABLES 
+						 WHERE TABLE_SCHEMA = 'dbo' 
+						 AND  TABLE_NAME = 'USR_D2_RECORDS_NOT_PROCESSED'))
+			BEGIN
+				--print 'The table already exists!';
+				--Do insert here instead of select into
+				insert into dbo.USR_D2_RECORDS_NOT_PROCESSED
+				select *
+				from @d2ResultsTable
+				where (NUMBEROFMONTHSPASTDUE < 2 or numberOfMonthsPastDue >= 3);				
+			END
+		else
+			begin
+				--print 'The table does NOT already exist!';
+				select *
+				into dbo.USR_D2_RECORDS_NOT_PROCESSED
+				from @d2ResultsTable
+				where (NUMBEROFMONTHSPASTDUE < 2 or numberOfMonthsPastDue >= 3);
+			end
 
 		-- 11/7/14 Memphis added:
 		-- remove the rows that aren't between 2 & 3 months past due:
