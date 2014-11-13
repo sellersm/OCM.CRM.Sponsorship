@@ -47,7 +47,7 @@
 			<OutputField Name="REVENUELOOKUPID" Caption="Revenue ID" DataType="String" />			
 			<OutputField Name="NTD" Caption="NTD" DataType="Date" />
 			<OutputField Name="PAYMETHOD" Caption="Payment Method" DataType="Integer" />
-			<OutputField Name="ISHELD" Caption="Is Held" DataType="Boolean" />
+			<OutputField Name="ISEFTDECLINED" Caption="Is Eft Declined" DataType="Boolean" />
 			<OutputField Name="NUMBEROFMONTHSPASTDUE" Caption="Number Months Past Due" DataType="Decimal" />
 			<OutputField Name="SPONSORSHIPREVENUEID" Caption="SPONSORSHIP REVENUE ID" DataType="Guid" />
 		</OutputFields>
