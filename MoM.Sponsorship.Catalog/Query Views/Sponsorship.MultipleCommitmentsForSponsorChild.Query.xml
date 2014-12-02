@@ -17,6 +17,7 @@
 	History:
 	Date            Modified By     Comments
 	25-Feb-2013		CMayeda			Initial Version
+	02-Dec-2014		CMayeda			fixed defect - added distinct to count
 	-->
 
 
@@ -32,7 +33,7 @@ as
 select 
 	c.ID, 
 	s.SPONSORSHIPOPPORTUNITYID, 
-	count(s.SPONSORSHIPCOMMITMENTID)
+	count(distinct s.SPONSORSHIPCOMMITMENTID)
 from 
 	dbo.CONSTITUENT c
 	join dbo.SPONSORSHIP s on c.ID = s.CONSTITUENTID
