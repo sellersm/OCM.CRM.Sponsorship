@@ -19,6 +19,7 @@
 										2nd of current month, or
 										Today's date
 	12-Nov-2014		Memphis			Added the ISNULL() to the ISEFTDECLINED column to prevent blanks from appearing in the results.
+	16-Dec-2014		Memphis			Added the Financial Sponsor so user can select or ignore it from the query output. Task TK-01683.
 	-->	
 	
 	<CreateFunctionSQL>
@@ -39,7 +40,8 @@ create function dbo.USR_UFN_GET_DELINQUENCY_SPONSORSHIPS (@AsOfDate date)
 		[PASTDUEAMOUNT] money NULL,
 		[GIFTAMOUNT] money NULL,
 		[ISEFTDECLINED] bit NULL,
-		[SPONSORSHIPID] uniqueidentifier
+		[SPONSORSHIPID] uniqueidentifier,
+		[FINANCIALSPONSORID] uniqueidentifier
 	)
 with execute as caller
 as begin
@@ -85,7 +87,8 @@ as begin
                 COMMITMENTID nvarchar(100),
                 PASTDUEAMOUNT money,
                 GIFTAMOUNT money,
-                ISEFTDECLINED bit
+                ISEFTDECLINED bit,
+                FINANCIALSPONSORID uniqueidentifier
                 );
 		
 		declare @childId uniqueidentifier, @revenueSplitId uniqueidentifier, @sponsorId uniqueidentifier, @sponsorshipId uniqueidentifier;
@@ -151,7 +154,7 @@ as begin
 
 
 		-- then get the children for each sponsor that meet 1.4-1.6
-		, DelinquencyChildrenList (childId, revenueSplitId, sponsorId, sponsorshipId, payMethod, sponsorshipRevenueId, isHeld, commitmentId)
+		, DelinquencyChildrenList (childId, revenueSplitId, sponsorId, sponsorshipId, payMethod, sponsorshipRevenueId, isHeld, commitmentId, GIFTFINANCIALSPONSOR)
 		as
 		(
 			select dbo.SPONSORSHIP.SPONSORSHIPOPPORTUNITYID,
@@ -162,6 +165,7 @@ as begin
 				   (select REVENUEID from dbo.REVENUESPLIT where ID = dbo.SPONSORSHIP.REVENUESPLITID) as SPONSORSHIPREVENUEID,
 				   dbo.USR_UFN_CHECK_RECURRINGGIFT_ISHELD(dbo.SPONSORSHIP.REVENUESPLITID) as ISHELD  -- 0 false, 1 true
 				   , sc.LOOKUPID
+				   , dbo.UFN_SPONSORSHIP_GIFTFINANCIALSPONSORID(dbo.SPONSORSHIP.ID)
 			from dbo.SPONSORSHIP
 			join dbo.USR_SPONSORSHIPEXTENSION se on se.ID = dbo.SPONSORSHIP.ID
 			join dbo.SPONSORSHIPCOMMITMENT sc on sc.ID = dbo.SPONSORSHIP.SPONSORSHIPCOMMITMENTID
@@ -169,8 +173,8 @@ as begin
 			left outer join dbo.SPONSORSHIPOPPORTUNITYCHILD on  dbo.SPONSORSHIPOPPORTUNITYCHILD.ID = SPONSORSHIP.SPONSORSHIPOPPORTUNITYID  -- this will help us identify only children commitments      
 			where (dbo.SPONSORSHIP.CONSTITUENTID IN (select sponsorId from D2SponsorList)
 			and STATUSCODE = 1   -- status of 'Active'
-			and (dbo.UFN_SPONSORSHIP_GIFTFINANCIALSPONSORID(dbo.SPONSORSHIP.ID) is null	
-				 or dbo.UFN_SPONSORSHIP_GIFTFINANCIALSPONSORID(dbo.SPONSORSHIP.ID) = dbo.SPONSORSHIP.CONSTITUENTID)	-- filter out correspondent kids and sponsorships
+			and (dbo.UFN_SPONSORSHIP_GIFTFINANCIALSPONSORID(dbo.SPONSORSHIP.ID) is null)
+				 --or dbo.UFN_SPONSORSHIP_GIFTFINANCIALSPONSORID(dbo.SPONSORSHIP.ID) = dbo.SPONSORSHIP.CONSTITUENTID)	-- filter out correspondent kids and sponsorships
 			and dbo.SPONSORSHIPOPPORTUNITYCHILD.ID is not null  -- filter out project sponsorships         
 			)
 			union
@@ -185,6 +189,7 @@ as begin
 				(select REVENUEID from dbo.REVENUESPLIT where ID = ACTIVESPONSORSHIP.REVENUESPLITID) as SPONSORSHIPREVENUEID,
 				dbo.USR_UFN_CHECK_RECURRINGGIFT_ISHELD(ACTIVESPONSORSHIP.REVENUESPLITID) as ISHELD  -- 0 false, 1 true
 				,sc.LOOKUPID
+				,GIFTSTART.GIFTFINANCIALSPONSORID
 			from dbo.SPONSORSHIPTRANSACTION GIFTSTART
 			inner join dbo.SPONSORSHIPCOMMITMENT on SPONSORSHIPCOMMITMENT.ID = GIFTSTART.SPONSORSHIPCOMMITMENTID
 			left join dbo.SPONSORSHIPTRANSACTION GIFTEND on GIFTEND.SPONSORSHIPCOMMITMENTID = GIFTSTART.SPONSORSHIPCOMMITMENTID and GIFTEND.TRANSACTIONSEQUENCE = (select min(MINSEQ.TRANSACTIONSEQUENCE) from dbo.SPONSORSHIPTRANSACTION MINSEQ where MINSEQ.SPONSORSHIPCOMMITMENTID = GIFTSTART.SPONSORSHIPCOMMITMENTID and MINSEQ.TRANSACTIONSEQUENCE > GIFTSTART.TRANSACTIONSEQUENCE and MINSEQ.ACTIONCODE in(2,3,5,9))
@@ -200,14 +205,19 @@ as begin
 			and dbo.SPONSORSHIPOPPORTUNITYCHILD.ID is not null)  -- filter out project sponsorships
 		)
 		-- ************   I THINK this is where we filter out the records based on the campaign type passed in! *********************
-		insert into @delinquencyResultsTable
+		-- 12-16-14:
+		--modify so above select returns the GIFTSTART.GIFTFINANCIALSPONSORID value, and use that in the UFN call below
+		-- dbo.UFN_SPONSORSHIP_GIFTFINANCIALSPONSORID(GIFTSTART.GIFTFINANCIALSPONSORID) as FinancialSponsorID
+		insert into @delinquencyResultsTable		
 		select  childId
 			   , revenueSplitId
 			   , sponsorId
+			   --, (select NAME from dbo.UFN_CONSTITUENT_DISPLAYNAME(sponsorId)) as Sponsor
 			   , sponsorshipId
 			   , case when REVENUESCHEDULE.NEXTTRANSACTIONDATE > REVENUESCHEDULE.ENDDATE then null else REVENUESCHEDULE.NEXTTRANSACTIONDATE end as 'NTD'
 			   , payMethod
 			   , sponsorshipRevenueId
+			   --, (select LOOKUPID from dbo.REVENUE where ID = sponsorshipRevenueId) as RevenueLookupID
 			   , isHeld
 			   --, dbo.USR_UFN_RECURRINGGIFT_GETNUMBEROFMONTHSPASTDUE(rev.ID, dateadd(day, 1, dateadd(month, datediff(month, 0, getdate()), 0))) as NumberOfMonthsPastDue     
 			   , dbo.USR_UFN_RECURRINGGIFT_GETNUMBEROFMONTHSPASTDUE(rev.ID, @AsOfDate) as NumberOfMonthsPastDue     
@@ -215,6 +225,9 @@ as begin
 			   , dbo.UFN_RECURRINGGIFT_GETPASTDUEAMOUNT(rev.ID, null) as PASTDUEAMOUNT
 			   , rev.AMOUNT as GIFTAMOUNT
 			   , ISNULL(fte.ISEFTDECLINED, 0) as ISEFTDECLINED
+			   --, (select NAME from dbo.UFN_CONSTITUENT_DISPLAYNAME(GIFTFINANCIALSPONSOR)) as GiftSponsor
+			   --, dbo.UFN_SPONSORSHIP_GIFTFINANCIALSPONSORID(sponsorshipId) as FinancialSponsorID
+			   , GIFTFINANCIALSPONSOR
 		from DelinquencyChildrenList
 		join	dbo.REVENUESPLIT revsplit on revenueSplitId = revsplit.ID
 		join	dbo.REVENUE rev on revsplit.REVENUEID = rev.ID
@@ -224,6 +237,8 @@ as begin
 		--	between @secondDayThreeMonthsAgo and @firstDayPreviousMonth
 		--and isHeld = case when @campaignType in (0,1) then 0 else 1 end
 		--)
+		--where rev.CONSTITUENTID <> dbo.UFN_SPONSORSHIP_GIFTFINANCIALSPONSORID(sponsorId)
+		--where GIFTFINANCIALSPONSOR is not null
 		order by NTD;
 
     BEGIN
@@ -241,12 +256,13 @@ as begin
 				PASTDUEAMOUNT,
 				GIFTAMOUNT,
 				ISEFTDECLINED,
-				SPONSORSHIPID
+				SPONSORSHIPID,
+				FINANCIALSPONSORID
     		from @delinquencyResultsTable
-    		join dbo.sponsorshipopportunity so on so.ID = CHILDID
-    		join dbo.CONSTITUENT c on SPONSORID = c.ID
-    		join dbo.REVENUESPLIT rs on rs.ID = REVENUESPLITID
-    		join dbo.REVENUE r on r.ID = rs.REVENUEID
+    		left join dbo.sponsorshipopportunity so on so.ID = CHILDID
+    		left join dbo.CONSTITUENT c on SPONSORID = c.ID
+    		left join dbo.REVENUESPLIT rs on rs.ID = REVENUESPLITID
+    		left join dbo.REVENUE r on r.ID = rs.REVENUEID
 			where NUMBEROFMONTHSPASTDUE > 0
     END;
 	

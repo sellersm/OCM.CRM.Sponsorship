@@ -15,6 +15,7 @@
 	Date            Modified By     Comments
 	07-May-2014		CMayeda			Initial Prototype Version
 	30-Oct-2014		Memphis			Added Reassign column, and new value in Type of "N/A" which must be used when Reassign = Yes/true
+	09-Dec-2014		Memphis			Added FINANCIALSPONSORID column, which will get populated when there's a gift financial sponsor.
 	-->
 
 	<!--
@@ -85,6 +86,7 @@ GO
 			</EnumValues>
 		</EnumField>
 		<ForeignKeyField Name="CANCELSPONSORSHIPREASONID" Description="The cancel or terminate reason of the last sponsorship commitment in the table." ForeignTable="SPONSORSHIPREASON" OnDelete="SetToNull" Required="false" />
+		<GuidField Name="FINANCIALSPONSORID" Description="Financial Sponsor ID" Required="false" />
 	</Fields>
 
 	<Indexes>
