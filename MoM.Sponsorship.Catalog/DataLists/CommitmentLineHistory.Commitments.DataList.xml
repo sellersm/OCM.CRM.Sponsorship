@@ -14,6 +14,8 @@
 	Date            Modified By     Comments
 	07-May-2014		CMayeda			Initial Prototype Version
 	30-Oct-2014		Memphis			Added new ISREASSIGN column
+	09-Dec-2014		Memphis			Added new FINANCIALSPONSORID column.
+									used the UFN to display the Financial Sponsor Name value using the ID.
 	-->
 
 	<common:DependencyList>
@@ -53,6 +55,11 @@ select
 	clh.ENDDATE,
 	clh.TYPE,
 	clh.ISREASSIGN,
+	--clh.FINANCIALSPONSORID,
+	case
+		when clh.FINANCIALSPONSORID is null then ''
+		else (select NAME from dbo.UFN_CONSTITUENT_DISPLAYNAME(clh.FINANCIALSPONSORID))
+	end as FINANCIALSPONSORNAME,
 	clh.STATUS,
 	case
 		when CANCELSPONSORSHIPREASONID is null then ''
@@ -64,8 +71,14 @@ select
 	0 REACTIVATEALLOWED,
 	null REASSIGNEDCONSTITUENTID,
 	'' REASSIGNEDCONSTITUENTNAME,
-	'' PAIDFORBY,
-	null PAIDFORBYID,
+	case 
+		when clh.FINANCIALSPONSORID is null then ''
+		else (select NAME from dbo.UFN_CONSTITUENT_DISPLAYNAME(clh.FINANCIALSPONSORID))
+	end as PAIDFORBY,
+	case 
+		when clh.FINANCIALSPONSORID is null then null
+		else clh.FINANCIALSPONSORID
+	end as PAIDFORBYID,
 	null REVENUEID,
 	clh.LOOKUPID as COMMITMENTLINEHISTORYLOOKUPID,
 	null as COMMITMENTID,
@@ -97,6 +110,7 @@ select
 	case when LASTTRANSACTION.ACTIONCODE in(2,3,5) then LASTSPONSORSHIP.ENDDATE end ENDDATE,
 	'' as TYPE,
 	null ISREASSIGN,
+	PAIDFORBY_NF.NAME as FINANCIALSPONSORNAME,
 	case when LASTTRANSACTION.ACTIONCODE in(2,3) or (LASTTRANSACTION.ACTIONCODE = 5 and LASTSPONSORSHIP.ENDDATE is not null) then 'Inactive'
 	when LASTTRANSACTION.ACTIONCODE = 6 then 'Active (Transfer pending)'
 	else 'Active' end STATUS,
@@ -149,6 +163,7 @@ select
 	SPONSORSHIP.ENDDATE,
 	'' as TYPE,
 	null ISREASSIGN,
+	PAIDFORBY_NF.NAME as FINANCIALSPONSORNAME,
 	case SPONSORSHIP.STATUSCODE
 	when 1 then
 	case LASTTRANSACTION.ACTIONCODE
@@ -243,24 +258,25 @@ end
 				<OutputField FieldID="ENDDATE" Caption="End date" DataType="Date" CaptionResourceKey="$$end_date" DisplaySequence="14" />
 				<OutputField FieldID="TYPE" Caption="Type" DataType="String" DisplaySequence="15" />
 				<OutputField FieldID="ISREASSIGN" Caption="Reassign" DataType="Boolean" DisplaySequence="16" />
-				<OutputField FieldID="STATUS" Caption="Status" DataType="String" CaptionResourceKey="$$status" DisplaySequence="17" />
-				<OutputField FieldID="REASON" Caption="Reason" DataType="String" CaptionResourceKey="$$reason" DisplaySequence="18" />
-				<OutputField FieldID="TRANSACTIONID" Caption="TRANSACTIONID" IsHidden="true" DataType="Guid" DisplaySequence="19" />
-				<OutputField FieldID="ACTIONCODE" Caption="ACTIONCODE" IsHidden="true" DataType="TinyInt" DisplaySequence="20" />
-				<OutputField FieldID="DELETEALLOWED" Caption="DELETEALLOWED" IsHidden="true" DataType="Boolean" DisplaySequence="21" />
-				<OutputField FieldID="REACTIVATEALLOWED" Caption="REACTIVATEALLOWED" IsHidden="true" DataType="Boolean" DisplaySequence="22" />
-				<OutputField FieldID="REASSIGNEDCONSTITUENTID" Caption="REASSIGNEDCONSTITUENTID" IsHidden="true" DataType="Guid" DisplaySequence="23" />
-				<OutputField FieldID="REASSIGNEDCONSTITUENTNAME" Caption="REASSIGNEDCONSTITUENTNAME" IsHidden="true" DataType="String" DisplaySequence="24" />
-				<OutputField FieldID="PAIDFORBY" Caption="Gift sponsorship donor" DataType="String" CaptionResourceKey="$$gift_sponsorship_donor" DisplaySequence="25" />
-				<OutputField FieldID="PAIDFORBYID" Caption="PAIDFORBYID" IsHidden="true" DataType="Guid" DisplaySequence="26" />
-				<OutputField FieldID="REVENUEID" Caption="REVENUEID" IsHidden="true" DataType="Guid" DisplaySequence="27" />
+				<OutputField FieldID="FINANCIALSPONSORNAME" Caption="Financial Sponsor" DataType="String" DisplaySequence="17" />
+				<OutputField FieldID="STATUS" Caption="Status" DataType="String" CaptionResourceKey="$$status" DisplaySequence="18" />
+				<OutputField FieldID="REASON" Caption="Reason" DataType="String" CaptionResourceKey="$$reason" DisplaySequence="19" />
+				<OutputField FieldID="TRANSACTIONID" Caption="TRANSACTIONID" IsHidden="true" DataType="Guid" DisplaySequence="20" />
+				<OutputField FieldID="ACTIONCODE" Caption="ACTIONCODE" IsHidden="true" DataType="TinyInt" DisplaySequence="21" />
+				<OutputField FieldID="DELETEALLOWED" Caption="DELETEALLOWED" IsHidden="true" DataType="Boolean" DisplaySequence="22" />
+				<OutputField FieldID="REACTIVATEALLOWED" Caption="REACTIVATEALLOWED" IsHidden="true" DataType="Boolean" DisplaySequence="23" />
+				<OutputField FieldID="REASSIGNEDCONSTITUENTID" Caption="REASSIGNEDCONSTITUENTID" IsHidden="true" DataType="Guid" DisplaySequence="24" />
+				<OutputField FieldID="REASSIGNEDCONSTITUENTNAME" Caption="REASSIGNEDCONSTITUENTNAME" IsHidden="true" DataType="String" DisplaySequence="25" />
+				<OutputField FieldID="PAIDFORBY" Caption="Gift sponsorship donor" DataType="String" CaptionResourceKey="$$gift_sponsorship_donor" DisplaySequence="26" />
+				<OutputField FieldID="PAIDFORBYID" Caption="PAIDFORBYID" IsHidden="true" DataType="Guid" DisplaySequence="27" />
+				<OutputField FieldID="REVENUEID" Caption="REVENUEID" IsHidden="true" DataType="Guid" DisplaySequence="28" />
 				<OutputField FieldID="COMMITMENTLINEHISTORYLOOKUPID" Caption="Comm Line History ID" DataType="String" DisplaySequence="9" />
 				<OutputField FieldID="COMMITMENTID" Caption="Commitment ID" DataType="String" CaptionResourceKey="$$commitment_id" DisplaySequence="10" />
 				<OutputField FieldID="CHILDPROJECTLOOKUPID" Caption="Lookup ID" DataType="String" DisplaySequence="11"/>
-				<OutputField FieldID="SOURCECATEGORY" Caption="Source Category" DataType="String" DisplaySequence="28" />
-				<OutputField FieldID="SOURCE" Caption="Source" DataType="String" DisplaySequence="29" />
-				<OutputField FieldID="PACKAGE" Caption="Package" DataType="String" DisplaySequence="30" />
-				<OutputField FieldID="INBOUNDCHANNEL" Caption="Inbound Channel" DataType="String" DisplaySequence="31" />
+				<OutputField FieldID="SOURCECATEGORY" Caption="Source Category" DataType="String" DisplaySequence="29" />
+				<OutputField FieldID="SOURCE" Caption="Source" DataType="String" DisplaySequence="30" />
+				<OutputField FieldID="PACKAGE" Caption="Package" DataType="String" DisplaySequence="31" />
+				<OutputField FieldID="INBOUNDCHANNEL" Caption="Inbound Channel" DataType="String" DisplaySequence="32" />
 
 		</OutputFields>
 	</Output>

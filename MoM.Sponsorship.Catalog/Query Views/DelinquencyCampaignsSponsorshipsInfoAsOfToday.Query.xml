@@ -28,7 +28,10 @@
 			PASTDUEAMOUNT,
 			GIFTAMOUNT,
 			ISEFTDECLINED,
-			SPONSORSHIPID as ID
+			SPONSORSHIPID as ID,
+			case when FINANCIALSPONSORID is null then ''
+				 else (select NAME from dbo.UFN_CONSTITUENT_DISPLAYNAME(FINANCIALSPONSORID)) 
+			end as GIFTSPONSOR
     from dbo.USR_UFN_GET_DELINQUENCY_SPONSORSHIPS(getdate())
 			]]>
 		</ViewSQL>
@@ -51,6 +54,7 @@
 			<OutputField Name="PASTDUEAMOUNT" Caption="Past Due" DataType="Money" />
 			<OutputField Name="GIFTAMOUNT" Caption="Gift Amount" DataType="Money" />
 			<OutputField Name="ISEFTDECLINED" Caption="EFT Declined" DataType="Boolean" />
+			<OutputField Name="GIFTSPONSOR" Caption="Financial Sponsor" DataType="String" />
 		</OutputFields>
 	</Output>
 
