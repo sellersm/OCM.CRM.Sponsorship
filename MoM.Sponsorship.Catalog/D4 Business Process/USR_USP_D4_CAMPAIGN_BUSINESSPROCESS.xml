@@ -16,7 +16,8 @@
 	Date            Modified By     Comments
 	14-May-2013		CMayeda			Initial Version copied from Memphis' USR_USP_D2_CAMPAIGN_BUSINESSPROCESS
 	07-Jun-2013		CMayeda			Removed code for May specific groupings and phone interactions
-									Modified the check for previous month interactions to go off the subcategory and not the category									
+									Modified the check for previous month interactions to go off the subcategory and not the category	
+	06-Jan-2014		CMayeda			Updated to use USR_UFN_RECURRINGGIFT_GETNUMBEROFMONTHSPASTDUE
 	-->
 
 	<CreateProcedureSQL>
@@ -239,7 +240,7 @@ begin
 			sponsorshipRevenueSplitID uniqueidentifier, 
 			sponsorshipRecurringGiftID uniqueidentifier,
 			NTD date, 
-			NumberOfMonthsPastDue decimal(3,1)
+			NumberOfMonthsPastDue decimal(6,3)
 			/*
 			-- This will be removed in the future
 			lastPaymentDate date,
@@ -257,6 +258,8 @@ begin
 				sp.REVENUESPLITID as sponsorshipRevenueSplitID,
 				rev.ID as sponsorshipRecurringGiftID,
 				case when revschedule.NEXTTRANSACTIONDATE > revschedule.ENDDATE then null else revschedule.NEXTTRANSACTIONDATE end as NTD,
+				dbo.USR_UFN_RECURRINGGIFT_GETNUMBEROFMONTHSPASTDUE(rev.ID, dateadd(day, 1, dateadd(month, datediff(month, 0, getdate()), 0))) as NumberOfMonthsPastDue,
+				/*
 				case 
 					when revschedule.FREQUENCYCODE = 3 then dbo.UFN_RECURRINGGIFT_GETPASTDUEAMOUNT(rev.ID, null) / rev.TRANSACTIONAMOUNT -- Monthly
 					when revschedule.FREQUENCYCODE = 6 then dbo.UFN_RECURRINGGIFT_GETPASTDUEAMOUNT(rev.ID, null) / ((rev.TRANSACTIONAMOUNT * 6)/12) -- Bimonthly
@@ -265,7 +268,7 @@ begin
 					when revschedule.FREQUENCYCODE = 9 then dbo.UFN_RECURRINGGIFT_GETPASTDUEAMOUNT(rev.ID, null) / ((rev.TRANSACTIONAMOUNT * 52)/12) -- Weekly
 					else -1
 				end
-	
+				*/
 				/* -- This will be removed in the future
 				(select	top 1 rev_payment.DATE
    				   from	dbo.RECURRINGGIFTACTIVITY rg_act
