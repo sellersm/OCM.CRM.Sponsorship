@@ -19,6 +19,7 @@
 									Modified the check for previous month interactions to go off the subcategory and not the category	
 	06-Jan-2014		CMayeda			Updated to use USR_UFN_RECURRINGGIFT_GETNUMBEROFMONTHSPASTDUE
 									Removed some old temporary commented out code
+	07-Jan-2014		CMayeda			Deleted records that were less than 4 months delinquent after inserting into @d4ResultsTable
 	-->
 
 	<CreateProcedureSQL>
@@ -241,7 +242,7 @@ begin
 			sponsorshipRevenueSplitID uniqueidentifier, 
 			sponsorshipRecurringGiftID uniqueidentifier,
 			NTD date, 
-			NumberOfMonthsPastDue decimal(6,3)
+			numberOfMonthsPastDue decimal(6,3)
 			/*
 			-- This will be removed in the future
 			lastPaymentDate date,
@@ -259,7 +260,7 @@ begin
 				sp.REVENUESPLITID as sponsorshipRevenueSplitID,
 				rev.ID as sponsorshipRecurringGiftID,
 				case when revschedule.NEXTTRANSACTIONDATE > revschedule.ENDDATE then null else revschedule.NEXTTRANSACTIONDATE end as NTD,
-				dbo.USR_UFN_RECURRINGGIFT_GETNUMBEROFMONTHSPASTDUE(rev.ID, dateadd(day, 1, dateadd(month, datediff(month, 0, getdate()), 0))) as NumberOfMonthsPastDue
+				dbo.USR_UFN_RECURRINGGIFT_GETNUMBEROFMONTHSPASTDUE(rev.ID, dateadd(day, 1, dateadd(month, datediff(month, 0, getdate()), 0))) as numberOfMonthsPastDue
 				/* old method of getting number of months past due
 				case 
 					when revschedule.FREQUENCYCODE = 3 then dbo.UFN_RECURRINGGIFT_GETPASTDUEAMOUNT(rev.ID, null) / rev.TRANSACTIONAMOUNT -- Monthly
@@ -317,6 +318,13 @@ begin
 			                   and constit.CONSTITUENCYCODEID in (@affiliateOfficeConstituencyId, @preventAutoCancelConstituencyId)
 			                   and (constit.DATETO is null or constit.DATETO > GETDATE()))
 		
+
+		-- 1/7/15 csm added:
+		-- remove the rows that aren't between 4 months or more past due:
+		delete from @d4ResultsTable
+		where numberOfMonthsPastDue < 4;
+
+
 		declare @D4Interactions table (
 			financialSponsorID uniqueidentifier,
 			financialSponsorLookupID nvarchar(100), 
@@ -383,8 +391,7 @@ begin
 								when   (noSystemLetters = 1
 									or (hasValidPrimaryEmail = 1 and doNotEmail = 1 and doNotMail = 1)
 									or (hasValidPrimaryEmail = 0 and doNotMail = 1)) then 1
-							    when exists (select 1 from @d4ResultsTable results where results.NumberOfMonthsPastDue >= 0 
-																					 and results.NumberOfMonthsPastDue < 4 
+							    when exists (select 1 from @d4ResultsTable results where results.numberOfMonthsPastDue < 4 
 																					 and results.financialSponsorID = D4Int.financialSponsorID)  then 1
 								else 0
 							 end,
@@ -393,8 +400,7 @@ begin
 										when noSystemLetters = 1 then 'No system letter'
 									    when hasValidPrimaryEmail = 1 and doNotEmail = 1 and doNotMail = 1 then 'Do not email and Do not Mail solicit codes'
 									    when hasValidPrimaryEmail = 0 and doNotMail = 1 then 'Do not mail solicit code'
-									    when exists (select 1 from @d4ResultsTable results where results.NumberOfMonthsPastDue >= 0 
-																							 and results.NumberOfMonthsPastDue < 4 
+									    when exists (select 1 from @d4ResultsTable results where results.numberOfMonthsPastDue < 4 
 																							 and results.financialSponsorID = D4Int.financialSponsorID)  then
 											'NTD and Amount Past Due do not match'
 										else ''
