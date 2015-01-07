@@ -111,6 +111,7 @@
 	17-Sep-2014		Memphis			Added a new query:  DelinquencyCampaignsSponsorshipsInfoAsOfToday.Query.xml
 	03-Nov-2014		Memphis			Added new UFN:  USR_UFN_CHECK_RECURRINGGIFT_ISEFTDECLINED
 	12-Nov-2014		Memphis			Added new query: D2BizProcessRecordsNotProcessed.Query.xml
+	07-Jan-2015		Memphis			Added new query: LockedChildren.Query.xml
 	-->
 
 	<!-- Note:  the order of the items listed here is important.  For example, you won't be able to load a data form that references 
@@ -321,6 +322,7 @@
 		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.DelinquencyCampaignsSponsorshipsInfo.Query.xml" />
 		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.DelinquencyCampaignsSponsorshipsInfoAsOfToday.Query.xml" />
 		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.D2BizProcessRecordsNotProcessed.Query.xml" />
+		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.LockedChildren.Query.xml" />
 
 		<!-- Tasks -->
 		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.SponsorshipAdd_Wrapped.Task.xml" />

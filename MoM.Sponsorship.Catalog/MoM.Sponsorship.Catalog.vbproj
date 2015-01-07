@@ -610,13 +610,17 @@
     <EmbeddedResource Include="RecordOperations\SwitchRecurringGift.EFTDeclinedFieldValue.RecordOperation.xml" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="DataLists\CommitmentLineHistory.Commitments.DataList.xml" />
+    <EmbeddedResource Include="DataLists\CommitmentLineHistory.Commitments.DataList.xml">
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Query Views\RevenueExtension.Query.xml" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Tables\CommitmentLineHistory.Table.xml" />
+    <EmbeddedResource Include="Tables\CommitmentLineHistory.Table.xml">
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
     <EmbeddedResource Include="Tables\CommitmentLineHistoryCommitment.Table.xml" />
   </ItemGroup>
   <ItemGroup>
@@ -690,7 +694,12 @@
     <EmbeddedResource Include="Query Views\D2BizProcessRecordsNotProcessed.Query.xml" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="SQL\User Functions\USR_UFN_GET_SPONSORSHIPEXTENSION_CLH_INFO.xml" />
+    <EmbeddedResource Include="SQL\User Functions\USR_UFN_GET_SPONSORSHIPEXTENSION_CLH_INFO.xml">
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Query Views\LockedChildren.Query.xml" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.VisualBasic.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
