@@ -31,6 +31,8 @@
 									remove the rows that aren't between 2 & 3 months past due to fix the additional children added to
 									interaction issue.
 	12-Nov-2014		Memphis			Added code to insert records not processed into table.
+	14-Jan-2015		Memphis			Added initialization of @currentSponsorId variable with NewID() formula so it isn't NULL which screws up
+									the check for a new Sponsor in the cursor loop. In PROD this wouldn't work right...
 -->
 
 	
@@ -128,7 +130,7 @@ begin
 	declare @statusCode_Declined tinyint = 5
 
 	declare @isNewSponsor bit = 0;					-- flag to keep track of when sponsor changes
-	declare @currentSponsorId uniqueidentifier;		-- holds the sponsorid that was just looped in the cursor, used to identify when sponsorId changes in the cursor loop
+	declare @currentSponsorId uniqueidentifier = newId();		-- holds the sponsorid that was just looped in the cursor, used to identify when sponsorId changes in the cursor loop
 	declare @doPhoneProcess bit = 0;				-- flag that says to perform the phone interaction workflow
 	declare @createInteractions bit = 0;			-- flag to identify to create the interactions or not
 
