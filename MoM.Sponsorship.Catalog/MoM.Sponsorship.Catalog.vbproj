@@ -701,6 +701,33 @@
   <ItemGroup>
     <EmbeddedResource Include="Query Views\LockedChildren.Query.xml" />
   </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="SQL\User Functions\USR_UFN_GET_D2_DELINQUENCY_SPONSORSHIPS.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Query Views\D2DelinquencyCampaign.Sponsorships.Query.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Query Views\D2DelinquencyCampaignAsOfToday.Sponsorships.Query.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="SQL\User Functions\USR_UFN_GET_D3_DELINQUENCY_SPONSORSHIPS.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="SQL\User Functions\USR_UFN_GET_D4_DELINQUENCY_SPONSORSHIPS.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Query Views\D3DelinquencyCampaign.Sponsorships.Query.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Query Views\D3DelinquencyCampaignAsOfToday.Sponsorships.Query.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Query Views\D4DelinquencyCampaign.Sponsorships.Query.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Query Views\D4DelinquencyCampaignAsOfToday.Sponsorships.Query.xml" />
+  </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.VisualBasic.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

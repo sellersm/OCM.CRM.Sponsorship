@@ -112,6 +112,16 @@
 	03-Nov-2014		Memphis			Added new UFN:  USR_UFN_CHECK_RECURRINGGIFT_ISEFTDECLINED
 	12-Nov-2014		Memphis			Added new query: D2BizProcessRecordsNotProcessed.Query.xml
 	07-Jan-2015		Memphis			Added new query: LockedChildren.Query.xml
+	22-Jan-2015		Memphis			Added new UFN: USR_UFN_GET_D2_DELINQUENCY_SPONSORSHIPS.xml
+									Queries: D2DelinquencyCampaign.Sponsorships.Query.xml
+											 D2DelinquencyCampaignAsOfToday.Sponsorships.Query.xml
+	28-Jan-2015		Memphis			Added new UFN and queries for D3, D4 campaign queries:
+										USR_UFN_GET_D3_DELINQUENCY_SPONSORSHIPS.xml
+										USR_UFN_GET_D4_DELINQUENCY_SPONSORSHIPS.xml
+									Queries: D3DelinquencyCampaign.Sponsorships.Query.xml
+											 D3DelinquencyCampaignAsOfToday.Sponsorships.Query.xml
+											 D4DelinquencyCampaign.Sponsorships.Query.xml
+											 D4DelinquencyCampaignAsOfToday.Sponsorships.Query.xml
 	-->
 
 	<!-- Note:  the order of the items listed here is important.  For example, you won't be able to load a data form that references 
@@ -245,6 +255,9 @@
 		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.USR_UFN_SPONSORSHIP_GETUNPAID_SPONSOREDCHILDREN_FORSPONSOR.xml" />
 		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.USR_UFN_GET_DELINQUENCY_SPONSORSHIPS.xml" />
 		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.USR_UFN_CHECK_RECURRINGGIFT_ISEFTDECLINED.xml" />
+		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.USR_UFN_GET_D2_DELINQUENCY_SPONSORSHIPS.xml" />
+		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.USR_UFN_GET_D3_DELINQUENCY_SPONSORSHIPS.xml" />
+		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.USR_UFN_GET_D4_DELINQUENCY_SPONSORSHIPS.xml" />
 
 		<!-- Smart Fields -->
 		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.NextTransactionDateDelinquency.SmartField.xml" />
@@ -323,6 +336,12 @@
 		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.DelinquencyCampaignsSponsorshipsInfoAsOfToday.Query.xml" />
 		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.D2BizProcessRecordsNotProcessed.Query.xml" />
 		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.LockedChildren.Query.xml" />
+		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.D2DelinquencyCampaign.Sponsorships.Query.xml" />
+		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.D2DelinquencyCampaignAsOfToday.Sponsorships.Query.xml" />
+		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.D3DelinquencyCampaign.Sponsorships.Query.xml" />
+		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.D3DelinquencyCampaignAsOfToday.Sponsorships.Query.xml" />
+		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.D4DelinquencyCampaign.Sponsorships.Query.xml" />
+		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.D4DelinquencyCampaignAsOfToday.Sponsorships.Query.xml" />
 
 		<!-- Tasks -->
 		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.SponsorshipAdd_Wrapped.Task.xml" />

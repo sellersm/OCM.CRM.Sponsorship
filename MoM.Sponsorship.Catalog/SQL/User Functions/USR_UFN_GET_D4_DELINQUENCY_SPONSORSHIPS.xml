@@ -1,0 +1,276 @@
+﻿<SQLFunctionSpec
+	xmlns="bb_appfx_sqlfunction"
+	xmlns:common="bb_appfx_commontypes" 
+	ID="81c132d9-12ef-446b-9cf9-301a4ee9d919"
+	Name="USR_UFN_GET_D4_DELINQUENCY_SPONSORSHIPS"
+	Description="Returns D4 delinquent sponsorships based on the AsOfDate parameter."
+	Author="Memphis Sellers"
+	DBFunctionName="USR_UFN_GET_D4_DELINQUENCY_SPONSORSHIPS"
+	GrantServiceRolePermission="true"	
+	>
+
+	<!-- 
+	Remarks:  This returns D4 delinquent sponsorships based on the AsOfDate parameter.
+			  D4: Number of Months Past Due value of >=4.000 
+
+	History:
+	Date            Modified By     Comments
+	27-Jan-2015		Memphis			Initial Version for Story B-01696: it is 'hard-coded' for D4
+	-->
+
+
+	<CreateFunctionSQL>
+		<![CDATA[
+create function dbo.USR_UFN_GET_D4_DELINQUENCY_SPONSORSHIPS(@AsOfDate date)
+	RETURNS @DelinquencyCampaignResults table
+	(
+		[ISHELD] bit NULL, 
+		[ChildLookupId] nvarchar(50) NULL, 
+		[SponsorLookupId] nvarchar(50) NULL, 
+		[SponsorName] nvarchar(100) NULL,
+		[RevenueLookupId] nvarchar(50) NULL, 
+		[NTD] date NULL, 
+		[PAYMETHOD] int NULL, 
+		[NUMBEROFMONTHSPASTDUE] decimal (6,3),
+		[REVENUEID] uniqueidentifier NULL,
+		[COMMITMENTID] nvarchar(100) NULL,
+		[PASTDUEAMOUNT] money NULL,
+		[GIFTAMOUNT] money NULL,
+		[ISEFTDECLINED] bit NULL,
+		[SPONSORSHIPID] uniqueidentifier,
+		[FINANCIALSPONSORID] uniqueidentifier
+	)
+with execute as caller
+as begin
+
+	declare @currentDate date = Cast(GETDATE() as date)
+	declare @doNotContactSolicitCodeId uniqueidentifier;
+	declare @affiliateOfficeId uniqueidentifier;
+
+	select @affiliateOfficeId = ID
+	from dbo.CONSTITUENCYCODE
+	where lower([DESCRIPTION]) = LOWER('Affiliate Office')
+
+	select @doNotContactSolicitCodeId = ID
+	from dbo.SOLICITCODE
+	where LOWER([DESCRIPTION]) = LOWER('Do not contact') -- lower('Do not contact')
+
+	declare @interactionCategoryId uniqueidentifier;
+	select @interactionCategoryId = ID from dbo.INTERACTIONCATEGORY where LOWER(NAME) = LOWER('Sponsorship Delinquency')
+	
+		--'First Day of Previous Month'
+		declare @firstDayPreviousMonth date;
+		set @firstDayPreviousMonth =  DATEADD(MONTH, DATEDIFF(MONTH, 0, GETDATE()) - 1, 0)
+
+		--'First Day of 2 Months ago'
+		--declare @secondDayTwoMonthsAgo date;
+		--set @secondDayTwoMonthsAgo =  DATEADD(MONTH, DATEDIFF(MONTH, 0, GETDATE()) - 2, 0)
+		--set @secondDayTwoMonthsAgo = DATEADD(DAY, 1, @secondDayTwoMonthsAgo)
+		declare @secondDayThreeMonthsAgo date;
+		set @secondDayThreeMonthsAgo =  DATEADD(MONTH, DATEDIFF(MONTH, 0, GETDATE()) - 3, 0)
+		set @secondDayThreeMonthsAgo = DATEADD(DAY, 1, @secondDayThreeMonthsAgo)
+		
+
+		declare @delinquencyResultsTable table (
+				CHILDID uniqueidentifier, 
+				REVENUESPLITID uniqueidentifier, 
+				SPONSORID uniqueidentifier, 
+				SPONSORSHIPID uniqueidentifier,
+				NTD date, 
+				PAYMETHOD tinyint, 
+				SPONSORSHIPREVENUEID uniqueidentifier, 
+				ISHELD bit,
+                NUMBEROFMONTHSPASTDUE decimal (6,3),
+                COMMITMENTID nvarchar(100),
+                PASTDUEAMOUNT money,
+                GIFTAMOUNT money,
+                ISEFTDECLINED bit,
+                FINANCIALSPONSORID uniqueidentifier
+                );
+		
+		declare @childId uniqueidentifier, @revenueSplitId uniqueidentifier, @sponsorId uniqueidentifier, @sponsorshipId uniqueidentifier;
+		declare @NTD date, @payMethod tinyint, @sponsorshipRevenueId uniqueidentifier, @isHeld bit, @numberOfMonthsPastDue decimal(6,3);
+
+		set @payMethod = 99;  -- default to neither cash nor eft
+        set @numberOfMonthsPastDue = -1;
+
+		-- constants used for checking what payment type is this sponsorship:
+		declare @CASHPAYMENT_VALUE tinyint = 0;
+		declare @EFTPAYMENT_VALUE tinyint = 1;
+
+		declare @SHOWHISTORY bit = 0;
+		-- ******************** A. Get qualifying sponsors  **********************************
+
+		/*
+		 -- Get the financial sponsors that:
+			1.1
+			 Do NOT have a solicit code of “Do not contact”.
+			1.2
+			 Do NOT have any interaction with a completed Category of Sponsorship Delinquency in the previous month (based on Expected date).
+			1.3
+			 Do NOT have the constituency code of “Affiliate Office”?
+		*/
+		-- first get the sponsors that meet 1.1 - 1.3
+		;with D2SponsorList (sponsorId)
+		as
+		(
+			select distinct dbo.SPONSORSHIP.CONSTITUENTID
+			from dbo.SPONSORSHIP
+			where (not exists (select 1 from dbo.INTERACTION
+					join dbo.INTERACTIONSUBCATEGORY ON dbo.INTERACTIONSUBCATEGORY.ID = dbo.INTERACTION.INTERACTIONSUBCATEGORYID
+					join dbo.INTERACTIONCATEGORY ON dbo.INTERACTIONCATEGORY.ID = dbo.INTERACTIONSUBCATEGORY.INTERACTIONCATEGORYID
+					where (dbo.INTERACTION.INTERACTIONSUBCATEGORYID in (select ID from dbo.INTERACTIONSUBCATEGORY 
+							where dbo.INTERACTIONSUBCATEGORY.INTERACTIONCATEGORYID = @interactionCategoryId)
+				and (dbo.INTERACTION.CONSTITUENTID = dbo.SPONSORSHIP.CONSTITUENTID
+				--and lower(COMMENT) like '%d2%'
+				and lower(dbo.INTERACTIONSUBCATEGORY.[NAME]) like '%delinquent 4%'
+				and STATUSCODE = 2
+				and (DATEPART(m, EXPECTEDDATE) = DATEPART(m, DATEADD(m, -1, getdate()))
+				AND YEAR(EXPECTEDDATE) = YEAR(DATEADD(m, -1, getdate())))))
+				)
+			and not exists (select 1 from dbo.CONSTITUENCY where (dbo.CONSTITUENCY.CONSTITUENTID = dbo.SPONSORSHIP.CONSTITUENTID 
+				  and dbo.CONSTITUENCY.CONSTITUENCYCODEID = @affiliateOfficeId and (dbo.CONSTITUENCY.DATETO is null or dbo.CONSTITUENCY.DATETO > GETDATE())))
+			and not exists (select 1 from dbo.CONSTITUENTSOLICITCODE where (dbo.CONSTITUENTSOLICITCODE.CONSTITUENTID = dbo.SPONSORSHIP.CONSTITUENTID
+				  and dbo.CONSTITUENTSOLICITCODE.SOLICITCODEID = @doNotContactSolicitCodeId and (dbo.CONSTITUENTSOLICITCODE.ENDDATE is null or dbo.CONSTITUENTSOLICITCODE.ENDDATE > GETDATE())))
+			)      
+		)
+		/*
+			1.4
+			 Has child sponsorship one of “Active”, “Active (transfer pending)” or “Active (reassign)”
+			1.5
+			 The current sponsorship status for the child must be “Sponsored”
+			1.6
+			 The recurring gift NTD>= 1st of the month 2 months back
+			  NTD is between 1st day of current month -1 and 2nd day of current month -2, INCLUSIVE
+			  -- <=1st day of current month -1 and >= 2nd day of current month -2
+				(For example, currentNTDis 5/1/13 then the date range used would be 3/2/13 to 4/1/2013)	 
+		*/
+
+		/*  dbo.USR_UFN_GET_PAYMENTMETHODCODE_BY_REVENUESPLITID
+		[PAYMENTMETHODCODE] (0) = 'Cash' (1) ='Check' (2) ='Credit card' (3) ='Direct debit' 
+		(4) ='Stock' (5) ='Property' (6) ='Gift-in-kind' (9) ='None' (10) ='Other' 
+		(11) ='Standing order'  
+		*/
+
+
+		-- then get the children for each sponsor that meet 1.4-1.6
+		, DelinquencyChildrenList (childId, revenueSplitId, sponsorId, sponsorshipId, payMethod, sponsorshipRevenueId, isHeld, commitmentId, GIFTFINANCIALSPONSOR)
+		as
+		(
+			select dbo.SPONSORSHIP.SPONSORSHIPOPPORTUNITYID,
+				   dbo.SPONSORSHIP.REVENUESPLITID,
+				   dbo.SPONSORSHIP.CONSTITUENTID,
+				   dbo.SPONSORSHIP.ID,
+				   dbo.USR_UFN_GET_PAYMENTMETHODCODE_BY_REVENUESPLITID(dbo.SPONSORSHIP.REVENUESPLITID) as PAYMETHOD,
+				   (select REVENUEID from dbo.REVENUESPLIT where ID = dbo.SPONSORSHIP.REVENUESPLITID) as SPONSORSHIPREVENUEID,
+				   dbo.USR_UFN_CHECK_RECURRINGGIFT_ISHELD(dbo.SPONSORSHIP.REVENUESPLITID) as ISHELD  -- 0 false, 1 true
+				   , sc.LOOKUPID
+				   , dbo.UFN_SPONSORSHIP_GIFTFINANCIALSPONSORID(dbo.SPONSORSHIP.ID)
+			from dbo.SPONSORSHIP
+			join dbo.USR_SPONSORSHIPEXTENSION se on se.ID = dbo.SPONSORSHIP.ID
+			join dbo.SPONSORSHIPCOMMITMENT sc on sc.ID = dbo.SPONSORSHIP.SPONSORSHIPCOMMITMENTID
+			join dbo.USR_CURRENTOPPORTUNITYSPONSORSHIPSTATUSCODE statusCode on statusCode.ID = se.CURRENTOPPORTUNITYSPONSORSHIPSTATUSCODEID and statusCode.DESCRIPTION = 'Sponsored'
+			left outer join dbo.SPONSORSHIPOPPORTUNITYCHILD on  dbo.SPONSORSHIPOPPORTUNITYCHILD.ID = SPONSORSHIP.SPONSORSHIPOPPORTUNITYID  -- this will help us identify only children commitments      
+			where (dbo.SPONSORSHIP.CONSTITUENTID IN (select sponsorId from D2SponsorList)
+			and STATUSCODE = 1   -- status of 'Active'
+			and (dbo.UFN_SPONSORSHIP_GIFTFINANCIALSPONSORID(dbo.SPONSORSHIP.ID) is null)
+				 --or dbo.UFN_SPONSORSHIP_GIFTFINANCIALSPONSORID(dbo.SPONSORSHIP.ID) = dbo.SPONSORSHIP.CONSTITUENTID)	-- filter out correspondent kids and sponsorships
+			and dbo.SPONSORSHIPOPPORTUNITYCHILD.ID is not null  -- filter out project sponsorships         
+			)
+			union
+			-- This is the logic from the USR_UFN_GETACTIVE_FINANCIALCOMMITMENTS_BYSPONSOR, 
+			-- to get the children for which this sponsor is a financial sponsor, then join with the above select:
+			select
+				ACTIVESPONSORSHIP.SPONSORSHIPOPPORTUNITYID,
+				ACTIVESPONSORSHIP.REVENUESPLITID,
+				ACTIVESPONSORSHIP.CONSTITUENTID,
+				ACTIVESPONSORSHIP.ID,
+				dbo.USR_UFN_GET_PAYMENTMETHODCODE_BY_REVENUESPLITID(ACTIVESPONSORSHIP.REVENUESPLITID) as PAYMETHOD,
+				(select REVENUEID from dbo.REVENUESPLIT where ID = ACTIVESPONSORSHIP.REVENUESPLITID) as SPONSORSHIPREVENUEID,
+				dbo.USR_UFN_CHECK_RECURRINGGIFT_ISHELD(ACTIVESPONSORSHIP.REVENUESPLITID) as ISHELD  -- 0 false, 1 true
+				,sc.LOOKUPID
+				,GIFTSTART.GIFTFINANCIALSPONSORID
+			from dbo.SPONSORSHIPTRANSACTION GIFTSTART
+			inner join dbo.SPONSORSHIPCOMMITMENT on SPONSORSHIPCOMMITMENT.ID = GIFTSTART.SPONSORSHIPCOMMITMENTID
+			left join dbo.SPONSORSHIPTRANSACTION GIFTEND on GIFTEND.SPONSORSHIPCOMMITMENTID = GIFTSTART.SPONSORSHIPCOMMITMENTID and GIFTEND.TRANSACTIONSEQUENCE = (select min(MINSEQ.TRANSACTIONSEQUENCE) from dbo.SPONSORSHIPTRANSACTION MINSEQ where MINSEQ.SPONSORSHIPCOMMITMENTID = GIFTSTART.SPONSORSHIPCOMMITMENTID and MINSEQ.TRANSACTIONSEQUENCE > GIFTSTART.TRANSACTIONSEQUENCE and MINSEQ.ACTIONCODE in(2,3,5,9))
+			left join dbo.SPONSORSHIP GIFTENDSPONSORSHIP on GIFTENDSPONSORSHIP.ID = GIFTEND.CONTEXTSPONSORSHIPID
+			left join dbo.SPONSORSHIP ACTIVESPONSORSHIP on ACTIVESPONSORSHIP.SPONSORSHIPCOMMITMENTID = GIFTSTART.SPONSORSHIPCOMMITMENTID and ACTIVESPONSORSHIP.STATUSCODE = 1
+			join dbo.USR_SPONSORSHIPEXTENSION se on se.ID = ACTIVESPONSORSHIP.ID
+			join dbo.SPONSORSHIPCOMMITMENT sc on sc.ID = ACTIVESPONSORSHIP.SPONSORSHIPCOMMITMENTID
+			join dbo.USR_CURRENTOPPORTUNITYSPONSORSHIPSTATUSCODE statusCode on statusCode.ID = se.CURRENTOPPORTUNITYSPONSORSHIPSTATUSCODEID and statusCode.DESCRIPTION = 'Sponsored'
+			left outer join dbo.SPONSORSHIPOPPORTUNITYCHILD on  dbo.SPONSORSHIPOPPORTUNITYCHILD.ID = ACTIVESPONSORSHIP.SPONSORSHIPOPPORTUNITYID  -- this will help us identify only children commitments
+			where (GIFTSTART.GIFTFINANCIALSPONSORID IN (select sponsorId from D2SponsorList)
+			and ACTIVESPONSORSHIP.STATUSCODE = 1   -- status of 'Active'
+			and (@SHOWHISTORY = 1 or GIFTEND.ID is null)
+			and dbo.SPONSORSHIPOPPORTUNITYCHILD.ID is not null)  -- filter out project sponsorships
+		)
+		-- ************   I THINK this is where we filter out the records based on the campaign type passed in! *********************
+		-- 12-16-14:
+		--modify so above select returns the GIFTSTART.GIFTFINANCIALSPONSORID value, and use that in the UFN call below
+		-- dbo.UFN_SPONSORSHIP_GIFTFINANCIALSPONSORID(GIFTSTART.GIFTFINANCIALSPONSORID) as FinancialSponsorID
+		insert into @delinquencyResultsTable		
+		select  childId
+			   , revenueSplitId
+			   , sponsorId
+			   --, (select NAME from dbo.UFN_CONSTITUENT_DISPLAYNAME(sponsorId)) as Sponsor
+			   , sponsorshipId
+			   , case when REVENUESCHEDULE.NEXTTRANSACTIONDATE > REVENUESCHEDULE.ENDDATE then null else REVENUESCHEDULE.NEXTTRANSACTIONDATE end as 'NTD'
+			   , payMethod
+			   , sponsorshipRevenueId
+			   --, (select LOOKUPID from dbo.REVENUE where ID = sponsorshipRevenueId) as RevenueLookupID
+			   , isHeld
+			   --, dbo.USR_UFN_RECURRINGGIFT_GETNUMBEROFMONTHSPASTDUE(rev.ID, dateadd(day, 1, dateadd(month, datediff(month, 0, getdate()), 0))) as NumberOfMonthsPastDue     
+			   , dbo.USR_UFN_RECURRINGGIFT_GETNUMBEROFMONTHSPASTDUE(rev.ID, @AsOfDate) as NumberOfMonthsPastDue     
+			   , commitmentId
+			   , dbo.UFN_RECURRINGGIFT_GETPASTDUEAMOUNT(rev.ID, null) as PASTDUEAMOUNT
+			   , rev.AMOUNT as GIFTAMOUNT
+			   , ISNULL(fte.ISEFTDECLINED, 0) as ISEFTDECLINED
+			   --, (select NAME from dbo.UFN_CONSTITUENT_DISPLAYNAME(GIFTFINANCIALSPONSOR)) as GiftSponsor
+			   --, dbo.UFN_SPONSORSHIP_GIFTFINANCIALSPONSORID(sponsorshipId) as FinancialSponsorID
+			   , GIFTFINANCIALSPONSOR
+		from DelinquencyChildrenList
+		join	dbo.REVENUESPLIT revsplit on revenueSplitId = revsplit.ID
+		join	dbo.REVENUE rev on revsplit.REVENUEID = rev.ID
+		join	dbo.REVENUESCHEDULE on REVENUESCHEDULE.ID = rev.ID --REVENUE.ID		
+		left join dbo.USR_FINANCIALTRANSACTION_EXTENSION fte on fte.ID = rev.ID
+		--where ((case when REVENUESCHEDULE.NEXTTRANSACTIONDATE > REVENUESCHEDULE.ENDDATE then null else REVENUESCHEDULE.NEXTTRANSACTIONDATE end) 
+		--	between @secondDayThreeMonthsAgo and @firstDayPreviousMonth
+		--and isHeld = case when @campaignType in (0,1) then 0 else 1 end
+		--)
+		--where rev.CONSTITUENTID <> dbo.UFN_SPONSORSHIP_GIFTFINANCIALSPONSORID(sponsorId)
+		--where GIFTFINANCIALSPONSOR is not null
+		order by NTD;
+
+    BEGIN
+        INSERT @DelinquencyCampaignResults
+    		select ISHELD, 
+    			so.LOOKUPID as CHILDLOOKUPID,
+    			c.LOOKUPID as SPONSORLOOKUPID, 
+    			c.[NAME] as SPONSORNAME,
+    			r.LOOKUPID as REVENUELOOKUPID, 
+    			NTD, 
+    			PAYMETHOD, 
+    			NUMBEROFMONTHSPASTDUE,
+				r.ID as REVENUEID,
+				COMMITMENTID,
+				PASTDUEAMOUNT,
+				GIFTAMOUNT,
+				ISEFTDECLINED,
+				SPONSORSHIPID,
+				FINANCIALSPONSORID
+    		from @delinquencyResultsTable
+    		left join dbo.sponsorshipopportunity so on so.ID = CHILDID
+    		left join dbo.CONSTITUENT c on SPONSORID = c.ID
+    		left join dbo.REVENUESPLIT rs on rs.ID = REVENUESPLITID
+    		left join dbo.REVENUE r on r.ID = rs.REVENUEID
+			where NUMBEROFMONTHSPASTDUE >= 4.0000
+			order by c.LOOKUPID;
+    END;
+	
+	RETURN;
+    
+end		
+	]]>
+	</CreateFunctionSQL>
+
+</SQLFunctionSpec>
