@@ -72,6 +72,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="D2 Business Process\D2Campaign.BusinessProcess.vb" />
+    <Compile Include="D3 Business Process\D3Campaign.BusinessProcess.vb" />
     <Compile Include="D4 Business Process\D4Campaign.BusinessProcess.vb" />
     <Compile Include="EFT Decline Batch Process\EFTDeclineBatch.BusinessProcess.vb" />
     <Compile Include="My Project\AssemblyInfo.vb" />
@@ -727,6 +728,28 @@
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Query Views\D4DelinquencyCampaignAsOfToday.Sponsorships.Query.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="D3 Business Process\D3BusinessProcess.Package.xml" />
+    <EmbeddedResource Include="D3 Business Process\D3Campaign.BusinessProcess.xml" />
+    <EmbeddedResource Include="D3 Business Process\D3CampaignBusinessPreProcess.Edit.xml" />
+    <EmbeddedResource Include="D3 Business Process\D3CampaignBusinessProcess.DeleteParameterSet.RecordOperation.xml" />
+    <EmbeddedResource Include="D3 Business Process\D3CampaignBusinessProcess.Page.xml" />
+    <EmbeddedResource Include="D3 Business Process\D3CampaignBusinessProcess.PageExpression.View.xml" />
+    <EmbeddedResource Include="D3 Business Process\D3CampaignBusinessProcess.StatusReport.DataList.xml" />
+    <EmbeddedResource Include="D3 Business Process\D3CampaignBusinessProcess.Summary.View.xml" />
+    <EmbeddedResource Include="D3 Business Process\D3CampaignBusinessProcess.Table.xml" />
+    <EmbeddedResource Include="D3 Business Process\D3CampaignBusinessProcess.Task.xml" />
+    <EmbeddedResource Include="D3 Business Process\D3CampaignBusinessProcess.View.xml" />
+    <EmbeddedResource Include="D3 Business Process\D3CampaignBusinessProcessParameters.Add.xml" />
+    <EmbeddedResource Include="D3 Business Process\D3CampaignBusinessProcessParameters.DataList.xml" />
+    <EmbeddedResource Include="D3 Business Process\D3CampaignBusinessProcessParameters.Edit.xml" />
+    <EmbeddedResource Include="D3 Business Process\D3CampaignBusinessProcessResults.Page.xml" />
+    <EmbeddedResource Include="D3 Business Process\D3CampaignBusinessProcessResults.Query.xml" />
+    <EmbeddedResource Include="D3 Business Process\D3CampaignBusinessProcessResults.Table.xml" />
+    <EmbeddedResource Include="D3 Business Process\D3CampaignBusinessProcessStatus.DataList.xml" />
+    <EmbeddedResource Include="D3 Business Process\USR_USP_D3_CAMPAIGNPROCESS_GETPARAMETERS.xml" />
+    <EmbeddedResource Include="D3 Business Process\USR_USP_D3_CAMPAIGN_BUSINESSPROCESS.xml" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.VisualBasic.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
