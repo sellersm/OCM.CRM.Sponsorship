@@ -751,6 +751,12 @@
     <EmbeddedResource Include="D3 Business Process\USR_USP_D3_CAMPAIGNPROCESS_GETPARAMETERS.xml" />
     <EmbeddedResource Include="D3 Business Process\USR_USP_D3_CAMPAIGN_BUSINESSPROCESS.xml" />
   </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="SQL\Stored Procedures\USR_USP_CONVERT_UNPAID_SPONSORSHIP.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="RecordOperations\ConvertUnpaidSponsorship.RecordOperation.xml" />
+  </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.VisualBasic.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
