@@ -1,0 +1,163 @@
+﻿<SQLStoredProcedureSpec
+	xmlns="bb_appfx_sqlstoredprocedure"
+	xmlns:common="bb_appfx_commontypes" 
+	ID="54016C72-C043-45FD-AEF1-1900089B31A6"
+	Name="USR_USP_CONVERT_UNPAID_SPONSORSHIP"
+	Description="Converts the given Unpaid Sponsorship."
+	Author="Cary Mayeda"
+	SPName="USR_USP_CONVERT_UNPAID_SPONSORSHIP"
+	>
+
+	<!-- 
+	Remarks:    This sproc is used to do all the work of converting an unpaid sponsor. Takes in the Sponsorship ID of the sponsorship to convert as parameter.
+
+	History:
+	Date            Modified By     Comments
+	09-Feb-2014		CMayeda			Initial Version
+									Modified a copy of USR_USP_CONVERT_PROSPECT_SPONSOR
+	-->
+
+
+	<CreateProcedureSQL>
+		<![CDATA[
+create procedure dbo.USR_USP_CONVERT_UNPAID_SPONSORSHIP
+(
+	@sponsorshipId uniqueidentifier    -- Sponsorship id of the sponsorship to convert
+)
+as
+begin
+	declare @changeAgentID uniqueidentifier
+	declare @opportunityChildId uniqueidentifier
+	declare @sponsorId uniqueidentifier
+	declare @currentStatusIdSponsored uniqueidentifier 
+	declare @statusCode_Pending tinyint = 1
+	declare @statusCode_Cancelled tinyint = 4
+	declare @currentDate date = getdate()
+	
+	declare @interactionCategoryDesc_SponsorshipTransfer nvarchar(100) = 'Sponsorship Transfers'               
+	declare @interactionSubcategoryDesc_UnpaidTransferReminder nvarchar(100) = 'Unpaid Transfer Reminder'
+	declare @interactionSubcategoryDesc_UnpaidTransferFinalLetter nvarchar(100) = 'Unpaid Transfer Final Letter'
+	declare @interactionSubcategoryID_UnpaidTransferReminder uniqueidentifier
+	declare @interactionSubcategoryID_UnpaidTransferFinalLetter uniqueidentifier
+
+	
+	if @changeAgentID is null
+		exec dbo.USP_CHANGEAGENT_GETORCREATECHANGEAGENT @changeAgentID output;
+
+	begin try
+		-- These variables are required for the sproc to work correctly, so we need to throw an exception if any of them aren't found
+
+		set @currentStatusIdSponsored = dbo.USR_UFN_CURRENTOPPORTUNITYSPONSORSHIPSTATUSCODE_GETID_FORDESCRIPTION('Sponsored')
+		if @currentStatusIdSponsored is null 
+			RAISERROR 100000 'Could not find the "Sponsored" current Sponsorship status code'
+		
+		exec dbo.USR_USP_INTERACTION_GETSUBCATEGORYID 
+				@interactionSubcategoryID_UnpaidTransferReminder output,
+				@interactionCategoryDesc_SponsorshipTransfer,
+				@interactionSubcategoryDesc_UnpaidTransferReminder,
+				1
+		if @interactionSubcategoryID_UnpaidTransferReminder is null 
+			RAISERROR 100000 'Could not find the "Unpaid Transfer Reminder" subcategory id'
+			
+		exec dbo.USR_USP_INTERACTION_GETSUBCATEGORYID 
+				@interactionSubcategoryID_UnpaidTransferFinalLetter output,
+				@interactionCategoryDesc_SponsorshipTransfer,
+				@interactionSubcategoryDesc_UnpaidTransferFinalLetter,
+				1
+		if @interactionSubcategoryID_UnpaidTransferFinalLetter is null 
+			RAISERROR 100000 'Could not find the "Unpaid Transfer Reminder" subcategory id'
+		
+		select 
+			@opportunityChildId = SPONSORSHIPOPPORTUNITYID,
+			@sponsorId = CONSTITUENTID
+		from 
+		  	dbo.SPONSORSHIP
+		where 
+			ID = @sponsorshipId
+		
+		if @opportunityChildId is null 
+			RAISERROR 100000 'Could not find the Child ID for the current sponsorship'
+		
+		if @sponsorId is null 
+			RAISERROR 100000 'Could not find the Sponsor ID for the current sponsorship'
+		
+	end try
+	begin catch
+	    exec dbo.USP_RAISE_ERROR
+		return 1	
+	end catch
+
+
+
+	begin try
+
+		begin tran unpaidSponsorshipConversion
+		
+		/*
+			Step 1: Update Sponsorship Extension table
+						set the CONVERSIONDATE in the USR_SPONSORSHIPEXTENSION table when updating (use GETDATE() for today's date), AND
+						calculate the DAYSTOCONVERT & store it in the USR_SPONSORSHIPEXTENSION table when updating:  GETDATE()-DATEADDED in days is the formula value					
+		*/
+		update dbo.USR_SPONSORSHIPEXTENSION
+		set 
+			CURRENTOPPORTUNITYSPONSORSHIPSTATUSCODEID = @currentStatusIdSponsored,
+			CHANGEDBYID = @changeAgentID,
+			DATECHANGED = getdate(),
+			CONVERSIONDATE = getdate(),
+			DAYSTOCONVERT = datediff(dd, DATEADDED, getdate())
+		where ID = @sponsorshipID
+		   and ISCURRENT = 1  -- only update the most recent, current record since that's what's displayed in the child page
+
+
+		/*
+			Step 2: Change the most recent reservation key status to 'Sponsored'
+						USR_CHILDRESERVATION table: 
+		  				StatusCode values:
+							case [STATUSCODE] 
+							when (0) then N'Closed' 
+							when (1) then N'Open' 
+							when (2) then N'Sponsored' 
+							when (3) then N'Prospect sponsored' 
+							when (4) then N'Unpaid transfer'  
+		*/
+
+		update dbo.USR_CHILDRESERVATION
+		   set STATUSCODE = 2  -- Sponsored
+		 where STARTDATE = (select MAX(STARTDATE) from dbo.USR_CHILDRESERVATION where STATUSCODE = 4 and SPONSORSHIPOPPORTUNITYCHILDID = @opportunityChildId)
+		   and STATUSCODE = 4  -- Unpaid transfer
+		   and SPONSORSHIPOPPORTUNITYCHILDID = @opportunityChildId -- this will be the cursor value for the child id
+
+	
+		
+		/* 
+			Step 3: cancel all pending interactions for this Sponsor where Category = 'Sponsorship Transfers', Subcategory = 'Unpaid Transfer Reminder', 'Unpaid Transfer Final Letter'
+						(case [STATUSCODE] when (0) then N'Planned' when (1) then N'Pending' when (2) then N'Completed' when (3) then N'Unsuccessful' when (4) then N'Cancelled' when (5) then N'Declined'  end)
+		*/
+		update 	dbo.INTERACTION 
+		   set	STATUSCODE = @statusCode_Cancelled,
+				COMMENT = 'Cancelled due to Unpaid Sponsorship Conversion',
+				CHANGEDBYID = @changeAgentID,
+				DATECHANGED = getdate()            
+		  from	dbo.INTERACTION 
+		 where	CONSTITUENTID = @sponsorId  -- constituentid of the sponsor
+		   and	STATUSCODE = @statusCode_Pending
+		   and	INTERACTIONSUBCATEGORYID in (@interactionSubcategoryID_UnpaidTransferReminder, @interactionSubcategoryID_UnpaidTransferFinalLetter)
+							
+
+		commit transaction unpaidSponsorshipConversion
+
+		return 0;
+	
+	end try
+	begin catch
+		rollback
+		exec dbo.USP_RAISE_ERROR;
+		return 1;
+	end catch
+
+end
+
+		]]>
+	</CreateProcedureSQL>
+
+</SQLStoredProcedureSpec>
