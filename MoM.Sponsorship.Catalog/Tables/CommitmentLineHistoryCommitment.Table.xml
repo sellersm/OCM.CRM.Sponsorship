@@ -13,12 +13,14 @@
 	History:
 	Date            Modified By     Comments
 	07-May-2014		CMayeda			Initial Prototype Version
+	11-Feb-2015		CMayeda			Added TARGETCOMMITMENTID
 	-->
 
 	<!-- define fields on the table -->
 	<Fields>
 		<ForeignKeyField Name="COMMITMENTLINEHISTORYID" Description="Commitment Line History ID" ForeignTable="USR_COMMITMENTLINEHISTORY" ForeignFieldName="ID" ForeignDataType="uniqueidentifier" Cardinality="ManyToOne" OnDelete="CascadeDelete"/>
-		<ForeignKeyField Name="COMMITMENTID" Description="Commitment ID" ForeignTable="SPONSORSHIPCOMMITMENT" ForeignFieldName="ID" ForeignDataType="uniqueidentifier" Cardinality="ManyToOne" OnDelete="CascadeDelete"/>		
+		<ForeignKeyField Name="COMMITMENTID" Description="Commitment ID" ForeignTable="SPONSORSHIPCOMMITMENT" ForeignFieldName="ID" ForeignDataType="uniqueidentifier" Cardinality="OneToOne" OnDelete="SetToNull"/>
+		<GuidField Name="TARGETCOMMITMENTID" Description="Target (good) Commitment ID" />
 	</Fields>
 
 	<!-- define any indexes on the table -->
