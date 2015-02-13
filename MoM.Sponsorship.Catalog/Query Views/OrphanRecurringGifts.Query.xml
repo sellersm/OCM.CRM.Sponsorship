@@ -1,0 +1,71 @@
+﻿<QueryViewSpec
+	xmlns="bb_appfx_queryview"
+	xmlns:common="bb_appfx_commontypes" 
+	ID="facb50ef-eb19-49e9-93d7-c4eb35641fff"
+	Name="Orphan Recurring Gifts Query"
+	Description="Orphan Recurring Gifts query"
+	Author="Memphis Sellers"
+	IsRoot="true"
+	PrimaryKeyField="ID"
+	RecordType="Revenue"
+	common:SecurityUIFolder="Revenue"
+	>
+
+	<!-- define the view used to return data for the query -->
+	<ViewImplementation ViewName="USR_V_QUERY_ORPHAN_RECURRING_GIFTS">
+		<ViewSQL>
+			<![CDATA[
+	select 	r.ID,
+			r.LOOKUPID as REVENUEID, 
+			payer.LOOKUPID as PAYERID,
+			payer.[NAME] as PAYER,
+			REVENUESCHEDULE.STATUS as RGSTATUS,
+			REX.REFERENCE,
+			dbo.UFN_DESIGNATION_BUILDNAME(rs.DESIGNATIONID) as DESIGNATION,
+			cast(REVENUESCHEDULE.STARTDATE as date) as GIFTSTARTDATE,
+			cast(ft.DATE as date) as GIFTDATE,
+			rs.APPLICATION,
+			rs.[TYPE]
+	from dbo.REVENUESPLIT rs
+	join dbo.REVENUE r on r.ID = rs.REVENUEID
+	LEFT join dbo.FINANCIALTRANSACTION ft on ft.ID = rs.REVENUEID
+	left outer join dbo.SPONSORSHIP s on s.REVENUESPLITID = rs.ID
+	--left join dbo.FINANCIALTRANSACTION ft on ft.ID = r.ID
+	left join dbo.REVENUE_EXT REX on REX.ID = r.ID -- ft.ID
+	--left join dbo.FINANCIALTRANSACTIONLINEITEM on ft.ID = FINANCIALTRANSACTIONLINEITEM.FINANCIALTRANSACTIONID
+	--left join dbo.REVENUESPLIT_EXT on FINANCIALTRANSACTIONLINEITEM.ID = REVENUESPLIT_EXT.ID
+	left join dbo.CONSTITUENT sponsor ON sponsor.ID = s.CONSTITUENTID
+	left join dbo.CONSTITUENT payer ON payer.ID = r.CONSTITUENTID --and payer.LOOKUPID = '275285'
+	left join dbo.REVENUESCHEDULE on REVENUESCHEDULE.ID = rs.REVENUEID
+	left join dbo.DESIGNATION d on d.ID = rs.DESIGNATIONID
+	left join dbo.DESIGNATIONLEVEL dl on d.DESIGNATIONLEVEL1ID = dl.id
+	where (rs.TYPECODE = 9
+	and s.STATUS is NULL
+	and lower(dl.[NAME]) NOT LIKE 'B-%'
+	--and REVENUESCHEDULE.STARTDATE > '1/1/2009'
+	and rs.APPLICATION = 'Donation'   
+	and payer.ID NOT IN (select CONSTITUENTID from dbo.CONSTITUENCY where CONSTITUENCYCODEID = (select ID from dbo.CONSTITUENCYCODE where [DESCRIPTION] = 'Affiliate Office')))
+			
+			]]>
+		</ViewSQL>
+	</ViewImplementation>
+
+	<!-- describe each field in the view output -->
+	<Output>
+		<OutputFields>
+			<OutputField Caption="System record ID" Category="System Fields" Name="ID" />
+			<OutputField Name="REVENUEID" Caption="Revenue Id" DataType="String" />
+			<OutputField Name="PAYERID" Caption="Payer Id" DataType="String" />
+			<OutputField Name="PAYER" Caption="Payer" DataType="String" />
+			<OutputField Name="RGSTATUS" Caption="Status" DataType="String" />
+			<OutputField Name="REFERENCE" Caption="Reference" DataType="String" />
+			<OutputField Name="DESIGNATION" Caption="Designation" DataType="String" />
+			<OutputField Name="GIFTSTARTDATE" Caption="Gift Startdate" DataType="Date" />
+			<OutputField Name="GIFTDATE" Caption="Gift Date" DataType="Date" />
+			<OutputField Name="APPLICATION" Caption="Application" DataType="String" />
+			<OutputField Name="TYPE" Caption="Type" DataType="String" />
+		</OutputFields>
+	</Output>
+
+</QueryViewSpec>
+
