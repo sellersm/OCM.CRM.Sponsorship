@@ -122,6 +122,7 @@
 											 D3DelinquencyCampaignAsOfToday.Sponsorships.Query.xml
 											 D4DelinquencyCampaign.Sponsorships.Query.xml
 											 D4DelinquencyCampaignAsOfToday.Sponsorships.Query.xml
+	12-Feb-2015		Memphis			Added new query for Pamela: OrphanRecurringGifts.Query.xml
 	-->
 
 	<!-- Note:  the order of the items listed here is important.  For example, you won't be able to load a data form that references 
@@ -342,6 +343,7 @@
 		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.D3DelinquencyCampaignAsOfToday.Sponsorships.Query.xml" />
 		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.D4DelinquencyCampaign.Sponsorships.Query.xml" />
 		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.D4DelinquencyCampaignAsOfToday.Sponsorships.Query.xml" />
+		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.OrphanRecurringGifts.Query.xml" />
 
 		<!-- Tasks -->
 		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.SponsorshipAdd_Wrapped.Task.xml" />
