@@ -7,26 +7,35 @@
 	Author="Memphis Sellers"
 	IsRoot="true"
 	PrimaryKeyField="ID"
-	RecordType="D2 Campaign Business Process Results"
+	RecordType="Constituent"
 	common:SecurityUIFolder="Sponsorship"
 	>
+
+	<!-- 
+	Remarks:    Displays the results of the D2 biz process.
+
+	History:
+	Date            Modified By     Comments
+	19-Feb-2015		Memphis			Changed Record Type to Constituent
+	-->
 
 	<!-- define the view used to return data for the query -->
 	<ViewImplementation ViewName="USR_V_QUERY_D2CAMPAIGN_BUSINESSPROCESS_RESULTS">
 		<ViewSQL>
 			<![CDATA[
-SELECT	ID, 
-		SPONSORLOOKUPID, 
-		D2CAMPAIGNDATE, 
-		DATEADDED, 
-		case when CAMPAIGNTYPE = 0 then 'Cash'
-			when CAMPAIGNTYPE = 1 then 'EFT Active'
-			when CAMPAIGNTYPE = 2 then 'EFT Held Credit Card'
-			when CAMPAIGNTYPE = 3 then 'EFT Held Direct Debit'
-			when CAMPAIGNTYPE = 4 then 'Phone (all)'
+SELECT	c.ID, 
+		r.SPONSORLOOKUPID, 
+		r.D2CAMPAIGNDATE, 
+		r.DATEADDED, 
+		case when r.CAMPAIGNTYPE = 0 then 'Cash'
+			when r.CAMPAIGNTYPE = 1 then 'EFT Active'
+			when r.CAMPAIGNTYPE = 2 then 'EFT Held Credit Card'
+			when r.CAMPAIGNTYPE = 3 then 'EFT Held Direct Debit'
+			when r.CAMPAIGNTYPE = 4 then 'Phone (all)'
 			end as TYPE, 
-		D2INTERACTIONSTATUS 
-FROM dbo.USR_D2_CAMPAIGN_BUSINESSPROCESS_RESULTS
+		r.D2INTERACTIONSTATUS 
+FROM dbo.USR_D2_CAMPAIGN_BUSINESSPROCESS_RESULTS r
+join dbo.CONSTITUENT c on r.SPONSORLOOKUPID = c.LOOKUPID
 	]]>
 		</ViewSQL>
 	</ViewImplementation>
