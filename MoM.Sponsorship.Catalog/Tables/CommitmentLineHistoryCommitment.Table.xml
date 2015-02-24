@@ -20,7 +20,7 @@
 	<Fields>
 		<ForeignKeyField Name="COMMITMENTLINEHISTORYID" Description="Commitment Line History ID" ForeignTable="USR_COMMITMENTLINEHISTORY" ForeignFieldName="ID" ForeignDataType="uniqueidentifier" Cardinality="ManyToOne" OnDelete="CascadeDelete"/>
 		<ForeignKeyField Name="COMMITMENTID" Description="Commitment ID" ForeignTable="SPONSORSHIPCOMMITMENT" ForeignFieldName="ID" ForeignDataType="uniqueidentifier" Cardinality="OneToOne" OnDelete="SetToNull"/>
-		<GuidField Name="TARGETCOMMITMENTID" Description="Target (good) Commitment ID" />
+		<GuidField Name="TARGETREVENUESPLITID" Description="Target (good) Revenue Split ID" />
 	</Fields>
 
 	<!-- define any indexes on the table -->
