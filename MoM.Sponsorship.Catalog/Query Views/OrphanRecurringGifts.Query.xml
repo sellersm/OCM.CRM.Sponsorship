@@ -11,40 +11,69 @@
 	common:SecurityUIFolder="Revenue"
 	>
 
+	<!-- 
+	Remarks: Displays recurring gifts that aren't associated with a Sponsorship.
+			 Filters out Consitutents (Payers) that have earliest RG since 1/1/2009,
+			 and do not have Affiliate Office consituency code.
+
+	History:
+	Date            Modified By     Comments
+	12-Feb-2015		Memphis			Initial Version
+	04-Mar-2015		Memphis			Added filter for Payers since 1/1/2009
+									and ft.TYPECODE = 2 which are payments on recurring gifts
+	-->	
+
 	<!-- define the view used to return data for the query -->
 	<ViewImplementation ViewName="USR_V_QUERY_ORPHAN_RECURRING_GIFTS">
 		<ViewSQL>
 			<![CDATA[
-	select 	r.ID,
-			r.LOOKUPID as REVENUEID, 
-			payer.LOOKUPID as PAYERID,
-			payer.[NAME] as PAYER,
-			REVENUESCHEDULE.STATUS as RGSTATUS,
-			REX.REFERENCE,
-			dbo.UFN_DESIGNATION_BUILDNAME(rs.DESIGNATIONID) as DESIGNATION,
-			cast(REVENUESCHEDULE.STARTDATE as date) as GIFTSTARTDATE,
-			cast(ft.DATE as date) as GIFTDATE,
-			rs.APPLICATION,
-			rs.[TYPE]
-	from dbo.REVENUESPLIT rs
-	join dbo.REVENUE r on r.ID = rs.REVENUEID
-	LEFT join dbo.FINANCIALTRANSACTION ft on ft.ID = rs.REVENUEID
-	left outer join dbo.SPONSORSHIP s on s.REVENUESPLITID = rs.ID
-	--left join dbo.FINANCIALTRANSACTION ft on ft.ID = r.ID
-	left join dbo.REVENUE_EXT REX on REX.ID = r.ID -- ft.ID
-	--left join dbo.FINANCIALTRANSACTIONLINEITEM on ft.ID = FINANCIALTRANSACTIONLINEITEM.FINANCIALTRANSACTIONID
-	--left join dbo.REVENUESPLIT_EXT on FINANCIALTRANSACTIONLINEITEM.ID = REVENUESPLIT_EXT.ID
-	left join dbo.CONSTITUENT sponsor ON sponsor.ID = s.CONSTITUENTID
-	left join dbo.CONSTITUENT payer ON payer.ID = r.CONSTITUENTID --and payer.LOOKUPID = '275285'
-	left join dbo.REVENUESCHEDULE on REVENUESCHEDULE.ID = rs.REVENUEID
-	left join dbo.DESIGNATION d on d.ID = rs.DESIGNATIONID
-	left join dbo.DESIGNATIONLEVEL dl on d.DESIGNATIONLEVEL1ID = dl.id
-	where (rs.TYPECODE = 9
-	and s.STATUS is NULL
-	and lower(dl.[NAME]) NOT LIKE 'B-%'
-	--and REVENUESCHEDULE.STARTDATE > '1/1/2009'
-	and rs.APPLICATION = 'Donation'   
-	and payer.ID NOT IN (select CONSTITUENTID from dbo.CONSTITUENCY where CONSTITUENCYCODEID = (select ID from dbo.CONSTITUENCYCODE where [DESCRIPTION] = 'Affiliate Office')))
+		--this gives us the Payers with the earliest RGift for each payer, greather than or equal to 1/1/2009:
+		with minStartDate2009 as
+		(
+		select
+			 c.ID, min(ft.DATE) as minSponsorshipStartDate
+		from 
+			 dbo.CONSTITUENT c 
+			 join dbo.FINANCIALTRANSACTION ft on ft.CONSTITUENTID = c.ID
+			 join dbo.REVENUESPLIT rs on ft.ID = rs.REVENUEID
+			 left join dbo.DESIGNATION d on d.ID = rs.DESIGNATIONID
+			 left join dbo.DESIGNATIONLEVEL dl on d.DESIGNATIONLEVEL1ID = dl.id
+		where (rs.TYPECODE = 9
+			and ft.TYPECODE = 2
+			and lower(dl.[NAME]) NOT LIKE 'B-%'  -- no payments for projects, only child sponsorships
+			and rs.APPLICATION = 'Donation')
+		group by c.ID
+		having min(ft.DATE) >= '1/1/2009'
+		)
+
+		select 	r.ID,
+				r.LOOKUPID as REVENUEID, 
+				payer.LOOKUPID as PAYERID,
+				payer.[NAME] as PAYER,
+				REVENUESCHEDULE.STATUS as RGSTATUS,
+				REX.REFERENCE,
+				dbo.UFN_DESIGNATION_BUILDNAME(rs.DESIGNATIONID) as DESIGNATION,
+				cast(REVENUESCHEDULE.STARTDATE as date) as GIFTSTARTDATE,
+				cast(ft.DATE as date) as GIFTDATE,
+				rs.APPLICATION,
+				rs.[TYPE]
+		from dbo.REVENUESPLIT rs
+		join dbo.REVENUE r on r.ID = rs.REVENUEID
+		LEFT join dbo.FINANCIALTRANSACTION ft on ft.ID = rs.REVENUEID
+		join minStartDate2009 minPayer on minPayer.ID = ft.CONSTITUENTID
+		left outer join dbo.SPONSORSHIP s on s.REVENUESPLITID = rs.ID
+		left join dbo.REVENUE_EXT REX on REX.ID = r.ID -- ft.ID
+		left join dbo.CONSTITUENT sponsor ON sponsor.ID = s.CONSTITUENTID
+		left join dbo.CONSTITUENT payer ON payer.ID = r.CONSTITUENTID --and payer.LOOKUPID = '275285'
+		left join dbo.REVENUESCHEDULE on REVENUESCHEDULE.ID = rs.REVENUEID
+		left join dbo.DESIGNATION d on d.ID = rs.DESIGNATIONID
+		left join dbo.DESIGNATIONLEVEL dl on d.DESIGNATIONLEVEL1ID = dl.id
+		where (rs.TYPECODE = 9  -- sponsorship
+		and ft.TYPECODE = 2 -- recurring gifts
+		and s.STATUS is NULL
+		and lower(dl.[NAME]) NOT LIKE 'B-%'
+		and rs.APPLICATION = 'Donation'   
+		and payer.ID NOT IN (select CONSTITUENTID from dbo.CONSTITUENCY where CONSTITUENCYCODEID = (select ID from dbo.CONSTITUENCYCODE where [DESCRIPTION] = 'Affiliate Office')))
 			
 			]]>
 		</ViewSQL>
