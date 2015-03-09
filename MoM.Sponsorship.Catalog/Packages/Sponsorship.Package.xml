@@ -123,6 +123,9 @@
 											 D4DelinquencyCampaign.Sponsorships.Query.xml
 											 D4DelinquencyCampaignAsOfToday.Sponsorships.Query.xml
 	12-Feb-2015		Memphis			Added new query for Pamela: OrphanRecurringGifts.Query.xml
+	09-Mar-2015		CMayeda			Added Unpaid Sponsorship Conversion record op and sproc
+										ConvertUnpaidSponsorship.RecordOperation.xml
+										USR_USP_CONVERT_UNPAID_SPONSORSHIP.xml
 	-->
 
 	<!-- Note:  the order of the items listed here is important.  For example, you won't be able to load a data form that references 
@@ -259,6 +262,7 @@
 		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.USR_UFN_GET_D2_DELINQUENCY_SPONSORSHIPS.xml" />
 		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.USR_UFN_GET_D3_DELINQUENCY_SPONSORSHIPS.xml" />
 		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.USR_UFN_GET_D4_DELINQUENCY_SPONSORSHIPS.xml" />
+		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.USR_USP_CONVERT_UNPAID_SPONSORSHIP.xml" />
 
 		<!-- Smart Fields -->
 		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.NextTransactionDateDelinquency.SmartField.xml" />
@@ -272,7 +276,8 @@
 		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.ConvertProspectSponsor.RecordOperation.xml" />
 		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.SetIsMostRecentCommitment.RecordOperation.xml" />
 		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.CancelPendingTransfer.RecordOperation.xml" />
-
+		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.ConvertUnpaidSponsorship.RecordOperation.xml" />
+		
 		<!-- DataLists -->
 		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.ChildrenToSponsor.SimpleList.xml" />
 		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.SponsorshipOpportunityMatchCustom.DataList.xml" />
