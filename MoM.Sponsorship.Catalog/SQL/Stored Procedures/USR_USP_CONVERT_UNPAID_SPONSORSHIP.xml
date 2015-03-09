@@ -13,8 +13,9 @@
 
 	History:
 	Date            Modified By     Comments
-	09-Feb-2014		CMayeda			Initial Version
+	09-Feb-2015		CMayeda			Initial Version
 									Modified a copy of USR_USP_CONVERT_PROSPECT_SPONSOR
+	02-Mar-2015		CMayeda			Modified Interaction update to only update interactions that include the specific child.		
 	-->
 
 
@@ -142,7 +143,7 @@ begin
 		 where	CONSTITUENTID = @sponsorId  -- constituentid of the sponsor
 		   and	STATUSCODE = @statusCode_Pending
 		   and	INTERACTIONSUBCATEGORYID in (@interactionSubcategoryID_UnpaidTransferReminder, @interactionSubcategoryID_UnpaidTransferFinalLetter)
-							
+		   and  exists (select 1 from dbo.USR_INTERACTIONEXTENSIONCHILDREN c where dbo.INTERACTION.ID = c.INTERACTIONID and c.SPONSORSHIPOPPORTUNITYCHILDID = @opportunityChildId)
 
 		commit transaction unpaidSponsorshipConversion
 
