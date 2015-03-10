@@ -23,6 +23,12 @@
 									be the Current one or not.
 									When the form loads, it will indicate to user if NO rows have ISCURRENT set, or if there are more than one ISCURRENT
 									row for this child.
+	10-Mar-2015		Memphis			Added new ISACCOUNTCORRECTION checkbox/field, also calculate the DaysToConvert value upon save:
+									-Value = difference between Start Date of the Sponsorship & the Conversion Date
+									-When these rules exist: 
+										- Current Status must be Sponsored or Formerly Sponsored, then the Conversion Date must be filled in 
+										- and then calculate the Days to Convert value.
+
 -->
 
 
@@ -41,6 +47,7 @@ create procedure dbo.USR_USP_DATAFORMTEMPLATE_EDITLOAD_SPONSORSHIPEXTENSION(
 	@CONVERSIONDATE date = null output,
 	@DAYSTOCONVERT int = null output,
 	@ISCURRENT bit = null output,
+	@ISACCOUNTCORRECTION bit = null output,
 	@SPONSORSHIPOPPORTUNITYID uniqueidentifier = null output,
 	@DATEADDED datetime = null output,
 	@ADDEDBYNAME nvarchar(128) = null output,
@@ -67,6 +74,7 @@ as
 		@CONVERSIONDATE = CONVERSIONDATE,
 		@DAYSTOCONVERT = DAYSTOCONVERT,
 		@ISCURRENT = ISCURRENT,
+		@ISACCOUNTCORRECTION = ISACCOUNTCORRECTION,
 		@SPONSORSHIPOPPORTUNITYID = SPONSORSHIPOPPORTUNITYID,
 		@DATEADDED = dbo.USR_SPONSORSHIPEXTENSION.DATEADDED,
 		@ADDEDBYNAME = ADDEDBY.USERNAME,
@@ -119,6 +127,7 @@ create procedure dbo.USR_USP_DATAFORMTEMPLATE_EDIT_SPONSORSHIPEXTENSION(
 	@CONVERSIONDATE date,
 	@DAYSTOCONVERT int,
 	@ISCURRENT bit,
+	@ISACCOUNTCORRECTION bit,
 	@SPONSORSHIPOPPORTUNITYID uniqueidentifier
 )
 as
@@ -130,8 +139,48 @@ as
 				
 	declare @CURRENTDATE datetime
 	set @CURRENTDATE = getdate()
+	
 
 	begin try
+		-- calculate DaysToConvert if there is a Conversion Date value:
+		-- USR_UFN_CURRENTOPPORTUNITYSPONSORSHIPSTATUSCODE_GETID_FORDESCRIPTION()
+		-- also calculate the DaysToConvert value upon save:
+		--  -Value = difference between Start Date of the Sponsorship & the Conversion Date
+		--  -When these rules exist: 
+		--	- Current Status must be Sponsored or Formerly Sponsored, then the Conversion Date must be filled in 
+		--	- and then calculate the Days to Convert value
+
+		declare @sponsoredStatusId uniqueidentifier;
+		declare @formerlySponsoredStatusId uniqueidentifier;
+
+		--get the Current Status ID values of Sponsored and Formerly Sponsored to compare to what's being passed in from the Form:
+		set @sponsoredStatusId = dbo.USR_UFN_CURRENTOPPORTUNITYSPONSORSHIPSTATUSCODE_GETID_FORDESCRIPTION('Sponsored');
+		set @formerlySponsoredStatusId = dbo.USR_UFN_CURRENTOPPORTUNITYSPONSORSHIPSTATUSCODE_GETID_FORDESCRIPTION('Formerly Sponsored');
+
+		-- check if the current status id value is either Sponsored or Formerly Sponsored:
+		if (@CURRENTOPPORTUNITYSPONSORSHIPSTATUSCODEID = @sponsoredStatusId or @CURRENTOPPORTUNITYSPONSORSHIPSTATUSCODEID = @formerlySponsoredStatusId)
+			begin
+				-- @CONVERSIONDATE is filled in:
+				if @CONVERSIONDATE is not null
+					begin		
+						-- @DAYSTOCONVERT is not yet set
+						if (@DAYSTOCONVERT is null or (@DAYSTOCONVERT is not null and @DAYSTOCONVERT = 0))
+							begin
+								-- need to get the Sponsorship start date to use for calculation
+								declare @startDate date;
+								select @startDate = STARTDATE
+								from dbo.SPONSORSHIP
+								where ID = @ID;
+								
+								if @startDate is not null
+									begin
+										-- calculate the DAYSTOCONVERT value:
+										set @DAYSTOCONVERT = datediff(dd, @startDate, @CONVERSIONDATE)
+									end
+							end
+					end
+			end
+										
 		-- handle updating the data
 		update dbo.USR_SPONSORSHIPEXTENSION 
 		set
@@ -141,7 +190,8 @@ as
 			CONVERSIONDATE = @CONVERSIONDATE,
 			CHANGEDBYID = @CHANGEAGENTID,
 			DATECHANGED = @CURRENTDATE,
-			ISCURRENT = @ISCURRENT
+			ISCURRENT = @ISCURRENT,
+			ISACCOUNTCORRECTION = @ISACCOUNTCORRECTION
 		where ID = @ID
 		
 		-- if the user is setting the iscurrent flag, or it has already been set, then ensure this is the ONLY current record for this sponsorship,
@@ -183,6 +233,7 @@ return 0;
 			<common:FormField FieldID="CONVERSIONDATE" Caption="Conversion date" DataType="Date" />
 			<common:FormField FieldID="DAYSTOCONVERT" Caption="Days to convert" DataType="Integer" />
 			<common:FormField FieldID="ISCURRENT" Caption="Current record?" DataType="Boolean" />
+			<common:FormField FieldID="ISACCOUNTCORRECTION" Caption="Account correction" DataType="Boolean" />
 			<common:FormField FieldID="SPONSORSHIPOPPORTUNITYID" Caption="Child Id" DataType="Guid" Hidden="true" />
 			<common:FormField FieldID="DATEADDED" Caption="Date added" DataType="Date" ReadOnly="true" />
 			<common:FormField FieldID="CHANGEDBYNAME" Caption="Changed by" DataType="String" ReadOnly="true" />

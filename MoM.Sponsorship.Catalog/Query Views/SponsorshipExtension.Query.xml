@@ -18,6 +18,7 @@
 	22-Oct-2012		CMayeda			Initial Version
 	29-Jan-2013		CMayeda			Added V_QUERY_SPONSORSHIP as a related view - FogBugz case 962
     29-Aug-2013     CMayeda         Include sponsorships that do not have a sponsorship extension record - V1:D-01040
+	10-Mar-2015		Memphis			Added ISACCOUNTCORRECTION column.
 	-->
 
 	<!-- define the view used to return data for the query -->
@@ -33,6 +34,7 @@
 			sp_ext.SPONSORSHIPOPPORTUNITYID,
 			sp_ext.DAYSTOCONVERT,
 			sp_ext.ISCURRENT,
+			sp_ext.ISACCOUNTCORRECTION,
 			sp_ext.DATEADDED,
 			sp_ext.DATECHANGED,
 			ADDEDBY.APPLICATIONNAME as ADDEDBY_APPLICATION,
@@ -67,6 +69,9 @@
 			<OutputField Name="CONVERSIONDATE" Caption="Conversion Date" DataType="Date" />
 			<OutputField Name="SPONSORSHIPOPPORTUNITYID" Caption="Sponsorship Opportunity" DataType="Guid" />
 			<OutputField Name="DAYSTOCONVERT" Caption="Days to Convert" DataType="Integer" />
+			<OutputField Name="ISCURRENT" Caption="Is Current" DataType="Boolean" />
+			<OutputField Name="ISACCOUNTCORRECTION" Caption="Account Correction" DataType="Boolean" />
+
 			<OutputField Caption="Date added" Category="System Fields" Name="DATEADDED" CaptionResourceKey="$$date_added" CategoryResourceKey="$$system_fields" />
 			<OutputField Caption="Date changed" Category="System Fields" Name="DATECHANGED" CaptionResourceKey="$$date_changed" CategoryResourceKey="$$system_fields" />
 			<OutputField Caption="Added by application" Category="System Fields" Name="ADDEDBY_APPLICATION" CaptionResourceKey="$$added_by_application" CategoryResourceKey="$$system_fields">

@@ -7,6 +7,15 @@
 	Author="Memphis Sellers"
 	common:SecurityUIFolder="Sponsorship">
 
+	<!-- 
+	Remarks:    Displays all rows for given child from sponsorship extension table.
+
+	History:
+	Date            Modified By     Comments
+	20-May-2013		Memphis			Initial Version.
+	10-Mar-2015		Memphis			Added new ISACCOUNTCORRECTION field.
+-->	
+	
 	<!-- define the SP that returns the data for the datalist -->
 	<SPDataList SPName="USR_USP_DATALIST_SPONSORSHIPEXTENSION">
 		<common:CreateProcedureSQL>
@@ -19,6 +28,7 @@ as
 		, dbo.USR_INITIALOPPORTUNITYSPONSORSHIPSTATUSCODE.[DESCRIPTION] as INITIALSTATUS
 		, USR_CURRENTOPPORTUNITYSPONSORSHIPSTATUSCODE.[DESCRIPTION] as CURRENTSTATUS
 		, ISCURRENT
+		, ISACCOUNTCORRECTION
 		, dbo.USR_SPONSORSHIPEXTENSION.DATEADDED as ADDEDDATE
 		, dbo.USR_SPONSORSHIPEXTENSION.DATECHANGED as CHANGEDDATE
 		, CONVERSIONDATE
@@ -55,6 +65,7 @@ as
 			<OutputField FieldID="INITIALSTATUS" Caption="Initial Status" DataType="String" />
 			<OutputField FieldID="CURRENTSTATUS" Caption="Current Status" DataType="String" />
 			<OutputField FieldID="ISCURRENT" Caption="Is Current" DataType="Boolean" />
+			<OutputField FieldID="ISACCOUNTCORRECTION" Caption="Account Correction" DataType="Boolean" />
 			<OutputField FieldID="ADDEDDATE" Caption="Date Added" DataType="Date" />
 			<OutputField FieldID="CHANGEDDATE" Caption="Date Changed" DataType="Date" />
 			<OutputField FieldID="CONVERSIONDATE" Caption="Conversion Date" DataType="Date" />
