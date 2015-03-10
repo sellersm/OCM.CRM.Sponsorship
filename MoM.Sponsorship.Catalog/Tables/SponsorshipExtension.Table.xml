@@ -18,6 +18,7 @@
 	25-Sep-2012		Memphis			Initial Version.
 	30-Sep-2012		Memphis			Added the ISCURRENT field.
 	21-Oct-2012		Memphis			Made the INITIALOPPORTUNITYSPONSORSHIPSTATUSCODEID field to be NOT Required.
+	10-Mar-2015		Memphis			Added new ISACCOUNTCORRECTION field, default value is False.
 -->
 
 	<!-- define fields on the table -->
@@ -29,6 +30,7 @@
 		<GuidField Description="Sponsorship Opportunity Id" Name="SPONSORSHIPOPPORTUNITYID" Required="true"/>
 		<NumberField Description="Days to Convert" Name="DAYSTOCONVERT" Type="smallint" />
 		<BooleanField Description="Is current status?" Name="ISCURRENT"/>
+		<BooleanField Description="Account Correction" Name="ISACCOUNTCORRECTION" DefaultValue="false"/>
 	</Fields>
 
 	<!-- define any additional check constraints on the table -->

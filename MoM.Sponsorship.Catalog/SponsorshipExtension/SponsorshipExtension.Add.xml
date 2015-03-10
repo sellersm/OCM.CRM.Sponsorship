@@ -20,6 +20,7 @@
 	20-Aug-2014		Memphis			Refactored by NOT calling the SPROC when saving, but put the content of the SPROC
 									directly here into this form so it's self-contained.
 	21-Aug-2014		Memphis			Fix bug: only UNcheck the ISCurrent flag if user is setting this new one to Current (IsCurrent=1).
+	10-Mar-2015		Memphis			Added new ISACCOUNTCORRECTION checkbox/field.
 -->
 
 
@@ -66,6 +67,7 @@ create procedure dbo.USR_USP_DATAFORMTEMPLATE_ADD_SPONSORSHIPEXTENSION
 	@INITIALOPPORTUNITYSPONSORSHIPSTATUSCODEID uniqueidentifier = null,
 	@CURRENTOPPORTUNITYSPONSORSHIPSTATUSCODEID uniqueidentifier = null,
 	@ISCURRENT bit = null,
+	@ISACCOUNTCORRECTION bit = null,
 	@SPONSORSHIPOPPORTUNITYID uniqueidentifier
 )
 as
@@ -127,6 +129,7 @@ begin try
 						   ,[SPONSORSHIPOPPORTUNITYID]
 						   ,[DAYSTOCONVERT]
 						   ,[ISCURRENT]
+						   ,[ISACCOUNTCORRECTION]
 						   ,[ADDEDBYID]
 						   ,[CHANGEDBYID]
 						   ,[DATEADDED]
@@ -141,6 +144,7 @@ begin try
 						   ,@SPONSORSHIPOPPORTUNITYID
 						   ,0
 						   ,@ISCURRENT
+						   ,@ISACCOUNTCORRECTION
 						   ,@CHANGEAGENTID
 						   ,@CHANGEAGENTID
 						   ,@DATEADDED
@@ -179,6 +183,7 @@ return 0
 			</common:FormField>
 
 			<common:FormField FieldID="ISCURRENT" Caption="Current record?" DataType="Boolean" />
+			<common:FormField FieldID="ISACCOUNTCORRECTION" Caption="Account correction" DataType="Boolean" />
 			
 			<common:FormField FieldID="SPONSORSHIPOPPORTUNITYID" Caption="Sponsorship opportunity id" DataType="Guid" Hidden="true" Required="true"/>
 		</common:FormFields>

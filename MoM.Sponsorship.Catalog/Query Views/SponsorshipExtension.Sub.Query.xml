@@ -15,6 +15,7 @@
 	History:
 	Date            Modified By     Comments
 	26-Feb-2015		CMayeda			Initial Version
+	10-Mar-2015		Memphis			Added ISACCOUNTCORRECTION column to query/output.
 	-->
 
 	<!-- define the view used to return data for the query -->
@@ -30,6 +31,7 @@
 			sp_ext.SPONSORSHIPOPPORTUNITYID,
 			sp_ext.DAYSTOCONVERT,
 			sp_ext.ISCURRENT,
+			sp_ext.ISACCOUNTCORRECTION,
 			sp_ext.DATEADDED,
 			sp_ext.DATECHANGED,
 			ADDEDBY.APPLICATIONNAME as ADDEDBY_APPLICATION,
@@ -64,6 +66,7 @@
 			<OutputField Name="SPONSORSHIPOPPORTUNITYID" Caption="Sponsorship Opportunity" DataType="Guid" />
 			<OutputField Name="DAYSTOCONVERT" Caption="Days to Convert" DataType="Integer" />
 			<OutputField Name="ISCURRENT" Caption="Is Current" DataType="Boolean" />
+			<OutputField Name="ISACCOUNTCORRECTION" Caption="Account Correction" DataType="Boolean" />
 			
 			<OutputField Caption="Date added" Category="System Fields" Name="DATEADDED" CaptionResourceKey="$$date_added" CategoryResourceKey="$$system_fields" />
 			<OutputField Caption="Date changed" Category="System Fields" Name="DATECHANGED" CaptionResourceKey="$$date_changed" CategoryResourceKey="$$system_fields" />
