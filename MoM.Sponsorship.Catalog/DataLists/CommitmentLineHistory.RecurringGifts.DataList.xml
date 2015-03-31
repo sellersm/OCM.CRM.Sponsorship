@@ -44,7 +44,7 @@ as begin
 select distinct
 	ft.ID,
 	null PARENTID,
-	ft.ID as COMMITMENTLINEHISTORYID,
+	ft.ID as FINANCIALTRANSACTIONID,
 	null SPONSORSHIPID,
 	null CONTEXTSPONSORSHIPID,
 	-1 COMMITMENTSEQUENCE,
@@ -88,7 +88,7 @@ select distinct
 		*/
 
 	null REVENUEID,
-	ft.CALCULATEDUSERDEFINEDID as COMMITMENTLINEHISTORYLOOKUPID, -- clh.LOOKUPID as COMMITMENTLINEHISTORYLOOKUPID,
+	ft.CALCULATEDUSERDEFINEDID as REVENUELOOKUPID, -- clh.LOOKUPID as COMMITMENTLINEHISTORYLOOKUPID,
 	null as COMMITMENTID,
 	'' CHILDPROJECTLOOKUPID,
 	'' as SOURCECATEGORY,		-- **need to figure out	--clh.SOURCECATEGORY,
@@ -115,7 +115,7 @@ union all
 select
 	SPONSORSHIP.ID ID,
 	ft.ID as PARENTID,
-	ft.ID as COMMITMENTLINEHISTORYID,
+	ft.ID as FINANCIALTRANSACTIONID,
 	SPONSORSHIP.ID as SPONSORSHIPID,
 	SPONSORSHIP.ID as CONTEXTSPONSORSHIPID,
 	0 COMMITMENTSEQUENCE,  -- SPONSORSHIPCOMMITMENT.COMMITMENTSEQUENCE,
@@ -159,7 +159,7 @@ select
 	PAIDFORBY_NF.NAME PAIDFORBY,
 	dbo.UFN_SPONSORSHIP_GIFTFINANCIALSPONSORID(SPONSORSHIP.ID) PAIDFORBYID,
 	REVENUE.ID,
-	null as COMMITMENTLINEHISTORYLOOKUPID,
+	null as REVENUELOOKUPID,
 	null as COMMITMENTID,
 	case
 		when exists (select ID from SPONSORSHIPOPPORTUNITYCHILD where ID = SPONSORSHIPOPPORTUNITY.ID) then dbo.USR_UFN_CHILD_GETCHILDLOOKUPID (SPONSORSHIPOPPORTUNITY.ID, 	1) -- 1 specifiees including the project lookup id 
@@ -207,7 +207,7 @@ end
 		<OutputFields>
 				<OutputField FieldID="ID" Caption="ID" IsHidden="true" DataType="Guid" DisplaySequence="1" />
 				<OutputField FieldID="PARENTID" Caption="PARENTID" IsHidden="true" DataType="Guid" DisplaySequence="2" />
-				<OutputField FieldID="COMMITMENTHISTORYID" Caption="COMMITMENTHISTORYID" IsHidden="true" DataType="Guid" DisplaySequence="3" />
+				<OutputField FieldID="FINANCIALTRANSACTIONID" Caption="FINANCIALTRANSACTIONID" IsHidden="true" DataType="Guid" DisplaySequence="3" />
 				<OutputField FieldID="SPONSORSHIPID" Caption="SPONSORSHIPID" IsHidden="true" DataType="Guid" DisplaySequence="4" />
 				<OutputField FieldID="CONTEXTSPONSORSHIPID" Caption="SPONSORSHIPID" IsHidden="true" DataType="Guid" DisplaySequence="5" />
 				<OutputField FieldID="COMMITMENTSEQUENCE" Caption="COMMITMENTSEQUENCE" IsHidden="true" DataType="SmallInt" DisplaySequence="6" />
@@ -230,8 +230,8 @@ end
 				<OutputField FieldID="PAIDFORBY" Caption="Gift sponsorship donor" DataType="String" CaptionResourceKey="$$gift_sponsorship_donor" DisplaySequence="26" />
 				<OutputField FieldID="PAIDFORBYID" Caption="PAIDFORBYID" IsHidden="true" DataType="Guid" DisplaySequence="27" />
 				<OutputField FieldID="REVENUEID" Caption="REVENUEID" IsHidden="true" DataType="Guid" DisplaySequence="28" />
-				<OutputField FieldID="COMMITMENTLINEHISTORYLOOKUPID" Caption="Comm Line History ID" DataType="String" DisplaySequence="9" />
-				<OutputField FieldID="COMMITMENTID" Caption="Commitment ID" DataType="String" CaptionResourceKey="$$commitment_id" DisplaySequence="10" />
+				<OutputField FieldID="REVENUELOOKUPID" Caption="Recurring Gift ID" DataType="String" DisplaySequence="9" />
+				<OutputField FieldID="COMMITMENTID" Caption="Commitment ID" DataType="String" CaptionResourceKey="$$commitment_id" DisplaySequence="10" IsHidden ="true"/>
 				<OutputField FieldID="CHILDPROJECTLOOKUPID" Caption="Lookup ID" DataType="String" DisplaySequence="11"/>
 				<OutputField FieldID="SOURCECATEGORY" Caption="Source Category" DataType="String" DisplaySequence="29" />
 				<OutputField FieldID="SOURCE" Caption="Source" DataType="String" DisplaySequence="30" />
