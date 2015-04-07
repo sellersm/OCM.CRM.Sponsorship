@@ -81,7 +81,6 @@
     <Compile Include="Sponsor Terminate Business Process\SponsorTerminate.BusinessProcess.vb" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Global Changes\" />
     <Folder Include="Images\" />
     <Folder Include="SearchLists\" />
   </ItemGroup>
@@ -762,6 +761,8 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="DataLists\CommitmentLineHistory.RecurringGifts.DataList.xml" />
+    <Content Include="Global Changes\MergeSponsorshipCommitmentRecurringGifts.GlobalChange.xml" />
+    <Content Include="Query Views\SponsorshipCommitment.Query.xml" />
     <EmbeddedResource Include="Query Views\SponsorshipExtension.Sub.Query.xml">
       <SubType>Designer</SubType>
     </EmbeddedResource>
