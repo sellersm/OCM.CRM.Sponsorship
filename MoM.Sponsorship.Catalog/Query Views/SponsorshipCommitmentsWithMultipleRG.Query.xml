@@ -7,7 +7,7 @@
 	Author="Memphis Sellers"
 	IsRoot="true"
 	PrimaryKeyField="ID"
-	RecordType="Sponsorship"
+	RecordType="Sponsorship Commitment"
 	common:SecurityUIFolder="Sponsorship"
 	>
 
@@ -17,6 +17,7 @@
 	History:
 	Date            Modified By     Comments
 	08-Apr-2015		Memphis			Initial Version
+	09-Apr-2015		Memphis			Fixed to get multiple gifts within commitments, ignoring the child.
 	-->
 
 
@@ -25,50 +26,57 @@
 		<ViewSQL>
 			<![CDATA[
 	-- multiple commitments for same child & sponsor:
-
-	with commitmentCounts (CONSTITUENTID, SPONSORSHIPOPPORTUNITYID, COMMITMENTCOUNT)
-	as
+	with commitmentCounts (COMMITMENTLOOKUPID, SPONSORLOOKUPID)
+	as 
 	(
-	select 
-		   c.ID, 
-		   s.SPONSORSHIPOPPORTUNITYID, 
-		   count(s.SPONSORSHIPCOMMITMENTID)
-	from 
-		   dbo.CONSTITUENT c
-		   join dbo.SPONSORSHIP s on c.ID = s.CONSTITUENTID
-       
-	group by 
-		   c.ID, s.SPONSORSHIPOPPORTUNITYID
-
-	having 
-		   count(s.SPONSORSHIPCOMMITMENTID) > 1
+	SELECT
+	DISTINCT A.COMMITMENTID, A.SPONSORID
+	FROM   
+	(
+		select
+			SC.LOOKUPID AS COMMITMENTID,
+			FT.CALCULATEDUSERDEFINEDID AS RECURRINGGIFTID,
+			c.LOOKUPID as SPONSORID,
+			rank() over (partition by SC.LOOKUPID order by FT.DATE asc) as RECURRINGGIFTCOUNTER
+		from
+			FINANCIALTRANSACTION FT 
+		inner join
+			FINANCIALTRANSACTIONLINEITEM FTLI on FT.ID = FTLI.FINANCIALTRANSACTIONID
+		inner join
+			SPONSORSHIP S on FTLI.ID = S.REVENUESPLITID
+		inner join
+			SPONSORSHIPCOMMITMENT SC on S.SPONSORSHIPCOMMITMENTID = SC.ID
+		join 
+			CONSTITUENT c on c.ID = s.CONSTITUENTID
+		inner join 
+			smartfield35EFF8A4CA954D9AA9BA012A8C82C5E3 ESSD on S.CONSTITUENTID = ESSD.ID and ESSD.VALUE >= '1/1/2009'	
+		--where
+		--	S.STARTDATE >= '1/1/2009' 
+		group by
+			SC.LOOKUPID,
+			FT.CALCULATEDUSERDEFINEDID,
+			FT.DATE,
+			c.LOOKUPID
+		) A
+		WHERE RECURRINGGIFTCOUNTER > 1
 	)
 
 	select 
-		s.ID, 
-		c.LOOKUPID as SPONSORLOOKUPID, 
+		sc.ID,
+		SPONSORLOOKUPID,
 		so.LOOKUPID as CHILDLOOKUPID, 
-		sc.LOOKUPID as SPONSORSHIPCOMMITMENTLOOKUPID,
+		COMMITMENTLOOKUPID,
 		r.LOOKUPID as REVENUEID,
-		s.STARTDATE,
-		ESSD.VALUE as EARLYSTARTDATE,
-		cc.COMMITMENTCOUNT as NUMBEROFDUPLICATECOMMITMENTS
-		--REFERENCE
-		--so_child.NAME as CHILDNAME, 
-		--c.ID as SPONSORID, 
-		--c.NAME as SPONSORNAME, 
-		--so.ID as CHILDID, 
+		s.STARTDATE
 	from 
 		commitmentCounts cc
-		join dbo.CONSTITUENT c on c.ID = cc.CONSTITUENTID
-		join dbo.SPONSORSHIPOPPORTUNITY so on cc.SPONSORSHIPOPPORTUNITYID = so.ID
-		join dbo.SPONSORSHIPOPPORTUNITYCHILD so_child on cc.SPONSORSHIPOPPORTUNITYID = so_child.ID
-		join dbo.SPONSORSHIP s on cc.CONSTITUENTID = s.CONSTITUENTID and cc.SPONSORSHIPOPPORTUNITYID = s.SPONSORSHIPOPPORTUNITYID
-		join dbo.SPONSORSHIPCOMMITMENT sc on sc.ID = s.SPONSORSHIPCOMMITMENTID
+		join dbo.SPONSORSHIPCOMMITMENT sc on sc.LOOKUPID = cc.COMMITMENTLOOKUPID --s.SPONSORSHIPCOMMITMENTID
+		join dbo.SPONSORSHIP s on s.SPONSORSHIPCOMMITMENTID = sc.ID
+		join dbo.SPONSORSHIPOPPORTUNITY so on s.SPONSORSHIPOPPORTUNITYID = so.ID
 		left join dbo.REVENUESPLIT rs on rs.ID = s.REVENUESPLITID
 		left join dbo.REVENUE r on r.ID = rs.REVENUEID
 		left join dbo.REVENUE_EXT REX on REX.ID = r.ID -- ft.ID
-		inner join smartfield35EFF8A4CA954D9AA9BA012A8C82C5E3 ESSD on S.CONSTITUENTID = ESSD.ID and ESSD.VALUE >= '1/1/2009'
+	
 			]]>
 		</ViewSQL>
 	</ViewImplementation>
@@ -79,11 +87,9 @@
 			<OutputField Caption="System record ID" Category="System Fields" Name="ID" />
 			<OutputField Name="SPONSORLOOKUPID" Caption="Sponsor Lookup ID" DataType="String" />
 			<OutputField Name="CHILDLOOKUPID" Caption="Child Lookup ID" DataType="String" />
-			<OutputField Name="SPONSORSHIPCOMMITMENTLOOKUPID" Caption="Commitment Lookup ID" DataType="String" />
+			<OutputField Name="COMMITMENTLOOKUPID" Caption="Commitment Lookup ID" DataType="String" />
 			<OutputField Name="REVENUEID" Caption="Revenue ID" DataType="String" />
 			<OutputField Name="STARTDATE" Caption="Start Date" DataType="Date" />
-			<OutputField Name="EARLYSTARTDATE" Caption="Earliest Start Date" DataType="Date" />
-			<OutputField Name="NUMBEROFDUPLICATECOMMITMENTS" Caption="RG Count" DataType="Integer" />
 		</OutputFields>
 	</Output>
 
