@@ -126,6 +126,7 @@
 	09-Mar-2015		CMayeda			Added Unpaid Sponsorship Conversion record op and sproc
 										ConvertUnpaidSponsorship.RecordOperation.xml
 										USR_USP_CONVERT_UNPAID_SPONSORSHIP.xml
+	08-Apr-2015		Memphis			Added new query:  SponsorshipCommitmentsWithMultipleRG.Query.xml
 	-->
 
 	<!-- Note:  the order of the items listed here is important.  For example, you won't be able to load a data form that references 
@@ -349,6 +350,7 @@
 		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.D4DelinquencyCampaign.Sponsorships.Query.xml" />
 		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.D4DelinquencyCampaignAsOfToday.Sponsorships.Query.xml" />
 		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.OrphanRecurringGifts.Query.xml" />
+		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.SponsorshipCommitmentsWithMultipleRG.Query.xml" />
 
 		<!-- Tasks -->
 		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.SponsorshipAdd_Wrapped.Task.xml" />
