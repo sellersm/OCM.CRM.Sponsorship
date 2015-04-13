@@ -67,7 +67,8 @@
 		so.LOOKUPID as CHILDLOOKUPID, 
 		COMMITMENTLOOKUPID,
 		r.LOOKUPID as REVENUEID,
-		s.STARTDATE
+		s.STARTDATE,
+		ESSD.VALUE
 	from 
 		commitmentCounts cc
 		join dbo.SPONSORSHIPCOMMITMENT sc on sc.LOOKUPID = cc.COMMITMENTLOOKUPID --s.SPONSORSHIPCOMMITMENTID
@@ -76,7 +77,7 @@
 		left join dbo.REVENUESPLIT rs on rs.ID = s.REVENUESPLITID
 		left join dbo.REVENUE r on r.ID = rs.REVENUEID
 		left join dbo.REVENUE_EXT REX on REX.ID = r.ID -- ft.ID
-	
+		inner join smartfield35EFF8A4CA954D9AA9BA012A8C82C5E3 ESSD on S.CONSTITUENTID = ESSD.ID and ESSD.VALUE >= '1/1/2009'	
 			]]>
 		</ViewSQL>
 	</ViewImplementation>
@@ -90,6 +91,7 @@
 			<OutputField Name="COMMITMENTLOOKUPID" Caption="Commitment Lookup ID" DataType="String" />
 			<OutputField Name="REVENUEID" Caption="Revenue ID" DataType="String" />
 			<OutputField Name="STARTDATE" Caption="Start Date" DataType="Date" />
+			<OutputField Name="VALUE" Caption="Earliest Start Date" DataType="Date" />
 		</OutputFields>
 	</Output>
 
