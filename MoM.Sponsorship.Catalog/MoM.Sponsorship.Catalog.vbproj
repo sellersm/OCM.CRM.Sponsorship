@@ -502,7 +502,9 @@
     <EmbeddedResource Include="SQL\User Functions\USR_UFN_SPONSORSHIP_GETUNPAID_SPONSOREDCHILDREN_FORSPONSOR.xml" />
     <EmbeddedResource Include="D2 Business Process\D2Campaign.BusinessProcess.xml" />
     <EmbeddedResource Include="D2 Business Process\D2BusinessProcess.Package.xml" />
-    <EmbeddedResource Include="D2 Business Process\USR_USP_D2_CAMPAIGN_BUSINESSPROCESS.xml" />
+    <EmbeddedResource Include="D2 Business Process\USR_USP_D2_CAMPAIGN_BUSINESSPROCESS.xml">
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
     <EmbeddedResource Include="D2 Business Process\D2CampaignBusinessProcessResults.Table.xml" />
     <EmbeddedResource Include="D2 Business Process\D2CampaignBusinessPreProcess.Edit.xml" />
     <EmbeddedResource Include="D2 Business Process\D2CampaignBusinessProcess.Table.xml" />
@@ -762,6 +764,8 @@
   <ItemGroup>
     <Content Include="DataLists\CommitmentLineHistory.RecurringGifts.DataList.xml" />
     <Content Include="Global Changes\MergeSponsorshipCommitmentRecurringGifts.GlobalChange.xml" />
+    <EmbeddedResource Include="View Forms\SponsorshipCommitmentPageExpression.View.xml" />
+    <EmbeddedResource Include="Pages\SponsorCommitment.Page.xml" />
     <Content Include="Query Views\SponsorshipCommitment.Query.xml" />
     <EmbeddedResource Include="Query Views\SponsorshipCommitmentsWithMultipleRG.AllRankings.Query.xml" />
     <EmbeddedResource Include="Query Views\SponsorshipCommitmentsWithMultipleRG.Query.xml" />
