@@ -765,7 +765,7 @@
     <Content Include="DataLists\CommitmentLineHistory.RecurringGifts.DataList.xml" />
     <Content Include="Global Changes\MergeSponsorshipCommitmentRecurringGifts.GlobalChange.xml" />
     <EmbeddedResource Include="View Forms\SponsorshipCommitmentPageExpression.View.xml" />
-    <EmbeddedResource Include="Pages\SponsorCommitment.Page.xml" />
+    <Content Include="Pages\SponsorshipCommitment.Page.xml" />
     <Content Include="Query Views\SponsorshipCommitment.Query.xml" />
     <EmbeddedResource Include="Query Views\SponsorshipCommitmentsWithMultipleRG.AllRankings.Query.xml" />
     <EmbeddedResource Include="Query Views\SponsorshipCommitmentsWithMultipleRG.Query.xml" />
