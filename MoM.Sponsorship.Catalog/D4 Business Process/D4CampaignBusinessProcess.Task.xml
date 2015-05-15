@@ -1,0 +1,32 @@
+﻿<TaskSpec 
+	xmlns:xsd="http://www.w3.org/2001/XMLSchema" 
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+	ID="38c5c717-7082-4341-91d7-9fd5d4c90195" 
+	Name="D4 Campaign Business Process" 
+	Description="View the D4 Campaign Business Process page" 
+	Author="Cary Mayeda" 
+	ImageKey="RES:goto_round" 
+	SmallImageKey="RES:goto_round" 
+	FunctionalAreaID="9ea48d9c-7e2d-42e6-91cc-210792618017" 
+	TaskGroup="Administration" 
+	Sequence="99"
+	DisplayAsAction="true"
+	xmlns="bb_appfx_task"
+	>
+
+	<!-- 
+	Remarks:    
+
+	History:
+	Date            Modified By     Comments
+	14-May-2013		CMayeda			Initial Version copied from Memphis' D2 Campaign Business Process
+	06-Mar-2015		Memphis			Changed the ID of the Spec, because the D3 Task used the same ID.
+	-->
+
+	<ShowPage PageID="9CD181DF-CB42-4F9F-899A-25CFC65D61F3" TabID="8FE8A330-3343-4E9B-A84F-FBE344446F64" xmlns="bb_appfx_commontypes" >
+		<ActionContext>
+			<Expression>A2667FBC-8ACC-49E8-B931-3AE5E1F5CA45</Expression>
+		</ActionContext>
+	</ShowPage>
+
+</TaskSpec>

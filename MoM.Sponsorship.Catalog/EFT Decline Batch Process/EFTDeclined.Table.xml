@@ -1,0 +1,43 @@
+﻿<TableSpec 
+	xmlns="bb_appfx_table"
+	xmlns:common="bb_appfx_commontypes" 
+	ID="e8a98c00-9c71-4e1f-8e76-9b3f8faf3f22"
+	Name="EFT Declined table"
+	Description="Holds the information for all EFT Declined records from payment batch."
+	Author="Memphis Sellers"
+	Tablename="USR_EFTDECLINE_BATCH_SPONSORS"
+	>
+
+	<!-- define fields on the table -->
+	<Fields>
+		<DateField Name="BATCHDATE" Description="Batch date" IncludeTime="true" Required="true"/>
+		<TextField Name="DECLINEREASON" Description="Decline reason" Length="500" Required="true"/>
+		<TextField Name="CARDNUMBER" Description="Card number" Length="4" Required="false"/>
+		<TextField Name="CARDEXPIRATION" Description="Card expiration" Length="10" Required="false"/>
+		<TextField Name="BATCHNUMBER" Description="Batch number" Length="100" Required="true"/>
+		<TextField Name="BATCHTYPE" Description="Batch type" Length="20" Required="true"/>
+		<TextField Name="ACCOUNTINFO" Description="Account info" Length="4000" Required="false"/>
+		<TextField Name="CHILDINFO" Description="Child Info" Length="100" Required="false" />
+		<TextField Name="EFTSTATUS" Description="EFT Status" Length="10" Required="false" />
+		<TextField Name="REVENUELOOKUPID" Description="Revenue Id" Length="100" Required="false" />
+		<TextField Name="CARDHOLDERNAME" Description="Cardholder" Length="255" Required="false"/>
+		<TextField Name="SPONSORLOOKUPID" Description="Sponsor Id" Length="10" Required="false" />
+		<TextField Name="SPONSORNAME" Description="Sponsor" Length="255" Required="false"/>		
+	</Fields>
+
+	<!-- define any additional check constraints on the table -->
+	<!--<CheckConstraints>
+
+	</CheckConstraints>
+
+	--><!-- define any indexes on the table --><!--
+	<Indexes>
+
+	</Indexes>
+		
+	--><!-- define any triggers on the table --><!--
+	<Triggers>
+
+	</Triggers>-->
+
+</TableSpec>

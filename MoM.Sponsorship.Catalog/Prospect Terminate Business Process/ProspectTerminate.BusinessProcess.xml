@@ -1,0 +1,60 @@
+﻿<BusinessProcessSpec
+	xmlns="bb_appfx_businessprocess"
+	xmlns:common="bb_appfx_commontypes"
+	ID="94B4AA0A-06F6-4E6C-A569-809EF942DA6E" 
+	Name="Prospect Terminate Business Process"
+	Description="Prospect Terminate business process."
+	Author="Memphis Sellers"
+	GeneratesOutput="true"
+	ParameterTableName="USR_PROSPECTTERMINATE_BUSINESSPROCESS"
+	RecordType="Sponsorship"
+	common:SecurityUIFolder="Sponsorship" >
+	
+	<!-- 
+	Remarks:    
+
+	History:
+	Date            Modified By     Comments
+	25-Jul-2014		Memphis			Initial Version copied from Cary's Sponsor Terminate biz Process
+	-->
+
+	<ProcessorComponent AssemblyName="MoM.Sponsorship.Catalog.dll" ClassName="MoM.Sponsorship.Catalog.ProspectTerminateBusinessProcess" >
+		<common:GrantExecuteList>
+			<common:GrantExecute>dbo.USR_USP_PROSPECTTERMINATE_BUSINESSPROCESS</common:GrantExecute>
+			<common:GrantExecute>dbo.USR_USP_PROSPECTTERMINATEPROCESS_GETPARAMETERS</common:GrantExecute>
+		</common:GrantExecuteList>
+		<common:GrantSelectList>
+			<common:GrantSelect>dbo.USR_PROSPECTTERMINATE_BUSINESSPROCESS_RESULTS</common:GrantSelect>
+		</common:GrantSelectList>
+	</ProcessorComponent>
+
+	<!--<common:FormMetaData>
+		<common:FormFields>
+			<common:FormField FieldID="CAMPAIGNTYPE" Caption="Campaign Type" DataType="TinyInt" >
+				<common:ValueList UseRadioButtons="true" >
+					<common:Items>
+						<common:Item>
+							<common:Value>0</common:Value>
+							<common:Label>Cash</common:Label>
+						</common:Item>
+						<common:Item>
+							<common:Value>1</common:Value>
+							<common:Label>EFT Active</common:Label>
+						</common:Item>
+						<common:Item>
+							<common:Value>2</common:Value>
+							<common:Label>EFT Held</common:Label>
+						</common:Item>
+					</common:Items>
+				</common:ValueList>
+			</common:FormField>
+		</common:FormFields>
+		<common:WebUIComponent>
+			<common:WebUI>
+				<common:DefaultWebUI/>
+			</common:WebUI>
+		</common:WebUIComponent>
+	</common:FormMetaData>-->
+
+
+</BusinessProcessSpec>

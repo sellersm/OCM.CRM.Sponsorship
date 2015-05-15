@@ -1,0 +1,375 @@
+<PackageSpec
+	xmlns="bb_appfx_package"
+	xmlns:common="bb_appfx_commontypes"
+	ID="529f3afb-034f-4e57-a2e1-c3fbe7cd11aa"
+	Name="Sponsorship Customizations Package"
+	Description="MoM Sponsorship Package for all customizations related to Sponsorship"
+	Author="Memphis Sellers" >
+
+	<!-- 
+	Remarks:    This has dependencies on the Constituent Package, so be sure to load that first!
+
+	History:
+	Date            Modified By     Comments
+	01-Aug-2012		CMayeda			Added Code Table
+	15-Aug-2012		CMayeda			Added Sponsorship Location Extension specs
+									Changed name from MoM.Sponsorship Package to Sponsorship Customizations Package
+	28-Aug-2012		Memphis			Added the USR_USP_CREATE_PARTNERSHIP_RELATIONSHIP_WITH_SPONSOR.xml sproc
+	30-Aug-2012		CMayeda			Added SponsorshipLocationExtension.ReportRecipient.Delete.RecordOperation.xml
+	31-Aug-2012		CMayeda			Added USR_UFN_SPONSORSHIP_GETFINANCIALSPONSOR_BYSPONSORSHIPOPP.xml
+	02-Sep-2012		Memphis			Added SponsorshipLocation.MoM.Custom.Search.xml and Sponsorship.Add.InteractionType.CodeTable.xml
+	03-Sep-2012		Memphis			Added ProspectSponsorship.Add.xml and associated Task: AddProspectSponsorship.Task.xml
+	05-Sep-2012		Memphis			Added ProspectSponsorship.Add.InteractionType.CodeTable.xml
+	07-Sep-2012		Memphis			Added Unavailable Sponsorship form and Task, and UnavailableContact.CodeTable
+	11-Sep-2012		CMayeda			Added USR_UFN_SPONSORSHIP_GETSPONSORSHIPID.xml
+	15-Sep-2012		Memphis			Added new UFN for managing unavailable-substitute children: USR_UFN_UNAVAILABLECHILDREN_FOR_TRANSFERSPONSORSHIP_FROMITEMLISTXML,
+									Renamed USR_UFN_CHILDREN_FOR_SPONSORSHIP_FROMITEMLISTXML (added "USR_" prefix), added a bunch more: Datalists, sproc, etc.
+	16-Sep-2012		CMayeda			Added USR_USP_SPONSORSHIP_CREATENEWPROSPECTSPONSORSHIPINTERACTIONS
+	21-Sep-2012		Memphis			Added USR_UFN_GETSPONSORSHIPREASON_FOROPPORTUNITY.xml, ActiveSponsorshipCancellationWrapped.Edit.xml, SponsorshipCancellationInteractionType.CodeTable.xml
+	22-Sep-2012		CMayeda			Added USR_UFN_SPONSORSHIPOPPORTUNTITY_GETID_BYLOOKUPID.xml
+	22-Sep-2012		Memphis			Added the PendingSponsorshipCancellationWrapped.Edit.xml cancel form, AlterSponsor Page and AlterSponsorship Page.
+	22-Sep-2012		CMayeda			Added USR_USP_SPONSORSHIP_CREATEUNAVAILABLESPONSORSHIPINTERACTIONS.xml
+	26-Sep-2012		Memphis			Added these files:  USR_USP_SPONSORSHIPEXTENSION_INSERT.xml
+										USR_USP_UPDATE_USR_SPONSORSHIPEXTENSION.xml
+										CurrentSponsorshipOpportunityStatus.CodeTable.xml
+										InitialSponsorshipOpportunityStatus.CodeTable.xml
+										SponsorshipExtension.Table.xml
+	28-Sep-2012		Memphis			Added the missing USR_UFN_VALIDATE_SPONSORSHIP_CANCELLATION_REASON.xml
+	29-Sep-2012		Memphis			Added many files for Project Sponsorship, Financial extension stuff.
+	29-Sep-2012		CMayeda			Added USR_USP_SPONSORSHIP_CREATESPONSORSHIPCANCELLATIONINTERACTIONS.xml
+	30-Sep-2012		Memphis			Added these: USR_USP_SPONSORSHIP_CANCEL_SPONSORSHIP_CONSTITUENCYCODES.xml
+												USR_USP_HANDLE_SPONSORSHIP_CANCELLATION.xml
+												USR_USP_HANDLE_CREDIT_DEBIT_PAYMENTSCHEDULE_INSERTING.xml
+												USR_UFN_GETFINANCIALTRANSACTIONID_FORSPONSORSHIP.xml
+												USR_USP_SPONSORSHIP_CREATENEWPROJECTSPONSORSHIPINTERACTIONS
+	02-Oct-2012		Memphis			Adding these as they were missing:  USR_USP_FINANCIALTRANSACTION_EXTENSION_INSERTROW.xml
+												USR_USP_FINANCIALTRANSACTION_EXTENSION_UPDATEROW
+	02-Oct-2012		CMayeda			Added Website.SponsorshipCheckoutSource.DataList.xml
+	05-Oct-2012		Memphis			Added USR_USP_HANDLE_SPONSORSHIP_ADD_PARTNERSHIP.xml
+	05-Oct-2012		CMayeda			Added USR_UFN_SPONSORSHIP_GETCURRENTOPPORTUNITYSTATUSCODEID.xml
+	05-Oct-2012		CMayeda			USR_USP_SPONSORSHIP_CREATECOMPLETETRANSFERINTERACTIONS.xml, Sponsorship.CompleteTransfer.Edit.xml, Sponsorship.CompleteTransferInteraction.CodeTable.xml
+	10-Oct-2012		Memphis			Added USR_PROJECTCANCELLATION_INTERACTIONTYPECODE codetable.
+	11-Oct-2012		Memphis			Removed USR_PROJECTCANCELLATION_INTERACTIONTYPECODE codetable.
+									Added USR_UFN_VALIDATE_SPONSORSHIP_CANCELLATION_INTERACTIONTYPECODE function.
+	12-Oct-2012		Memphis			Added AlterRecurringGift.Page.xml page
+	13-Oct-2012		Memphis			Added SponsorshipDataListCustomized.DataList.xml, SponsorshipConversion.Table.xml, RecurringGiftExtension.Edit.xml,RecurringGift_FinancialExtension.View.xml 
+	14-Oct-2012		Memphis			Added DeleteFinancialTransactionExtensionRecord.RecordOperation.xml, USR_USP_INSERT_MULTIPLE_SPONSORSHIPEXTENSION.xml
+	21-Oct-2012		Memphis			Added USR_UFN_SPONSORSHIP_GET_SPONSORSHIPREASON_BY_REASONID.xml
+	26-Oct-2012		CMayeda			Moved NoSponsorshipExtensionRow.DataList.xml to Conversion Utilities
+	30-Oct-2012		Memphis			Added USR_UFN_SPONSORSHIP_GET_NEXT_TRANSACTIONDATE_BY_SPONSORSHIPID.xml, USR_UFN_SPONSORSHIP_HASPAYMENT.xml
+	15-Nov-2012		Memphis			Added new UFN and Smart Field:
+										USR_UFN_CALCULATE_NTD_DELINQUENCY.xml
+										NextTransactionDateDelinquency.SmartField.xml
+	17-Nov-2012		CMayeda			Added SponsorshipExtension.Query.xml and SponsorshipNTDChange.Query.xml
+	18-Nov-2012		CMayeda			Added RevenueSchedule.Query.xml
+									Sponsorship.ActiveSponsorshipsWithInactiveRG.Query.xml and Sponsorship.ActiveSponsorshipsWithNoPayments.Query.xml
+	06-Dec-2012		Memphis			Added:	SponsorshipExtension.Add.xml
+											SponsorshipExtension.Edit.xml
+											Sponsorship.ExpressionDataForm.View.xml
+	12-Dec-2012		Memphis			Added these for prospect conversion:
+										USR_USP_CONVERT_PROSPECT_SPONSOR.xml
+										ConvertProspectSponsor.RecordOperation.xml
+	19-Dec-2012		Memphis			Added these for the Copy credit Card new feature:
+										USR_USP_COPYCREDITCARD.xml
+										CopyCreditCard.Add.xml
+	24-Jan-2013		Memphis			Added new sproc to support the add children to interaction global change:  
+									USR_UFN_SPONSORSHIP_GETACTIVELYSPONSOREDCHILDREN_FORSPONSOR.xml
+	27-Jan-2013		Memphis			Added new UFN for use in departure transfer completion, determines if sponsorship is paid ahead: 
+									USR_UFN_ISSPONSORSHIP_PAIDAHEAD.xml
+	31-Jan-2013		MEmphis			Added the new departure transfer complete/override form: CompleteOrOverridePendingTransfer.Edit.xml
+									Added new sproc: USR_USP_SPONSORSHIP_HANDLE_DEPARTURETRANSFERCOMPLETION.xml
+	07-Feb-2013		Memphis			Added new sproc and record operation for the task to set the 'current' ismostrecentcommitment flag:
+									USR_USP_SET_ISMOSTRECENTCOMMITMENTFLAG_FOR_SPONSORSHIP.xml
+									SetIsMostRecentCommitment.RecordOperation.xml
+	21-Feb-2013		Memphis			Added new UFN:  USR_UFN_GET_PREDEPARTUREGIFTSTATUS.xml
+	21-Feb-2013		CMayeda			Added RecurringGift.PreDepartureGiftStatus.Edit.xml FogBugz Case 1004
+	03-Mar-2013		Memphis			Added ViewSponsorshipDetails.View.xml for fix of correspondent/financial sponsor conversion issue.
+	04-Mar-2013		Memphis			Added ReplaceCCNoValidation.Add.xml to copy credit cards without constituent validation.
+	12-Mar-2013		Memphis			Added items for Cancel Pending Transfer feature: Fogbugz Case 1017
+										USR_USP_CANCELPENDINGTRANSFER.xml
+										CancelPendingTransfer.RecordOperation.xml
+	26-Mar-2013		JFoster			Added items for update sponsorship reason feature: Fogbugz Case 1007
+	19-Apr-2013		Memphis			Added USR_UFN_GETACTIVE_FINANCIALCOMMITMENTS_BYSPONSOR.xml
+	19-Apr-2013		Memphis			Added this missing UFN:  USR_UFN_SPONSORSHIP_MATCHEDOPPORTUNITY_PROJECTSPONSORSHIP
+	25-Apr-2013		Memphis			Added UpdateBatchNumber.Edit.xml
+	06-May-2013		Memphis			Added USR_UFN_GET_PAYMENTMETHODCODE_BY_REVENUESPLITID.xml used in D2 Campaign biz process
+										  USR_UFN_CHECK_RECURRINGGIFT_ISHELD.xml
+	15-May-2013		Memphis			Fogbugz Case 1075: added 
+										USR_UFN_GET_UNPAIDSPONSORED_FINANCIALCOMMITMENTS_BYSPONSOR.xml
+										USR_UFN_SPONSORSHIP_GETUNPAID_SPONSOREDCHILDREN_FORSPONSOR.xml										
+	15-May-2013		CMayeda			Sponsorship.ActiveSponsorshipsWithNTD.DataList.xml
+	20-May-2013		Memphis			Added SponsorshipExtension.DataList.xml
+	04-Jun-2013		Memphis			Fogubgz Case 1007:  Jason was missing this datalist spec  Sponsorship.Reasons.DataList.xml, it was here but was misspelled.
+	18-Sep-2013		CMayeda			Added Sponsorship.ActiveOnlyWithGiftInfo.DataList.xml
+	95-Dec-2013		TGupta			Added Child.CountOfSponsorshipsPerChild.SmartField.xml
+	11-Feb-2014		TGupta			Added Rate Increase tab on Sponsor page
+	25-Feb-2014		CMayeda			Added Sponsorship.MultipleCommitmentsForSponsorChild.Query.xml
+	29-May-2014		CMayeda			Added RevenueExtension.Query.xml and RecurringGiftExtension.NonSchedule.Edit.xml
+	15-Sep-2014		Memphis			Added these for the new Delinquency Campaign Query:
+									USR_UFN_GET_DELINQUENCY_SPONSORSHIPS.xml
+									DelinquencyCampaignsSponsorshipsInfo.Query.xml
+	17-Sep-2014		Memphis			Added a new query:  DelinquencyCampaignsSponsorshipsInfoAsOfToday.Query.xml
+	03-Nov-2014		Memphis			Added new UFN:  USR_UFN_CHECK_RECURRINGGIFT_ISEFTDECLINED
+	12-Nov-2014		Memphis			Added new query: D2BizProcessRecordsNotProcessed.Query.xml
+	07-Jan-2015		Memphis			Added new query: LockedChildren.Query.xml
+	22-Jan-2015		Memphis			Added new UFN: USR_UFN_GET_D2_DELINQUENCY_SPONSORSHIPS.xml
+									Queries: D2DelinquencyCampaign.Sponsorships.Query.xml
+											 D2DelinquencyCampaignAsOfToday.Sponsorships.Query.xml
+	28-Jan-2015		Memphis			Added new UFN and queries for D3, D4 campaign queries:
+										USR_UFN_GET_D3_DELINQUENCY_SPONSORSHIPS.xml
+										USR_UFN_GET_D4_DELINQUENCY_SPONSORSHIPS.xml
+									Queries: D3DelinquencyCampaign.Sponsorships.Query.xml
+											 D3DelinquencyCampaignAsOfToday.Sponsorships.Query.xml
+											 D4DelinquencyCampaign.Sponsorships.Query.xml
+											 D4DelinquencyCampaignAsOfToday.Sponsorships.Query.xml
+	12-Feb-2015		Memphis			Added new query for Pamela: OrphanRecurringGifts.Query.xml
+	09-Mar-2015		CMayeda			Added Unpaid Sponsorship Conversion record op and sproc
+										ConvertUnpaidSponsorship.RecordOperation.xml
+										USR_USP_CONVERT_UNPAID_SPONSORSHIP.xml
+	08-Apr-2015		Memphis			Added new query:  SponsorshipCommitmentsWithMultipleRG.Query.xml
+	-->
+
+	<!-- Note:  the order of the items listed here is important.  For example, you won't be able to load a data form that references 
+	a table that hasn't been loaded, etc.  In general, the following order is recommended:
+	
+		(functions and procedures first)
+		SQLFunctionSpec
+		SQLStoredProcedureSpec
+		TranslationFunctionSpec
+
+		(tables next)
+		CodeTableSpec
+		TableSpec
+
+		(features next)
+		SimpleDataListSpec		
+		SearchListSpec
+		RecordOperationSpec
+		DataListSpec
+		
+		(forms next)
+		AddDataFormTemplateSpec
+		EditDataFormTemplateSpec
+		ViewDataFormTemplateSpec		
+
+		(more feature types)
+		BatchTypeSpec
+		BusinessProcessSpec
+		FlashDashSpec
+		IDMapperSpec
+		KpiSpec
+		MergeConfiguration
+		MergeTaskSpec
+		QueryViewSpec
+		ReportSpec
+		SmartFieldSpec
+		SmartQuerySpec
+
+		(functional areas, pages, and tasks last)
+		PageDefinitionSpec
+		FunctionalAreaSpec
+		TaskSpec	
+	-->
+
+	<common:DependencyList>
+		<!-- Code Tables -->
+		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.Sponsorship.Performance.CodeTable.xml" />
+		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.Sponsorship.Add.InteractionType.CodeTable.xml" />
+		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.ProspectSponsorship.Add.InteractionType.CodeTable.xml" />
+		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.UnavailableContact.CodeTable.xml" />
+		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.SponsorshipCancellationInteractionType.CodeTable.xml" />
+		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.CurrentSponsorshipOpportunityStatus.CodeTable.xml" />
+		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.InitialSponsorshipOpportunityStatus.CodeTable.xml" />
+		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.CreditCardSchedule.CodeTable.xml" />
+		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.DirectDebitSchedule.CodeTable.xml" />
+		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.PaidProjectSponsorshipInteractionType.CodeTable.xml" />
+		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.ProspectProjectSponsorshipInteractionType.CodeTable.xml" />
+		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.Sponsorship.CompleteTransferInteraction.CodeTable.xml" />
+
+		<!-- Tables -->
+		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.USR_CHILD_SELECTED_FOR_SPONSORSHIP_LOCK.Table.xml" />
+		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.SponsorshipLocationExtension.Table.xml" />
+		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.Sponsorship.ProgramAnOpportunityConsistentGroup.Table.xml" />
+		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.SponsorshipOpportunity.ReservationExtension.Table.xml" />
+		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.SponsorshipExtension.Table.xml" />
+		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.FinancialTransactionExtension.Table.xml" />
+		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.SponsorshipConversion.Table.xml" />
+
+		<!-- SQL Functions and Sprocs-->
+		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.USR_UFN_CHILDREN_FOR_SPONSORSHIP_FROMITEMLISTXML.xml" />
+		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.USR_UFN_IS_SELECTED_CHILD_LOCKED_FOR_SPONSORSHIP_SELECTION.xml" />
+		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.USR_UFN_SPONSORSHIP_MATCHEDOPPORTUNITY_CHILDSPONSORSHIP.xml" />
+		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.USR_DELETE_LOCK_CHILD_FOR_SPONSORSHIP_SELECTION.xml" />
+		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.USR_USP_INSERT_LOCK_CHILD_FOR_SPONSORSHIP_SELECTION.xml" />
+		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.USR_USP_SPONSORSHIP_ACQUIREOPPORTUNITY_MOMCUSTOM.xml" />
+		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.USR_USP_SPONSORSHIP_MATCHOPPORTUNITY_MOMCUSTOM.xml" />
+		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.UFN_SPONSORSHIP_PROGRAMANDOPPORTUNITYCONSISTENT.xml" />
+		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.USR_UFN_SPONSORSHIP_GETFINANCIALSPONSOR.xml" />
+		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.USR_UFN_SPONSORSHIP_GETFINANCIALSPONSOR_BYSPONSORSHIPOPP.xml" />
+		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.USR_UFN_SPONSORSHIP_GETCORRESPONDENT.xml" />
+		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.USR_UFN_SPONSORSHIPLOCATION_GETRECIPIENTS_BYFIELDOFFICEID.xml" />
+		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.USR_UFN_SPONSORSHIP_ISEFT.xml" />
+		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.USR_UFN_SPONSORSHIP_GETSPONSORSHIPID.xml" />
+		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.USR_UFN_SPONSORSHIP_GET_SPONSORSHIPREASON_BY_REASONID.xml" />
+		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.USR_USP_CREATE_PARTNERSHIP_RELATIONSHIP_WITH_SPONSOR.xml" />
+		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.USR_USP_SPONSORSHIP_CREATENEWSPONSORSHIPINTERACTIONS.xml" />
+		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.USR_USP_SPONSORSHIP_CREATENEWPROSPECTSPONSORSHIPINTERACTIONS.xml" />
+		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.USR_UFN_UNAVAILABLECHILDREN_FOR_TRANSFERSPONSORSHIP_FROMITEMLISTXML.xml" />
+		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.USR_USP_ADD_SOLICITOR_TO_RECURRING_GIFT_CHILDSPONSORSHIP.xml" />
+		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.USR_UFN_GETSPONSORSHIPREASON_FOROPPORTUNITY.xml" />
+		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.USR_UFN_SPONSORSHIPOPPORTUNTITY_GETID_BYLOOKUPID.xml" />
+		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.USR_USP_SPONSORSHIP_CREATEUNAVAILABLESPONSORSHIPINTERACTIONS.xml" />
+		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.USR_UFN_SPONSORSHIP_GETACTIVECHILDSPONSORSHIPSFORSPONSOR.xml" />
+		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.USR_USP_SPONSORSHIPEXTENSION_INSERT.xml" />
+		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.USR_USP_UPDATE_USR_SPONSORSHIPEXTENSION.xml" />
+		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.USR_UFN_VALIDATE_SPONSORSHIP_CANCELLATION_REASON.xml" />
+		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.USR_UFN_CURRENTOPPORTUNITYSPONSORSHIPSTATUSCODE_GETID_FORDESCRIPTION.xml" />
+		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.USR_UFN_INITIALOPPORTUNITYSPONSORSHIPSTATUSCODE_GETID_FORDESCRIPTION.xml" />
+		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.USR_UFN_GETFINANCIALTRANSACTIONID_FORSPONSORSHIP.xml" />
+		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.USR_USP_INSERTNEWSPONSORSHIP_SPONSORSHIPEXTENSION.xml" />
+		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.USR_USP_SPONSORSHIP_ACQUIREPROJECTOPPORTUNITY_OCMCUSTOM.xml" />
+		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.USR_USP_SPONSORSHIP_MATCHPROJECTOPPORTUNITY_OCMCUSTOM.xml" />
+		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.USR_USP_SPONSORSHIP_CREATESPONSORSHIPCANCELLATIONINTERACTIONS.xml" />
+		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.USR_USP_SPONSORSHIP_CANCEL_SPONSORSHIP_CONSTITUENCYCODES.xml" />
+		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.USR_USP_HANDLE_SPONSORSHIP_CANCELLATION.xml" />
+		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.USR_USP_HANDLE_CREDIT_DEBIT_PAYMENTSCHEDULE_INSERTING.xml" />
+		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.USR_USP_SPONSORSHIP_CREATENEWPROJECTSPONSORSHIPINTERACTIONS.xml" />
+		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.USR_USP_FINANCIALTRANSACTION_EXTENSION_INSERTROW.xml" />
+		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.USR_USP_FINANCIALTRANSACTION_EXTENSION_UPDATEROW.xml" />
+		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.USR_USP_HANDLE_SPONSORSHIP_ADD_PARTNERSHIP.xml" />
+		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.USR_UFN_SPONSORSHIP_GETCURRENTOPPORTUNITYSTATUSCODEID.xml" />
+		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.USR_USP_SPONSORSHIP_CREATECOMPLETETRANSFERINTERACTIONS.xml" />
+		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.USR_UFN_VALIDATE_SPONSORSHIP_CANCELLATION_INTERACTIONTYPECODE.xml" />
+		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.USR_USP_INSERT_MULTIPLE_SPONSORSHIPEXTENSION.xml" />
+		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.USR_UFN_SPONSORSHIP_GET_NEXT_TRANSACTIONDATE_BY_SPONSORSHIPID.xml" />
+		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.USR_UFN_SPONSORSHIP_HASPAYMENT.xml" />
+		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.USR_UFN_CALCULATE_NTD_DELINQUENCY.xml" />
+		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.USR_USP_CONVERT_PROSPECT_SPONSOR.xml" />
+		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.USR_USP_COPYCREDITCARD.xml" />
+		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.USR_UFN_SPONSORSHIP_GETACTIVELYSPONSOREDCHILDREN_FORSPONSOR.xml" />
+		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.USR_UFN_ISSPONSORSHIP_PAIDAHEAD.xml" /> 
+		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.USR_USP_SPONSORSHIP_HANDLE_DEPARTURETRANSFERCOMPLETION.xml" />
+		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.USR_USP_SET_ISMOSTRECENTCOMMITMENTFLAG_FOR_SPONSORSHIP.xml" />
+		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.USR_UFN_GET_PREDEPARTUREGIFTSTATUS.xml" />
+		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.USR_USP_CANCELPENDINGTRANSFER.xml" />
+		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.USR_UFN_GETACTIVE_FINANCIALCOMMITMENTS_BYSPONSOR.xml" />
+		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.USR_UFN_SPONSORSHIP_MATCHEDOPPORTUNITY_PROJECTSPONSORSHIP" />
+		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.USR_UFN_GET_PAYMENTMETHODCODE_BY_REVENUESPLITID.xml" />
+		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.USR_UFN_CHECK_RECURRINGGIFT_ISHELD.xml" />
+		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.USR_UFN_GET_UNPAIDSPONSORED_FINANCIALCOMMITMENTS_BYSPONSOR.xml" />
+		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.USR_UFN_SPONSORSHIP_GETUNPAID_SPONSOREDCHILDREN_FORSPONSOR.xml" />
+		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.USR_UFN_GET_DELINQUENCY_SPONSORSHIPS.xml" />
+		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.USR_UFN_CHECK_RECURRINGGIFT_ISEFTDECLINED.xml" />
+		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.USR_UFN_GET_D2_DELINQUENCY_SPONSORSHIPS.xml" />
+		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.USR_UFN_GET_D3_DELINQUENCY_SPONSORSHIPS.xml" />
+		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.USR_UFN_GET_D4_DELINQUENCY_SPONSORSHIPS.xml" />
+		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.USR_USP_CONVERT_UNPAID_SPONSORSHIP.xml" />
+
+		<!-- Smart Fields -->
+		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.NextTransactionDateDelinquency.SmartField.xml" />
+		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.Child.CountOfSponsorshipsPerChild.SmartField.xml" />
+
+		<!-- Record Operations-->
+		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.DeleteChildSelectedForSponsorshipLock.RecordOperation.xml" />
+		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.LockSelectedChild.RecordOperation.xml" />
+		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.SponsorshipLocationExtension.ReportRecipient.Delete.RecordOperation.xml" />
+		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.DeleteFinancialTransactionExtensionRecord.RecordOperation.xml" />
+		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.ConvertProspectSponsor.RecordOperation.xml" />
+		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.SetIsMostRecentCommitment.RecordOperation.xml" />
+		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.CancelPendingTransfer.RecordOperation.xml" />
+		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.ConvertUnpaidSponsorship.RecordOperation.xml" />
+		
+		<!-- DataLists -->
+		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.ChildrenToSponsor.SimpleList.xml" />
+		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.SponsorshipOpportunityMatchCustom.DataList.xml" />
+		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.SponsorshipLocationHierarchyMoM.DataList.xml"/>
+		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.Sponsorship.WithLookupID.DataList.xml" />
+		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.DoesSponsorHaveConstituencyCode.DataList.xml" />
+		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.GetConstituencyCodeId.DataList.xml" />
+		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.GetFundraiserForAppealId.DataList.xml" />
+		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.TransferChildrenToSponsor.SimpleList.xml" />
+		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.SponsorshipProjectOpportunityMatchCustom.DataList.xml" />
+		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.ProjectsAvailableForSponsorship.SimpleList.xml" />
+		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.Website.SponsorshipCheckoutSource.DataList.xml" />
+		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.SponsorshipDataListCustomized.DataList.xml" />
+		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.Sponsorship.Reasons.DataList.xml" />
+		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.Sponsorship.ActiveSponsorshipsWithNTD.DataList.xml" />
+		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.SponsorshipExtension.DataList.xml" />
+		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.Sponsorship.ActiveOnlyWithGiftInfo.DataList.xml" />
+		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.Sponsorship.SmartFields.DataList.xml" />
+		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.RateIncreaseResponses.DataList.xml" />
+		
+		<!-- Forms -->
+		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.SponsorshipAdd_Wrapped.Add.xml" />
+		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.SponsorshipOpportunityChild_MoMCustom.Search.xml" />
+		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.SponsorshipLocationExtension.Add.xml" />
+		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.SponsorshipLocationExtension.Edit.xml" />
+		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.SponsorshipLocationHierarchyExtension.Add.xml" />
+		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.SponsorshipLocation.MoM.Custom.Search.xml" />
+		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.ProspectSponsorship.Add.xml" />
+		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.UnavailableSubstitutionSponsorship.Add.xml" />
+		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.SponsorshipOpportunityReserveBusinessProcessExtension.Add.xml" />
+		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.SponsorshipOpportunityReserveBusinessProcessExtension.Edit.xml" />
+		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.ActiveSponsorshipCancellationWrapped.Edit.xml" />
+		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.PendingSponsorshipCancellationWrapped.Edit.xml" />
+		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.ProjectSponsorship.Add.xml" />
+		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.Sponsorship.CompleteTransfer.Edit.xml" />
+		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.RecurringGift_FinancialExtension.View.xml" />
+		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.RecurringGiftExtension.Edit.xml" />
+		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.SponsorshipExtension.Add.xml" />
+		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.SponsorshipExtension.Edit.xml" />
+		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.CopyCreditCard.Add.xml" />
+		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.CompleteOrOverridePendingTransfer.Edit.xml" />
+		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.RecurringGift.PreDepartureGiftStatus.Edit.xml" />
+		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.ViewSponsorshipDetails.View.xml" />
+		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.ReplaceCCNoValidation.Add.xml" />
+		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.Sponsorship.UpdateReason.Edit.xml" />
+		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.UpdateBatchNumber.Edit.xml" />
+		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.RateIncreaseResponses.Add.xml" />
+		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.RateIncreaseResponses.Edit.xml" />
+		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.ViewRateChangeAppeal.View.xml" />
+		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.RecurringGiftExtension.NonSchedule.Edit.xml" />
+
+		<!-- Query Views -->
+		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.SponsorshipExtension.Query.xml" />
+		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.SponsorshipNTDChange.Query.xml" />
+		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.RevenueSchedule.Query.xml" />
+		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.Sponsorship.ActiveSponsorshipsWithInactiveRG.Query.xml" />
+		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.Sponsorship.ActiveSponsorshipsWithNoPayments.Query.xml" />
+		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.Sponsorship.ProspectsToConversion.Query.xml" />
+		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.Sponsorship.MultipleCommitmentsForSponsorChild.Query.xml" />
+		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.RevenueExtension.Query.xml" />
+		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.DelinquencyCampaignsSponsorshipsInfo.Query.xml" />
+		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.DelinquencyCampaignsSponsorshipsInfoAsOfToday.Query.xml" />
+		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.D2BizProcessRecordsNotProcessed.Query.xml" />
+		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.LockedChildren.Query.xml" />
+		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.D2DelinquencyCampaign.Sponsorships.Query.xml" />
+		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.D2DelinquencyCampaignAsOfToday.Sponsorships.Query.xml" />
+		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.D3DelinquencyCampaign.Sponsorships.Query.xml" />
+		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.D3DelinquencyCampaignAsOfToday.Sponsorships.Query.xml" />
+		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.D4DelinquencyCampaign.Sponsorships.Query.xml" />
+		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.D4DelinquencyCampaignAsOfToday.Sponsorships.Query.xml" />
+		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.OrphanRecurringGifts.Query.xml" />
+		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.SponsorshipCommitmentsWithMultipleRG.Query.xml" />
+
+		<!-- Tasks -->
+		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.SponsorshipAdd_Wrapped.Task.xml" />
+		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.AddProspectSponsorship.Task.xml" />
+		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.AddUnavailableSponsorship.Task.xml" />
+		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.AddProjectSponsorship.Task.xml" />
+		
+		<!-- Page Expressions -->
+		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.Sponsorship.ExpressionDataForm.View.xml" />
+
+		<!-- Pages -->
+		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.SponsorshipLocationExtension.Alter.Page.xml" />
+		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.AlterSponsor.Page.xml" />
+		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.AlterSponsorship.Page.xml" />
+		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.AlterRecurringGift.Page.xml" />
+
+		<!-- Package Versions -->
+		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.Sponsorship.PackageVersion.DataList.xml" />
+		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.MoM.Sponsorship.UIModelVersion.View.xml" />
+	</common:DependencyList>
+
+</PackageSpec>

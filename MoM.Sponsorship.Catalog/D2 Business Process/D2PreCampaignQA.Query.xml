@@ -1,0 +1,50 @@
+﻿<QueryViewSpec
+	xmlns="bb_appfx_queryview"
+	xmlns:common="bb_appfx_commontypes" 
+	ID="1f80e27f-6d4c-43b5-8c99-c69896558c7a"
+	Name="D2 Pre Campaign QA Query"
+	Description="Query to help identify invalid data like Held Cash"
+	Author="Memphis Sellers"
+	IsRoot="true"
+	PrimaryKeyField="REVENUEID"
+	RecordType="Revenue"
+	common:SecurityUIFolder="Revenue"
+	>
+
+	<!-- define the view used to return data for the query -->
+	<ViewImplementation ViewName="USR_V_QUERY_D2_PRECAMPAIGN_QA">
+		<ViewSQL>
+			<![CDATA[
+		select ISEFTDECLINED, 
+			CHILDLOOKUPID,
+			SPONSORLOOKUPID, 
+			REVENUELOOKUPID, 
+			NTD, 
+			PAYMETHOD, 
+			NUMBEROFMONTHSPASTDUE,
+			REVENUEID
+		from dbo.USR_UFN_GET_D2_PRECAMPAIGN_QA_RESULTS()
+		--where ISHELD = 1
+		--and PAYMETHOD = 3
+
+			]]>
+		</ViewSQL>
+	</ViewImplementation>
+
+	<!-- describe each field in the view output -->
+	<Output>
+		<OutputFields>
+			<OutputField Caption="System record ID" Category="System Fields" Name="REVENUEID" />
+			<OutputField Name="ISEFTDECLINED" Caption="Is EFT Declined" DataType="Boolean" />				
+			<OutputField Name="CHILDLOOKUPID" Caption="Child Lookup Id" DataType="String" />
+			<OutputField Name="SPONSORLOOKUPID" Caption="Sponsor Lookup Id" DataType="String" />
+			<OutputField Name="REVENUELOOKUPID" Caption="Revenue Lookup Id" DataType="String" />
+			<OutputField Name="NTD" Caption="NTD" DataType="Date" />
+			<OutputField Name="PAYMETHOD" Caption="Paymethod" DataType="Integer" >
+			</OutputField>
+			<OutputField Name="NUMBEROFMONTHSPASTDUE" Caption="Number Months Past Due" DataType="Decimal" />
+		</OutputFields>
+	</Output>
+
+</QueryViewSpec>
+

@@ -1,0 +1,98 @@
+﻿<SQLStoredProcedureSpec
+	xmlns="bb_appfx_sqlstoredprocedure"
+	xmlns:common="bb_appfx_commontypes" 
+	ID="e88e37b0-2154-40b2-bc90-98cc03351e39"
+	Name="USR_USP_PROSPECT_CONVERSION_BUSINESSPROCESS"
+	Description="Performs the prospect conversion from the business process"
+	Author="Memphis Sellers"
+	SPName="USR_USP_PROSPECT_CONVERSION_BUSINESSPROCESS"
+	>
+
+	<CreateProcedureSQL>
+		<![CDATA[
+create procedure dbo.USR_USP_PROSPECT_CONVERSION_BUSINESSPROCESS(
+	@changeAgentID uniqueidentifier,						-- Used to specify change agent for ChangedByID and AddedByID fields
+	@outputTableName nvarchar(128) = '',					-- Table Name to record the results of the conversion process, pass empty string if no table needs to be populated
+	@successCount int = 0 output,		-- Number of Prospect sponsors successfully converted
+	@exceptionCount int = 0 output		-- Number of exceptions - this isn't always the number of sponsorships, could be interactions, anything.
+)
+as
+begin
+	declare @sponsorId uniqueidentifier
+	declare @opportunityChildId uniqueidentifier
+	declare @sponsorshipId uniqueidentifier
+	declare @sixMonthsAgo date = DATEADD(m, -6, getdate());
+	declare @CURRENTOPPORTUNITYSPONSORSHIPSTATUSCODEID uniqueidentifier = (select ID
+			from dbo.USR_CURRENTOPPORTUNITYSPONSORSHIPSTATUSCODE
+			where lower([DESCRIPTION]) = lower('Prospect Sponsored'))
+	declare @conversionTbl table
+	(
+	SponsorID uniqueidentifier,
+	SponsorshipID uniqueidentifier
+	);
+
+	;with prospectSponsorshipList_CTE (SponsorID,SponsorshipID)
+	as
+	(
+		select CONSTITUENTID as SponsorID,
+			   s.ID as SponsorshipID
+		from dbo.SPONSORSHIP s
+		join dbo.USR_SPONSORSHIPEXTENSION s_ext on s.ID = s_ext.ID
+		where s.STATUSCODE = 1  -- active
+		and s_ext.CURRENTOPPORTUNITYSPONSORSHIPSTATUSCODEID = @CURRENTOPPORTUNITYSPONSORSHIPSTATUSCODEID
+	)
+	insert into @conversionTbl(SponsorID, SponsorshipID)
+	select SponsorID,
+		   SponsorshipID
+	from prospectSponsorshipList_CTE cte
+	where (dbo.USR_UFN_SPONSORSHIP_ISEFT (cte.SponsorshipID) = 1
+	or dbo.USR_UFN_SPONSORSHIP_HASPAYMENT (cte.SponsorshipID, @sixMonthsAgo) = 1)
+
+	declare conversionCursor cursor fast_forward for 
+	select * from @conversionTbl
+	Open conversionCursor
+
+	fetch next from conversionCursor into @sponsorId, @sponsorshipId
+
+	while @@FETCH_STATUS = 0
+	begin
+		begin try
+			-- call the prospect conversion form stored procedure, passing in this sponsorID
+			exec dbo.USR_USP_CONVERT_PROSPECTSPONSOR_FORBUSINESSPROCESS
+				@sponsorId = @sponsorId,
+				@changeAgentID = @changeAgentID,						-- Used to specify change agent for ChangedByID and AddedByID fields
+				@outputTableName = @outputTableName					-- Table Name to record the results of the conversion process, pass empty string if no table needs to be populated
+
+				
+		end try
+		begin catch
+			exec dbo.USP_RAISE_ERROR;
+			return 1;
+		end catch
+	
+		fetch next from conversionCursor into @sponsorId, @sponsorshipId
+	end
+	close conversionCursor
+	deallocate conversionCursor	
+	
+	-- populate the counts from the output table
+	declare @countSuccessSQL nvarchar(max) = 'select @successCount=count(*) from ' + @outputTableName + ' where lower(CONVERSIONRESULT) = ''success'' and CONVERSIONDATE = Cast(GETDATE() as Date)'
+	declare @countSuccessSQLParms nvarchar(255) = '@successCount int output'
+
+	-- Used to get the count of exceptions
+	declare @countExceptionSQL nvarchar(max) = 'select @exceptionCount=count(*) from ' + @outputTableName + ' where lower(CONVERSIONRESULT) = ''fail'' and CONVERSIONDATE = Cast(GETDATE() as Date)'
+	declare @countExceptionSQLParms nvarchar(255) = '@exceptionCount int output'
+
+	if @outputTableName <> ''
+		exec sp_executesql @countSuccessSQL, @countSuccessSQLParms, @successCount=@successCount output
+		exec sp_executesql @countExceptionSQL, @countExceptionSQLParms, @exceptionCount=@exceptionCount output
+
+
+	return 0;
+
+end
+
+		]]>
+	</CreateProcedureSQL>
+
+</SQLStoredProcedureSpec>

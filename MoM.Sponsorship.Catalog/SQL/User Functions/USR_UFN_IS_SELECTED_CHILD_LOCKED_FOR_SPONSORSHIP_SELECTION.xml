@@ -1,0 +1,41 @@
+﻿<SQLFunctionSpec
+	xmlns="bb_appfx_sqlfunction"
+	xmlns:common="bb_appfx_commontypes" 
+	ID="71e5f170-9ed0-4c95-b5e0-e25eadcf6d68"
+	Name="USR_UFN_IS_SELECTED_CHILD_LOCKED_FOR_SPONSORSHIP_SELECTION"
+	Description="Determines if a given child is selected (locked) for a sponsorship"
+	Author="Memphis Sellers"
+	DBFunctionName="USR_UFN_IS_SELECTED_CHILD_LOCKED_FOR_SPONSORSHIP_SELECTION"
+	>
+
+  <!-- This function is used to see if a given child is selected for a sponsorship during the Add a New Sponsorship process 
+       Returns a 1 if True, 0 if false [not selected]
+  -->
+	<CreateFunctionSQL>
+		<![CDATA[
+create FUNCTION USR_UFN_IS_SELECTED_CHILD_LOCKED_FOR_SPONSORSHIP_SELECTION 
+(
+	-- Add the parameters for the function here
+	@OPPORTUNITYID uniqueidentifier
+)
+returns bit
+with execute as caller
+as
+begin
+	-- Declare the return variable here
+	declare @Result bit
+
+	-- Add the T-SQL statements to compute the return value here
+  if exists(select OPPORTUNITYID from dbo.USR_CHILD_SELECTED_FOR_SPONSORSHIP_LOCK where OPPORTUNITYID = @OPPORTUNITYID)
+    set @Result = 1;
+  else
+    set @Result = 0;
+
+	-- Return the result of the function
+	return @Result
+
+end
+		]]>
+	</CreateFunctionSQL>
+
+</SQLFunctionSpec>

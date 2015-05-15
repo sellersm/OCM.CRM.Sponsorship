@@ -1,0 +1,81 @@
+﻿<QueryViewSpec
+	xmlns="bb_appfx_queryview"
+	xmlns:common="bb_appfx_commontypes" 
+	ID="3f023856-0735-49b9-b633-74ddf69bb257"
+	Name="Sponsorship Commitments With Multiple RG All Rankings Query"
+	Description="Sponsorship Commitments With Multiple RG All Rankings Query"
+	Author="Memphis Sellers"
+	IsRoot="true"
+	PrimaryKeyField="ID"
+	RecordType="Sponsorship Commitment"
+	common:SecurityUIFolder="Sponsorship"
+	>
+
+	<!-- 
+	Remarks: Query to create a Selection to use for the Merge RG Global Change, per Pamela this ignores the Ranking value
+			 so all values are returned.
+
+	History:
+	Date            Modified By     Comments
+	15-Apr-2015		Memphis			Initial Version
+	20-Apr-2015		Memphis			Updated to include more records
+	-->	
+	
+	<!-- define the view used to return data for the query -->
+	<ViewImplementation ViewName="USR_V_QUERY_SPONCOMMITMENTS_MULTIPLE_GIFTS_ALLRANKINGS">
+		<ViewSQL>
+			<![CDATA[
+	-- multiple commitments for same sponsorship commitment:
+	with commitmentCounts (COMMITMENTLOOKUPID)
+	as 
+	(
+		select 	
+			distinct sc.LOOKUPID
+			--r.LOOKUPID
+		from dbo.sponsorship s1
+		join dbo.SPONSORSHIPCOMMITMENT sc ON sc.ID = s1.SPONSORSHIPCOMMITMENTID
+		join revenuesplit rs on rs.ID = s1.REVENUESPLITID
+		join REVENUE r on r.ID = rs.REVENUEID
+		left join smartfield35EFF8A4CA954D9AA9BA012A8C82C5E3 ESSD on S1.CONSTITUENTID = ESSD.ID and (ESSD.VALUE is null OR (ESSD.VALUE is not null and ESSD.VALUE >= '1/1/2009'))
+		where exists (select 1 from dbo.sponsorship s2 left join smartfield35EFF8A4CA954D9AA9BA012A8C82C5E3 ESSD2 on S2.CONSTITUENTID = ESSD2.ID 
+						and (ESSD2.VALUE is null OR (ESSD2.VALUE is not null and ESSD2.VALUE >= '1/1/2009'))
+						where ((s1.revenuesplitid <> s2.revenuesplitid) and (s1.sponsorshipcommitmentid = s2.sponsorshipcommitmentid)))
+	)
+	select distinct
+		sc.ID,
+		c.LOOKUPID as SPONSORLOOKUPID,
+		so.LOOKUPID as CHILDLOOKUPID, 
+		COMMITMENTLOOKUPID,
+		r.LOOKUPID as REVENUEID,
+		s.STARTDATE,
+		ESSD.VALUE
+	from 
+		commitmentCounts cc
+		join dbo.SPONSORSHIPCOMMITMENT sc on sc.LOOKUPID = cc.COMMITMENTLOOKUPID --s.SPONSORSHIPCOMMITMENTID
+		join dbo.SPONSORSHIP s on s.SPONSORSHIPCOMMITMENTID = sc.ID
+		join dbo.SPONSORSHIPOPPORTUNITY so on s.SPONSORSHIPOPPORTUNITYID = so.ID
+		left join dbo.REVENUESPLIT rs on rs.ID = s.REVENUESPLITID
+		left join dbo.REVENUE r on r.ID = rs.REVENUEID
+		left join dbo.REVENUE_EXT REX on REX.ID = r.ID -- ft.ID
+		join dbo.constituent c on c.ID = s.constituentid
+		left join smartfield35EFF8A4CA954D9AA9BA012A8C82C5E3 ESSD on S.CONSTITUENTID = ESSD.ID			
+
+			]]>
+		</ViewSQL>
+	</ViewImplementation>
+
+	<!-- describe each field in the view output -->
+	<Output>
+		<OutputFields>
+			<OutputField Caption="System record ID" Category="System Fields" Name="ID" />
+			<OutputField Name="SPONSORLOOKUPID" Caption="Sponsor Lookup ID" DataType="String" />
+			<OutputField Name="CHILDLOOKUPID" Caption="Child Lookup ID" DataType="String" />
+			<OutputField Name="COMMITMENTLOOKUPID" Caption="Commitment Lookup ID" DataType="String" />
+			<OutputField Name="REVENUEID" Caption="Revenue ID" DataType="String" />
+			<OutputField Name="STARTDATE" Caption="Start Date" DataType="Date" />
+			<OutputField Name="VALUE" Caption="Earliest Start Date" DataType="Date" />
+		</OutputFields>
+	</Output>
+
+</QueryViewSpec>
+

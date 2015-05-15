@@ -1,0 +1,47 @@
+﻿<RecordOperationSpec 
+	xmlns="bb_appfx_recordoperation"
+	xmlns:common="bb_appfx_commontypes" 
+	ID="56e2b7ec-6669-480d-8fa0-5551e7bfec08" 
+	Name="Change ISEFTDECLINED field value" 
+	Description="Changes the ISEFTDECLINED field value in financial transaction extension table. "
+	Author="Memphis Sellers"
+	OperationType="Update"
+	RecordType="Recurring Gift"
+	common:SecurityUIFolder="Recurring Gift"	
+	>
+
+<!--  Use the bitwise NOT (~) operator to switch the bit value.
+~@isDeclined;
+-->	
+	
+	<SPRecord>
+		<SPOperationImplementation SPName="USR_USP_ISEFTDECLINED_UPDATEVALUE">
+			<common:CreateProcedureSQL>
+				<![CDATA[
+create procedure dbo.USR_USP_ISEFTDECLINED_UPDATEVALUE
+(
+	@ID uniqueidentifier,
+	@CHANGEAGENTID uniqueidentifier
+)
+as begin
+	--check deletion rules, if any
+
+	-- use the system generated delete routine to allow proper recording of the deleting agent
+	update dbo.USR_FINANCIALTRANSACTION_EXTENSION
+	set ISEFTDECLINED = ~ISEFTDECLINED
+	where ID = @ID;
+	
+	return 0;
+	
+end
+				]]>
+			</common:CreateProcedureSQL>
+		</SPOperationImplementation>
+	</SPRecord>
+
+	<!-- optionally, offer a prompt before executing the record operation -->
+	<Prompt>
+		<StandardPrompt Text="Are you sure you want to change the EFT Declined value?" />
+	</Prompt>
+
+</RecordOperationSpec>

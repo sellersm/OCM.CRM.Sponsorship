@@ -1,0 +1,35 @@
+﻿<BusinessProcessSpec
+	xmlns="bb_appfx_businessprocess"
+	xmlns:common="bb_appfx_commontypes"
+	ID="1e694cd7-2602-45f8-a718-0f3b989c7235"
+	Name="Prospect Conversion Business Process"
+	Description="Prospect Conversion process."
+	Author="Memphis Sellers"
+	GeneratesOutput="false"
+	ParameterTableName="USR_PROSPECTSPONSOR_CONVERSION_BUSINESSPROCESS"
+	RecordType="Sponsorship"
+	common:SecurityUIFolder="Sponsorship">
+
+	<!--
+	Remarks:    This business process was created so that the prospect sponsor conversion process could be scheduled.  It does not allow the user to specify and parameters / selections.
+				It assumes that the ID for the default parameter set is 'E893C10B-4E01-496F-9657-0E64CF1B895F'.  The is created in the "Populate MoM System Tables.sql"
+			
+	History:
+	Date            Modified By     Comments
+	26-Mar-2013		Memphis			Initial Version	
+	-->
+	
+	
+	<ProcessorComponent AssemblyName="MoM.Sponsorship.Catalog" ClassName="MoM.Sponsorship.Catalog.ProspectConversionBusinessProcess" >
+		<common:GrantExecuteList>
+			<common:GrantExecute>dbo.USR_USP_PROSPECT_CONVERSION_BUSINESSPROCESS</common:GrantExecute>
+		</common:GrantExecuteList>
+	</ProcessorComponent>
+
+	<!--<common:FormMetaData>
+		<common:FormFields>
+			<common:FormField Caption="REPLACE_WITH_CAPTION" DataType="REPLACE_WITH_DATATYPE" Description="REPLACE_WITH_DESCRIPTION" FieldID="REPLACE_WITH_FIELDID" />
+		</common:FormFields>
+	</common:FormMetaData>-->
+
+</BusinessProcessSpec>

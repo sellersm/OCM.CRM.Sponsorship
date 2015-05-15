@@ -1,0 +1,431 @@
+﻿<PageDefinitionSpec
+    xmlns="bb_appfx_pagedefinition"
+    xmlns:common="bb_appfx_commontypes"
+    ID="77a450b0-7f52-40ef-9fd0-96f42497f521"
+    Name="Alter Sponsor Page"
+    Description="Alters Sponsor page to add the custom Cancel action in the sponsorships datalist"
+    Author="Memphis Sellers"
+    ContextRecordType="Sponsorship"
+    >
+
+	<!-- Note:  A page can optionally have a view form associated with it as the "Expression form".  While implemented as a view data form,
+	this form has no UI in this context, and is simply used as a way of loading additional information associated with the page.  The fields
+	returned by the expression form can be used as expressions in various properties throughout the page.  To specify an expression form for this
+	page, add the following attribute:		ExpressionDataFormID="<some guid>"-->
+
+	<!--define how the page header should appear-->
+	<PageHeader Caption="REPLACE_WITH_CAPTION" ImageKey="REPLACE_WITH_IMAGEKEY" />
+
+
+	<AlterExistingPages>
+		<AlterPages>
+			<!-- put the custom sponsorshpis tab on the sponsor page -->
+			<AlterPage PageID="35740996-3dbb-4414-903f-c992d7504afb" >
+				<!--<AddTab>
+						<Tab Caption="Custom Sponsorships" ID="6711d92d-db4b-496b-b42d-4fb194456539">
+							<Sections>
+								<Section ID="07b147cb-c42c-44ab-8720-25fffa28cc37" Caption="Sponsorships" CaptionResourceKey="$$sponsorships">
+									<DataList ID="8987c59d-90ed-43d7-93d4-67c2acefe3a2" AutoDisplayFilters="true">
+										<RenderStyle>
+											<RelationalView IDField="ID" ParentField="PARENTID" />
+										</RenderStyle>
+									</DataList>
+									<Actions>
+										<Action ID="413c4dda-94a9-401f-8f5a-ef88b585dd52" Caption="Go to sponsorship" ImageKey="RES:goto_round" DefaultAction="true" LinkFieldID="NAME" CaptionResourceKey="$$go_to_sponsorship">
+											<ShowPage PageID="428f040a-eb45-4171-8c52-a030b9992d65" TabID="00000000-0000-0000-0000-000000000000" xmlns="bb_appfx_commontypes">
+												<ActionContext>
+													<SectionField>SPONSORSHIPID</SectionField>
+												</ActionContext>
+											</ShowPage>
+											<HelpKey>SPViewSponsorship.html</HelpKey>
+										</Action>
+										<Action ID="b0612be0-690a-408b-8b7c-107075161b8f" Caption="=String.Concat(&quot;Go to &quot;,Fields!REASSIGNEDCONSTITUENTNAME)" Visible="=Not Fields!REASSIGNEDCONSTITUENTNAME.Equals(String.Empty)" LinkFieldID="STATUS">
+											<ShowPage PageID="35740996-3dbb-4414-903f-c992d7504afb" TabID="00000000-0000-0000-0000-000000000000" xmlns="bb_appfx_commontypes">
+												<ActionContext>
+													<SectionField>REASSIGNEDCONSTITUENTID</SectionField>
+												</ActionContext>
+											</ShowPage>
+										</Action>
+										<Action ID="0e399997-38be-4fe3-804b-897ec3d0acd2" Caption="=String.Concat(&quot;Go to &quot;,Fields!PAIDFORBY)" Visible="=Not Fields!PAIDFORBY.Equals(String.Empty) AndAlso Not Fields!PAIDFORBYID.Equals(Fields!REASSIGNEDCONSTITUENTID)" LinkFieldID="PAIDFORBY">
+											<ShowPage PageID="35740996-3dbb-4414-903f-c992d7504afb" TabID="00000000-0000-0000-0000-000000000000" xmlns="bb_appfx_commontypes">
+												<ActionContext>
+													<SectionField>PAIDFORBYID</SectionField>
+												</ActionContext>
+											</ShowPage>
+										</Action>
+										<Action ID="6434d725-8cd0-4787-a002-1cf72491c96e" Caption="Go to recurring gift" ImageKey="RES:goto_round" Visible="=Not Fields!REVENUEID.Equals(String.Empty)" CaptionResourceKey="$$go_to_recurring_gift">
+											<ShowPage PageID="387f861b-6c03-486c-9ff5-9cc5bb7a5275" TabID="00000000-0000-0000-0000-000000000000" xmlns="bb_appfx_commontypes">
+												<ActionContext>
+													<SectionField>REVENUEID</SectionField>
+												</ActionContext>
+											</ShowPage>
+										</Action>
+										<Action ID="cf98be90-8ac5-48b0-913f-41e173d82919" Caption="Add" ImageKey="res:newitem" CaptionResourceKey="$$add">
+											<ShowAddDataForm DataFormID="cfc3f15e-40db-48c0-adbb-92cb172fc83d" xmlns="bb_appfx_commontypes">
+												<ActionContext>
+													<PageContextID />
+												</ActionContext>
+												<PostActionEvent>
+													<RefreshPage />
+												</PostActionEvent>
+											</ShowAddDataForm>
+											<HelpKey>SPSponsorPageAdd.html</HelpKey>
+										</Action>
+										<Action ID="2965f848-ffd3-48ab-83bb-e13052e24516" Caption="Transfer" ImageKey="catalog:Blackbaud.AppFx.Sponsorship.Catalog.dll,Blackbaud.AppFx.Sponsorship.Catalog.sponsorship_transfer_16.png" Visible="=Fields!STATUS=&quot;Active (Transfer pending)&quot; OrElse Fields!STATUS=&quot;Pending&quot;" CaptionResourceKey="$$transfer">
+											<ActionGroup>
+												<Actions>
+													<Action ID="a1ae4173-694e-49a2-b5c2-d9fececd7b4e" Caption="Complete" ImageKey="RES:checkmark" CaptionResourceKey="$$complete">
+														<ExecuteRecordOperation RecordOperationID="c42be4ab-b303-4ab6-8047-43bbe85deefe" xmlns="bb_appfx_commontypes">
+															<ActionContext>
+																<SectionField>CONTEXTSPONSORSHIPID</SectionField>
+															</ActionContext>
+															<PostActionEvent>
+																<RefreshSection />
+															</PostActionEvent>
+														</ExecuteRecordOperation>
+														<HelpKey>SPCompleteTransfer.html</HelpKey>
+													</Action>
+													<Action ID="6b5592eb-a12d-4339-aec6-f4bdc5ccdf66" Caption="Override" ImageKey="RES:actions" CaptionResourceKey="$$override">
+														<ShowDataForm DataFormID="9bc8daf7-4f5f-4411-a8fd-64838e7d874f" xmlns="bb_appfx_commontypes">
+															<ActionContext>
+																<SectionField>CONTEXTSPONSORSHIPID</SectionField>
+															</ActionContext>
+															<PostActionEvent>
+																<RefreshSection />
+															</PostActionEvent>
+														</ShowDataForm>
+														<HelpKey>SPOverrideTransfer.html</HelpKey>
+													</Action>
+												</Actions>
+											</ActionGroup>
+										</Action>
+										<Action ID="b51e8620-abf2-4127-9f55-81888e10cace" Caption="Transfer" ImageKey="catalog:Blackbaud.AppFx.Sponsorship.Catalog.dll,Blackbaud.AppFx.Sponsorship.Catalog.sponsorship_transfer_16.png" Visible="=Fields!STATUS&lt;&gt;&quot;Active (Transfer pending)&quot; AndAlso Fields!STATUS&lt;&gt;&quot;Pending&quot;" Enabled="=Fields!STATUS.StartsWith(&quot;Active&quot;)" CaptionResourceKey="$$transfer">
+											<ShowDataForm DataFormID="c5012f3e-a9b4-4d0d-bc27-6fa3818c71c2" xmlns="bb_appfx_commontypes">
+												<ActionContext>
+													<SectionField>CONTEXTSPONSORSHIPID</SectionField>
+												</ActionContext>
+												<PostActionEvent>
+													<RefreshPage />
+												</PostActionEvent>
+											</ShowDataForm>
+											<HelpKey>SPTransferSponsorship.html</HelpKey>
+										</Action>
+										<Action ID="965fbc1c-f9ed-4489-91bf-963ff2a56666" Caption="Reassign" ImageKey="catalog:Blackbaud.AppFx.Sponsorship.Catalog.dll,Blackbaud.AppFx.Sponsorship.Catalog.sponsorship_reassign_16.png" Enabled="=Fields!STATUS.StartsWith(&quot;Active&quot;) AndAlso Fields!STATUS&lt;&gt;&quot;Active (Transfer pending)&quot;" CaptionResourceKey="$$reassign">
+											<ShowDataForm DataFormID="421a8ead-9eab-4fa8-8219-760fb3726e95" xmlns="bb_appfx_commontypes">
+												<ActionContext>
+													<SectionField>CONTEXTSPONSORSHIPID</SectionField>
+												</ActionContext>
+												<PostActionEvent>
+													<RefreshPage />
+												</PostActionEvent>
+											</ShowDataForm>
+											<HelpKey>SPReassignSponsorship.html</HelpKey>
+										</Action>
+										<Action ID="0c7f7b0c-57e9-4827-ae07-e9fa20e0cd2a" Caption="Cancel" ImageKey="RES:do_not_symbol" Visible="=Fields!STATUS.StartsWith(&quot;Active&quot;) AndAlso Fields!STATUS&lt;&gt;&quot;Active (Transfer pending)&quot;" CaptionResourceKey="$$cancel">
+											<ShowDataForm DataFormID="3e5de54f-e0f7-4187-bdd1-0bfff1156e2d" xmlns="bb_appfx_commontypes">
+												<ActionContext>
+													<SectionField>CONTEXTSPONSORSHIPID</SectionField>
+												</ActionContext>
+												<PostActionEvent>
+													<RefreshPage />
+												</PostActionEvent>
+											</ShowDataForm>
+											<HelpKey>SPSponsorPageCancel.html</HelpKey>
+										</Action>
+										<Action ID="531c8fcf-6dd6-47e9-9929-2c0d18ed6959" Caption="Cancel" ImageKey="RES:do_not_symbol" Visible="=Fields!STATUS=&quot;Active (Transfer pending)&quot; OrElse Fields!STATUS=&quot;Pending&quot;" CaptionResourceKey="$$cancel">
+											<ShowDataForm DataFormID="edde2945-0141-4677-8155-bbc3a80eb66b" xmlns="bb_appfx_commontypes">
+												<ActionContext>
+													<SectionField>CONTEXTSPONSORSHIPID</SectionField>
+												</ActionContext>
+												<PostActionEvent>
+													<RefreshPage />
+												</PostActionEvent>
+											</ShowDataForm>
+											<HelpKey>SPSponsorPageCancel.html</HelpKey>
+										</Action>
+										<Action ID="6323e88f-b805-4dec-83c1-df0ef789e0e9" Caption="Reactivate" ImageKey="RES:okButton" Visible="=Not Fields!STATUS.StartsWith(&quot;Active&quot;) AndAlso Fields!STATUS&lt;&gt;&quot;Pending&quot;" Enabled="=Fields!REACTIVATEALLOWED" CaptionResourceKey="$$reactivate">
+											<ShowDataForm DataFormID="b874b67a-c3e9-473f-9692-ba5f42eb8ef0" xmlns="bb_appfx_commontypes">
+												<ActionContext>
+													<SectionField>CONTEXTSPONSORSHIPID</SectionField>
+												</ActionContext>
+												<PostActionEvent>
+													<RefreshPage />
+												</PostActionEvent>
+											</ShowDataForm>
+											<HelpKey>SPSponsorPageReactivateSponsorship.html</HelpKey>
+										</Action>
+										<Action ID="9e803ded-8eff-4dfc-b3e6-505205c3a722" Caption="Delete" ImageKey="RES:Delete" ToolTipText="remove &quot;Sponsorship&quot;" Visible="=Not Page.Fields!SINGLESPONSORSHIP" Enabled="=Fields!DELETEALLOWED" CaptionResourceKey="$$delete" ToolTipResourceKey="$$remove_&quot;sponsorship&quot;">
+											<ExecuteRecordOperation RecordOperationID="c3348715-f46e-4103-98a2-7623d7a09fb8" xmlns="bb_appfx_commontypes">
+												<ActionContext>
+													<SectionField>SPONSORSHIPID</SectionField>
+												</ActionContext>
+												<PostActionEvent>
+													<RefreshPage />
+												</PostActionEvent>
+											</ExecuteRecordOperation>
+											<HelpKey>SPSponsorPageDelete.html</HelpKey>
+										</Action>
+										<Action ID="16fd845c-7ade-4900-b299-916e76a5940c" Caption="Delete" ImageKey="RES:Delete" ToolTipText="remove &quot;Sponsorship&quot;" Visible="=Page.Fields!SINGLESPONSORSHIP" Enabled="=Fields!DELETEALLOWED" CaptionResourceKey="$$delete" ToolTipResourceKey="$$remove_&quot;sponsorship&quot;">
+											<ExecuteRecordOperation RecordOperationID="c3348715-f46e-4103-98a2-7623d7a09fb8" xmlns="bb_appfx_commontypes">
+												<ActionContext>
+													<SectionField>SPONSORSHIPID</SectionField>
+												</ActionContext>
+												<PostActionEvent>
+													<GoToPage>
+														<FunctionalArea FunctionalAreaID="9ea48d9c-7e2d-42e6-91cc-210792618017" />
+													</GoToPage>
+												</PostActionEvent>
+											</ExecuteRecordOperation>
+											<HelpKey>SPSponsorPageDelete.html</HelpKey>
+										</Action>
+									</Actions>
+								</Section>
+								<Section ID="74f9016a-9664-4671-96cc-061e2cf73596" Caption="Gift financial commitments" CaptionResourceKey="$$gift_financial_commitments">
+									<DataList ID="9aee11b0-1875-4211-a888-f2bb90084b6f">
+										<RenderStyle>
+											<StandardView />
+										</RenderStyle>
+									</DataList>
+									<Actions>
+										<Action ID="8efbccc4-351c-4304-99cf-7f9037dc5071" Caption="=String.Concat(&quot;Go to &quot;,Fields!SPONSOR)" Visible="=Not Fields!SPONSOR.Equals(String.Empty)" LinkFieldID="SPONSOR">
+											<ShowPage PageID="35740996-3dbb-4414-903f-c992d7504afb" TabID="00000000-0000-0000-0000-000000000000" xmlns="bb_appfx_commontypes">
+												<ActionContext>
+													<SectionField>SPONSORID</SectionField>
+												</ActionContext>
+											</ShowPage>
+										</Action>
+										<Action ID="e360eb8c-36ef-4f0d-9dd5-05bd7dc1bb1a" Caption="Go to sponsorship" ImageKey="RES:goto_round" DefaultAction="true" LinkFieldID="PROGRAM" CaptionResourceKey="$$go_to_sponsorship">
+											<ShowPage PageID="428f040a-eb45-4171-8c52-a030b9992d65" TabID="00000000-0000-0000-0000-000000000000" xmlns="bb_appfx_commontypes">
+												<ActionContext>
+													<SectionField>SPONSORSHIPID</SectionField>
+												</ActionContext>
+											</ShowPage>
+											<HelpKey>SPViewSponsorship.html</HelpKey>
+										</Action>
+									</Actions>
+								</Section>
+							</Sections>
+						</Tab>						
+					</AddTab>-->
+			</AlterPage>
+
+			<AlterPage PageID="35740996-3dbb-4414-903f-c992d7504afb" >
+				<AlterTabs>
+					<!-- Sponsorships Tab -->
+					<AlterTab TabID="416dc73b-1209-4a0b-a939-c367f54b4f1d">
+						<AlterSections>
+							<!-- replace the datalist with the custom one -->
+							<AlterDataListSection DataListID="bb24aaa6-e00f-47b6-a4fe-a85e7098cfd9" SectionID="08adb764-c56e-452b-bea6-4b7d65c4791f">
+								<!--<DataList ID="bb24aaa6-e00f-47b6-a4fe-a85e7098cfd9" AutoDisplayFilters="true">-->
+								<!--<ReplaceDataList NewDataListID="8987c59d-90ed-43d7-93d4-67c2acefe3a2"/>-->
+								<AlterActions>
+									<AddAction>
+										<Action ID="b2416e10-a163-413d-a472-ed783a7254cf" Caption="Update reason" ToolTipText="Update sponsorship reason" Enabled="=Fields!REASON &lt;&gt; &quot;&quot;&#xA;">
+											<ShowDataForm DataFormID="068023d8-b2b8-4ffc-a2c1-d5435a5bc5c1" xmlns="bb_appfx_commontypes">
+												<ActionContext>
+													<SectionField>SPONSORSHIPID</SectionField>
+												</ActionContext>
+												<PostActionEvent>
+													<RefreshSection />
+												</PostActionEvent>
+											</ShowDataForm>
+										</Action>
+									</AddAction>
+									<AddAction>
+										<Action ID="003b14b1-c88e-4102-853d-6238bd5ad8e1" Caption="Cancel active sponsorship" ImageKey="RES:do_not_symbol" Visible="=Fields!STATUS.StartsWith(&quot;Active&quot;) AndAlso Fields!STATUS&lt;&gt;&quot;Active (Transfer pending)&quot;" CaptionResourceKey="$$cancel">
+											<ShowDataForm DataFormID="3e5de54f-e0f7-4187-bdd1-0bfff1156e2d" xmlns="bb_appfx_commontypes">
+												<ActionContext>
+													<SectionField>CONTEXTSPONSORSHIPID</SectionField>
+												</ActionContext>
+												<PostActionEvent>
+													<RefreshPage />
+												</PostActionEvent>
+											</ShowDataForm>
+											<HelpKey>SPSponsorPageCancel.html</HelpKey>
+										</Action>
+									</AddAction>
+									<AddAction>
+										<Action ID="748dd1de-4577-4e93-b944-750a871b079e" Caption="Cancel pending sponsorship" ImageKey="RES:do_not_symbol" Visible="=Fields!STATUS=&quot;Active (Transfer pending)&quot; OrElse Fields!STATUS=&quot;Pending&quot;" CaptionResourceKey="$$cancel">
+											<ShowDataForm DataFormID="edde2945-0141-4677-8155-bbc3a80eb66b" xmlns="bb_appfx_commontypes">
+												<ActionContext>
+													<SectionField>CONTEXTSPONSORSHIPID</SectionField>
+												</ActionContext>
+												<PostActionEvent>
+													<RefreshPage />
+												</PostActionEvent>
+											</ShowDataForm>
+											<HelpKey>SPSponsorPageCancel.html</HelpKey>
+										</Action>
+									</AddAction>
+								</AlterActions>
+
+							</AlterDataListSection>
+						</AlterSections>
+
+					</AlterTab>
+					<AddTab>
+						<Tab Caption="Active Sponsorships with Gift Info" ID="1258c502-18f6-4da4-bab2-8172c3c59891">
+							<Sections>
+								<Section ID="b3c1690c-83cf-428d-943c-100dfc45ca45">
+									<DataList ID="7ac3c8b0-d556-4c8a-91ed-cb6972d5e185">
+										<RenderStyle>
+											<StandardView />
+										</RenderStyle>
+									</DataList>
+									<Actions>
+										<Action ID="2eb6be88-b994-4520-af56-6a888155fc36" Caption="Go to sponsorship" ImageKey="RES:goto_round" CaptionResourceKey="$$go_to_sponsorship">
+											<ShowPage PageID="428f040a-eb45-4171-8c52-a030b9992d65" TabID="00000000-0000-0000-0000-000000000000" xmlns="bb_appfx_commontypes">
+												<ActionContext>
+													<SectionField>SPONSORSHIPID</SectionField>
+												</ActionContext>
+											</ShowPage>
+											<HelpKey>SPViewSponsorship.html</HelpKey>
+										</Action>
+										<Action ID="fd19ccf2-9f5f-44cf-80af-8bbe74c5da39" Caption="Go to recurring gift" ImageKey="RES:goto_round" CaptionResourceKey="$$go_to_recurring_gift">
+											<ShowPage PageID="387f861b-6c03-486c-9ff5-9cc5bb7a5275" TabID="00000000-0000-0000-0000-000000000000" xmlns="bb_appfx_commontypes">
+												<ActionContext>
+													<SectionField>SPONSORSHIPRECURRINGGIFTID</SectionField>
+												</ActionContext>
+											</ShowPage>
+										</Action>
+										<Action ID="ae53f1b7-735b-4684-bb46-d91f69d3ec62" Caption="Go to child" ImageKey="RES:goto_round">
+											<ShowPage PageID="0f392d71-5884-4363-b6e3-a75755f8402a" TabID="00000000-0000-0000-0000-000000000000" xmlns="bb_appfx_commontypes">
+												<ActionContext>
+													<SectionField>SPONSORSHIPOPPORTUNITYID</SectionField>
+												</ActionContext>
+											</ShowPage>
+											<HelpKey>SPSponsorshipPageChildProjectTab.html</HelpKey>
+										</Action>
+									</Actions>
+								</Section>
+							</Sections>
+						</Tab>
+            
+					</AddTab>
+          <AddTab Sequence="99">
+            <Tab Caption="Rate Increase" ID="6372ef1f-90e0-4221-bdc5-43386152c709">
+              <Sections>
+                <Section ID="89f6b59b-b894-4ff8-8a8a-beeb9ec838ba" Caption="Rate Change Appeal 2014">
+                  <DataForm ID="37aaae9a-1bde-4cb0-9de8-fbd982faa81d" IsScrollable="true" />
+                </Section>
+                <Section ID="b47b027c-7d22-4324-85c7-43f26731c340" Caption="Rate Increase Responses">
+                  <DataList ID="c32a5449-87d1-470a-bcad-b5946021ba72">
+                    <RenderStyle>
+                      <StandardView>
+                        <DetailViewForm ViewDataFormID="=Fields!ViewFormID" />
+                      </StandardView>
+                    </RenderStyle>
+                  </DataList>
+                  <Actions>
+                    <Action ID="224a822c-6b6d-4aa4-89d0-bf1a73c9a988" Caption="Add Appeal Response" ImageKey="RES:newItem">
+                      <ShowAddDataForm DataFormID="8c264407-0155-4147-b528-b2b4110d7f7f" xmlns="bb_appfx_commontypes">
+                        <ActionContext>
+                          <SectionField>SPONSORID</SectionField>
+                        </ActionContext>
+                        <PostActionEvent>
+                          <RefreshSection />
+                        </PostActionEvent>
+                      </ShowAddDataForm>
+                    </Action>
+                    <Action ID="3886c46f-6f5f-4894-8bb7-689d2620024a" Caption="Edit" ImageKey="RES:edit" DefaultAction="True">
+                      <ShowDataForm DataFormID="0144c06d-d442-4640-bf0c-b0eca083cf74" xmlns="bb_appfx_commontypes">
+                        <ActionContext>
+                          <SectionField>ID</SectionField>
+                        </ActionContext>
+                        <PostActionEvent>
+                          <RefreshSection />
+                        </PostActionEvent>
+                      </ShowDataForm>
+                    </Action>
+                  </Actions>
+                </Section>
+              </Sections>
+            </Tab>
+          </AddTab>
+				</AlterTabs>
+
+				<AlterOrAddPageActionGroups>
+					<AlterOrAddPageActionGroup ID="7fa2d3be-ddd2-4dd3-8285-2904f9a7bdc1" Caption="Tasks" ImageKey="RES:Tasks" CaptionResourceKey="$$tasks">
+						<AddAction>
+							<Action ID="d3b68ef1-77f1-47c5-a3f5-ec03df186601" Caption="Assign Orphan Recurring Gift" ImageKey="CATALOG:Blackbaud.AppFx.Fundraising.Catalog,Blackbaud.AppFx.Fundraising.Catalog.apply_commitments_32.png">
+								<ShowAddDataForm DataFormID="7ab31706-0174-4fb3-8201-63c80ccc932f" xmlns="bb_appfx_commontypes">
+									<ActionContext>
+										<PageContextID />
+									</ActionContext>
+								</ShowAddDataForm>
+							</Action>
+						</AddAction>
+					</AlterOrAddPageActionGroup>
+
+					<AlterOrAddPageActionGroup ID="7fa2d3be-ddd2-4dd3-8285-2904f9a7bdc1" Caption="Tasks" ImageKey="RES:Tasks" CaptionResourceKey="$$tasks">
+						<AddAction>
+							<Action ID="de23e350-1ebe-461a-a3bf-9246c2df5d40" Caption="Convert prospect sponsor">
+								<ExecuteRecordOperation RecordOperationID="111fcd26-7526-4564-8cec-5cc3ba4b020d" xmlns="bb_appfx_commontypes">
+									<ActionContext>
+										<PageContextID />
+									</ActionContext>
+									<PostActionEvent>
+										<RefreshPage />
+									</PostActionEvent>
+								</ExecuteRecordOperation>
+							</Action>
+						</AddAction>
+					</AlterOrAddPageActionGroup>
+
+				</AlterOrAddPageActionGroups>
+			</AlterPage>
+
+		</AlterPages>
+
+	</AlterExistingPages>
+
+	<!-- define the tabs for the page - note that if only one tab is present, then that tab's sections are promoted to the page level (ie., the tab
+	itself isn't shown -->
+	<!--
+	<Tabs>
+		<Tab ID="d7e0dd0f-378d-4bee-a5d3-0b7e0b502766" Caption="Tab caption">
+
+			-->
+	<!-- define the sections for this tab -->
+	<!--
+			<Sections>
+				<Section ID="56a367b7-83e6-4173-bcd8-0bef339ba5c7" Caption="Section caption">
+					<DataList ID="REPLACE_WITH_DATALISTID">
+						<RenderStyle>
+							<StandardView/>
+						</RenderStyle>
+					</DataList>
+
+					-->
+	<!-- define the section-level actions -->
+	<!--
+					<Actions>
+						<Action ID="b7cbd267-5acc-401a-9bf2-dc1373b56ed9" Caption="Section action caption" ImageKey="res:newitem">
+							<common:ShowPage PageID="REPLACE_WITH_PAGEID" />
+						</Action>
+					</Actions>
+					
+				</Section>
+			</Sections>
+		</Tab>
+	</Tabs>
+
+	-->
+	<!-- define page-level actions groups which appear in the explorer bar area of the shell -->
+	<!--
+	<PageActionGroups>
+		
+		<PageActionGroup ID="54c8131b-2950-4737-b45e-ad9998940add" Caption="Tasks" ImageKey="RES:Tasks">
+			-->
+	<!-- for this action group, define the list of actions -->
+	<!--
+			<Actions>
+				<Action ID="0d2725c4-5bb1-4e80-a21d-21ad093e7717" Caption="Action caption" ImageKey="res:newitem">
+					<common:ShowPage PageID="REPLACE_WITH_PAGEID" />
+				</Action>
+			</Actions>
+		</PageActionGroup>
+		
+	</PageActionGroups>-->
+
+</PageDefinitionSpec>

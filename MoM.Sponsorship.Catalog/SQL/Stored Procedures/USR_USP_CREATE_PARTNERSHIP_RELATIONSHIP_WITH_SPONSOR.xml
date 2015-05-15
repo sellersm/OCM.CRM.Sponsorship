@@ -1,0 +1,287 @@
+﻿<SQLStoredProcedureSpec
+	xmlns="bb_appfx_sqlstoredprocedure"
+	xmlns:common="bb_appfx_commontypes" 
+	ID="5f1b8408-e4ad-4c26-915c-828e619f5693"
+	Name="USR_USP_CREATE_PARTNERSHIP_RELATIONSHIP_WITH_SPONSOR"
+	Description="Creates a Partnership for Mercy relationship with the given Sponsor."
+	Author="Memphis Sellers"
+	SPName="USR_USP_CREATE_PARTNERSHIP_RELATIONSHIP_WITH_SPONSOR"
+	>
+
+	<!-- 
+	Remarks:    This creates the PFM relationship with a given sponsor. Called from Add a Sponsorship Custom form.
+				
+	History:
+	Date            Modified By     Comments
+	28-Aug-2012		Memphis			Initial Version to create the PFM relationship with a given sponsor.
+	30-Aug-2012		Memphis			Added check for the existing relationship based on these fields:
+										RELATIONSHIPCONSTITUENTID,
+										RECIPROCALCONSTITUENTID,
+										RELATIONSHIPTYPECODEID,
+										RECIPROCALTYPECODEID,
+	-->
+	
+	<CreateProcedureSQL>
+		<![CDATA[
+create procedure dbo.USR_USP_CREATE_PARTNERSHIP_RELATIONSHIP_WITH_SPONSOR (
+	@ID uniqueidentifier = null output,
+	@CHANGEAGENTID uniqueidentifier = null,
+	@CONSTITUENTID uniqueidentifier,
+	@RECIPROCALCONSTITUENTID uniqueidentifier = null,
+	@RECIPROCALTYPECODEID uniqueidentifier = null,
+	@RELATIONSHIPTYPECODEID uniqueidentifier = null,
+	@RELATIONSHIPSTARTDATE datetime,
+	@COMMENTS nvarchar(256) = '',
+	@PRIMARYSOFTCREDITRELATIONSHIPEXISTS bit = 1,
+	@PRIMARYSOFTCREDITMATCHFACTOR decimal(5,2) = 100,
+	@RECIPROCALSOFTCREDITRELATIONSHIPEXISTS bit = 0,		-- set to 1 so the credit goes to org
+	@RECIPROCALSOFTCREDITMATCHFACTOR decimal(5,2) = 0,
+	@RECIPROCALRECOGNITIONTYPECODEID uniqueidentifier = null,     -- set to the recognition type code 
+	@CURRENTDATE datetime = GETDATE,
+	@ISCONTACT bit = 0,
+	@ISPRIMARYCONTACT bit = 0,
+	@CONTACTTYPECODEID uniqueidentifier = null,
+	@RELATIONSHIPENDDATE datetime = null,
+	@ISPRIMARYBUSINESS bit = 0,
+	@ISMATCHINGGIFTRELATIONSHIP bit = 0
+)
+as
+begin
+	-- do work
+	 begin try
+	
+	  if @ID is null
+		set @ID = newid();
+	
+		-- first check to see if this relationship already exists:
+		-- function returns 0 if not exists, 1 if it does
+		declare @relationExists bit;
+		set @relationExists = dbo.USR_UFN_CONSTITUENT_HAS_RELATIONSHIP(
+			@CONSTITUENTID,	
+			@RECIPROCALCONSTITUENTID,	
+			@RELATIONSHIPTYPECODEID,
+			@RECIPROCALTYPECODEID
+		)
+		
+		
+		-- *** Memphis Changed ***
+		/* ***  replace all this with the OOB Blackbaud call to create the relationship stuff, from Ind -> Org.
+		*   
+		*		
+		if @relationExists = 0  -- not exists
+		begin		
+			declare @SETID uniqueidentifier = newid();
+
+			insert into dbo.RELATIONSHIPSET
+			(
+			  ID,
+			  ADDEDBYID,
+			  CHANGEDBYID,
+			  DATEADDED,
+			  DATECHANGED
+			)
+			values
+			(
+			  @SETID,
+			  @CHANGEAGENTID,
+			  @CHANGEAGENTID,
+			  @CURRENTDATE,
+			  @CURRENTDATE
+			);
+
+			insert into dbo.RELATIONSHIP
+			(
+			  ID,
+			  RELATIONSHIPCONSTITUENTID,
+			  RECIPROCALCONSTITUENTID,
+			  RELATIONSHIPTYPECODEID,
+			  RECIPROCALTYPECODEID,
+			  ISCONTACT,
+			  ISPRIMARYCONTACT,
+			  CONTACTTYPECODEID,
+			  STARTDATE,
+			  ENDDATE,
+			  ISPRIMARYBUSINESS,
+			  ISMATCHINGGIFTRELATIONSHIP,
+			  RELATIONSHIPSETID,
+			  COMMENTS,
+			  ADDEDBYID,
+			  CHANGEDBYID,
+			  DATEADDED,
+			  DATECHANGED
+			)
+			values
+			(
+			  @ID,
+			  @CONSTITUENTID,
+			  @RECIPROCALCONSTITUENTID,
+			  @RELATIONSHIPTYPECODEID,
+			  @RECIPROCALTYPECODEID,
+			  @ISCONTACT,
+			  @ISPRIMARYCONTACT,
+			  @CONTACTTYPECODEID,
+			  @RELATIONSHIPSTARTDATE,
+			  @RELATIONSHIPENDDATE,
+			  @ISPRIMARYBUSINESS,
+			  @ISMATCHINGGIFTRELATIONSHIP,
+			  @SETID,
+			  @COMMENTS,
+			  @CHANGEAGENTID,
+			  @CHANGEAGENTID,
+			  @CURRENTDATE,
+			  @CURRENTDATE
+			);
+		
+	-- memphis 10/16/12 moved the END here from down below:
+	end
+		*/
+		-- *** Memphis change 1, see below for more change related to this ***
+	
+		-- these were done in the BB sproc that adds a relationship:
+		declare @PRIMARYRECOGNITIONTYPECODEID uniqueidentifier
+
+		--select @RECIPROCALRECOGNITIONTYPECODEID = ID
+		select @PRIMARYRECOGNITIONTYPECODEID = ID
+		from dbo.REVENUERECOGNITIONTYPECODE
+		where lower([DESCRIPTION]) = lower('Soft Credit')
+		
+		if @PRIMARYRECOGNITIONTYPECODEID is null
+			RAISERROR 1000000 'Could not find the Soft Credit recognition code!'
+				
+		--set @PRIMARYRECOGNITIONTYPECODEID = @RECIPROCALRECOGNITIONTYPECODEID
+			
+		-- 10/15/12 Memphis: trying to fix FogBugz Case 915: SQL profiler shows a NULL being passed in for RECIPROCALRECOGNITIONTYPECODEID
+		--set @RECIPROCALRECOGNITIONTYPECODEID = NULL;
+
+		-- *** Memphis change 2, 2nd part of the above change ***:
+		/* ***
+		exec dbo.USP_RECOGNITIONDEFAULTSUPDATE
+				@CONSTITUENTID = @CONSTITUENTID,
+				@RECIPROCALCONSTITUENTID = @RECIPROCALCONSTITUENTID,
+				@STARTDATE = @RELATIONSHIPSTARTDATE,
+				@ENDDATE = @RELATIONSHIPENDDATE,
+				@PRIMARYRECOGNITIONDEFAULTEXISTS = @PRIMARYSOFTCREDITRELATIONSHIPEXISTS,
+				@PRIMARYRECOGNITIONDEFAULTMATCHFACTOR = @PRIMARYSOFTCREDITMATCHFACTOR,
+				@PRIMARYRECOGNITIONDEFAULTTYPECODEID = @PRIMARYRECOGNITIONTYPECODEID,
+				@RECIPROCALRECOGNITIONDEFAULTEXISTS = @RECIPROCALSOFTCREDITRELATIONSHIPEXISTS,
+				@RECIPROCALRECOGNITIONDEFAULTMATCHFACTOR = @RECIPROCALSOFTCREDITMATCHFACTOR,
+				@RECIPROCALRECOGNITIONDEFAULTTYPECODEID = @RECIPROCALRECOGNITIONTYPECODEID,
+				@CHANGEAGENTID  = @CHANGEAGENTID,
+				@PREVENTDEFAULTING = 1				
+
+		exec dbo.USP_RELATIONSHIPCONFIGURATION_CONFIGURE 
+			@CONSTITUENTID, 
+			@RECIPROCALCONSTITUENTID, 
+			@RELATIONSHIPTYPECODEID,
+			@RECIPROCALTYPECODEID, 
+			@CHANGEAGENTID, 
+			@CURRENTDATE;	
+		
+		--end   -- if relationship ecists or not
+		*/
+		
+		
+		-- *** Memphis change 3:  insert the OOB Blackbaud call here to create the relationship stuff 
+		if @relationExists = 0  -- not exists
+		begin				
+			declare @relateID uniqueidentifier;
+			if @CURRENTDATE is null
+				set @CURRENTDATE = GETDATE();
+			declare @startDate date = DATEADD(dd, 0, DATEDIFF(dd, 0, @CURRENTDATE));
+			
+			exec dbo.USP_DATAFORMTEMPLATE_ADD_INDTOORG_RELATIONSHIP_2
+			  @ID = @relateID,
+			  @CHANGEAGENTID = @CHANGEAGENTID,
+			  @CONSTITUENTID = @CONSTITUENTID,
+			  @RECIPROCALCONSTITUENTID = @RECIPROCALCONSTITUENTID,
+			  @RECIPROCALTYPECODEID = @RECIPROCALTYPECODEID,
+			  @RELATIONSHIPTYPECODEID  = @RELATIONSHIPTYPECODEID,
+			  @RELATIONSHIPSTARTDATE  = @startDate,  -- @CURRENTDATE,   just get the date portion, no time value!
+			  @RELATIONSHIPENDDATE  = @RELATIONSHIPENDDATE,
+			  @ISCONTACT = @ISCONTACT,
+			  @ISPRIMARYCONTACT = @ISPRIMARYCONTACT,
+			  @CONTACTTYPECODEID = @CONTACTTYPECODEID,
+			  @POSITION = '',
+			  @ISPRIMARYBUSINESS = @ISPRIMARYBUSINESS,
+			  @ISMATCHINGGIFTRELATIONSHIP = @ISMATCHINGGIFTRELATIONSHIP,
+			  @ADDADDRESS = 0,
+			  @ADDRESSTYPECODEID = null,  
+			  @PRIMARY = 1,
+			  @DONOTMAIL = 0,
+			  @STARTDATE = '0000',
+			  @ENDDATE = '0000',
+			  @COUNTRYID = null,  
+			  @STATEID = null,  
+			  @ADDRESSBLOCK  = '',   
+			  @CITY  = '',  
+			  @POSTCODE = '',
+			  @CART = '',
+			  @DPC = '',
+			  @LOT = '',
+			  @UPDATEMATCHINGSPOUSEADDRESSES = 0,
+			  @OMITFROMVALIDATION  = 0,
+			  @COUNTYCODEID = null,
+			  @CONGRESSIONALDISTRICTCODEID = null,
+			  @STATEHOUSEDISTRICTCODEID = null,
+			  @STATESENATEDISTRICTCODEID = null,
+			  @LOCALPRECINCTCODEID = null,
+			  @INFOSOURCECODEID = null,
+			  @REGIONCODEID = null,
+			  @LASTVALIDATIONATTEMPTDATE = null,
+			  @VALIDATIONMESSAGE = '',
+			  @CERTIFICATIONDATA = 0,
+			  @DONOTMAILREASONCODEID = null,
+			  @JOBCATEGORYCODEID = null,
+			  @CAREERLEVELCODEID = null,
+			  @REPLACERELATIONSHIP = 0,
+			  @REPLACEMENTRELATIONSHIPID = null,
+			  @INFOSOURCECOMMENTS = '',
+			  @COMMENTS = @COMMENTS,
+			  @JOBSCHEDULECODEID = null,
+			  @JOBDEPARTMENT = '',
+			  @JOBDIVISION = '',
+			  @ADDPHONE = 0,
+			  @PHONETYPECODEID = null,
+			  @NUMBER  = '',
+			  @PHONECOUNTRYID  = null,
+			  @PHONESTARTTIME  = '',
+			  @PHONEENDTIME = '',
+			  @PHONESTARTDATE  = null,
+			  @PHONEPRIMARY  = 0,
+			  @DONOTCALL  = 0,
+			  @DONOTCALLREASONCODEID  = null,
+			  @PHONEISCONFIDENTIAL  = 0,
+			  @PHONEINFOSOURCECODEID  = null,
+			  @PHONEINFOSOURCECOMMENTS  = '',
+			  @ADDEMAILADDRESS  = 0,
+			  @EMAILADDRESSTYPECODEID  = null,
+			  @EMAILADDRESS  = '',
+			  @EMAILADDRESSPRIMARY  = 0,
+			  @DONOTEMAIL  = 0,
+			  @EMAILADDRESSINFOSOURCECODEID  = null,
+			  @EMAILADDRESSINFOSOURCECOMMENTS  = '',
+			  @PRIMARYSOFTCREDITRELATIONSHIPEXISTS  = @PRIMARYSOFTCREDITRELATIONSHIPEXISTS,
+			  @PRIMARYSOFTCREDITMATCHFACTOR = @PRIMARYSOFTCREDITMATCHFACTOR,
+			  @RECIPROCALSOFTCREDITRELATIONSHIPEXISTS = @RECIPROCALSOFTCREDITRELATIONSHIPEXISTS,
+			  @RECIPROCALSOFTCREDITMATCHFACTOR = @RECIPROCALSOFTCREDITMATCHFACTOR,
+			  @PRIMARYRECOGNITIONTYPECODEID = @PRIMARYRECOGNITIONTYPECODEID,
+			  @RECIPROCALRECOGNITIONTYPECODEID = @RECIPROCALRECOGNITIONTYPECODEID,
+			  @JOBRESPONSIBILITY = '',
+			  @ISPRIVATERECORD = 0		
+		end
+		
+		return 0;
+	
+	end try
+	
+	begin catch
+		exec dbo.USP_RAISE_ERROR;
+		return 1;
+	end catch
+
+end
+
+		]]>
+	</CreateProcedureSQL>
+
+</SQLStoredProcedureSpec>

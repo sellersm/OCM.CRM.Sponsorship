@@ -1,0 +1,385 @@
+﻿<SQLStoredProcedureSpec
+	xmlns="bb_appfx_sqlstoredprocedure"
+	xmlns:common="bb_appfx_commontypes" 
+	ID="068f8702-a891-424a-85f6-0a1cca60420d"
+	Name="USR_USP_POPULATE_NTDFIX_VALIDATIONTABLE"
+	Description="Adapted from Blackbaud's validation script"
+	Author="Cary Mayeda"
+	SPName="USR_USP_POPULATE_NTDFIX_VALIDATIONTABLE"
+	>
+
+	<CreateProcedureSQL>
+		<![CDATA[
+create procedure dbo.USR_USP_POPULATE_NTDFIX_VALIDATIONTABLE
+as begin
+
+	declare @CHANGEAGENTID uniqueidentifier 
+	exec dbo.USP_CHANGEAGENT_GETORCREATECHANGEAGENT @CHANGEAGENTID output
+	
+	truncate table dbo.USR_NTDFIX_VALIDATION
+
+	--Get original NTD from the Mom_BBEC_Fixes database
+	INSERT INTO dbo.USR_NTDFIX_VALIDATION 
+	(REVENUEID, REVENUELOOKUPID, ORIGINALNEXTTRANSACTIONDATE, NUMBEROFPAYMENTS, NUMBEROFWRITEOFFS, CALCULATEDNEXTTRANSACTIONDATE, ACTUALNEXTTRANSACTIONDATE, FREQUENCY, ISINCLUDEDINOTHERNTDSCRIPT, CALCULATEDAMOUNTDUE, ACTUALAMOUNTDUE, NUMBEROFCORRECTIONWRITEOFFS, ADDEDBYID, CHANGEDBYID, DATEADDED, DATECHANGED)
+	SELECT [REVENUESCHEDULEID],
+		  '',
+		  ntd.[NEXTTRANSACTIONDATE],
+		  0,
+		  0,
+		  null,
+		  null,
+		  '',
+		  0, 
+		  -999,
+		  -999,
+		  0,
+		  @CHANGEAGENTID, 
+		  @CHANGEAGENTID, 
+		  GETDATE(),
+		  GETDATE()
+	FROM dbo.USR_MOM_BBEC_NTD_FIXES ntd
+	/*
+	--do active and held vs TR2 for now.
+	INSERT INTO dbo.USR_NTDFIX_VALIDATION
+	SELECT [ID],
+		  ntd.[NEXTTRANSACTIONDATE],
+		  0,
+		  null,
+		  null,
+		  null
+	FROM [21195D_51ee32b1-ffb2-4a74-bd9b-51e3ae01bf4d].[dbo].[revenueschedule] ntd
+	where ntd.status in ('active', 'held') and ntd.FREQUENCY not in ('Single Installment')
+	*/
+
+	--select * from [21195D_51ee32b1-ffb2-4a74-bd9b-51e3ae01bf4d].[dbo].[revenueschedule]
+
+	-- Set the number o payments
+	update dbo.USR_NTDFIX_VALIDATION
+	set	
+		NumberOfPayments = summation.payment
+
+	FROM	
+		dbo.USR_NTDFIX_VALIDATION base
+	join
+	(
+		select
+			rci.REVENUEID, 
+			floor(sum(pay.amount)/ (select TRANSACTIONAMOUNT FROM dbo.FINANCIALTRANSACTION where ID = REVENUEID)) as payment
+		from
+			dbo.RECURRINGGIFTINSTALLMENT rci
+		join dbo.recurringgiftinstallmentpayment pay 
+			on pay.recurringgiftinstallmentid = rci.ID
+		join dbo.REVENUESCHEDULE rs 
+			on rs.ID = rci.REVENUEID
+		where 
+			pay.DATEADDED > '2012-10-18'
+		group by 
+			REVENUEID
+	) summation on summation.revenueID = base.RevenueID
+
+
+
+	--Set the number of Write-offs
+	update dbo.USR_NTDFIX_VALIDATION
+	set	
+		NumberOfWriteoffs = summation.payment
+
+	FROM	
+		dbo.USR_NTDFIX_VALIDATION base
+	join
+	(
+		select
+			rci.REVENUEID, floor(sum(wo.amount)/ (select TRANSACTIONAMOUNT FROM dbo.FINANCIALTRANSACTION where ID = rci.REVENUEID)) as payment
+		from
+			dbo.RECURRINGGIFTINSTALLMENT rci
+		join dbo.RECURRINGGIFTINSTALLMENTWRITEOFF wo 
+			on wo.recurringgiftinstallmentid = rci.ID
+		join RECURRINGGIFTWRITEOFF rgwo 
+			on rgwo.ID = wo.WRITEOFFID
+		join WRITEOFFREASONCODE rc on rc.ID = rgwo.REASONCODEID
+		join dbo.REVENUESCHEDULE rs on rs.ID = rci.REVENUEID
+		where wo.DATEADDED > '2012-10-18' and rc.DESCRIPTION like 'Waiver'
+		group by rci.REVENUEID
+	) summation on summation.revenueID = base.RevenueID
+
+
+
+	--Set the number of NumberOfCorrectionWriteoffs (non Waiver)
+	update dbo.USR_NTDFIX_VALIDATION
+	set	
+		NumberOfCorrectionWriteoffs = summation.payment
+
+	FROM	
+		dbo.USR_NTDFIX_VALIDATION base
+	join
+	(
+		select
+			rci.REVENUEID, floor(sum(wo.amount)/ (select TRANSACTIONAMOUNT FROM dbo.FINANCIALTRANSACTION where ID = rci.REVENUEID)) as payment
+		from
+			dbo.RECURRINGGIFTINSTALLMENT rci
+		join dbo.RECURRINGGIFTINSTALLMENTWRITEOFF wo 
+			on wo.recurringgiftinstallmentid = rci.ID
+		join RECURRINGGIFTWRITEOFF rgwo 
+			on rgwo.ID = wo.WRITEOFFID
+		join WRITEOFFREASONCODE rc on rc.ID = rgwo.REASONCODEID
+		join dbo.REVENUESCHEDULE rs on rs.ID = rci.REVENUEID
+		where wo.DATEADDED > '2012-10-18' and rc.DESCRIPTION not like 'Waiver'
+		group by rci.REVENUEID
+	) summation on summation.revenueID = base.RevenueID
+
+
+
+	/**********************************************/
+	/*** Calculate NTDs for various frequencies ***/
+	/**********************************************/
+
+	--ADD MONTHLY CALCULATED NTD
+	update dbo.USR_NTDFIX_VALIDATION
+	set	
+		CalculatedNextTransactionDate = dateadd(m,base.NumberOfPayments + base.NumberOfWriteoffs, base.OriginalNextTransactionDate),
+		Frequency = 'Monthly'
+	FROM
+		dbo.USR_NTDFIX_VALIDATION base
+	inner join dbo.REVENUESCHEDULE rs
+		on rs.ID = base.RevenueID	
+	where rs.FREQUENCY = 'Monthly' 
+
+
+	--Quarterly calculated NTD
+	update dbo.USR_NTDFIX_VALIDATION
+	set	
+		CalculatedNextTransactionDate = dateadd(m,(base.NumberOfPayments + base.NumberOfWriteoffs) * 3, base.OriginalNextTransactionDate),
+		Frequency = 'Quarterly'
+	FROM
+		dbo.USR_NTDFIX_VALIDATION base
+	inner join dbo.REVENUESCHEDULE rs
+		on rs.ID = base.RevenueID	
+	where rs.FREQUENCY = 'Quarterly' 
+
+
+	--Yearly calculated NTD
+	update dbo.USR_NTDFIX_VALIDATION
+	set	
+		CalculatedNextTransactionDate = dateadd(m,12 * (base.NumberOfPayments + base.NumberOfWriteoffs), base.OriginalNextTransactionDate),
+		Frequency = 'Annually'
+	FROM
+		dbo.USR_NTDFIX_VALIDATION base
+	inner join dbo.REVENUESCHEDULE rs
+		on rs.ID = base.RevenueID	
+	where rs.FREQUENCY = 'Annually' 
+
+	update dbo.USR_NTDFIX_VALIDATION
+	SET
+		ActualNextTransactionDate = rs.NEXTTRANSACTIONDATE
+	FROM
+		dbo.USR_NTDFIX_VALIDATION base
+	join dbo.REVENUESCHEDULE rs
+		on rs.ID = base.RevenueID
+
+
+
+	--Bi-monthly calculated NTD
+	update dbo.USR_NTDFIX_VALIDATION
+	set	
+		CalculatedNextTransactionDate = dateadd(m,2 * (base.NumberOfPayments + base.NumberOfWriteoffs), base.OriginalNextTransactionDate),
+		Frequency = 'Bimonthly'
+	FROM
+		dbo.USR_NTDFIX_VALIDATION base
+	inner join dbo.REVENUESCHEDULE rs
+		on rs.ID = base.RevenueID	
+	where rs.FREQUENCY like 'Bimonthly' 
+
+
+
+	--Semi-annually calculated NTD
+	update dbo.USR_NTDFIX_VALIDATION
+	set	
+		CalculatedNextTransactionDate = dateadd(m,6 * (base.NumberOfPayments + base.NumberOfWriteoffs), base.OriginalNextTransactionDate),
+		Frequency = 'semi-annually'
+	FROM
+		dbo.USR_NTDFIX_VALIDATION base
+	inner join dbo.REVENUESCHEDULE rs
+		on rs.ID = base.RevenueID	
+	where rs.FREQUENCY like 'semi-annually' 
+	/**********  End NTD Calculations *********/
+
+
+
+
+	--Drop in the actual NTD
+	update dbo.USR_NTDFIX_VALIDATION
+	SET
+		ActualNextTransactionDate = rs.NEXTTRANSACTIONDATE,
+		RevenueLookupID = r.LOOKUPID
+	FROM
+		dbo.USR_NTDFIX_VALIDATION base
+	join dbo.REVENUESCHEDULE rs
+		on rs.ID = base.RevenueID
+	join dbo.REVENUE r
+		on r.ID = base.RevenueID
+
+
+
+
+	--Determine if it is included in the other NTD script
+	update dbo.USR_NTDFIX_VALIDATION
+	SET
+		IsIncludedInOtherNTDScript = 1
+	where RevenueID in (
+		select 
+			rci.REVENUEID		 
+		from 
+			RECURRINGGIFTINSTALLMENT rci
+		join 	recurringgiftinstallmentpayment pay 
+			on pay.recurringgiftinstallmentid = rci.ID
+		join revenueschedule rs 
+			on rs.ID = rci.REVENUEID
+		join FINANCIALTRANSACTION ft
+			on ft.ID = rci.REVENUEID
+		where 
+			ft.TRANSACTIONAMOUNT <= pay.AMOUNT
+			and pay.dateadded > '2012-10-18'
+			and rci.DATE >= NEXTTRANSACTIONDATE
+	)	
+
+
+	--Update any Calculated NTD with a date on the 17th to be the first of the next month for non-eft
+	update dbo.USR_NTDFIX_VALIDATION
+	SET	
+		CalculatedNextTransactionDate = DATEADD(d, 1 - DATEPART(d, base.CalculatedNextTransactionDate) ,DATEADD(m, 1, base.CalculatedNextTransactionDate))
+	FROM
+		dbo.USR_NTDFIX_VALIDATION base
+	where datepart(d,CalculatedNextTransactionDate) in (17)
+	  and RevenueID not in (select rs.ID from REVENUESCHEDULE rs
+							  join dbo.FINANCIALTRANSACTION trans on trans.ID = rs.ID
+							  join dbo.REVENUEPAYMENTMETHOD paymethod on trans.ID = paymethod.REVENUEID
+							 where paymethod.PAYMENTMETHODCODE in (2,3) -- Credit Card, Direct Debit
+							   and trans.TYPECODE = 2 -- recurring gift
+							   and rs.STATUS in ('Active', 'Held'))
+
+
+
+
+	--Actual amount due
+	update dbo.USR_NTDFIX_VALIDATION
+	SET	
+		ActualAmountDue = dbo.UFN_RECURRINGGIFT_GETPASTDUEAMOUNT(base.RevenueID, null)
+	FROM
+		dbo.USR_NTDFIX_VALIDATION base
+
+	
+	/****************************************************/
+	/*** Calculate amount due for various frequencies ***/
+	/****************************************************/	
+	--Monthly amount due calculations
+	update dbo.USR_NTDFIX_VALIDATION
+	SET 
+	-- ** CHANGED BY CARY
+	-- Added check for the day to see if the NTD occurs earlier in the month (compared to the current date)
+	-- Changed datediff to use current date instead of base.ActualNextTransactionDate
+
+	--    CalculatedAmountDue = DATEDIFF(m, base.CalculatedNextTransactionDate, base.ActualNextTransactionDate) * ft.TRANSACTIONAMOUNT
+		  CalculatedAmountDue = case                                        
+									when DAY (base.CalculatedNextTransactionDate) < day (getdate()) then 
+										(DATEDIFF(m, base.CalculatedNextTransactionDate, getdate())+ 1) * ft.TRANSACTIONAMOUNT
+									else 
+										(DATEDIFF(m, base.CalculatedNextTransactionDate, getdate())) * ft.TRANSACTIONAMOUNT
+								end
+	FROM
+		  dbo.USR_NTDFIX_VALIDATION base
+	join FINANCIALTRANSACTION ft 
+		  on ft.ID = base.RevenueID     
+	where base.Frequency like 'Monthly'
+
+
+	--Quarterly amount due calculations
+	update dbo.USR_NTDFIX_VALIDATION
+	SET 
+	-- ** CHANGED BY CARY
+	-- Added check for the day to see if the NTD occurs earlier in the month (compared to the current date)
+	-- Changed datediff to use current date instead of base.ActualNextTransactionDate
+
+	--	CalculatedAmountDue = floor(DATEDIFF(m, base.CalculatedNextTransactionDate, base.ActualNextTransactionDate)/3) * ft.TRANSACTIONAMOUNT
+
+		CalculatedAmountDue = case  
+								 when base.CalculatedNextTransactionDate > GETDATE() then 0
+								 else case
+										 when DAY (base.CalculatedNextTransactionDate) < day (getdate()) then 
+											-- Add one because if the NTD is in the past it is at least one payment behind.
+											(1 + floor(DATEDIFF(m, base.CalculatedNextTransactionDate, getdate()) / 3)) * ft.TRANSACTIONAMOUNT
+										 else 
+											(1 + floor((DATEDIFF(m, base.CalculatedNextTransactionDate, getdate()) - 1) / 3)) * ft.TRANSACTIONAMOUNT
+									  end 
+							  end
+	FROM
+		dbo.USR_NTDFIX_VALIDATION base
+	join FINANCIALTRANSACTION ft 
+		on ft.ID = base.RevenueID	
+	where base.Frequency like 'Quarterly'
+
+
+	--yearly amount due calculations
+	update dbo.USR_NTDFIX_VALIDATION
+	SET 
+	-- ** CHANGED BY CARY
+	-- Added check for the day to see if the NTD occurs earlier in the month (compared to the current date)
+	-- Changed datediff to use current date instead of base.ActualNextTransactionDate
+	--	CalculatedAmountDue = floor(DATEDIFF(m, base.CalculatedNextTransactionDate, base.ActualNextTransactionDate)/12) * ft.TRANSACTIONAMOUNT
+		CalculatedAmountDue = case  
+								 when base.CalculatedNextTransactionDate > GETDATE() then 0
+								 else case
+										 when DAY (base.CalculatedNextTransactionDate) < day (getdate()) then 
+											-- Add one because if the NTD is in the past it is at least one payment behind.
+											(1 + floor(DATEDIFF(m, base.CalculatedNextTransactionDate, getdate()) / 12)) * ft.TRANSACTIONAMOUNT
+										 else 
+											(1 + floor((DATEDIFF(m, base.CalculatedNextTransactionDate, getdate()) - 1) / 12)) * ft.TRANSACTIONAMOUNT
+									  end 
+							 end 
+	FROM
+		dbo.USR_NTDFIX_VALIDATION base
+	join FINANCIALTRANSACTION ft 
+		on ft.ID = base.RevenueID	
+	where base.Frequency like 'Annually'
+
+
+	--Bi-Monthly amount due calculations
+	update dbo.USR_NTDFIX_VALIDATION
+	SET 
+		CalculatedAmountDue = floor(DATEDIFF(m, base.CalculatedNextTransactionDate, base.ActualNextTransactionDate)/2) * ft.TRANSACTIONAMOUNT
+	FROM
+		dbo.USR_NTDFIX_VALIDATION base
+	join FINANCIALTRANSACTION ft 
+		on ft.ID = base.RevenueID	
+	where base.Frequency like 'bimonthly'
+	
+
+
+	--Bi-Monthly amount due calculations
+	update dbo.USR_NTDFIX_VALIDATION
+	SET 
+	-- Added check for the day to see if the NTD occurs earlier in the month (compared to the current date)
+	-- Changed datediff to use current date instead of base.ActualNextTransactionDate
+	--	CalculatedAmountDue = floor(DATEDIFF(m, base.CalculatedNextTransactionDate, base.ActualNextTransactionDate)/6) * ft.TRANSACTIONAMOUNT
+		CalculatedAmountDue = case  
+								 when base.CalculatedNextTransactionDate > GETDATE() then 0
+								 else case
+										 when DAY (base.CalculatedNextTransactionDate) < day (getdate()) then 
+											-- Add one because if the NTD is in the past it is at least one payment behind.
+											(1 + floor(DATEDIFF(m, base.CalculatedNextTransactionDate, getdate()) / 6)) * ft.TRANSACTIONAMOUNT
+										 else 
+											(1 + floor((DATEDIFF(m, base.CalculatedNextTransactionDate, getdate()) - 1) / 6)) * ft.TRANSACTIONAMOUNT
+									  end 
+							  end
+	FROM
+		dbo.USR_NTDFIX_VALIDATION base
+	join FINANCIALTRANSACTION ft 
+		on ft.ID = base.RevenueID	
+	where base.Frequency like 'semi-annually'
+
+end 
+
+
+		]]>
+	</CreateProcedureSQL>
+
+</SQLStoredProcedureSpec>

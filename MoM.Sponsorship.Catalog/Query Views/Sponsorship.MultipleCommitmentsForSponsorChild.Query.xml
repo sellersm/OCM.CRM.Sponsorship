@@ -1,0 +1,93 @@
+﻿<QueryViewSpec
+	xmlns="bb_appfx_queryview"
+	xmlns:common="bb_appfx_commontypes" 
+	ID="3972443d-0444-4dff-8eda-a06b4df25724"
+	Name="Duplicate Sponsorship Commitments for Sponsor and Child Query"
+	Description="Used to find sponsors who have more than one commitment for the same child."
+	Author="Cary Mayeda"
+	IsRoot="true"
+	PrimaryKeyField="SPONSORSHIPID"
+	RecordType="Sponsorship"
+	common:SecurityUIFolder="Sponsorship"
+	>
+	
+	<!-- 
+	Remarks:    Used to perform data validation for PFM reports.
+
+	History:
+	Date            Modified By     Comments
+	25-Feb-2013		CMayeda			Initial Version
+	02-Dec-2014		CMayeda			fixed defect - added distinct to count
+	-->
+
+
+
+	<!-- define the view used to return data for the query -->
+	<ViewImplementation ViewName="USR_V_QUERY_DUPLICATECOMMITMENTS">
+		<ViewSQL>
+			<![CDATA[
+			
+with commitmentCounts (CONSTITUENTID, SPONSORSHIPOPPORTUNITYID, COMMITMENTCOUNT)
+as
+(
+select 
+	c.ID, 
+	s.SPONSORSHIPOPPORTUNITYID, 
+	count(distinct s.SPONSORSHIPCOMMITMENTID)
+from 
+	dbo.CONSTITUENT c
+	join dbo.SPONSORSHIP s on c.ID = s.CONSTITUENTID
+	
+group by 
+	c.ID, s.SPONSORSHIPOPPORTUNITYID
+
+having 
+	count(s.SPONSORSHIPCOMMITMENTID) > 1
+)
+
+select 
+	c.ID as SPONSORID, 
+	c.LOOKUPID as SPONSORLOOKUPID, 
+	c.NAME as SPONSORNAME, 
+	so.ID as CHILDID, 
+	so.LOOKUPID as CHILDLOOKUPID, 
+	so_child.NAME as CHILDNAME, 
+	cc.COMMITMENTCOUNT as NUMBEROFDUPLICATECOMMITMENTS, 
+	s.ID as SPONSORSHIPID, 
+	sc.LOOKUPID as SPONSORSHIPCOMMITMENTLOOKUPID
+from 
+	commitmentCounts cc
+	join dbo.CONSTITUENT c on c.ID = cc.CONSTITUENTID
+	join dbo.SPONSORSHIPOPPORTUNITY so on cc.SPONSORSHIPOPPORTUNITYID = so.ID
+	join dbo.SPONSORSHIPOPPORTUNITYCHILD so_child on cc.SPONSORSHIPOPPORTUNITYID = so_child.ID
+	join dbo.SPONSORSHIP s on cc.CONSTITUENTID = s.CONSTITUENTID and cc.SPONSORSHIPOPPORTUNITYID = s.SPONSORSHIPOPPORTUNITYID
+	join dbo.SPONSORSHIPCOMMITMENT sc on sc.ID = s.SPONSORSHIPCOMMITMENTID
+
+		
+			]]>
+		</ViewSQL>
+	</ViewImplementation>
+
+	<!-- describe each field in the view output -->
+	<Output>
+		<OutputFields>
+			<OutputField Caption="Sponsorship system record ID" Category="System Fields" Name="SPONSORSHIPID" />
+			<OutputField Caption="Child system record ID" Category="System Fields" Name="CHILDID" />
+			<OutputField Caption="Sponsor system record ID" Category="System Fields" Name="SPONSORID" />
+			<OutputField Name="SPONSORLOOKUPID" Caption="Sponsor Lookup ID" DataType="String" />
+			<OutputField Name="CHILDLOOKUPID" Caption="Child Lookup ID" DataType="String" />
+			<OutputField Name="SPONSORSHIPCOMMITMENTLOOKUPID" Caption="Commitment Lookup ID" DataType="String" />
+			<OutputField Name="SPONSORNAME" Caption="Sponsor Name" DataType="String" />
+			<OutputField Name="CHILDNAME" Caption="Child Name" DataType="String" />
+			<OutputField Name="NUMBEROFDUPLICATECOMMITMENTS" Caption="Number of Duplicate Commitments" DataType="Integer" />
+		</OutputFields>
+	</Output>
+
+	<RelationshipOperations>
+		<AddRelatedView RelatedView="V_QUERY_SPONSORSHIPOPPORTUNITY" RelatedField="ID" Field="CHILDID" PathAlias="Sponsorship Opportunity"/>
+		<AddRelatedView RelatedView="V_QUERY_SPONSORSHIP" RelatedField="ID" Field="SPONSORSHIPID" PathAlias="Sponsorship"/>
+		<AddRelatedView RelatedView="V_QUERY_CONSTITUENT" RelatedField="ID" Field="SPONSORID" PathAlias="Sponsor"/>
+	</RelationshipOperations>
+
+</QueryViewSpec>
+

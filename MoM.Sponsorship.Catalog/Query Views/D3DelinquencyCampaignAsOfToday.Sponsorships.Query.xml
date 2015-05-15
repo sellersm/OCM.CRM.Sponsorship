@@ -1,0 +1,70 @@
+﻿<QueryViewSpec
+	xmlns="bb_appfx_queryview"
+	xmlns:common="bb_appfx_commontypes" 
+	ID="2c479a42-0561-4a40-802d-a6928720cedf"
+	Name="D3 Delinquencies - As Of Today"
+	Description="Displays sponsorship info for D3 delinquencies only as of today."
+	Author="Memphis Sellers"
+	IsRoot="true"
+	PrimaryKeyField="ID"
+	RecordType="Sponsorship"
+	common:SecurityUIFolder="Sponsorship"
+	>
+
+	<!-- 
+	Remarks:  This displays D3 delinquent sponsorships as of the current Date.
+
+	History:
+	Date            Modified By     Comments
+	27-Jan-2015		Memphis			Initial Version. Calls the UFN specific to D3
+	-->
+
+	<!-- define the view used to return data for the query -->
+	<ViewImplementation ViewName="USR_V_QUERY_D3_DELINQUENCIES_SPONSORSHIP_INFO_ASOFTODAY">
+		<ViewSQL>
+			<![CDATA[
+	select  ISHELD,
+			CHILDLOOKUPID,
+			SPONSORLOOKUPID,
+			SPONSORNAME,
+			REVENUELOOKUPID,
+			NTD,
+			PAYMETHOD,
+			NUMBEROFMONTHSPASTDUE,
+			REVENUEID,
+			COMMITMENTID,
+			PASTDUEAMOUNT,
+			GIFTAMOUNT,
+			ISEFTDECLINED,
+			SPONSORSHIPID as ID,
+			case when FINANCIALSPONSORID is null then ''
+				 else (select NAME from dbo.UFN_CONSTITUENT_DISPLAYNAME(FINANCIALSPONSORID)) 
+			end as GIFTSPONSOR
+    from dbo.USR_UFN_GET_D3_DELINQUENCY_SPONSORSHIPS(getdate())
+			]]>
+		</ViewSQL>
+	</ViewImplementation>
+
+	<!-- describe each field in the view output -->
+	<Output>
+		<OutputFields>
+			<OutputField Caption="System record ID" Category="System Fields" Name="ID" />
+			<OutputField Name="ISHELD" Caption="Held?" DataType="Boolean" />
+			<OutputField Name="CHILDLOOKUPID" Caption="Child ID" DataType="String" />
+			<OutputField Name="SPONSORLOOKUPID" Caption="Sponsor ID" DataType="String" />
+			<OutputField Name="SPONSORNAME" Caption="Sponsor" DataType="String" />
+			<OutputField Name="REVENUELOOKUPID" Caption="Revenue ID" DataType="String" />
+			<OutputField Name="NTD" Caption="NTD" DataType="Date" />
+			<OutputField Name="PAYMETHOD" Caption="Pay Method" DataType="String" />
+			<OutputField Name="NUMBEROFMONTHSPASTDUE" Caption="Number of Months Past Due" DataType="Decimal" />
+			<OutputField Name="REVENUEID" Caption="Revenue ID" DataType="String" />
+			<OutputField Name="COMMITMENTID" Caption="Commitment ID" DataType="String" />
+			<OutputField Name="PASTDUEAMOUNT" Caption="Past Due" DataType="Money" />
+			<OutputField Name="GIFTAMOUNT" Caption="Gift Amount" DataType="Money" />
+			<OutputField Name="ISEFTDECLINED" Caption="EFT Declined" DataType="Boolean" />
+			<OutputField Name="GIFTSPONSOR" Caption="Financial Sponsor" DataType="String" />
+		</OutputFields>
+	</Output>
+
+</QueryViewSpec>
+

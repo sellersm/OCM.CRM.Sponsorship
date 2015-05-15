@@ -1,0 +1,57 @@
+﻿<SQLStoredProcedureSpec
+	xmlns="bb_appfx_sqlstoredprocedure"
+	xmlns:common="bb_appfx_commontypes" 
+	ID="19f23dea-38aa-40e6-a2c1-5c3322468203"
+	Name="USR_USP_FINANCIALTRANSACTION_EXTENSION_INSERTROW"
+	Description="Inserts a new row into Financial Transaction extension table."
+	Author="Memphis Sellers"
+	SPName="USR_USP_FINANCIALTRANSACTION_EXTENSION_INSERTROW"
+	>
+
+	<CreateProcedureSQL>
+		<![CDATA[
+-- =============================================
+-- Author:		Memphis Sellers
+-- Create date: 
+-- Description:	Inserts a new row into Financial Transaction extension table.
+-- =============================================
+CREATE PROCEDURE USR_USP_FINANCIALTRANSACTION_EXTENSION_INSERTROW 
+	@FINANCIALTRANSACTIONID uniqueidentifier, 
+	@DIRECTDEBITSCHEDULECODEID uniqueidentifier,
+	@CREDITCARDSCHEDULECODEID uniqueidentifier,
+	@ADDEDBYID uniqueidentifier = null,
+	@CHANGEDBYID uniqueidentifier = null,
+	@DATEADDED date = GETDATE,
+	@DATECHANGED date = GETDATE
+AS
+BEGIN
+	-- SET NOCOUNT ON added to prevent extra result sets from
+	-- interfering with SELECT statements.
+	SET NOCOUNT ON;
+	
+	if @ADDEDBYID is null
+		exec dbo.USP_CHANGEAGENT_GETORCREATECHANGEAGENT @ADDEDBYID output;
+
+	INSERT INTO [dbo].[USR_FINANCIALTRANSACTION_EXTENSION]
+			   ([ID]
+			   ,[DIRECTDEBITSCHEDULECODEID]
+			   ,[CREDITCARDSCHEDULECODEID]
+			   ,[ADDEDBYID]
+			   ,[CHANGEDBYID]
+			   ,[DATEADDED]
+			   ,[DATECHANGED])
+		 VALUES
+			   (@FINANCIALTRANSACTIONID
+			   ,@DIRECTDEBITSCHEDULECODEID
+			   ,@CREDITCARDSCHEDULECODEID
+			   ,@ADDEDBYID
+			   ,@CHANGEDBYID
+			   ,@DATEADDED
+			   ,@DATECHANGED)
+           
+END
+
+		]]>
+	</CreateProcedureSQL>
+
+</SQLStoredProcedureSpec>

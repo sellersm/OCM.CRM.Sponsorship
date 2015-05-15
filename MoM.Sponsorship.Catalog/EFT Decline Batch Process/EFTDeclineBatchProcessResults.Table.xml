@@ -1,0 +1,37 @@
+﻿<TableSpec 
+	xmlns="bb_appfx_table"
+	xmlns:common="bb_appfx_commontypes" 
+	ID="5119d1f2-8228-4d43-89c9-0d7c1674226a"
+	Name="EFT Decline Batch Process Results Table"
+	Description="Holds results of the EFT Decline Batch Biz Process"
+	Author="Memphis Sellers"
+	Tablename="USR_EFTDECLINEBATCH_BUSINESSPROCESS_RESULTS"		   
+	>
+
+	<!-- define fields on the table -->
+	<Fields>
+		<TextField Name="SPONSORLOOKUPID" Description="Sponsor Lookup ID" Length="10" Required="true"/>
+		<DateField Name="BATCHDATE" DefaultValue="GETDATE()" IncludeTime="false" Description="Batch Date" Required="true" />
+		<NumberField Name="BATCHTYPE" Description="Batch Type" Type="int" />
+		<TextField Name="INTERACTIONSTATUS" Description="Process results" Length="1000" Required="true"/>
+		<NumberField Name="INTERACTIONCREATEDCOUNT" Description="Number of interactions created" Type="int"  />
+		<NumberField Name="NOINTERACTIONCOUNT" Description="Sponsors unable to contact" Type="int" />
+		<TextField Name="BATCHNUMBER" Description="Batch number" Length="150" Required="true"/>
+	</Fields>
+
+	<!-- define any additional check constraints on the table -->
+	<!--<CheckConstraints>
+
+	</CheckConstraints>-->
+
+	<!-- define any indexes on the table -->
+	<!--<Indexes>
+
+	</Indexes>-->
+		
+	<!-- define any triggers on the table -->
+	<!--<Triggers>
+
+	</Triggers>-->
+
+</TableSpec>

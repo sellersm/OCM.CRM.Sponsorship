@@ -1,0 +1,238 @@
+﻿<EditDataFormTemplateSpec 
+	xmlns="bb_appfx_editdataformtemplate"
+	xmlns:c="bb_appfx_commontypes" 
+	ID="70b80fe1-c3a4-4c35-b44a-27511486e966" 
+		Name="Cancel Active Sponsorship Edit Form (Wrapped)"
+		Description="Cancel an existing active sponsorship (Wrapped)"
+		Author="Memphis Sellers"
+		RecordType="Sponsorship"
+		DataFormInstanceID="3e5de54f-e0f7-4187-bdd1-0bfff1156e2d"
+		c:SecurityUIFolder="Sponsorship"
+		HelpKey="SPSponsorshipPageCancelSponsorship.html"
+		OwnerIDMapperID="00000000-0000-0000-0000-000000000000"
+		FormHeader="Cancel active sponsorship"
+	>
+
+	<!-- 
+	Remarks:    Wrapped version of the oob active sponsorship cancel form.  
+				
+	History:
+	Date            Modified By     Comments
+	21-Sep-2012		Memphis			Initial Version
+	30-Sep-2012		Memphis			Added:
+									- add end date to the existing constituency code
+									- determine if sponsor or prospect sponsor and update that row
+									- update the sponsorship extension table setting the currentstatuscode to "Formerly Sponsored"
+	11-Oct-2012		Memphis			Added code to use this form for cancelling a Project Sponsorship as well:
+										- validate the interaction type code value chosen by user: must match the opportunitytype, child or project
+										- call the appropriate code based on the opportunitytype (child or project)
+	-->	
+
+		<!--<c:InstalledProductList>
+		<c:InstalledProduct ID="3117d2c8-7f46-42f2-abeb-b654f2f63046" />
+	</c:InstalledProductList>
+	<ResourceFile AssemblyName="Blackbaud.AppFx.Sponsorship.Catalog.dll" ClassName="Blackbaud.AppFx.Sponsorship.Catalog.Sponsorship.Cancel" />-->
+		<SPDataForm>
+			<LoadImplementation SPName="USR_USP_DATAFORMTEMPLATE_EDITLOAD_ACTIVESPONSORSHIPCANCEL_WRAPPED">
+				<c:CreateProcedureSQL>
+					<![CDATA[
+create procedure dbo.USR_USP_DATAFORMTEMPLATE_EDITLOAD_ACTIVESPONSORSHIPCANCEL_WRAPPED 
+(
+	@ID uniqueidentifier,
+	@DATALOADED bit = 0 output,
+	@TSLONG bigint = 0 output,
+	@DONORNAME nvarchar(100) = null output,
+	--@HEADER nvarchar(100) = null output,
+	@OPPORTUNITYNAME nvarchar(100) = null output,
+	@REASONID uniqueidentifier = null output,
+	@INTERACTIONTYPECODEID uniqueidentifier = null output
+)
+
+
+as
+
+set nocount on;
+
+/* Handle any custom "pre-load" logic here */
+
+declare @HEADER nvarchar(100) = null
+declare @r int
+exec @r = dbo.USP_DATAFORMTEMPLATE_EDITLOAD_SPONSORSHIPCANCEL 
+  @ID = @ID, 
+  @DATALOADED = @DATALOADED output, 
+  @TSLONG = @TSLONG output, 
+  @DONORNAME = @DONORNAME output, 
+  @HEADER = @HEADER output, 
+  @OPPORTUNITYNAME = @OPPORTUNITYNAME output, 
+  @REASONID = @REASONID output
+
+/* Handle any custom "after-load" logic here */
+
+-- Memphis added to get rid of the top header line that's redundant:
+set @HEADER = null;
+
+if @@error <> 0 
+	begin
+		if @r <> 0 return @r
+		return 1;
+	end
+
+return @r;
+
+
+]]>
+				</c:CreateProcedureSQL>
+			</LoadImplementation>
+			
+			
+			<SaveImplementation SPName="USP_DATAFORMTEMPLATE_EDITSAVE_SPONSORSHIPCANCEL_WRAPPED">
+				<c:CreateProcedureSQL>
+					<![CDATA[
+create procedure dbo.USP_DATAFORMTEMPLATE_EDITSAVE_SPONSORSHIPCANCEL_WRAPPED 
+(
+	@ID uniqueidentifier,
+	@CHANGEAGENTID uniqueidentifier = null,
+	@REASONID uniqueidentifier,
+	@INTERACTIONTYPECODEID uniqueidentifier
+)
+
+as
+set nocount on;
+
+begin try
+	-- validate the data based on the sponsorship reason, cancel reason and interaction type selected:
+
+	-- call the validation function
+	declare @ISVALID bit = 1;  -- default to valid?
+	
+	select @ISVALID = dbo.USR_UFN_VALIDATE_SPONSORSHIP_CANCELLATION_REASON (@ID, @REASONID, @INTERACTIONTYPECODEID)
+	
+	-- if not valid, don't let them save
+	if @ISVALID = 0
+		RAISERROR 1000000 'The combination of Interaction Type and Cancellation Reason is not valid.'
+		
+	-- validate the interaction type code based on the opportunity type of child or project
+	select @ISVALID = dbo.USR_UFN_VALIDATE_SPONSORSHIP_CANCELLATION_INTERACTIONTYPECODE (@ID, @INTERACTIONTYPECODEID)
+	
+	if @ISVALID = 0
+		RAISERROR 1000000 'The combination of Interaction Type and Opportunity Type is not valid.'
+	
+end try
+begin catch
+	exec dbo.USP_RAISE_ERROR;
+	return 1;
+end catch
+
+
+/* invoke the default implementation */
+declare @r int
+exec @r = dbo.USP_DATAFORMTEMPLATE_EDITSAVE_SPONSORSHIPCANCEL 
+  @ID = @ID, 
+  @CHANGEAGENTID = @CHANGEAGENTID, 
+  @REASONID = @REASONID
+
+-- get the childId of this sponsorship:
+declare @CHILDID uniqueidentifier;
+declare @CONSTITUENTID uniqueidentifier;
+
+select @CHILDID = SPONSORSHIPOPPORTUNITYID,
+	   @CONSTITUENTID = CONSTITUENTID
+from dbo.SPONSORSHIP
+where ID = @ID
+
+if @CHILDID is null
+	RAISERROR 1000000 'Unable to locate Child for this Sponsorship. Cannot create Interaction.'
+
+
+/*
+*  MOVED THIS CODE TO USR_USP_HANDLE_SPONSORSHIP_CANCELLATION
+--FogBugz Case 933:  only create interaction for this cancellation if the Reason type is a certain type and 
+-- the sponsorship is a certain type:
+-- NO interactions for these conditions:
+--    prospect sponsor
+--    'account correction' reason & no interaction type code
+--    'administrative' reason & no interaction type code
+exec dbo.USR_USP_SPONSORSHIP_CREATESPONSORSHIPCANCELLATIONINTERACTIONS
+         @sponsorshipID = @ID,             -- The sponsorship that the interactions will pertain to.  
+         @childID = @CHILDID,                   -- Child to include in the cancellation interaction
+         @interactionTypeCodeID = @INTERACTIONTYPECODEID,     -- The ID of the Interaction Type that the user selected (Cancellation Letter, Departure Cancellation Letter, ...)
+         @changeAgentID = @CHANGEAGENTID		              -- Used to specify change agent for CHANGEDBYID and ADDEDBYID fields.  USP_CHANGEAGENT_GETORCREATECHANGEAGENT is called if it's null
+*/  -- end of moved code
+
+
+-- get the financial sponsor for this sponsorship
+set @CONSTITUENTID = dbo.USR_UFN_SPONSORSHIP_GETFINANCIALSPONSOR (@ID)
+
+if @CONSTITUENTID is null
+	RAISERROR 1000000 'Unable to locate Financial Sponsor for this Sponsorship.'
+	
+-- call the sproc that does all the work related to 'extra' things like constituencycodes and sponsorship extension:
+exec dbo.USR_USP_HANDLE_SPONSORSHIP_CANCELLATION
+	@CONSTITUENTID = @CONSTITUENTID,
+	@SPONSORSHIPID = @ID,
+	@REASONID = @REASONID,					-- cancellation reasonid from the form
+	@INTERACTIONTYPECODEID = @INTERACTIONTYPECODEID,	-- interaction type code id from the form
+	@CHILDID = @CHILDID,					-- id of the sponsorshipopportunity: child or project
+	@CHANGEAGENTID = @CHANGEAGENTID
+
+
+if @@error <> 0 
+	begin
+		if @r <> 0 return @r
+		return 1;
+	end
+
+/*
+begin try
+	-- Handle any custom "after-save" logic here
+end try
+begin catch
+	exec dbo.USP_RAISE_ERROR;
+	return 1;
+end catch
+ */
+ 
+return @r;
+
+
+]]>
+				</c:CreateProcedureSQL>
+				<c:ExpectedDBExceptions>
+					<c:Constraints>
+						<c:Constraint Name="CK_REVENUESCHEDULE_ENDDATEVALID" Field="OPPORTUNITYNAME" Type="Format">
+							<c:CustomErrorMsg>Sponsorship cannot be cancelled before the schedule start date.</c:CustomErrorMsg>
+						</c:Constraint>
+						<c:Constraint Name="CK_SPONSORSHIP_STARTDATEAFTERENDDATE" Field="OPPORTUNITYNAME" Type="Format">
+							<c:CustomErrorMsg>Sponsorship cannot be cancelled before the schedule start date.</c:CustomErrorMsg>
+						</c:Constraint>
+					</c:Constraints>
+				</c:ExpectedDBExceptions>
+			</SaveImplementation>
+		</SPDataForm>
+		<c:FormMetaData>
+			<c:FormFields>
+				<!--<c:FormField FieldID="HEADER" ReadOnly="true" MaxLength="100" Caption="Cancel sponsorship" Description="Form header" CaptionResourceKey="$$cancellation_reason" />-->
+				<c:FormField FieldID="DONORNAME" ReadOnly="true" MaxLength="100" Caption="Sponsor" Description="Name of donor"  />
+				<c:FormField FieldID="OPPORTUNITYNAME" ReadOnly="true" MaxLength="100" Caption="Opportunity" Description="Name of opportunity" />
+				<c:FormField FieldID="REASONID" DataType="Guid" Required="true" Caption="Reason" Description="Reason for cancelling" >
+					<c:SimpleDataList SimpleDataListID="c8d3128e-a2eb-4413-b0b4-1585ad5bf001">
+						<c:Params>
+							<c:Param ID="TYPE">
+								<c:Value>6</c:Value>
+							</c:Param>
+						</c:Params>
+					</c:SimpleDataList>
+				</c:FormField>
+				<c:FormField FieldID="INTERACTIONTYPECODEID" DataType="Guid" Caption="Interaction" Required="false">
+					<c:CodeTable CodeTableName="USR_SPONSORSHIPCANCELLATIONINTERACTIONTYPECODE" />
+				</c:FormField>
+			</c:FormFields>
+			<!--<c:WebUIComponent>
+			<c:UIModel AssemblyName="Blackbaud.AppFx.Sponsorship.UIModel.dll" ClassName="Blackbaud.AppFx.Sponsorship.UIModel.CancelSponsorshipEditFormUIModel" />
+			<c:WebUI>
+				<c:ExternalResource Url="browser/htmlforms/sponsorship/CancelSponsorshipEditForm.html" />
+			</c:WebUI>
+		</c:WebUIComponent>-->
+		</c:FormMetaData>
+
+</EditDataFormTemplateSpec>

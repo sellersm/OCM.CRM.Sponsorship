@@ -1,0 +1,40 @@
+﻿<RecordOperationSpec 
+	xmlns="bb_appfx_recordoperation"
+	xmlns:common="bb_appfx_commontypes" 
+	ID="fcba65ac-3d7a-4ce1-912e-ab49c980d43d" 
+	Name="Delete D2 Campaign Business Process Parameter Set" 
+	Description="Record op to delete a D2 Campaign business process parameter set."
+	Author="Memphis Sellers"
+	OperationType="Delete"
+	RecordType="D2 Campaign Business Process Results"
+	common:SecurityUIFolder="Sponsorship"
+	>
+
+	<SPRecord>
+		<SPOperationImplementation SPName="USR_USP_D2CAMPAIGN_BUSINESSPROCESS_PARAMETERS_DELETE">
+			<common:CreateProcedureSQL>
+				<![CDATA[
+create procedure dbo.USR_USP_D2CAMPAIGN_BUSINESSPROCESS_PARAMETERS_DELETE
+(
+	@ID uniqueidentifier,
+	@CHANGEAGENTID uniqueidentifier
+)
+as begin
+	--check deletion rules, if any
+
+	-- use the system generated delete routine to allow proper recording of the deleting agent
+	exec USP_USR_D2_CAMPAIGN_BUSINESSPROCESS_DELETEBYID_WITHCHANGEAGENTID @ID, @CHANGEAGENTID
+	return 0;
+	
+end
+				]]>
+			</common:CreateProcedureSQL>
+		</SPOperationImplementation>
+	</SPRecord>
+
+	<!-- optionally, offer a prompt before executing the record operation -->
+	<Prompt>
+		<StandardPrompt Text="Are you sure you want to continue?" />
+	</Prompt>
+
+</RecordOperationSpec>

@@ -1,0 +1,198 @@
+﻿<QueryViewSpec
+	xmlns="bb_appfx_queryview"
+	xmlns:common="bb_appfx_commontypes" 
+	ID="70d150a1-d7e6-41fe-9b7f-a6ee0c8c83dc"
+	Name="HT018 Closure Report Query"
+	Description="Used to determine payments and possible refunds for HT-018 sponsorships"
+	Author="Cary Mayeda"
+	IsRoot="true"
+	PrimaryKeyField="SPONSORSHIPID"
+	RecordType="SPONSORSHIP"
+	common:SecurityUIFolder="Sponsorship"
+	>
+
+	<!-- define the view used to return data for the query -->
+	<ViewImplementation ViewName="USR_V_QUERY_HT018CLOSURE">
+		<ViewSQL>
+			<![CDATA[
+-- Financial Sponsors
+
+with MemberSponsorships as
+(
+select 
+	s.ID as SPONSORSHIPID,
+	church.ID as CHURCHID, 
+	member.ID as MEMBERID,
+	member.LOOKUPID as MEMBERLOOKUPID,
+	member.KEYNAME as MEMBERLASTNAME,
+	salutation.FORMATTEDNAME,
+	cast (r.STARTDATE as date) as MEMBERSTARTDATE,
+	(select COUNT(s2.ID) from dbo.SPONSORSHIP s2
+	                  join dbo.SPONSORSHIPOPPORTUNITYCHILD so_child2 on s2.SPONSORSHIPOPPORTUNITYID = so_child2.ID
+	                  join dbo.REVENUESPLIT revsplit2 on revsplit2.ID = s2.REVENUESPLITID
+	                  join dbo.FINANCIALTRANSACTION ft2 on ft2.ID = revsplit2.REVENUEID
+	                  where s2.STATUSCODE = 1 and ft2.CONSTITUENTID = member.ID) as ACTIVESPONSORSHIPCOUNT,
+	coalesce (slocation.LOOKUPID,'') as PROJECTLOOKUPID,
+	so.LOOKUPID as CHILDID,
+	so_child.NAME as CHILDNAME,
+	so_child.GENDER,
+	so_child.AGE,
+	ft.ID RECURRINGGIFTID,
+	ft.CALCULATEDUSERDEFINEDID as RGLOOKUPID,
+	cast (r_sched.NEXTTRANSACTIONDATE as date) as NEXTTRANSACTIONDATE,
+	cast (s.ENDDATE as date) as ENDDATE,
+	s.STATUSCODE,
+	s.STATUS
+
+ from 
+	CONSTITUENT church
+	inner join dbo.RELATIONSHIP r on r.RECIPROCALCONSTITUENTID = church.ID and r.ENDDATE is null
+	inner join dbo.RELATIONSHIPTYPECODE rc on r.RELATIONSHIPTYPECODEID = rc.ID
+	inner join dbo.CONSTITUENT member on member.ID = r.RELATIONSHIPCONSTITUENTID
+	left join dbo.NAMEFORMAT salutation on salutation.CONSTITUENTID = member.ID and salutation.PRIMARYSALUTATION = 1
+	inner join dbo.FINANCIALTRANSACTION ft on ft.CONSTITUENTID = member.ID
+	inner join dbo.REVENUESPLIT r_split on r_split.REVENUEID = ft.ID
+	inner join dbo.REVENUESCHEDULE r_sched on r_sched.ID = ft.ID
+	inner join dbo.SPONSORSHIP s on s.REVENUESPLITID = r_split.ID
+	inner join dbo.SPONSORSHIPOPPORTUNITY so on so.ID = s.SPONSORSHIPOPPORTUNITYID
+	inner join dbo.SPONSORSHIPOPPORTUNITYCHILD so_child on so_child.ID = s.SPONSORSHIPOPPORTUNITYID
+	inner join dbo.SPONSORSHIPLOCATION slocation on so.SPONSORSHIPLOCATIONID = slocation.ID 	
+
+where
+	church.LOOKUPID = '501695'
+and	church.ISORGANIZATION = 1
+and rc.DESCRIPTION = 'Church Member'
+and s.STATUSCODE = 1
+
+-- ** CHECK RECIPROCALS??
+),
+MemberSponsorshipsWithPayments as
+(
+select
+	sp.CHURCHID, 
+	sp.MEMBERID,
+	sp.RECURRINGGIFTID,
+	cast (payment_ft.DATE as date) as PAYMENTDATE,
+	payment_li.TRANSACTIONAMOUNT,
+	payment_ft.CALCULATEDUSERDEFINEDID as PAYMENTLOOKUPID
+from 
+	MemberSponsorships sp
+	left join RECURRINGGIFTACTIVITY rga on rga.SOURCEREVENUEID = sp.RECURRINGGIFTID
+	left join FINANCIALTRANSACTION rgft on rga.SOURCEREVENUEID = rgft.ID
+	left join FINANCIALTRANSACTIONLINEITEM  payment_li on rga.PAYMENTREVENUEID = payment_li.ID
+	left join FINANCIALTRANSACTION  payment_ft on payment_ft.ID = payment_li.FINANCIALTRANSACTIONID
+	left join dbo.REVENUESPLIT r_split on r_split.REVENUEID = rgft.ID
+	left join dbo.REVENUESCHEDULE r_sched on r_sched.ID = rgft.ID
+where 
+	payment_ft.DATE is null  
+ or cast (payment_ft.DATE as date) >= '1/1/14'
+),
+
+SponsorshipPaymentsBeforeFebForInstallmentsAfterJan as
+(
+select 
+	s.MEMBERID, 
+	s.RECURRINGGIFTID,
+	sum(p.AMOUNT) as TOTALPAYMENTAMOUNT
+	/*i.AMOUNT as INSTALLMENTAMOUNT,
+	i.DATE as INSTALLMENTDATE,
+	p.AMOUNT as PAYMENTAMOUNT,
+	payment_ft.DATE
+	*/
+from 
+	MemberSponsorships s
+	join dbo.RECURRINGGIFTINSTALLMENT i on i.REVENUEID = s.RECURRINGGIFTID
+	join RECURRINGGIFTINSTALLMENTPAYMENT p on i.ID = p.RECURRINGGIFTINSTALLMENTID
+	join FINANCIALTRANSACTION payment_ft on payment_ft.ID = p.PAYMENTID
+where
+	payment_ft.DATE < '2/1/14'
+and i.DATE >= '2/1/14'
+
+group by 
+	s.MEMBERID, 
+	s.RECURRINGGIFTID
+)		
+
+select
+	SP.SPONSORSHIPID,
+	sp.CHURCHID, 
+	sp.MEMBERID,
+	sp.MEMBERLOOKUPID,
+	sp.MEMBERLASTNAME,
+	sp.FORMATTEDNAME,
+	sp.MEMBERSTARTDATE,
+	sp.ACTIVESPONSORSHIPCOUNT,
+	sp.PROJECTLOOKUPID,
+	sp.CHILDID,
+	sp.CHILDNAME,
+	sp.GENDER,
+	sp.AGE,
+	sp.RECURRINGGIFTID,
+	sp.RGLOOKUPID,
+	sp.NEXTTRANSACTIONDATE,
+	sp.STATUSCODE,	
+	sp.STATUS,
+	sp.ENDDATE,
+	bf.TOTALPAYMENTAMOUNT,
+	(select sum (TRANSACTIONAMOUNT) from MemberSponsorshipsWithPayments spp_feb where sp.MEMBERID = spp_feb.MEMBERID and sp.RECURRINGGIFTID = spp_feb.RECURRINGGIFTID and spp_feb.PAYMENTDATE >= '2/1/14' and spp_feb.PAYMENTDATE <= '2/28/14') as FEBPAYMENTAMOUNT,
+	(select count (PAYMENTLOOKUPID) from MemberSponsorshipsWithPayments spp_feb where sp.MEMBERID = spp_feb.MEMBERID and sp.RECURRINGGIFTID = spp_feb.RECURRINGGIFTID and spp_feb.PAYMENTDATE >= '2/1/14' and spp_feb.PAYMENTDATE <= '2/28/14') as FEBPAYMENTCOUNT,
+		
+	(select sum (TRANSACTIONAMOUNT) from MemberSponsorshipsWithPayments spp_mar where sp.MEMBERID = spp_mar.MEMBERID and sp.RECURRINGGIFTID = spp_mar.RECURRINGGIFTID and spp_mar.PAYMENTDATE >= '3/1/14' and spp_mar.PAYMENTDATE <= '3/31/14') as MARPAYMENTAMOUNT,
+	(select count (PAYMENTLOOKUPID) from MemberSponsorshipsWithPayments spp_mar where sp.MEMBERID = spp_mar.MEMBERID and sp.RECURRINGGIFTID = spp_mar.RECURRINGGIFTID and spp_mar.PAYMENTDATE >= '3/1/14' and spp_mar.PAYMENTDATE <= '3/31/14') as MARPAYMENTCOUNT,
+		
+	(select sum (TRANSACTIONAMOUNT) from MemberSponsorshipsWithPayments spp_apr where sp.MEMBERID = spp_apr.MEMBERID and sp.RECURRINGGIFTID = spp_apr.RECURRINGGIFTID and spp_apr.PAYMENTDATE >= '4/1/14' and spp_apr.PAYMENTDATE <= '4/30/14') as APRPAYMENTAMOUNT,
+	(select count (PAYMENTLOOKUPID) from MemberSponsorshipsWithPayments spp_apr where sp.MEMBERID = spp_apr.MEMBERID and sp.RECURRINGGIFTID = spp_apr.RECURRINGGIFTID and spp_apr.PAYMENTDATE >= '4/1/14' and spp_apr.PAYMENTDATE <= '4/30/14') as APRPAYMENTCOUNT,
+
+	(select sum (TRANSACTIONAMOUNT) from MemberSponsorshipsWithPayments spp_may where sp.MEMBERID = spp_may.MEMBERID and sp.RECURRINGGIFTID = spp_may.RECURRINGGIFTID and spp_may.PAYMENTDATE >= '5/1/14' and spp_may.PAYMENTDATE <= '5/31/14') as MAYPAYMENTAMOUNT,
+	(select count (PAYMENTLOOKUPID) from MemberSponsorshipsWithPayments spp_may where sp.MEMBERID = spp_may.MEMBERID and sp.RECURRINGGIFTID = spp_may.RECURRINGGIFTID and spp_may.PAYMENTDATE >= '5/1/14' and spp_may.PAYMENTDATE <= '5/31/14') as MAYPAYMENTCOUNT
+
+	
+from 
+	MemberSponsorships sp
+	left join SponsorshipPaymentsBeforeFebForInstallmentsAfterJan bf on bf.MEMBERID = sp.MEMBERID and bf.RECURRINGGIFTID  = sp.RECURRINGGIFTID 
+
+where
+	sp.ACTIVESPONSORSHIPCOUNT > 0
+
+			]]>
+		</ViewSQL>
+	</ViewImplementation>
+
+	<!-- describe each field in the view output -->
+	<Output>
+		<OutputFields>
+			<OutputField Caption="Sponsorship system record ID" Category="System Fields" Name="SPONSORSHIPID" />
+			<OutputField Name="CHURCHID" Caption="Church system record ID" Category="System Fields" DataType="Guid" />
+			<OutputField Name="MEMBERID" Caption="Church Member system record ID" Category="System Fields" DataType="Guid" />
+			<OutputField Name="MEMBERLOOKUPID" Caption="Church Member Lookup ID" DataType="String" />
+			<OutputField Name="MEMBERLASTNAME" Caption="Church Member Last Name" DataType="String" />
+			<OutputField Name="FORMATTEDNAME" Caption="Church Member Salutation" DataType="String" />
+			<OutputField Name="MEMBERSTARTDATE" Caption="Member Relationship Start Date" DataType="Date" />
+			<OutputField Name="ACTIVESPONSORSHIPCOUNT" Caption="Number of Active Sponsorships" DataType="Integer" />
+			<OutputField Name="PROJECTLOOKUPID" Caption="Project Lookup ID" DataType="String" />
+			<OutputField Name="CHILDID" Caption="Child Lookup ID" DataType="String" />
+			<OutputField Name="CHILDNAME" Caption="Child Name" DataType="String" />
+			<OutputField Name="GENDER" Caption="Gender" DataType="String" />
+			<OutputField Name="AGE" Caption="Age" DataType="Integer" />
+			<OutputField Name="RECURRINGGIFTID" Caption="Recurring Gift ID" Category="System Fields" DataType="Guid" />
+			<OutputField Name="RGLOOKUPID" Caption="Recurring Gift Lookup ID" DataType="String" />
+			<OutputField Name="NEXTTRANSACTIONDATE" Caption="Next Transaction Date" DataType="Date" />
+			<OutputField Name="STATUSCODE" Caption="Status Code" DataType="Integer" />
+			<OutputField Name="STATUS" Caption="Status" DataType="String" />
+			<OutputField Name="ENDDATE" Caption ="End Date" DataType="Date" />
+			<OutputField Name="TOTALPAYMENTAMOUNT" Caption="Total Amount Paid prior to Feb" DataType="Money" />
+			<OutputField Name="FEBPAYMENTAMOUNT" Caption="Feb Payment Amount" DataType="Money" />
+			<OutputField Name="FEBPAYMENTCOUNT" Caption="Feb Payment Count" DataType="Integer" />
+			<OutputField Name="MARPAYMENTAMOUNT" Caption="Mar Payment Amount" DataType="Money" />
+			<OutputField Name="MARPAYMENTCOUNT" Caption="Mar Payment Count" DataType="Integer" />
+			<OutputField Name="APRPAYMENTAMOUNT" Caption="Apr Payment Amount" DataType="Money" />
+			<OutputField Name="APRPAYMENTCOUNT" Caption="Apr Payment Count" DataType="Integer" />
+			<OutputField Name="MAYPAYMENTAMOUNT" Caption="May Payment Amount" DataType="Money" />
+			<OutputField Name="MAYPAYMENTCOUNT" Caption="May Payment Count" DataType="Integer" />
+
+		</OutputFields>
+	</Output>
+
+
+</QueryViewSpec>
+

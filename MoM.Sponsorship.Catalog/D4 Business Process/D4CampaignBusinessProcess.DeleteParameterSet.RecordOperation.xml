@@ -1,0 +1,48 @@
+﻿<RecordOperationSpec 
+	xmlns="bb_appfx_recordoperation"
+	xmlns:common="bb_appfx_commontypes" 
+	ID="150B6574-36F2-4BC9-8D2C-63A3EBDD33EF" 
+	Name="Delete D4 Campaign Business Process Parameter Set" 
+	Description="Record op to delete a D4 Campaign business process parameter set."
+	Author="Cary Mayeda"
+	OperationType="Delete"
+	RecordType="D4 Campaign Business Process Results"
+	common:SecurityUIFolder="Sponsorship"
+	>
+
+	<!-- 
+	Remarks:    
+
+	History:
+	Date            Modified By     Comments
+	14-May-2013		CMayeda			Initial Version copied from Memphis' Delete D2 Campaign Business Process Parameter Set
+	-->
+
+	<SPRecord>
+		<SPOperationImplementation SPName="USR_USP_D4CAMPAIGN_BUSINESSPROCESS_PARAMETERS_DELETE">
+			<common:CreateProcedureSQL>
+				<![CDATA[
+create procedure dbo.USR_USP_D4CAMPAIGN_BUSINESSPROCESS_PARAMETERS_DELETE
+(
+	@ID uniqueidentifier,
+	@CHANGEAGENTID uniqueidentifier
+)
+as begin
+	--check deletion rules, if any
+
+	-- use the system generated delete routine to allow proper recording of the deleting agent
+	exec USP_USR_D4_CAMPAIGN_BUSINESSPROCESS_DELETEBYID_WITHCHANGEAGENTID @ID, @CHANGEAGENTID
+	return 0;
+	
+end
+				]]>
+			</common:CreateProcedureSQL>
+		</SPOperationImplementation>
+	</SPRecord>
+
+	<!-- optionally, offer a prompt before executing the record operation -->
+	<Prompt>
+		<StandardPrompt Text="Are you sure you want to continue?" />
+	</Prompt>
+
+</RecordOperationSpec>

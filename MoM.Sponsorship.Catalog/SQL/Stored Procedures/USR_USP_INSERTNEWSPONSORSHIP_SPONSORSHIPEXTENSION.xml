@@ -1,0 +1,50 @@
+﻿<SQLStoredProcedureSpec
+	xmlns="bb_appfx_sqlstoredprocedure"
+	xmlns:common="bb_appfx_commontypes" 
+	ID="d17cf18d-4fcd-4a8a-ab11-7460d901731f"
+	Name="USR_USP_INSERTNEWSPONSORSHIP_SPONSORSHIPEXTENSION"
+	Description="Inserts a new sponsorship row into the sponsorship extension table."
+	Author="Memphis Sellers"
+	SPName="USR_USP_INSERTNEWSPONSORSHIP_SPONSORSHIPEXTENSION"
+	>
+
+	<CreateProcedureSQL>
+		<![CDATA[
+create procedure dbo.USR_USP_INSERTNEWSPONSORSHIP_SPONSORSHIPEXTENSION (
+	@SPONSORSHIPID uniqueidentifier,				-- id of the newly created sponsorship record
+	@initialStatusText nvarchar(100),				-- description of the initial status codetable value
+	@currentStatusText nvarchar(100),				-- description of the current status codetable value
+	@CHANGEAGENTID uniqueidentifier = null,			-- id of the user
+	@SPONSORSHIPOPPORTUNITYID uniqueidentifier		-- opportunityid that's being sponsored
+)
+as
+begin
+	declare @INITIALOPPORTUNITYSPONSORSHIPSTATUSCODEID uniqueidentifier  -- initial opportunity sponsorship status code id
+	declare @CURRENTOPPORTUNITYSPONSORSHIPSTATUSCODEID uniqueidentifier  -- current opportunity sponsorship status id
+	declare @DATEADDED date = GETDATE();
+	
+	-- get the id for initial status code passed in:		
+	select @INITIALOPPORTUNITYSPONSORSHIPSTATUSCODEID = dbo.USR_UFN_INITIALOPPORTUNITYSPONSORSHIPSTATUSCODE_GETID_FORDESCRIPTION (@initialStatusText)
+		
+	-- get the id for current status code passed in:
+	select @CURRENTOPPORTUNITYSPONSORSHIPSTATUSCODEID = dbo.USR_UFN_CURRENTOPPORTUNITYSPONSORSHIPSTATUSCODE_GETID_FORDESCRIPTION (@currentStatusText)
+		
+	-- add call to insert into sponsorship extension:
+	exec dbo.USR_USP_SPONSORSHIPEXTENSION_INSERT 
+		@SPONSORSHIPID = @SPONSORSHIPID,
+		@INITIALOPPORTUNITYSPONSORSHIPSTATUSCODEID = @INITIALOPPORTUNITYSPONSORSHIPSTATUSCODEID,
+		@CURRENTOPPORTUNITYSPONSORSHIPSTATUSCODEID = @CURRENTOPPORTUNITYSPONSORSHIPSTATUSCODEID,
+		@CONVERSIONDATE = null,
+		@SPONSORSHIPOPPORTUNITYID = @SPONSORSHIPOPPORTUNITYID,
+		@DAYSTOCONVERT = 0,  
+		@CHANGEAGENTID = @CHANGEAGENTID,
+		@DATEADDED = @DATEADDED,
+		@DATECHANGED = null
+			
+	return 0;
+end
+
+		]]>
+	</CreateProcedureSQL>
+
+</SQLStoredProcedureSpec>
