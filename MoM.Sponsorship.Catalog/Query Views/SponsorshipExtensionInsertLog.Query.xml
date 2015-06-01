@@ -1,0 +1,75 @@
+﻿<QueryViewSpec
+	xmlns="bb_appfx_queryview"
+	xmlns:common="bb_appfx_commontypes" 
+	ID="72c50e14-2afd-4003-8261-4b294ffa242b"
+	Name="Sponsorship Extension Insert Log Query"
+	Description="Displays records from the Sponsorship Extension Insert Log"
+	Author="Memphis Sellers"
+	IsRoot="true"
+	PrimaryKeyField="ID"
+	RecordType="Sponsorship Opportunity"
+	common:SecurityUIFolder="Sponsorship Opportunity"
+	>
+
+	<!-- 
+	Remarks:  This displays records from the Sponsorship Extension Insert Log,
+				which is populated by one of the SQL scripts that inserted new 
+				records into the Spon Ex table.
+
+	History:
+	Date            Modified By     Comments
+	15-May-2015		Memphis			Initial Version.
+	-->
+
+	<!-- define the view used to return data for the query -->
+	<ViewImplementation ViewName="USR_V_QUERY_SPONSORSHIPEXTENSION_INSERTLOG">
+		<ViewSQL>
+			<![CDATA[
+	select soc.ID,
+			QUERYTYPENAME,
+			soc.[NAME],
+			so.LOOKUPID,
+			initial.[DESCRIPTION] as 'INITIALDESCRIPTION',
+			currStatus.[DESCRIPTION],
+			CONVERSIONDATE,
+			DAYSTOCONVERT
+	from dbo.USR_SPONSORSHIPEXTENSION_INSERT_LOG_04_2015
+	join dbo.USR_INITIALOPPORTUNITYSPONSORSHIPSTATUSCODE initial on initial.ID = INITIALOPPORTUNITYSPONSORSHIPSTATUSCODEID
+	join dbo.USR_CURRENTOPPORTUNITYSPONSORSHIPSTATUSCODE currStatus on currStatus.ID = CURRENTOPPORTUNITYSPONSORSHIPSTATUSCODEID
+	join dbo.SPONSORSHIPOPPORTUNITYCHILD soc on soc.ID = SPONSORSHIPOPPORTUNITYID
+	join dbo.SPONSORSHIPOPPORTUNITY so ON so.ID = soc.ID
+			]]>
+		</ViewSQL>
+	</ViewImplementation>
+
+	<!-- describe each field in the view output -->
+	<Output>
+		<OutputFields>
+			<OutputField Caption="System record ID" Category="System Fields" Name="ID" />
+			<OutputField Name="QUERYTYPENAME" Caption="Script Type" DataType="String" >
+				<LookupInfo>
+					<TranslationList>
+						<common:Options>
+							<common:TranslationListOption Value="Conversion with Blank Initial Status" />
+							<common:TranslationListOption Value="Direct with Blank Initial Status" />
+							<common:TranslationListOption Value="Prospect Transfer with Blank Table PT2" />
+							<common:TranslationListOption Value="Prospect with Blank Initial Status" />
+							<common:TranslationListOption Value="Reassign appeal with Blank Table PT2" />
+							<common:TranslationListOption Value="Sub with Blank Table PT2" />
+							<common:TranslationListOption Value="Unpaid Conversion with Blank Table PT2" />
+							<common:TranslationListOption Value="Unpaid with Blank Table PT2" />
+						</common:Options>
+					</TranslationList>
+				</LookupInfo>
+			</OutputField>
+			<OutputField Name="NAME" Caption="Child Name" DataType="String" />
+			<OutputField Name="LOOKUPID" Caption="Child ID" DataType="String" />
+			<OutputField Name="INITIALDESCRIPTION" Caption="Initial Status" DataType="String" />
+			<OutputField Name="DESCRIPTION" Caption="Current Status" DataType="String" />
+			<OutputField Name="CONVERSIONDATE" Caption="Conversion Date" DataType="Date" />
+			<OutputField Name="DAYSTOCONVERT" Caption="Days to Convert" DataType="Integer" />
+		</OutputFields>
+	</Output>
+
+</QueryViewSpec>
+
