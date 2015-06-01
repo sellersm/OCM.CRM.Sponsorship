@@ -1,0 +1,47 @@
+﻿<QueryViewSpec
+	xmlns="bb_appfx_queryview"
+	xmlns:common="bb_appfx_commontypes" 
+	ID="58658a0a-a24d-4084-bf83-d9551f1c5a39"
+	Name="Identify Dup Child Merge RG Target Is Appeal Not Assignments Query"
+	Description="Identify Dup Child Merge RG Target Is Appeal Not Assignments Query"
+	Author="Memphis Sellers"
+	IsRoot="true"
+	PrimaryKeyField="ID"
+	RecordType="Sponsorship Commitment"
+	common:SecurityUIFolder="Sponsorship Commitment"
+	>
+
+	<!-- define the view used to return data for the query -->
+	<ViewImplementation ViewName="USR_V_QUERY_IDENTIFYDUPCHILDMERGERGTARGETISAPPEALNOTASSIGNMENTS">
+		<ViewSQL>
+			<![CDATA[
+select 
+	SponCommitmentId as ID,
+	SPONSORLOOKUPID,
+	TargetCommitmentID,
+	LatestCommitmentID,
+	CHILDNAME,
+	StartDate,
+	TargetAppealCategory, 
+	LatestAppealCategory 
+from dbo.USR_UFN_MERGEDUPCHILD_RG_ASSIGNMENTSAPPEALCATEGORY()				
+			]]>
+		</ViewSQL>
+	</ViewImplementation>
+
+	<!-- describe each field in the view output -->
+	<Output>
+		<OutputFields>
+			<OutputField Caption="System record ID" Category="System Fields" Name="ID" />
+			<OutputField Name="SPONSORLOOKUPID" Caption="Sponsor ID" DataType="String" />
+			<OutputField Name="TargetCommitmentID" Caption="Target Commitment ID" DataType="String" />
+			<OutputField Name="LatestCommitmentID" Caption="Latest Commitment ID" DataType="String" />
+			<OutputField Name="CHILDNAME" Caption="Latest Child Name" DataType="String" />
+			<OutputField Name="StartDate" Caption="Start Date" DataType="Date" />
+			<OutputField Name="TargetAppealCategory" Caption="Target Appeal Category" DataType="String" />
+			<OutputField Name="LatestAppealCategory" Caption="Latest Appeal Category" DataType="String" />
+		</OutputFields>
+	</Output>
+
+</QueryViewSpec>
+

@@ -1,0 +1,163 @@
+﻿<SQLFunctionSpec
+	xmlns="bb_appfx_sqlfunction"
+	xmlns:common="bb_appfx_commontypes" 
+	ID="741c1136-17a0-47fc-8ee9-9ec9410dfb8f"
+	Name="USR_UFN_MERGEDUPCHILD_RG_ASSIGNMENTSAPPEALCATEGORY"
+	Description="Gets the commitment records to be merged based on Appeal Cateogry equals Assignments"
+	Author="Memphis Sellers"
+	DBFunctionName="USR_UFN_MERGEDUPCHILD_RG_ASSIGNMENTSAPPEALCATEGORY"
+	GrantServiceRolePermission="true"
+	>
+
+	<!-- 
+	Remarks:  This gets the records that match the criteria for "Box 1" of dup child merge RG logic from Pamela:
+			TARGET 	Earliest dated commitment with same child										
+			LATEST	Any  commitment with same child AFTER TARGET										
+			This is the 1st of 4 queries to identify the duplicate children across commitments for a given Sponsor.
+			Follow these rules to find the records:
+			IF the TARGET commitment recurring gift appeal category NOT = Assignment (i.e. Gary Sapp)											
+				AND	LATEST commitment recurring gift appeal category = Assignment (i.e. Reassign or Substitution)									
+				THEN	Merge all commitments with same child.
+
+	History:
+	Date            Modified By     Comments
+	04-May-2015		Memphis			Initial Version
+	-->
+
+
+	<CreateFunctionSQL>
+		<![CDATA[
+create function dbo.USR_UFN_MERGEDUPCHILD_RG_ASSIGNMENTSAPPEALCATEGORY()
+RETURNS @latestCommitmentTable table
+(
+	[SPONSORLOOKUPID] nvarchar(50) NULL, 
+	[TargetCommitmentID] nvarchar(50) NULL, 
+	[LatestCommitmentID] nvarchar(50) NULL, 
+	[CHILDNAME] nvarchar(MAX) NULL,
+	[StartDate] date null,
+	[TargetAppealCategory] nvarchar(250) NULL, 
+	[LatestAppealCategory] nvarchar(250) NULL,
+	[SponCommitmentId] uniqueidentifier null
+)
+with execute as caller
+as begin
+	declare @commitmentTable table (
+			ChildCount integer,
+			SPONSORLOOKUPID nvarchar(50), 
+			CHILDNAME nvarchar(max)
+			--STARTDATE datetime
+	)
+
+	;with sameChildCommitments (SPONSORSHIPCOMMITMENTID, COMMITMENTLOOKUPID, CHILDID, SPONSORLOOKUPID, CHILDNAME) --, STARTDATE)
+	as
+	(
+		select --count(soc.NAME) as ChildCount,
+			s1.SPONSORSHIPCOMMITMENTID,
+			sc.LOOKUPID,
+			s1.SPONSORSHIPOPPORTUNITYID,
+			c.lookupid,
+			soc.name
+			--s1.STARTDATE
+		from dbo.sponsorship s1
+			join dbo.SPONSORSHIPCOMMITMENT sc ON sc.ID = s1.SPONSORSHIPCOMMITMENTID
+			join dbo.constituent c on s1.constituentid = c.id
+			join dbo.sponsorshipopportunitychild soc on soc.id = s1.SPONSORSHIPOPPORTUNITYID
+			--join revenuesplit rs on rs.ID = s1.REVENUESPLITID
+			--join REVENUE r on r.ID = rs.REVENUEID
+			inner join smartfield35EFF8A4CA954D9AA9BA012A8C82C5E3 ESSD on S1.CONSTITUENTID = ESSD.ID and ESSD.VALUE >= '1/1/2009'	
+		where exists (select 1 from dbo.sponsorship s2 inner join smartfield35EFF8A4CA954D9AA9BA012A8C82C5E3 ESSD on S2.CONSTITUENTID = ESSD.ID and ESSD.VALUE >= '1/1/2009'	
+						where ((s1.sponsorshipopportunityid = s2.sponsorshipopportunityid) and (s1.constituentid = s2.constituentid)))
+	)
+	insert @commitmentTable
+	select 
+			count(CHILDNAME) as ChildCount, 
+			SPONSORLOOKUPID, 
+			CHILDNAME
+			--STARTDATE
+			--COMMITMENTLOOKUPID
+	from sameChildCommitments
+	group by CHILDNAME, SPONSORLOOKUPID --COMMITMENTLOOKUPID, 
+	having count(CHILDNAME) > 1
+	order by SPONSORLOOKUPID
+
+	declare @minDateCommitment table (
+		SPONSORLOOKUPID nvarchar(50), 
+		CHILDNAME nvarchar(max),
+		TargetDate date
+	)
+
+	insert @minDateCommitment
+	select
+		SPONSORLOOKUPID,
+		CHILDNAME,
+		MIN(s.STARTDATE) as TargetDate
+	from @commitmentTable ct
+		join dbo.constituent c on c.lookupid = ct.SPONSORLOOKUPID 
+		join dbo.sponsorship s on s.constituentid = c.id and s.constituentid = (select ID from dbo.constituent where lookupid = ct.SPONSORLOOKUPID)
+		join dbo.SPONSORSHIPCOMMITMENT sc ON sc.ID = s.SPONSORSHIPCOMMITMENTID
+		join dbo.sponsorshipopportunitychild soc on soc.id = s.SPONSORSHIPOPPORTUNITYID and soc.NAME = CHILDNAME
+		inner join smartfield35EFF8A4CA954D9AA9BA012A8C82C5E3 ESSD on S.CONSTITUENTID = ESSD.ID and ESSD.VALUE >= '1/1/2009'	
+	group by 	
+		SPONSORLOOKUPID,
+		CHILDNAME
+	order by childname
+
+
+	-- This gets the Target Appeal Category code:
+	declare @targetTable table (
+		SPONSORLOOKUPID nvarchar(50), 
+		TargetCommitmentLookupId nvarchar(50),
+		CHILDNAME nvarchar(max),
+		TargetDate date,
+		AppealCategory nvarchar(250)
+	)
+
+	insert @targetTable
+	select 
+		SPONSORLOOKUPID, 
+		sc.LOOKUPID,
+		CHILDNAME,
+		TargetDate,
+		dbo.UFN_APPEALCATEGORYCODE_GETDESCRIPTION(a.APPEALCATEGORYCODEID) as AppealCategory
+	from @minDateCommitment md
+		join dbo.constituent c on c.lookupid = md.SPONSORLOOKUPID 
+		join dbo.sponsorship s on s.constituentid = c.id and s.startdate = TargetDate and s.constituentid = (select ID from dbo.constituent where lookupid = md.SPONSORLOOKUPID)
+		join dbo.SPONSORSHIPCOMMITMENT sc ON sc.ID = s.SPONSORSHIPCOMMITMENTID
+		join dbo.sponsorshipopportunitychild soc on soc.id = s.SPONSORSHIPOPPORTUNITYID and soc.NAME = CHILDNAME
+		join dbo.REVENUESPLIT rs on rs.ID = s.REVENUESPLITID
+		join dbo.REVENUE r on r.ID = rs.REVENUEID
+		join dbo.APPEAL a on a.ID = r.APPEALID
+	where dbo.UFN_APPEALCATEGORYCODE_GETDESCRIPTION(a.APPEALCATEGORYCODEID) <> 'Assignments'
+	order by SPONSORLOOKUPID
+
+
+	-- This gets the Latest records:
+	insert @latestCommitmentTable
+	select 
+		SPONSORLOOKUPID, 
+		(select TargetCommitmentLookupId from @targetTable where c.LOOKUPID = SPONSORLOOKUPID and soc.NAME = CHILDNAME),
+		sc.LOOKUPID as LatestCommitmentID,
+		CHILDNAME,
+		s.STARTDATE,
+		(select AppealCategory from @targetTable where c.LOOKUPID = SPONSORLOOKUPID and soc.NAME = CHILDNAME) as TargetAppealCategory,
+		dbo.UFN_APPEALCATEGORYCODE_GETDESCRIPTION(a.APPEALCATEGORYCODEID) as LatestAppealCategory,
+		sc.ID
+	from @minDateCommitment md
+		join dbo.constituent c on c.lookupid = md.SPONSORLOOKUPID 
+		join dbo.sponsorship s on s.constituentid = c.id and s.startdate <> TargetDate and s.constituentid = (select ID from dbo.constituent where lookupid = md.SPONSORLOOKUPID)
+		join dbo.SPONSORSHIPCOMMITMENT sc ON sc.ID = s.SPONSORSHIPCOMMITMENTID
+		join dbo.sponsorshipopportunitychild soc on soc.id = s.SPONSORSHIPOPPORTUNITYID and soc.NAME = CHILDNAME
+		join dbo.REVENUESPLIT rs on rs.ID = s.REVENUESPLITID
+		join dbo.REVENUE r on r.ID = rs.REVENUEID
+		join dbo.APPEAL a on a.ID = r.APPEALID
+	where dbo.UFN_APPEALCATEGORYCODE_GETDESCRIPTION(a.APPEALCATEGORYCODEID) = 'Assignments'
+		and SPONSORLOOKUPID in (select SPONSORLOOKUPID from @targetTable)
+		and CHILDNAME in (select CHILDNAME from @targetTable)
+	order by SPONSORLOOKUPID
+	
+	return;
+end
+		]]>
+	</CreateFunctionSQL>
+
+</SQLFunctionSpec>
