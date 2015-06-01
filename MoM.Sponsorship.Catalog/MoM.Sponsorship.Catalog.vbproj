@@ -762,12 +762,14 @@
   <ItemGroup>
     <Content Include="DataLists\CommitmentLineHistory.RecurringGifts.DataList.xml" />
     <Content Include="Global Changes\MergeSponsorshipCommitmentRecurringGifts.GlobalChange.xml" />
+    <Content Include="View Forms\SponsorshipCommitmentPageExpression.View.xml" />
     <EmbeddedResource Include="Query Views\SponsorshipExtensionUpdateLog.Query.xml" />
     <EmbeddedResource Include="Query Views\SponsorshipExtensionInsertLog.Query.xml" />
     <EmbeddedResource Include="SQL\User Functions\USR_UFN_MERGEDUPCHILD_RG_ASSIGNMENTSAPPEALCATEGORY.xml" />
     <EmbeddedResource Include="SQL\User Functions\USR_UFN_SAMECHILD_MULTICOMMITMENTS_RG.xml" />
     <EmbeddedResource Include="Query Views\SameChildMultipleCommitmentsAndRG.Query.xml" />
     <EmbeddedResource Include="Query Views\IdentifyDupChildMergeRGTargetIsAppealNotAssignments.Query.xml" />
+    <Content Include="Pages\SponsorshipCommitment.Page.xml" />
     <Content Include="Query Views\SponsorshipCommitment.Query.xml" />
     <EmbeddedResource Include="Tables\CLHRecurringGift.Table.xml" />
     <EmbeddedResource Include="Query Views\SponsorshipCommitmentsWithMultipleRG.AllRankings.Query.xml" />
