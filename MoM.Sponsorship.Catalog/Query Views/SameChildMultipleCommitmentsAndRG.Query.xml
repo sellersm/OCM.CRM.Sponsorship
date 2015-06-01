@@ -1,0 +1,44 @@
+﻿<QueryViewSpec
+	xmlns="bb_appfx_queryview"
+	xmlns:common="bb_appfx_commontypes" 
+	ID="c44ffd7e-151f-4713-818c-292a1eb7c107"
+	Name="Same Child Multiple Commitments And RG Query"
+	Description="Query to find same child in multiple commitments and does not share one revenue ID"
+	Author="Memphis Sellers"
+	IsRoot="true"
+	PrimaryKeyField="ID"
+	RecordType="Sponsorship Commitment"
+	common:SecurityUIFolder="Sponsorship Commitment"
+	>
+
+	<!-- define the view used to return data for the query -->
+	<ViewImplementation ViewName="USR_V_QUERY_SAMECHILD_MULTICOMMITMENTSRG">
+		<ViewSQL>
+			<![CDATA[
+	select distinct
+		SPONSORLOOKUPID,
+		CHILDNAME,
+		sc.LOOKUPID,
+		sc.ID
+	from dbo.USR_UFN_SAMECHILD_MULTICOMMITMENTS_RG() ct
+		join dbo.constituent c on c.lookupid = ct.SPONSORLOOKUPID
+		join dbo.sponsorship s on s.constituentid = c.id and s.constituentid = (select ID from dbo.constituent where lookupid = ct.SPONSORLOOKUPID)
+		join dbo.SPONSORSHIPCOMMITMENT sc ON sc.ID = s.SPONSORSHIPCOMMITMENTID 
+		join dbo.sponsorshipopportunitychild soc on soc.id = s.SPONSORSHIPOPPORTUNITYID and soc.NAME = CHILDNAME
+		inner join smartfield35EFF8A4CA954D9AA9BA012A8C82C5E3 ESSD on S.CONSTITUENTID = ESSD.ID and ESSD.VALUE >= '1/1/2009'	
+			]]>
+		</ViewSQL>
+	</ViewImplementation>
+
+	<!-- describe each field in the view output -->
+	<Output>
+		<OutputFields>
+			<OutputField Caption="System record ID" Category="System Fields" Name="ID" />
+			<OutputField Name="SPONSORLOOKUPID" Caption="Sponsor ID" DataType="String" />
+			<OutputField Name="CHILDNAME" Caption="Child Name" DataType="String" />
+			<OutputField Name="LOOKUPID" Caption="Commitment ID" DataType="String" />
+		</OutputFields>
+	</Output>
+
+</QueryViewSpec>
+
