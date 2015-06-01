@@ -1,0 +1,59 @@
+﻿<SQLFunctionSpec
+	xmlns="bb_appfx_sqlfunction"
+	xmlns:common="bb_appfx_commontypes" 
+	ID="d6668cd4-c9bc-4d52-b27d-18ce2ba746c3"
+	Name="USR_UFN_SAMECHILD_MULTICOMMITMENTS_RG"
+	Description="Finds same child in multiple commitments and does not share one revenue ID"
+	Author="Memphis Sellers"
+	DBFunctionName="USR_UFN_SAMECHILD_MULTICOMMITMENTS_RG"
+	GrantServiceRolePermission="true"	
+	>
+
+	<CreateFunctionSQL>
+		<![CDATA[
+CREATE FUNCTION [dbo].[USR_UFN_SAMECHILD_MULTICOMMITMENTS_RG]()
+RETURNS @commitmentTable table
+(
+	[ChildCount] int NULL, 
+	[SPONSORLOOKUPID] nvarchar(50) NULL, 
+	[CHILDNAME] nvarchar(MAX) NULL
+)
+WITH EXEC AS CALLER
+AS
+BEGIN
+	;with sameChildCommitments (SPONSORSHIPCOMMITMENTID, COMMITMENTLOOKUPID, CHILDID, SPONSORLOOKUPID, CHILDNAME)
+	as
+	(
+	select --count(soc.NAME) as ChildCount,
+		s1.SPONSORSHIPCOMMITMENTID,
+		sc.LOOKUPID,
+		s1.SPONSORSHIPOPPORTUNITYID,
+		c.lookupid,
+		soc.name
+	from dbo.sponsorship s1
+		join dbo.SPONSORSHIPCOMMITMENT sc ON sc.ID = s1.SPONSORSHIPCOMMITMENTID
+		join dbo.constituent c on s1.constituentid = c.id
+		join dbo.sponsorshipopportunitychild soc on soc.id = s1.SPONSORSHIPOPPORTUNITYID
+		--join revenuesplit rs on rs.ID = s1.REVENUESPLITID
+		--join REVENUE r on r.ID = rs.REVENUEID
+		inner join smartfield35EFF8A4CA954D9AA9BA012A8C82C5E3 ESSD on S1.CONSTITUENTID = ESSD.ID and ESSD.VALUE >= '1/1/2009'	
+	where exists (select 1 from dbo.sponsorship s2 inner join smartfield35EFF8A4CA954D9AA9BA012A8C82C5E3 ESSD on S2.CONSTITUENTID = ESSD.ID and ESSD.VALUE >= '1/1/2009'	
+					where ((s1.sponsorshipopportunityid = s2.sponsorshipopportunityid) and (s1.constituentid = s2.constituentid)) and (s1.revenuesplitid <> s2.revenuesplitid)
+					)
+	)
+	insert @commitmentTable
+	select 
+			count(CHILDNAME) as ChildCount, 
+			SPONSORLOOKUPID, 
+			CHILDNAME
+	from sameChildCommitments
+	group by CHILDNAME, SPONSORLOOKUPID --COMMITMENTLOOKUPID, 
+	having count(CHILDNAME) > 1
+	order by SPONSORLOOKUPID
+
+	RETURN;
+END
+		]]>
+	</CreateFunctionSQL>
+
+</SQLFunctionSpec>

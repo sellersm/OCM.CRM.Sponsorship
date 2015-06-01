@@ -1,0 +1,102 @@
+﻿<TableSpec 
+	xmlns="bb_appfx_table"
+	xmlns:common="bb_appfx_commontypes" 
+	ID="10f1d2cc-4caf-4f07-8a1c-536c3ed8ccc3"
+	Name="CLH Recurring Gift"
+	Description="Holds the commitment line RG records used for reporting."
+	Author="Memphis Sellers"
+	Tablename="USR_COMMITMENTLINE_RECURRINGGIFT"		   
+	CustomIdentifier="true"
+	>
+
+	<!-- 
+	Remarks:    
+
+	History:
+	Date            Modified By     Comments
+	22-Apr-2015		Memphis			Initial Prototype Version
+	-->
+
+	<!--
+	Need to run this script after creating the table to modify the LOOKUPID prefix to "clr-"
+
+	ALTER TABLE [dbo].[USR_COMMITMENTLINE_RECURRINGGIFT] 
+	DROP CONSTRAINT [UC_USR_COMMITMENTLINE_RECURRINGGIFT_LOOKUPID] 
+	GO
+
+	ALTER TABLE [dbo].[USR_COMMITMENTLINE_RECURRINGGIFT] 
+	DROP COLUMN [LOOKUPID]
+	GO
+
+	ALTER TABLE [dbo].[USR_COMMITMENTLINE_RECURRINGGIFT] 
+	ADD [LOOKUPID] as (case len([CUSTOMIDENTIFIER]) when (0) then 'clr-'+CONVERT([nvarchar](20),[SEQUENCEID],(0)) else [CUSTOMIDENTIFIER] end)
+	CONSTRAINT [UC_USR_COMMITMENTLINE_RECURRINGGIFT_LOOKUPID] UNIQUE([LOOKUPID]) WITH (FILLFACTOR=100,
+			DATA_COMPRESSION = NONE) ON [IDXGROUP]
+	GO
+
+	Sometimes changes to the status column requires a delete and recreate
+	ALTER TABLE [dbo].[USR_COMMITMENTLINE_RECURRINGGIFT] 
+	drop constraint CK_USR_COMMITMENTLINEHISTORY_STATUSCODE
+
+	ALTER TABLE [dbo].[USR_COMMITMENTLINE_RECURRINGGIFT] 
+	DROP CONSTRAINT DF__USR_COMMI__STATU__1EF003D1
+
+	ALTER TABLE [dbo].[USR_COMMITMENTLINE_RECURRINGGIFT] 
+	DROP COLUMN STATUSCODE
+
+	DROP COLUMN STATUS
+	GO
+	-->	
+	
+	<!-- define fields on the table -->
+	<Fields>
+		<ForeignKeyField Name="SPONSORID" Description="Sponsor's constituent ID" Cardinality="ManyToOne" ForeignTable="CONSTITUENT" ForeignFieldName="ID" OnDelete="SetToNull"/>
+		<ForeignKeyField Name="OPPORTUNITYID" Description="Child ID" ForeignFieldName="ID" ForeignTable="SPONSORSHIPOPPORTUNITY" OnDelete="SetToNull" Required="false"/>
+		<DateField Name="STARTDATE" Description="The date the 'Add' transaction of the first sponorship date" IncludeTime="false" />
+		<DateField Name="ENDDATE" Description="The date the 'terminate' or 'cancel' transaction of the last sponsorship" IncludeTime="false" />
+		<EnumField Name="TYPECODE" Description="Direct, Prospect, Conversion, Account Correction" DefaultValue="0">
+			<EnumValues>
+				<EnumValue ID="0" Translation="Unknown"/>
+				<EnumValue ID="1" Translation="Direct"/>
+				<EnumValue ID="2" Translation="Prospect"/>
+				<EnumValue ID="3" Translation="Conversion"/>
+				<EnumValue ID="4" Translation="Account Correction"/>
+				<EnumValue ID="5" Translation="Reassign"/>
+				<EnumValue ID="6" Translation="N/A"/>
+			</EnumValues>
+		</EnumField>
+		<BooleanField Name="ISREASSIGN" Description="Reassign"/>
+		<TextField Name="SOURCE" Description="Appeal of the first sponsorship" Length="100"/>
+		<TextField Name="SOURCECATEGORY" Description="this should be a code table" Length="100"/>
+		<TextField Name="PACKAGE" Description="'Package' of the first sponsorship" Length="100"/>
+		<TextField Name="INBOUNDCHANNEL" Description="Inbound channel of the first sponsorship" Length="100"/>
+		<DateField Name="CONVERSIONDATE" Description="Conversion Date" IncludeTime="false" Required="false"/>
+		<NumberField Name="DAYSTOCONVERT" Description="Days to Convert" Type="smallint" />
+		<EnumField Name="STATUSCODE" Description="Status of this sponsorship." DefaultValue="0">
+			<EnumValues>
+				<EnumValue ID="0" Translation="Active" />
+				<EnumValue ID="1" Translation="Active (Transfer pending)" />
+				<EnumValue ID="2" Translation="Active (Reassigned)" />
+				<EnumValue ID="3" Translation="Inactive" />
+				<EnumValue ID="4" Translation="Transferred" />
+				<EnumValue ID="5" Translation="Expired" />
+				<EnumValue ID="6" Translation="Cancelled" />
+				<EnumValue ID="7" Translation="Declined" />
+				<EnumValue ID="8" Translation="Terminated" />
+				<EnumValue ID="9" Translation="Reassigned" />
+			</EnumValues>
+		</EnumField>
+		<ForeignKeyField Name="CANCELSPONSORSHIPREASONID" Description="The cancel or terminate reason of the last sponsorship commitment in the table." ForeignTable="SPONSORSHIPREASON" OnDelete="SetToNull" Required="false" />
+		<GuidField Name="FINANCIALSPONSORID" Description="Financial Sponsor ID" Required="false" />
+		<BooleanField Name="ISACCOUNTCORRECTION" Description="Is Account Correction"/>
+	</Fields>
+
+	<Indexes>
+		<Index IsUnique="false">
+			<IndexFields>
+				<IndexField Name="SPONSORID"/>
+			</IndexFields>
+		</Index>
+	</Indexes>
+	
+</TableSpec>
