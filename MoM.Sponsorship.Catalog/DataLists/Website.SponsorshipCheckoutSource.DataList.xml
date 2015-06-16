@@ -49,9 +49,6 @@ as begin
 	(10, null, 'Radio', 1, 'Enter the Radio Call Letters'),
 	(11, null, 'Other ', 1, 'Enter How You Heard About OCM')
 
-	insert @sources
-	select 2, ID, 'Children''s Cup', 0, '' from dbo.APPEAL where lower(NAME) = lower ('Ben Rodgers')
-
 	select	SORTORDER,
 			APPEALID,
 			SOURCEDESC,
