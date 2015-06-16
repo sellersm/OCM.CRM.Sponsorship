@@ -14,9 +14,9 @@
 	History:
 	Date            Modified By     Comments
 	01-Oct-2012		CMayeda			Initial Version
-	03-Oct-2013		CMayeda			Added Heavenly Homemakers
-	13-Oct-2014		CMayeda			Added Kilimanjaro
-	
+	03-Oct-2013		CMayeda			Added 'Heavenly Homemakers'
+	13-Oct-2014		CMayeda			Added 'Kilimanjaro'
+	11-Jun-2015		CMayeda			Removed 'Heavenly Homemakers'
 	-->
 
 	<!-- define the SP that returns the data for the datalist -->
@@ -43,7 +43,6 @@ as begin
 	(3, null, 'Concert/Artist', 1, 'Enter the Concert/Artist'),
 	(4, null, 'Facebook', 0, ''),
 	(5, null, 'Friend', 0, ''),
-	(6, null, 'Heavenly Homemakers', 0, ''),	
 	(7, null, 'Internet', 0, ''),
 	(8, null, 'Kilimanjaro', 0, ''),
 	(9, null, 'Ministry Representative', 1, 'Enter the Representative'),
