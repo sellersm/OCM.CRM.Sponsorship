@@ -2,10 +2,10 @@
 	xmlns="bb_appfx_table"
 	xmlns:common="bb_appfx_commontypes" 
 	ID="10f1d2cc-4caf-4f07-8a1c-536c3ed8ccc3"
-	Name="CLH Recurring Gift"
+	Name="Recurring Gift Line commitment history table"
 	Description="Holds the commitment line RG records used for reporting."
 	Author="Memphis Sellers"
-	Tablename="USR_COMMITMENTLINE_RECURRINGGIFT"		   
+	Tablename="USR_COMMITMENTLINE_RECURRINGGIFT"
 	CustomIdentifier="true"
 	>
 
@@ -52,6 +52,8 @@
 	<Fields>
 		<ForeignKeyField Name="SPONSORID" Description="Sponsor's constituent ID" Cardinality="ManyToOne" ForeignTable="CONSTITUENT" ForeignFieldName="ID" OnDelete="SetToNull"/>
 		<ForeignKeyField Name="OPPORTUNITYID" Description="Child ID" ForeignFieldName="ID" ForeignTable="SPONSORSHIPOPPORTUNITY" OnDelete="SetToNull" Required="false"/>
+		<ForeignKeyField Name="RECURRINGGIFTID" Description="Recurring Gift ID" ForeignFieldName="ID" ForeignTable="FINANCIALTRANSACTION" Cardinality="OneToOne" Required="true" OnDelete="CascadeDelete"/>
+		<ForeignKeyField Name="COMMITMENTID" Description="Commitment ID" ForeignFieldName="ID" ForeignTable="SPONSORSHIPCOMMITMENT" Required="true" Cardinality="ManyToOne" OnDelete="CascadeDelete"/>
 		<DateField Name="STARTDATE" Description="The date the 'Add' transaction of the first sponorship date" IncludeTime="false" />
 		<DateField Name="ENDDATE" Description="The date the 'terminate' or 'cancel' transaction of the last sponsorship" IncludeTime="false" />
 		<EnumField Name="TYPECODE" Description="Direct, Prospect, Conversion, Account Correction" DefaultValue="0">
