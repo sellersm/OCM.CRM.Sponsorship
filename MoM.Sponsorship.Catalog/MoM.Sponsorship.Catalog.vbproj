@@ -761,6 +761,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="DataLists\CommitmentLineHistory.RecurringGifts.DataList.xml" />
+    <EmbeddedResource Include="DataLists\RecurringGiftLine.DataList.xml" />
     <Content Include="Global Changes\MergeSponsorshipCommitmentRecurringGifts.GlobalChange.xml" />
     <Content Include="View Forms\SponsorshipCommitmentPageExpression.View.xml" />
     <EmbeddedResource Include="Query Views\SponsorshipExtensionUpdateLog.Query.xml" />
