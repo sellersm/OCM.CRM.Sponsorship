@@ -43,8 +43,8 @@ as begin
 	(3, null, 'Concert/Artist', 1, 'Enter the Concert/Artist'),
 	(4, null, 'Facebook', 0, ''),
 	(5, null, 'Friend', 0, ''),
+	(5, null, 'Hills Alive', 0, ''),
 	(7, null, 'Internet', 0, ''),
-	(8, null, 'Kilimanjaro', 0, ''),
 	(9, null, 'Ministry Representative', 1, 'Enter the Representative'),
 	(10, null, 'Radio', 1, 'Enter the Radio Call Letters'),
 	(11, null, 'Other ', 1, 'Enter How You Heard About OCM')
