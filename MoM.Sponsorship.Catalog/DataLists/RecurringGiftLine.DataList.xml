@@ -42,7 +42,7 @@ select distinct
 	clh.STARTDATE,
 	clh.ENDDATE,
 	clh.TYPE,
-	clh.ISREASSIGN,
+	--clh.ISREASSIGN,
 	case
 		when clh.FINANCIALSPONSORID is null then ''
 		else (select NAME from dbo.UFN_CONSTITUENT_DISPLAYNAME(clh.FINANCIALSPONSORID))
@@ -73,7 +73,7 @@ select distinct
 	clh.STARTDATE,
 	clh.ENDDATE,
 	null as [TYPE], --clh.[TYPE],
-	null ISREASSIGN, --clh.ISREASSIGN,
+	--null ISREASSIGN, --clh.ISREASSIGN,
 	case 
 		when clh.FINANCIALSPONSORID is null then ''
 		else (select NAME from dbo.UFN_CONSTITUENT_DISPLAYNAME(clh.FINANCIALSPONSORID))
@@ -150,11 +150,11 @@ end
 			<OutputField FieldID="STARTDATE" Caption="Start date" DataType="Date" CaptionResourceKey="$$start_date" DisplaySequence="4" />
 			<OutputField FieldID="ENDDATE" Caption="End date" DataType="Date" CaptionResourceKey="$$end_date" DisplaySequence="5" />
 			<OutputField FieldID="TYPE" Caption="Type" DataType="String" DisplaySequence="6" />
-			<OutputField FieldID="ISREASSIGN" Caption="Reassign" DataType="Boolean" DisplaySequence="7" />
-			<OutputField FieldID="FINANCIALSPONSORNAME" Caption="Financial Sponsor" DataType="String" DisplaySequence="8" />
+			<!--<OutputField FieldID="ISREASSIGN" Caption="Reassign" DataType="Boolean" DisplaySequence="7" />-->
+			<OutputField FieldID="FINANCIALSPONSORNAME" Caption="Financial Sponsor" DataType="String" DisplaySequence="11" />
 			<OutputField FieldID="STATUS" Caption="Status" DataType="String" CaptionResourceKey="$$status"  DisplaySequence="9" />
 			<OutputField FieldID="REASON" Caption="Reason" DataType="String" CaptionResourceKey="$$reason" DisplaySequence="10" />
-			<OutputField FieldID="PACKAGE" Caption="Package" DataType="String"  DisplaySequence="11" />
+			<OutputField FieldID="PACKAGE" Caption="Package" DataType="String"  DisplaySequence="8" />
 			<OutputField FieldID="ID" Caption="ID" IsHidden="true" DataType="Guid" DisplaySequence="12" />
 			<OutputField FieldID="PARENTID" Caption="PARENTID" IsHidden="true" DataType="Guid" DisplaySequence="13" />
 			<OutputField FieldID="COMMITMENTSEQUENCE" Caption="COMMITMENTSEQUENCE" IsHidden="true" DataType="SmallInt" DisplaySequence="14"  />

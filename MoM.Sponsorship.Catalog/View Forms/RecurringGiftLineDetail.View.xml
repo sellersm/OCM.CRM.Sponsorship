@@ -20,7 +20,11 @@ create procedure dbo.USR_USP_DATAFORMTEMPLATE_VIEW_RECURRINGGIFT_LINEHISTORY
 	@DATALOADED bit = 0 output,
 	@SOURCECATEGORY nvarchar(100) = null output,
 	@SOURCE nvarchar(100) = null output,
-	@PACKAGE nvarchar(100) = null output, 
+	--@PACKAGE nvarchar(100) = null output, 
+	@ISREASSIGN bit = null output,
+	@ISACCOUNTCORRECTION bit = null output,
+	@CONVERSIONDATE date = null output,
+	@DAYSTOCONVERT smallint = null output,
 	@INBOUNDCHANNEL nvarchar(100) = null output
 
 )
@@ -37,8 +41,12 @@ as
 		@DATALOADED = 1,
 		@SOURCECATEGORY = SOURCECATEGORY,
 		@SOURCE = SOURCE,
-		@PACKAGE = PACKAGE,
-		@INBOUNDCHANNEL = INBOUNDCHANNEL
+		--@PACKAGE = PACKAGE,
+		@INBOUNDCHANNEL = INBOUNDCHANNEL,
+		@ISREASSIGN = ISREASSIGN,
+		@ISACCOUNTCORRECTION = ISACCOUNTCORRECTION,
+		@CONVERSIONDATE = CONVERSIONDATE,
+		@DAYSTOCONVERT = DAYSTOCONVERT
 	from dbo.USR_COMMITMENTLINE_RECURRINGGIFT
 	where ID = @ID
 	
@@ -53,8 +61,11 @@ as
 		<common:FormFields>
 			<common:FormField FieldID="SOURCECATEGORY" Caption="Source Category" DataType="String" MaxLength="100" />
 			<common:FormField FieldID="SOURCE" Caption="Source" DataType="String" MaxLength="100" />
-			<common:FormField FieldID="PACKAGE" Caption="Package" DataType="String" MaxLength="100" />
 			<common:FormField FieldID="INBOUNDCHANNEL" Caption="Inbound Channel" DataType="String" MaxLength="100" />
+			<common:FormField FieldID="ISREASSIGN" Caption="Reassign" DataType="Boolean" />
+			<common:FormField FieldID="ISACCOUNTCORRECTION" Caption="Correction" DataType="Boolean" />
+			<common:FormField FieldID="CONVERSIONDATE" Caption="Conversion Date" DataType="Date" />
+			<common:FormField FieldID="DAYSTOCONVERT" Caption="Days to Convert" DataType="Integer" />
 		</common:FormFields>
 	</common:FormMetaData>
 
