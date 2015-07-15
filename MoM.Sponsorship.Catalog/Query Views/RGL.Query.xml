@@ -7,7 +7,7 @@
 	Author="Memphis Sellers"
 	IsRoot="true"
 	PrimaryKeyField="ID"
-	RecordType="Recurring Gift Commitment Line"
+	RecordType="Sponsorship Commitment"
 	common:SecurityUIFolder="Sponsorship"
 	>
 
@@ -15,7 +15,8 @@
 	<ViewImplementation ViewName="USR_V_QUERY_RGL">
 		<ViewSQL>
 			<![CDATA[
-SELECT rgl.ID,
+SELECT	--rgl.ID,
+		sc.ID,
        sponsor.LOOKUPID as SPONSORID,
        sponsor.[NAME] as SPONSORNAME,
        dbo.UFN_SPONSORSHIPOPPORTUNITY_TRANSLATIONFUNCTION(rgl.OPPORTUNITYID) as CHILD, --OPPORTUNITYID,
@@ -44,10 +45,11 @@ SELECT rgl.ID,
 		end as FINANCIALSPONSORNAME,       
        ISACCOUNTCORRECTION,
        (select LOOKUPID from dbo.REVENUE where ID = rgl.RECURRINGGIFTID) as REVENUELOOKUPID, --RECURRINGGIFTID,
-       (select LOOKUPID from dbo.SPONSORSHIPCOMMITMENT where ID = rgl.COMMITMENTID) as COMMITMENTID  --COMMITMENTID
+       sc.LOOKUPID as COMMITMENTID  --COMMITMENTID
   FROM dbo.USR_COMMITMENTLINE_RECURRINGGIFT rgl
 	join dbo.CONSTITUENT sponsor on sponsor.ID = SPONSORID
-where sponsorid = (select id from constituent where lookupid = '515304')
+	left join dbo.SPONSORSHIPCOMMITMENT sc on sc.ID = rgl.COMMITMENTID
+--where sponsorid = (select id from constituent where lookupid = '515304')
 				
 			]]>
 		</ViewSQL>
