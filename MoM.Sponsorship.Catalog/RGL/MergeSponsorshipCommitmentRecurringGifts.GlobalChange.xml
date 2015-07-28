@@ -1,0 +1,71 @@
+﻿<GlobalChangeSpec 
+	xmlns="bb_appfx_globalchange"
+	xmlns:c="bb_appfx_commontypes"
+	ID="f71ff3df-ba51-40e9-ada1-03036d6f30a5"
+	Name="Merge Sponsorship Commitment Recurring Gifts Global Change"
+	Description="Merge recurring gifts based upon a selection of sponsorship commitments"
+	Author="Zuri Group\Ken Swift"
+	DisplayName="Merge Sponsorship Commitment Recurring Gifts"
+	GlobalChangeFolder="Sponsorship"
+	SPName="USR_USP_GLOBALCHANGE_MERGESPONSORSHIPCOMMITMENTRECURRINGGIFTS"
+>
+
+	<!-- describe the SP that performs the global change operation -->
+	<CreateProcedureSQL>
+		<![CDATA[
+create procedure dbo.USR_USP_GLOBALCHANGE_MERGESPONSORSHIPCOMMITMENTRECURRINGGIFTS
+(
+	@CHANGEAGENTID uniqueidentifier = null,
+	@ASOF as datetime = null,
+	@NUMBERADDED int = 0 output,
+	@NUMBEREDITED int = 0 output,
+	@NUMBERDELETED int = 0 output,
+	@SPONSORSHIPCOMMITMENTSELECTIONID uniqueidentifier,
+  @LOOKUPID nvarchar(100),
+	@EARLIESTSTARTDATE datetime,
+  @DELETERECORDS bit
+)
+as			
+	set nocount off;
+	
+	declare @CURRENTDATE datetime
+	set @CURRENTDATE = getdate();
+	set @NUMBERADDED = 0;
+	set @NUMBEREDITED = 0;
+	set @NUMBERDELETED = 0; 
+	
+	if @CHANGEAGENTID is null
+		exec dbo.USP_CHANGEAGENT_GETORCREATECHANGEAGENT @CHANGEAGENTID output;
+					
+	begin try
+    exec USR_USP_MERGESPONSORSHIPCOMMITMENTRECURRINGGIFTS @SPONSORSHIPCOMMITMENTSELECTIONID, @LOOKUPID, @EARLIESTSTARTDATE, @DELETERECORDS, @NUMBEREDITED, @NUMBERDELETED, @CHANGEAGENTID
+	end try
+	
+	begin catch
+		exec dbo.USP_RAISE_ERROR;
+		return 1;
+	end catch
+		]]>
+	</CreateProcedureSQL>
+
+	<ParametersFormMetaData>
+
+		<!-- describe fields on the parameter form, which correspond to parameters on the SP.  Note that system parameters 
+		like the context @CHANGEAGENTID, @ASOF, @NUMBERADDED, @NUMBEREDITED, and @NUMBERDELETED need not be listed. -->
+		<FormMetaData xmlns="bb_appfx_commontypes">
+			<FormFields>
+				<FormField FieldID="SPONSORSHIPCOMMITMENTSELECTIONID" Caption="Sponsorship commitment selection" DataType="Guid">
+          <SearchList SearchListID="1F0E603C-1C55-4E1E-8218-BDB877B2CBE8">
+            <FormFieldOverrides>
+              <FormFieldOverride FieldID="RECORDTYPE" DefaultValueText="Sponsorship Commitment" ReadOnly="true" Caption="Record type" Hidden="false"/>
+            </FormFieldOverrides>
+          </SearchList>          
+        </FormField>
+				<FormField FieldID="LOOKUPID" Caption="Commitment lookup ID (optional)" DataType="String" />
+				<FormField FieldID="EARLIESTSTARTDATE" Caption="Earlist sponsorship date (smart field)" DataType="Date" />
+				<FormField FieldID="DELETERECORDS" Caption="Delete old recurring gift(s)" DataType="Boolean" />
+			</FormFields>
+		</FormMetaData>
+	</ParametersFormMetaData>
+	
+</GlobalChangeSpec>
