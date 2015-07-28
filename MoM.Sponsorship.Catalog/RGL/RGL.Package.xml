@@ -3,8 +3,8 @@
 	xmlns:common="bb_appfx_commontypes" 
 	ID="0d0ef978-bb05-4704-9dd5-e577c3e2453a" 
 	Name="RGL Package"
-	Description="REPLACE_WITH_DESCRIPTION" 
-	Author="$author$"
+	Description="RGL related Specs" 
+	Author="Cary Mayeda"
 	>
 
 	<!-- Note:  the order of the items listed here is important.  For example, you won't be able to load a data form that references 
