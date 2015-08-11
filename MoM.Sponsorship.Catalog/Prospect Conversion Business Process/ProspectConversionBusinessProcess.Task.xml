@@ -1,0 +1,21 @@
+﻿<TaskSpec
+	xmlns="bb_appfx_task"
+	xmlns:common="bb_appfx_commontypes" 
+	ID="d799a392-d94d-40a3-8540-591e9c9f2045"
+	Name="Prospect Conversion"
+	Description="Prospect conversion process status page."
+	Author="Memphis Sellers"
+	FunctionalAreaID="9ea48d9c-7e2d-42e6-91cc-210792618017"
+	TaskGroup="Administration"
+	Sequence="51"
+	DisplayAsAction="true"	
+	>
+
+	<!-- indicate what this task should do (navigate to a page, show a form, etc. -->
+	<common:ShowPage PageID="13dd95aa-7f0c-49b2-a58e-a6de299d0079" TabID="00000000-0000-0000-0000-000000000000" xmlns="bb_appfx_commontypes">
+		<ActionContext>
+			<Expression>2A580C34-C5DD-415D-BB60-0AC3E30BEB78</Expression>
+		</ActionContext>
+	</common:ShowPage>
+
+</TaskSpec>

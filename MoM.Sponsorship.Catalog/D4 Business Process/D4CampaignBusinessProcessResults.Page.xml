@@ -1,0 +1,34 @@
+﻿<PageDefinitionSpec 
+	xmlns:xsd="http://www.w3.org/2001/XMLSchema" 
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+	ID="A6F1670F-C86B-48DB-A543-5F99DBF3AA27" 
+	Name="D4 Campaign Business Process Status Report Page" 
+	Description="Displays the results of the D4 Campaign business process instance" 
+	Author="Cary Mayeda" 
+	ExpressionDataFormID="00000000-0000-0000-0000-000000000000" 
+	ContextRecordType="D4Campaign Business Process" 
+	xmlns="bb_appfx_pagedefinition">
+
+	<!-- 
+	Remarks:    
+
+	History:
+	Date            Modified By     Comments
+	14-May-2013		CMayeda			Initial Version copied from Memphis' D2 Campaign Business Process Status Report Page
+	-->
+		
+	<PageHeader Caption="D4 Campaign Business Process Results Report" />
+	<Tabs>
+		<Tab Caption="Results" ID="91275F52-5421-4E5F-A89B-C76B45D0155A">
+			<Sections>
+				<Section ID="574A9E67-57EF-4816-9C39-5757AFEA1555" Caption="D4 Campaign Results">
+					<DataList ID="833672B6-7846-4792-98B5-42CB8FE7C507">
+						<RenderStyle>
+							<StandardView />
+						</RenderStyle>
+					</DataList>
+				</Section>
+			</Sections>
+		</Tab>
+	</Tabs>
+</PageDefinitionSpec>

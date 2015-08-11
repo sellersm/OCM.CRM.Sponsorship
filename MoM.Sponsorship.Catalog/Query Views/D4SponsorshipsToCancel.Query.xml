@@ -1,0 +1,89 @@
+﻿<QueryViewSpec
+	xmlns="bb_appfx_queryview"
+	xmlns:common="bb_appfx_commontypes" 
+	ID="d973a081-a7b7-4b3f-93d3-be6b6f1e6c21"
+	Name="D4 Sponsorships To Cancel Query"
+	Description="Used to determine which delinquent sponsorships to terminate."
+	Author="Cary Mayeda"
+	IsRoot="true"
+	PrimaryKeyField="ID"
+	RecordType="SPONSORSHIP"
+	common:SecurityUIFolder="Sponsorship"
+	>
+
+	<!-- define the view used to return data for the query -->
+	<ViewImplementation ViewName="USR_V_QUERY_D4SPONSORSHIPSTOCANCEL">
+		<ViewSQL>
+			<![CDATA[
+	
+	select	s.ID as ID
+			,sponsor.ID as SPONSORID
+			,sponsor.LOOKUPID as SPONSORLOOKUPID
+			,sponsor.NAME as SPONSORNAME
+			,ie_child.SPONSORSHIPOPPORTUNITYCHILDID as CHILDID
+			,so.LOOKUPID as CHILDLOOKUPID
+			,so_child.NAME as CHilDNAME	
+			,i.ID as INTERACTIONID
+			,i.EXPECTEDDATE
+			,revschedule.NEXTTRANSACTIONDATE
+	  from	dbo.INTERACTION i
+	  join	dbo.INTERACTIONSUBCATEGORY subcat on i.INTERACTIONSUBCATEGORYID = subcat.ID
+	  join	dbo.INTERACTIONCATEGORY cat on subcat.INTERACTIONCATEGORYID = cat.ID
+	  join	dbo.USR_INTERACTIONEXTENSIONCHILDREN ie_child on i.ID = ie_child.INTERACTIONID
+	  join	dbo.SPONSORSHIPOPPORTUNITY so on so.ID = ie_child.SPONSORSHIPOPPORTUNITYCHILDID
+	  join	dbo.SPONSORSHIPOPPORTUNITYCHILD so_child on so_child.ID = ie_child.SPONSORSHIPOPPORTUNITYCHILDID
+	  join	dbo.SPONSORSHIP s on s.SPONSORSHIPOPPORTUNITYID = ie_child.SPONSORSHIPOPPORTUNITYCHILDID
+	  join	dbo.REVENUESPLIT revsplit on s.REVENUESPLITID = revsplit.ID
+	  join	dbo.REVENUE rev on revsplit.REVENUEID = rev.ID
+	  join	dbo.REVENUESCHEDULE revschedule on revschedule.ID = rev.ID --REVENUE.ID		
+	  join	dbo.CONSTITUENT sponsor on rev.CONSTITUENTID = sponsor.ID
+	  join	dbo.USR_SPONSORSHIPEXTENSION se on se.ID = s.ID
+	  join	dbo.USR_CURRENTOPPORTUNITYSPONSORSHIPSTATUSCODE statusCode on 
+				statusCode.ID = se.CURRENTOPPORTUNITYSPONSORSHIPSTATUSCODEID and lower (statusCode.DESCRIPTION) = 'sponsored'
+
+	 where	s.STATUSCODE = 1 -- Active
+	   and	lower (cat.NAME) = lower ('Sponsorship Delinquency')
+	   and  lower (subcat.NAME) = lower ('Delinquent 4 Month - Cancellation Letter')
+ 	   and	not exists (select 1 
+		                  from dbo.CONSTITUENCY constit 
+		                  join dbo.CONSTITUENCYCODE ccode on constit.CONSTITUENCYCODEID = ccode.ID
+		                 where constit.CONSTITUENTID = i.CONSTITUENTID 
+		                   and lower (ccode.DESCRIPTION) = lower ('Prevent Auto Cancel')
+			               and (constit.DATETO is null or constit.DATETO > GETDATE()))
+	   and	not exists (select	1
+   					      from dbo.RECURRINGGIFTACTIVITY rg_act
+						  join dbo.FINANCIALTRANSACTIONLINEITEM as payment on payment.ID = rg_act.PAYMENTREVENUEID									
+						  join dbo.FINANCIALTRANSACTION as rev_payment on payment.FINANCIALTRANSACTIONID = rev_payment.ID									
+						 where SOURCEREVENUEID = rev.ID and rev_payment.TRANSACTIONAMOUNT > 0
+				           and rev_payment.DATE > i.EXPECTEDDATE)
+	   and	(case when revschedule.NEXTTRANSACTIONDATE > revschedule.ENDDATE then null else revschedule.NEXTTRANSACTIONDATE end) 
+		          <= dateadd(month, datediff(month, 0, getdate()) - 3, 0) 
+	  			
+			]]>
+		</ViewSQL>
+	</ViewImplementation>
+
+	<!-- describe each field in the view output -->
+	<Output>
+		<OutputFields>
+			<OutputField Caption="Sponsorship system record ID" Category="System Fields" Name="ID" />
+			<OutputField Name="SPONSORID" Caption="Sponsor system record ID" Category="System Fields" DataType="Guid" />
+			<OutputField Name="SPONSORLOOKUPID" Caption="Sponsor Lookup ID" DataType="String" />
+			<OutputField Name="SPONSORNAME" Caption="Sponsor Name" DataType="String" />
+			<OutputField Name="CHILDID" Caption="Child system record ID" Category="System Fields" DataType="Guid" />
+			<OutputField Name="CHILDLOOKUPID" Caption="Child Lookup ID" DataType="String" />
+			<OutputField Name="CHILDNAME" Caption="Child Name" DataType="String" />
+			<OutputField Name="INTERACTIONID" Caption="Interaction system record ID" Category="System Fields" DataType="Guid" />
+			<OutputField Name="EXPECTEDDATE" Caption="Expected Date" DataType="Date" />
+			<OutputField Name="NEXTTRANSACTIONDATE" Caption="Next Transaction Date" DataType="Date" />
+ 		</OutputFields>
+	</Output>
+
+	<RelationshipOperations>
+		<AddRelatedView Field="ID" RelatedView="V_QUERY_SPONSORSHIP" RelatedField="ID" PathAlias="Sponsorship"/>
+		<AddRelatedView Field="SPONSORID" RelatedView="V_QUERY_SPONSOR" RelatedField="ID" PathAlias="Sponsor" />
+		<AddRelatedView Field ="CHILDID" RelatedView="V_QUERY_SPONSORSHIPOPPORTUNITYCHILD" RelatedField="ID" PathAlias="Child"/>
+		<AddRelatedView Field="INTERACTIONID" RelatedView="V_QUERY_INTERACTION" RelatedField="ID" PathAlias="Interaction"/>
+	</RelationshipOperations> 
+</QueryViewSpec>
+

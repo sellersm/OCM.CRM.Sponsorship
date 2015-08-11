@@ -1,0 +1,70 @@
+﻿<SQLFunctionSpec
+	xmlns="bb_appfx_sqlfunction"
+	xmlns:common="bb_appfx_commontypes" 
+	ID="fac8eeb6-d8f8-4697-9463-16b92f1e6878"
+	Name="USR_UFN_CALCULATE_NTD_DELINQUENCY"
+	Description="Calculates the number of months delinquent based on next transaction date."
+	Author="Memphis Sellers"
+	DBFunctionName="USR_UFN_CALCULATE_NTD_DELINQUENCY"
+	>
+
+	<!-- 
+	Remarks:  This returns the number of days delinquent based on the given NTD date. 
+				A negative number means paid ahead. 
+				0 means current.
+				Any number >0 is how many days delinquent.
+
+	History:
+	Date            Modified By     Comments
+	15-Nov-2012		Memphis			Initial Version
+	16-Nov-2012		Memphis			Converted to number of Months delinquent, instead of days.  Removed some extranneous code so it's more accurate.
+	-->	
+
+	<CreateFunctionSQL>
+		<![CDATA[
+create function dbo.USR_UFN_CALCULATE_NTD_DELINQUENCY(
+	@NTD_DATE date
+)
+returns integer
+with execute as caller
+as begin
+	-- do work here and return a value
+	declare @monthsDelinquent int;
+
+	-- create the test date, based on current month/year/date:
+	declare @testDate date = CONVERT(Date, GETDATE());
+	declare @compareDateCurrent date;
+	declare @compareDateFuture date;
+
+	if @NTD_DATE is not null
+		begin
+			-- need to get the comparison dates for 'current': 
+			-- get the day portion of the NTD Date passed in:
+			declare @ntdDay int = DATEPART(DAY, @NTD_DATE)
+			
+			-- create the current and 1-month-future comparison dates, based on the Day value of the NTD Date parameter:
+			set @compareDateCurrent = DateAdd(YY, DATEPART(YEAR,@testDate)-1900, DateAdd(m,  DATEPART(MONTH, @testDate) - 1, @ntdDay-1)) 
+			set @compareDateFuture = DATEADD(MONTH,1,@compareDateCurrent)
+
+			-- check if the NTD is in the current month
+			if @NTD_DATE BETWEEN @compareDateCurrent AND @compareDateFuture
+				begin
+					set @monthsDelinquent = 0;
+				end
+			else
+				begin
+					-- it's not current, so calculate how many days delinquent it is
+					-- negative values mean it's paid ahead
+					set @monthsDelinquent =  DATEDIFF(MONTH, @NTD_DATE, @compareDateCurrent);
+				end
+		end
+	else
+		set @monthsDelinquent = 0;
+		
+	return @monthsDelinquent;
+	
+end
+		]]>
+	</CreateFunctionSQL>
+
+</SQLFunctionSpec>

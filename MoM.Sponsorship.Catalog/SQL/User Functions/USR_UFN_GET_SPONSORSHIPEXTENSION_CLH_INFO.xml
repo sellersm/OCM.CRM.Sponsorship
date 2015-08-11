@@ -1,0 +1,51 @@
+﻿<SQLFunctionSpec
+	xmlns="bb_appfx_sqlfunction"
+	xmlns:common="bb_appfx_commontypes" 
+	ID="64e555bc-6a71-40bd-a023-e34f4addf7e2"
+	Name="USR_UFN_GET_SPONSORSHIPEXTENSION_CLH_INFO"
+	Description="Gets sponsorship extension info for CLH purposes."
+	Author="Memphis Sellers"
+	DBFunctionName="USR_UFN_GET_SPONSORSHIPEXTENSION_CLH_INFO"
+	>
+
+	<!-- 
+	Remarks:  This returns initial and current sponsorships status, and conversion info from
+			  the sponsorship extension table for a given sponsorship.
+
+	History:
+	Date            Modified By     Comments
+	24-Dec-2014		Memphis			Initial Version
+	-->
+
+
+	<CreateFunctionSQL>
+		<![CDATA[
+create function dbo.USR_UFN_GET_SPONSORSHIPEXTENSION_CLH_INFO (@sponsorshipId uniqueidentifier)
+	RETURNS @DelinquencyCampaignResults table
+	(
+		[INITIALDESCRIPTION] nvarchar(100) NULL, 
+		[CURRENTDESCRIPTION] nvarchar(100) NULL, 
+		[CONVERSIONDATE] datetime NULL, 
+		[DAYSTOCONVERT] int NULL
+	)
+with execute as caller
+as begin
+ 	BEGIN
+        INSERT @DelinquencyCampaignResults
+		select	initial.[DESCRIPTION], 
+				[current].[DESCRIPTION],
+				CONVERSIONDATE,
+				DAYSTOCONVERT
+		from dbo.USR_SPONSORSHIPEXTENSION
+			left join dbo.USR_INITIALOPPORTUNITYSPONSORSHIPSTATUSCODE initial on initial.ID = INITIALOPPORTUNITYSPONSORSHIPSTATUSCODEID
+			left join dbo.USR_CURRENTOPPORTUNITYSPONSORSHIPSTATUSCODE [current] on [current].ID = CURRENTOPPORTUNITYSPONSORSHIPSTATUSCODEID
+		where USR_SPONSORSHIPEXTENSION.ID = @sponsorshipId;
+    END;
+	
+	RETURN;
+    
+end
+	]]>
+	</CreateFunctionSQL>
+
+</SQLFunctionSpec>

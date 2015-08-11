@@ -1,0 +1,58 @@
+﻿<SQLFunctionSpec
+	xmlns="bb_appfx_sqlfunction"
+	xmlns:common="bb_appfx_commontypes" 
+	ID="694528a1-a22f-498a-94df-df16c6fc5a07"
+	Name="USR_UFN_GET_UNPAIDSPONSORED_FINANCIALCOMMITMENTS_BYSPONSOR"
+	Description="Get unpaid sponsored gifted sponsorships for this gift financial sponsor"
+	Author="Memphis Sellers"
+	DBFunctionName="USR_UFN_GET_UNPAIDSPONSORED_FINANCIALCOMMITMENTS_BYSPONSOR"
+	GrantServiceRolePermission="true"
+	>
+
+	<!-- 
+	Remarks:    UFN to return table of Unpaid Sponsored Children for the FINANCIAL GIFT sponsor
+
+	History:
+	Date            Modified By     Comments
+	16-May-2013		Memphis			Initial Version
+	17-May-2013		Memphis			Fixed bug: include ISCURRENT = 1 in the join to get the current record's current sponsorshipstatus field value.
+	-->	
+
+	<CreateFunctionSQL>
+		<![CDATA[
+create function dbo.USR_UFN_GET_UNPAIDSPONSORED_FINANCIALCOMMITMENTS_BYSPONSOR(
+	@FINANCIALSPONSORID uniqueidentifier		-- this is the constituentid of the financial sponsor
+)
+returns @CommitmentList TABLE 
+(
+	-- Add the column definitions for the TABLE variable here
+	childId uniqueidentifier
+)
+with execute as caller
+as begin
+	declare @SHOWHISTORY bit = 0;   -- this determines whether or not to retrieve the cancelled ones as well. we only want active.
+	
+	-- do work here and return a value
+	insert @CommitmentList
+	select
+		ACTIVESPONSORSHIP.SPONSORSHIPOPPORTUNITYID
+	from dbo.SPONSORSHIPTRANSACTION GIFTSTART
+	inner join dbo.SPONSORSHIPCOMMITMENT on SPONSORSHIPCOMMITMENT.ID = GIFTSTART.SPONSORSHIPCOMMITMENTID
+	left join dbo.SPONSORSHIPTRANSACTION GIFTEND on GIFTEND.SPONSORSHIPCOMMITMENTID = GIFTSTART.SPONSORSHIPCOMMITMENTID and GIFTEND.TRANSACTIONSEQUENCE = (select min(MINSEQ.TRANSACTIONSEQUENCE) from dbo.SPONSORSHIPTRANSACTION MINSEQ where MINSEQ.SPONSORSHIPCOMMITMENTID = GIFTSTART.SPONSORSHIPCOMMITMENTID and MINSEQ.TRANSACTIONSEQUENCE > GIFTSTART.TRANSACTIONSEQUENCE and MINSEQ.ACTIONCODE in(2,3,5,9))
+	left join dbo.SPONSORSHIP GIFTENDSPONSORSHIP on GIFTENDSPONSORSHIP.ID = GIFTEND.CONTEXTSPONSORSHIPID
+	left join dbo.SPONSORSHIP ACTIVESPONSORSHIP on ACTIVESPONSORSHIP.SPONSORSHIPCOMMITMENTID = GIFTSTART.SPONSORSHIPCOMMITMENTID and ACTIVESPONSORSHIP.STATUSCODE = 1
+	left outer join dbo.SPONSORSHIPOPPORTUNITYCHILD on  dbo.SPONSORSHIPOPPORTUNITYCHILD.ID = ACTIVESPONSORSHIP.SPONSORSHIPOPPORTUNITYID  -- this will help us identify only children commitments
+	join dbo.USR_SPONSORSHIPEXTENSION ON dbo.USR_SPONSORSHIPEXTENSION.ID = ACTIVESPONSORSHIP.ID
+	join dbo.USR_CURRENTOPPORTUNITYSPONSORSHIPSTATUSCODE 
+		ON dbo.USR_CURRENTOPPORTUNITYSPONSORSHIPSTATUSCODE.ID = dbo.USR_SPONSORSHIPEXTENSION.CURRENTOPPORTUNITYSPONSORSHIPSTATUSCODEID 
+		and (dbo.USR_CURRENTOPPORTUNITYSPONSORSHIPSTATUSCODE.[DESCRIPTION] = N'Unpaid Sponsored' and dbo.USR_SPONSORSHIPEXTENSION.ISCURRENT = 1)
+	where (GIFTSTART.GIFTFINANCIALSPONSORID = @FINANCIALSPONSORID
+	and (@SHOWHISTORY = 1 or GIFTEND.ID is null)
+	and dbo.SPONSORSHIPOPPORTUNITYCHILD.ID is not NULL)
+	
+	return
+end
+		]]>
+	</CreateFunctionSQL>
+
+</SQLFunctionSpec>

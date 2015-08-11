@@ -1,0 +1,12 @@
+﻿<CodeTableSpec 
+	xmlns="bb_appfx_codetable" 
+	xmlns:common="bb_appfx_commontypes"
+	ID="e2f7ff3a-af0c-427f-8f97-431c485d82b3" 
+	Name="Initial sponsorship opportunity status code table"
+	Description="Initial sponsorship opportunity status code values."
+	Author="Memphis Sellers"
+	DBTablename="USR_INITIALOPPORTUNITYSPONSORSHIPSTATUSCODE"
+	Category="Sponsorship"
+	SortMethod="Alpha"
+/>
+

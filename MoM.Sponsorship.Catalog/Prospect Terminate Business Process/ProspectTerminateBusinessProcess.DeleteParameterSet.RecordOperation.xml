@@ -1,0 +1,48 @@
+﻿<RecordOperationSpec 
+	xmlns="bb_appfx_recordoperation"
+	xmlns:common="bb_appfx_commontypes" 
+	ID="77DFFEC4-AA94-4EDA-9292-8CC03E5E18A2" 
+	Name="Delete Prospect Terminate Business Process Parameter Set" 
+	Description="Record op to delete a Prospect Terminate business process parameter set."
+	Author="Memphis Sellers"
+	OperationType="Delete"
+	RecordType="Prospect Terminate Business Process"
+	common:SecurityUIFolder="Sponsorship\Business Process\Sponsor Terminate"
+	>
+
+	<!-- 
+	Remarks:    
+
+	History:
+	Date            Modified By     Comments
+	28-Jul-2014		Memphis			Initial Version 
+	-->
+
+	<SPRecord>
+		<SPOperationImplementation SPName="USR_USP_PROSPECTTERMINATE_BUSINESSPROCESS_PARAMETERS_DELETE">
+			<common:CreateProcedureSQL>
+				<![CDATA[
+create procedure dbo.USR_USP_PROSPECTTERMINATE_BUSINESSPROCESS_PARAMETERS_DELETE
+(
+	@ID uniqueidentifier,
+	@CHANGEAGENTID uniqueidentifier
+)
+as begin
+	--check deletion rules, if any
+
+	-- use the system generated delete routine to allow proper recording of the deleting agent
+	exec USP_USR_PROSPECTTERMINATE_BUSINESSPROCESS_DELETEBYID_WITHCHANGEAGENTID @ID, @CHANGEAGENTID
+	return 0;
+	
+end
+				]]>
+			</common:CreateProcedureSQL>
+		</SPOperationImplementation>
+	</SPRecord>
+
+	<!-- optionally, offer a prompt before executing the record operation -->
+	<Prompt>
+		<StandardPrompt Text="Are you sure you want to continue?" />
+	</Prompt>
+
+</RecordOperationSpec>

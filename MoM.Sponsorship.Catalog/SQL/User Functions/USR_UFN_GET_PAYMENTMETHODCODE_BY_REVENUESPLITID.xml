@@ -1,0 +1,45 @@
+﻿<SQLFunctionSpec
+	xmlns="bb_appfx_sqlfunction"
+	xmlns:common="bb_appfx_commontypes" 
+	ID="5d57c8d0-896b-4f40-9445-7e124e4aa773"
+	Name="USR_UFN_GET_PAYMENTMETHODCODE_BY_REVENUESPLITID"
+	Description="Gets payment method code by revenueid."
+	Author="Memphis Sellers"
+	DBFunctionName="USR_UFN_GET_PAYMENTMETHODCODE_BY_REVENUESPLITID"
+	GrantServiceRolePermission="true"
+	>
+
+	<!-- 
+	Remarks:  This returns the PAYMENTMETHODCODE for a given sponsorship by revenuesplitid.
+		[PAYMENTMETHODCODE] (0) = 'Cash' (1) ='Check' (2) ='Credit card' (3) ='Direct debit' 
+		(4) ='Stock' (5) ='Property' (6) ='Gift-in-kind' (9) ='None' (10) ='Other' 
+		(11) ='Standing order'  
+
+	History:
+	Date            Modified By     Comments
+	26-Apr-2013		Memphis			Initial Version
+	-->
+
+
+	<CreateFunctionSQL>
+		<![CDATA[
+create function dbo.USR_UFN_GET_PAYMENTMETHODCODE_BY_REVENUESPLITID(
+	@REVENUESPLITID uniqueidentifier
+)
+returns tinyint
+with execute as caller
+as begin
+	-- do work here and return a value
+	declare @PAYMENTMETHODCODE tinyint;
+	
+	select	@PAYMENTMETHODCODE = PAYMENTMETHODCODE
+	from	dbo.REVENUEPAYMENTMETHOD rp
+	join	dbo.REVENUESPLIT revsplit on revsplit.REVENUEID = rp.REVENUEID
+	where revsplit.ID = @REVENUESPLITID
+
+	return @PAYMENTMETHODCODE
+end
+		]]>
+	</CreateFunctionSQL>
+
+</SQLFunctionSpec>

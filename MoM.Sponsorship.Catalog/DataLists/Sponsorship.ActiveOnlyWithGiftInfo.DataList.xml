@@ -1,0 +1,148 @@
+﻿<DataListSpec 
+	xmlns="bb_appfx_datalist"
+	xmlns:common="bb_appfx_commontypes" 
+	ID="7ac3c8b0-d556-4c8a-91ed-cb6972d5e185" 
+	Name="Sponsorship Active Only with Gift Info Data List"
+	Description="Lists active sponsorships and includes ntd, past due amount." 
+	Author="Cary Mayeda"
+	common:SecurityUIFolder="SPONSORSHIP">
+
+	<!-- 
+	Remarks:  Currently only displays child sponsorships (no project sponsorships)
+
+	History:
+	Date            Modified By     Comments
+	16-May-2013		CMayeda			Initial Version 
+	20-May-2013		CMayeda			Fixed datetimeoffset(3) issue
+									Added Amount, Frequency
+	17-Sep-2013		CMayeda			Made Sponsorship Extension and Child left joins instead of inner joins per V1:B-01412
+	29-May-2014		CMayeda			Added ISEFTDECLINED, DELAYEFTPAYMENTDUEDATECODE
+	30-May-2014		CMayeda			Changed ISEFTDECLINED to only display "Yes" when equal to 1, otherwise it's blank
+	
+	Add the following fields later.
+		Gifted sponsorship
+		
+	-->
+
+	<!-- define the SP that returns the data for the datalist -->
+	<SPDataList SPName="USR_USP_DATALIST_SPONSORSHIP_ACTIVE_WITH_GIFTINFO">
+		<common:CreateProcedureSQL>
+			<![CDATA[
+create procedure dbo.USR_USP_DATALIST_SPONSORSHIP_ACTIVE_WITH_GIFTINFO (@CONTEXTID uniqueidentifier)
+as
+	set nocount on;
+
+
+	select	
+		sponsor.ID,
+		sp.ID as SPONSORSHIPID,
+		rev.ID as SPONSORSHIPRECURRINGGIFTID,
+		sp.SPONSORSHIPOPPORTUNITYID,
+		case 
+			when so_child.ID is null then so.LOOKUPID
+			else coalesce (slocation.LOOKUPID,'') + '-' + so.LOOKUPID 
+		end as SOLOOKUPID,
+		case 
+			when so_child.ID is null then so_project.NAME
+			else so_child.NAME 
+		end as SONAME,
+		statusCode.DESCRIPTION as SPONSORSHIPSTATUS,
+		rev.Amount as RGAMOUNT,
+		revschedule.FREQUENCY,
+		case when revschedule.NEXTTRANSACTIONDATE > revschedule.ENDDATE then null else revschedule.NEXTTRANSACTIONDATE end as NTD,
+		dbo.UFN_RECURRINGGIFT_GETPASTDUEAMOUNT(rev.ID, null) as PASTDUEAMOUNT,
+/*				case 
+			when revschedule.FREQUENCYCODE = 3 then dbo.UFN_RECURRINGGIFT_GETPASTDUEAMOUNT(rev.ID, null) / rev.TRANSACTIONAMOUNT -- Monthly
+			when revschedule.FREQUENCYCODE = 6 then dbo.UFN_RECURRINGGIFT_GETPASTDUEAMOUNT(rev.ID, null) / ((rev.TRANSACTIONAMOUNT * 6)/12) -- Bimonthly
+			when revschedule.FREQUENCYCODE = 7 then dbo.UFN_RECURRINGGIFT_GETPASTDUEAMOUNT(rev.ID, null) / ((rev.TRANSACTIONAMOUNT * 24)/12) -- Semi-Monthly
+			when revschedule.FREQUENCYCODE = 8 then dbo.UFN_RECURRINGGIFT_GETPASTDUEAMOUNT(rev.ID, null) / ((rev.TRANSACTIONAMOUNT * 26)/12) -- Biweekly
+			when revschedule.FREQUENCYCODE = 9 then dbo.UFN_RECURRINGGIFT_GETPASTDUEAMOUNT(rev.ID, null) / ((rev.TRANSACTIONAMOUNT * 52)/12) -- Weekly
+			else -1
+		end,
+*/	
+		(select top 1 coalesce([PAYMENT].TRANSACTIONAMOUNT, 0) 
+			from dbo.RECURRINGGIFTACTIVITY as [RGA]
+			join dbo.FINANCIALTRANSACTIONLINEITEM as [PAYMENT] on [PAYMENT].ID = [RGA].PAYMENTREVENUEID									
+			join dbo.FINANCIALTRANSACTION as [REVPAYMENT] on [PAYMENT].FINANCIALTRANSACTIONID = [REVPAYMENT].ID									
+			where SOURCEREVENUEID = rev.ID -- I removed this beause it might be good to know the last payment was refunded -- and [REVPAYMENT].TRANSACTIONAMOUNT > 0
+			order by [REVPAYMENT].DATE desc) as LASTPAYMENTAMOUNT,
+
+		(select	top 1 cast (rev_payment.DATE as date)
+   			from	dbo.RECURRINGGIFTACTIVITY rg_act
+			join dbo.FINANCIALTRANSACTIONLINEITEM as payment on payment.ID = rg_act.PAYMENTREVENUEID									
+			join dbo.FINANCIALTRANSACTION as rev_payment on payment.FINANCIALTRANSACTIONID = rev_payment.ID									
+			where	SOURCEREVENUEID = rev.ID -- I removed this beause it might be good to know the last payment was refunded -- and rev_payment.TRANSACTIONAMOUNT > 0
+			order by rev_payment.DATE desc) as LASTPAYMENTDATE,
+
+		PAYMENTMETHOD,				
+		case 
+			when dbo.USR_UFN_CHECK_RECURRINGGIFT_ISHELD(sp.REVENUESPLITID) = 1  then 'Yes'
+			else ''
+		end as ISHELD,
+		case
+			when ft_ext.ISEFTDECLINED = 1 then 'Yes'
+			else ''
+		end as ISEFTDECLINED,
+		(select DESCRIPTION from DELAYEFTPAYMENTDUEDATECODE where ID = ft_ext.DELAYEFTPAYMENTDUEDATECODEID) as DELAYEFTPAYMENTDUEDATECODE
+				
+	from	
+		dbo.SPONSORSHIP sp
+		  
+		  join	dbo.REVENUESPLIT revsplit on sp.REVENUESPLITID = revsplit.ID
+		  join	dbo.REVENUE rev on revsplit.REVENUEID = rev.ID
+		  join	dbo.REVENUESCHEDULE revschedule on revschedule.ID = rev.ID --REVENUE.ID		
+	 left join dbo.USR_FINANCIALTRANSACTION_EXTENSION ft_ext on rev.ID = ft_ext.ID
+		  join	dbo.CONSTITUENT sponsor on rev.CONSTITUENTID = sponsor.ID
+     left join	dbo.USR_SPONSORSHIPEXTENSION se on se.ID = sp.ID
+		  join	dbo.USR_CURRENTOPPORTUNITYSPONSORSHIPSTATUSCODE statusCode on 
+					statusCode.ID = se.CURRENTOPPORTUNITYSPONSORSHIPSTATUSCODEID and statusCode.DESCRIPTION in ('Sponsored', 'Prospect Sponsored', 'Unpaid Sponsored')
+		  join	dbo.SPONSORSHIPOPPORTUNITY so on so.ID = sp.SPONSORSHIPOPPORTUNITYID
+	 left join	dbo.SPONSORSHIPOPPORTUNITYCHILD so_child on so_child.ID = sp.SPONSORSHIPOPPORTUNITYID
+     left join  dbo.SPONSORSHIPOPPORTUNITYPROJECT so_project on so_project.ID = sp.SPONSORSHIPOPPORTUNITYID
+		  join	dbo.SPONSORSHIPLOCATION slocation on so.SPONSORSHIPLOCATIONID = slocation.ID 	
+	      join	dbo.REVENUEPAYMENTMETHOD rev_paymethod on rev_paymethod.REVENUEID = revsplit.REVENUEID
+	
+	where  
+		sp.STATUSCODE = 1   -- 1.5 - Status of 'Active' 
+	and	sponsor.ID = @CONTEXTID
+		   
+			]]>
+		</common:CreateProcedureSQL>
+	</SPDataList>
+
+	<!-- describe the context ID parameter for the SP (if applicable)-->
+	<Context ContextRecordType="CONSTITUENT" RecordIDParameter="CONTEXTID"/>
+
+	<!-- describe any parameters (other than the context ID) defined on the SP
+	<Parameters>
+		<common:FormMetaData>
+			<common:FormFields>
+				<common:FormField FieldID="PARAMETER1" Caption="Paramter1" DataType="REPLACE_WITH_DATATYPE"/>
+			</common:FormFields>
+		</common:FormMetaData>
+	</Parameters>-->
+
+	<!-- define the output fields in the list -->
+	<Output>
+		<OutputFields>
+			<OutputField FieldID="ID" Caption="ID" DataType="Guid" IsHidden="true" />
+			<OutputField FieldID="SPONSORSHIPID" Caption="SPONSORSHIPID" DataType="Guid" IsHidden="true" />
+			<OutputField FieldID="SPONSORSHIPRECURRINGGIFTID" Caption="SPONSORSHIPRECURRINGGIFTID" DataType="Guid" IsHidden="true" />
+			<OutputField FieldID="SPONSORSHIPOPPORTUNITYID" Caption="SPONSORSHIPOPPORTUNITYID" DataType="Guid" IsHidden="true" />
+			<OutputField FieldID="SOLOOKUPID" Caption="Lookup ID" DataType="String" />
+			<OutputField FieldID="SONAME" Caption="Opportunity" DataType="String" />
+			<OutputField FieldID="SPONSORSHIPSTATUS" Caption="Current sponsorship status" DataType="String" />
+			<OutputField FieldID="RGAMOUNT" Caption="Amount" DataType="Money" />
+			<OutputField FieldID="FREQUENCY" Caption="Frequency" DataType="String" />
+			<OutputField FieldID="NTD" Caption="NTD" DataType="Date" />
+			<OutputField FieldID="PASTDUEAMOUNT" Caption="Past due amount" DataType="Money" />
+			<OutputField FieldID="LASTPAYMENTAMOUNT" Caption="Last payment" DataType="Money" />
+			<OutputField FieldID="LASTPAYMENTDATE" Caption="Last payment date" DataType="Date" />
+			<OutputField FieldID="PAYMENTMETHOD" Caption="Payment method" DataType="String" />
+			<OutputField FieldID="ISHELD" Caption="Held?" DataType="String" />
+			<OutputField FieldID="ISEFTDECLINED" Caption="Declined?" DataType="String" />
+			<OutputField FieldID="DELAYEFTPAYMENTDUEDATECODE" Caption="Delayed EFT Due Date" DataType="String" />
+		</OutputFields>
+	</Output>
+
+</DataListSpec>

@@ -1,0 +1,81 @@
+﻿<DataListSpec 
+	xmlns="bb_appfx_datalist"
+	xmlns:common="bb_appfx_commontypes" 
+	ID="dfe9ad1e-d4ca-4a4d-b536-91919bd44219" 
+	Name="Declined EFT Tab Data List"
+	Description="Displays data from EFT Declined process." 
+	Author="Memphis Sellers"
+	common:SecurityUIFolder="EFTBatch">
+
+	<!-- 
+	Remarks:	Displays the records from the USR_EFTDECLINE_BATCH_SPONSORS table that holds declines from EFT Decline biz process.
+				
+	History:
+	Date			Modified By		Comments
+    13-May-2014		Memphis			Initial Version
+	19-May-2014		Memphis			Updated per Pamela to separate account/cc fields, change other fields...
+	-->	
+
+	<!-- define the SP that returns the data for the datalist -->
+	<SPDataList SPName="USR_USP_DATALIST_EFTDECLINEBATCH_SPONSORSDATA">
+		<common:CreateProcedureSQL>
+			<![CDATA[
+create procedure dbo.USR_USP_DATALIST_EFTDECLINEBATCH_SPONSORSDATA(@CONTEXTID uniqueidentifier)
+as
+	set nocount on;
+
+	-- batchtype 0 directdebit, 1 creditcard  
+	SELECT	USR_EFTDECLINE_BATCH_SPONSORS.ID, 
+			CARDHOLDERNAME, 
+			--SPONSORLOOKUPID, 
+			--SPONSORNAME, 
+			BATCHDATE, 
+			DECLINEREASON, 
+			CARDNUMBER,
+			CARDEXPIRATION,
+			ACCOUNTINFO,
+			--case when BATCHTYPE = 'Credit Card' then (coalesce(CARDNUMBER, '') + ':' + coalesce(CARDEXPIRATION,'')) else ACCOUNTINFO end as 'CARD_OR_ACCOUNT', 
+			USR_EFTDECLINE_BATCH_SPONSORS.BATCHNUMBER, 
+			CHILDINFO, 
+			REVENUELOOKUPID,
+			r.ID as RevenueID
+	FROM dbo.USR_EFTDECLINE_BATCH_SPONSORS
+	join dbo.REVENUE r on r.LOOKUPID = REVENUELOOKUPID
+	where r.ID = @CONTEXTID
+	-- RevenueID is the key to associating with the Recurring Gift
+			]]>
+		</common:CreateProcedureSQL>
+	</SPDataList>
+
+	<!-- describe the context ID parameter for the SP (if applicable)-->
+	<Context ContextRecordType="REVENUE" RecordIDParameter="CONTEXTID"/>
+
+	<!-- describe any parameters (other than the context ID) defined on the SP
+	<Parameters>
+		<common:FormMetaData>
+			<common:FormFields>
+				<common:FormField FieldID="PARAMETER1" Caption="Paramter1" DataType="REPLACE_WITH_DATATYPE"/>
+			</common:FormFields>
+		</common:FormMetaData>
+	</Parameters>-->
+
+	<!-- define the output fields in the list -->
+	<Output>
+		<OutputFields>
+			<OutputField FieldID="ID" Caption="ID" DataType="Guid" IsHidden="true" />
+			<OutputField FieldID="CARDHOLDERNAME" Caption="Card Holder" DataType="String" />
+			<!--<OutputField FieldID="SPONSORLOOKUPID" Caption="Sponsor ID" DataType="String" />
+			<OutputField FieldID="SPONSORNAME" Caption="Sponsor" DataType="String" />-->
+			<OutputField FieldID="BATCHDATE" Caption="Batch Date" DataType="Date" />
+			<OutputField FieldID="DECLINEREASON" Caption="Reason" DataType="String" />
+			<OutputField FieldID="CARDNUMBER" Caption="Card Number" DataType="String" />
+			<OutputField FieldID="CARDEXPIRATION" Caption="Card Expiration" DataType="FuzzyDate" />
+			<OutputField FieldID="ACCOUNTINFO" Caption="Account Info" DataType="String" />			
+			<OutputField FieldID="BATCHNUMBER" Caption="Batch No." DataType="String" />
+			<OutputField FieldID="CHILDINFO" Caption="Child" DataType="String" />
+			<OutputField FieldID="REVENUELOOKUPID" Caption="Revenue ID" DataType="String" />
+			<OutputField FieldID="RevenueID" Caption="RevenueID" DataType="Guid" IsHidden="true" />
+		</OutputFields>
+	</Output>
+
+</DataListSpec>

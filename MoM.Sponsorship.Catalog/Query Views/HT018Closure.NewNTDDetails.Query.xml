@@ -1,0 +1,155 @@
+﻿<QueryViewSpec
+	xmlns="bb_appfx_queryview"
+	xmlns:common="bb_appfx_commontypes"
+	ID="7058b9be-0db0-4cb6-9b56-497190712d01"
+	Name="HT018 Closure New NTD Details Query"
+	Description="The details per installment used for HT018 Closure New NTD Query"
+	Author="Cary Mayeda"
+	IsRoot="true"
+	PrimaryKeyField="SPONSORSHIPID"
+	RecordType="SPONSORSHIP"
+	common:SecurityUIFolder="Sponsorship"
+	>
+
+	<!-- define the view used to return data for the query -->
+	<ViewImplementation ViewName="USR_V_QUERY_HT018CLOSURE_NEWNTD_DETAILS">
+		<ViewSQL>
+			<![CDATA[
+
+-- Financial Sponsors
+
+with MemberSponsorships as
+(
+select 
+	s.ID as SPONSORSHIPID,
+	church.ID as CHURCHID, 
+	member.ID as MEMBERID,
+	member.LOOKUPID as MEMBERLOOKUPID,
+	member.NAME as MEMBERNAME,
+	(select COUNT(s2.ID) from dbo.SPONSORSHIP s2
+	                  join dbo.SPONSORSHIPOPPORTUNITYCHILD so_child2 on s2.SPONSORSHIPOPPORTUNITYID = so_child2.ID
+	                  join dbo.REVENUESPLIT revsplit2 on revsplit2.ID = s2.REVENUESPLITID
+	                  join dbo.FINANCIALTRANSACTION ft2 on ft2.ID = revsplit2.REVENUEID
+	                  where s2.STATUSCODE = 1 and ft2.CONSTITUENTID = member.ID) as ACTIVESPONSORSHIPCOUNT,
+	coalesce (slocation.LOOKUPID,'') as PROJECTLOOKUPID,
+	so.LOOKUPID as CHILDID,
+	so_child.NAME as CHILDNAME,
+	ft.ID RECURRINGGIFTID,
+	ft.CALCULATEDUSERDEFINEDID as RGLOOKUPID,
+	cast (r_sched.NEXTTRANSACTIONDATE as date) as NEXTTRANSACTIONDATE
+
+ from 
+	CONSTITUENT church
+	inner join dbo.RELATIONSHIP r on r.RECIPROCALCONSTITUENTID = church.ID and r.ENDDATE is null
+	inner join dbo.RELATIONSHIPTYPECODE rc on r.RELATIONSHIPTYPECODEID = rc.ID
+	inner join dbo.CONSTITUENT member on member.ID = r.RELATIONSHIPCONSTITUENTID
+	left join dbo.NAMEFORMAT salutation on salutation.CONSTITUENTID = member.ID and salutation.PRIMARYSALUTATION = 1
+	inner join dbo.FINANCIALTRANSACTION ft on ft.CONSTITUENTID = member.ID
+	inner join dbo.REVENUESPLIT r_split on r_split.REVENUEID = ft.ID
+	inner join dbo.REVENUESCHEDULE r_sched on r_sched.ID = ft.ID
+	inner join dbo.SPONSORSHIP s on s.REVENUESPLITID = r_split.ID
+	inner join dbo.SPONSORSHIPOPPORTUNITY so on so.ID = s.SPONSORSHIPOPPORTUNITYID
+	inner join dbo.SPONSORSHIPOPPORTUNITYCHILD so_child on so_child.ID = s.SPONSORSHIPOPPORTUNITYID
+	inner join dbo.SPONSORSHIPLOCATION slocation on so.SPONSORSHIPLOCATIONID = slocation.ID 	
+
+where
+	church.LOOKUPID = '501695'
+and	church.ISORGANIZATION = 1
+and rc.DESCRIPTION = 'Church Member'
+and s.STATUSCODE = 1
+
+-- ** CHECK RECIPROCALS??
+),
+
+SponsorshipPayments as
+(
+select 
+	s.MEMBERID, 
+	s.RECURRINGGIFTID,
+	i.DATE as INSTALLMENTDATE,
+	i.AMOUNT as INSTALLMENTAMOUNT,
+	sum (p.AMOUNT) as INSTALLMENTTOTALPAYMENTS	
+from 
+	MemberSponsorships s
+	join dbo.RECURRINGGIFTINSTALLMENT i on i.REVENUEID = s.RECURRINGGIFTID
+	join RECURRINGGIFTINSTALLMENTPAYMENT p on i.ID = p.RECURRINGGIFTINSTALLMENTID
+	join FINANCIALTRANSACTION payment_ft on payment_ft.ID = p.PAYMENTID
+where
+	i.DATE >= '2/1/14'
+group by 
+	s.MEMBERID, 
+	s.RECURRINGGIFTID,
+	i.DATE,
+	i.AMOUNT
+
+),
+
+SponsorshipNumberOfInstallments as
+(
+select 
+	MEMBERID, 
+	RECURRINGGIFTID,
+	sum (INSTALLMENTTOTALPAYMENTS/INSTALLMENTAMOUNT) as PERCENTAGEOFINSTALLMENTSPAID,
+	count (INSTALLMENTDATE) as NUMBEROFINSTALLMENTSPAID
+from 
+	SponsorshipPayments 
+group by 
+	MEMBERID, 
+	RECURRINGGIFTID
+)
+
+select 
+	s.*,
+	p.INSTALLMENTDATE,
+	p.INSTALLMENTAMOUNT,
+	p.INSTALLMENTTOTALPAYMENTS,
+	ni.PERCENTAGEOFINSTALLMENTSPAID,
+	cast (ceiling(ni.PERCENTAGEOFINSTALLMENTSPAID) as integer) as NUMBEROFINSTALLMENTSTOADDTONTD,
+	coalesce(ni.NUMBEROFINSTALLMENTSPAID,1) as NUMBEROFINSTALLMENTSPAID,
+	dateadd(d, day(NEXTTRANSACTIONDATE)-1, dateadd ( m, ceiling(coalesce(ni.PERCENTAGEOFINSTALLMENTSPAID,1)), '6/1/14')) as NEWNEXTTRANSACTIONDATE,
+	case 
+		when exists (select MEMBERID from SponsorshipPayments where MEMBERID = s.MEMBERID and INSTALLMENTAMOUNT > 40) then 'DO NOT USE NEW NTD- NOT MONTHLY'
+		else 'ok to use new NTD'
+	end as VALIDNTD
+from 
+	MemberSponsorships s
+	left join SponsorshipPayments p on p.MEMBERID = s.MEMBERID and p.RECURRINGGIFTID  = s.RECURRINGGIFTID 
+	left join SponsorshipNumberOfInstallments ni on ni.MEMBERID = s.MEMBERID and ni.RECURRINGGIFTID  = s.RECURRINGGIFTID 
+
+			]]>
+		</ViewSQL>
+	</ViewImplementation>
+
+	<!-- describe each field in the view output -->
+	<Output>
+		<OutputFields>
+			<OutputField Caption="Sponsorship system record ID" Category="System Fields" Name="SPONSORSHIPID" />
+			<OutputField Name="CHURCHID" Caption="Church system record ID" Category="System Fields" DataType="Guid" />
+			<OutputField Name="MEMBERID" Caption="Church Member system record ID" Category="System Fields" DataType="Guid" />
+			<OutputField Name="MEMBERLOOKUPID" Caption="Church Member Lookup ID" DataType="String" />
+			<OutputField Name="MEMBERNAME" Caption="Church Member Name" DataType="String" />
+			<OutputField Name="ACTIVESPONSORSHIPCOUNT" Caption="Number of Active Sponsorships" DataType="Integer" />
+			<OutputField Name="PROJECTLOOKUPID" Caption="Project Lookup ID" DataType="String" />
+			<OutputField Name="CHILDID" Caption="Child Lookup ID" DataType="String" />
+			<OutputField Name="CHILDNAME" Caption="Child Name" DataType="String" />
+			<OutputField Name="RECURRINGGIFTID" Caption="Recurring Gift ID" Category="System Fields" DataType="Guid" />
+			<OutputField Name="RGLOOKUPID" Caption="Recurring Gift Lookup ID" DataType="String" />
+			<OutputField Name="NEXTTRANSACTIONDATE" Caption="Next Transaction Date" DataType="Date" />
+			<OutputField Name="INSTALLMENTDATE" Caption="Installlment Date" DataType="Date" />
+			<OutputField Name="INSTALLMENTAMOUNT" Caption="Installment Amount" DataType="Money"/>
+			<OutputField Name="INSTALLMENTTOTALPAYMENTS" Caption="Installment Total Payments" DataType="Money" />
+			<OutputField Name="NUMBEROFINSTALLMENTSTOADDTONTD" Caption="Number of Installments to add to NTD" DataType="Integer" />
+			<OutputField Name="PERCENTAGEOFINSTALLMENTSPAID" Caption="Percentage of Installments Paid" DataType="Decimal" />
+			<OutputField Name="NUMBEROFINSTALLMENTSPAID" Caption="Number of Installments Paid" DataType="Integer" />
+			<OutputField Name="NEWNEXTTRANSACTIONDATE" Caption="New Next Transaction Date" DataType="Date" />
+			<OutputField Name="VALIDNTD" Caption="Valid NTD?" DataType="String" />
+		</OutputFields>
+	</Output>
+
+	<RelationshipOperations>
+		<AddRelatedView RelatedView="V_QUERY_SPONSORSHIP" RelatedField="ID" Field="SPONSORSHIPID" PathAlias="Sponsorship"/>
+		<AddRelatedView RelatedView="V_QUERY_CONSTITUENT" RelatedField="ID" Field="MEMBERID" PathAlias="Constituent"/>
+	</RelationshipOperations>
+
+</QueryViewSpec>
+

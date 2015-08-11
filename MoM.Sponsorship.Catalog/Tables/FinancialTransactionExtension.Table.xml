@@ -1,0 +1,50 @@
+﻿<TableSpec 
+	xmlns="bb_appfx_table"
+	xmlns:common="bb_appfx_commontypes" 
+	ID="13e25eec-3801-4de5-ab89-46c61b45af82"
+	Name="Financial Transaction Extension custom table."
+	Description="Holds payment schedule information related to sponsorship."
+	Author="Memphis Sellers"
+	Tablename="USR_FINANCIALTRANSACTION_EXTENSION"		
+	PrimaryKeyAsForeignKeyTablename="FINANCIALTRANSACTION"
+	>
+
+	<!-- 
+	Remarks:    This table is used for 
+
+	History:
+	Date            Modified By     Comments
+	21-Jan-2013		Memphis			Added the new field to hold the pre-departure gift status:  PreDepartureGiftStatus
+	20-May-2014		Memphis			Added field ISEFTDECLINED (boolean)
+									to indicate if this gift EFT payment has been declined, set by EFT Decline biz process
+	29-May-2014		CMayeda			Added DELAYEFTPAYMENTDUEDATECODEID
+-->
+
+
+
+	<!-- define fields on the table -->
+	<Fields>
+		<CodeTableField CodeTable="USR_DIRECTDEBITSCHEDULECODE" Description="Direct debit schedule" Name="DIRECTDEBITSCHEDULECODEID" Required="false"/>
+		<CodeTableField CodeTable="USR_CREDITCARDSCHEDULECODE" Description="Credit card schedule" Name="CREDITCARDSCHEDULECODEID" Required="false"/>
+		<TextField Name="PREDEPARTUREGIFTSTATUS" Description="Pre Departure Gift Status" Length="10" Required="false" DefaultValue="" />
+		<BooleanField Name="ISEFTDECLINED" Description="EFT is declined"/>
+		<CodeTableField Name="DELAYEFTPAYMENTDUEDATECODEID" Description="Delay EFT Payment Due Date" CodeTable="DELAYEFTPAYMENTDUEDATECODE"  Required="false"/>
+
+	</Fields>
+
+	<!-- define any additional check constraints on the table -->
+	<!--<CheckConstraints>
+
+	</CheckConstraints>-->
+
+	<!-- define any indexes on the table -->
+	<!--<Indexes>
+
+	</Indexes>-->
+		
+	<!-- define any triggers on the table -->
+	<!--<Triggers>
+
+	</Triggers>-->
+
+</TableSpec>

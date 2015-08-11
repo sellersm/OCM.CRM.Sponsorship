@@ -1,0 +1,51 @@
+﻿<QueryViewSpec
+	xmlns="bb_appfx_queryview"
+	xmlns:common="bb_appfx_commontypes" 
+	ID="b5c5ab16-b435-41a5-9915-3aaf428be7fb"
+	Name="Prospects to Convert Query"
+	Description="Used to determine which prospect sponsorships that are now on EFT or have a payment."
+	Author="Cary Mayeda"
+	IsRoot="true"
+	PrimaryKeyField="ID"
+	RecordType="Constituent"
+	common:SecurityUIFolder="Sponsorship"
+	>
+
+	<!-- define the view used to return data for the query -->
+	<ViewImplementation ViewName="USR_V_QUERY_PROSPECTSTOCONVERT">
+		<ViewSQL>
+			<![CDATA[
+
+  select distinct(CONSTITUENTID) as ID
+        from dbo.SPONSORSHIP s
+        join dbo.USR_SPONSORSHIPEXTENSION s_ext on s.ID = s_ext.ID
+        join dbo.USR_CURRENTOPPORTUNITYSPONSORSHIPSTATUSCODE currentstatus on currentstatus.ID = s_ext.CURRENTOPPORTUNITYSPONSORSHIPSTATUSCODEID 
+       where s.STATUSCODE = 1  -- active
+         and lower(currentstatus.DESCRIPTION) = lower ('Prospect Sponsored')
+         and (dbo.USR_UFN_SPONSORSHIP_ISEFT (s.ID) = 1
+              or dbo.USR_UFN_SPONSORSHIP_HASPAYMENT (s.ID, null) = 1)
+  
+  /*select distinct(CONSTITUENTID) as ID
+        from dbo.SPONSORSHIP s
+        join dbo.USR_SPONSORSHIPEXTENSION s_ext on s.ID = s_ext.ID
+       where s.STATUSCODE = 1  -- active
+         and s_ext.CURRENTOPPORTUNITYSPONSORSHIPSTATUSCODEID = dbo.USR_UFN_CURRENTOPPORTUNITYSPONSORSHIPSTATUSCODE_GETID_FORDESCRIPTION('Prospect Sponsored')
+         and (dbo.USR_UFN_SPONSORSHIP_ISEFT (s.ID) = 1
+              or dbo.USR_UFN_SPONSORSHIP_HASPAYMENT (s.ID, null) = 1) */
+
+			]]>
+		</ViewSQL>
+	</ViewImplementation>
+
+	<!-- describe each field in the view output -->
+	<Output>
+		<OutputFields>
+			<OutputField Caption="System record ID" Category="System Fields" Name="ID" />
+		</OutputFields>
+	</Output>
+
+	<RelationshipOperations>
+		<AddRelatedView RelatedView="V_QUERY_CONSTITUENT" Field="ID" RelatedField="ID" PathAlias="Constituent" />
+	</RelationshipOperations>
+</QueryViewSpec>
+

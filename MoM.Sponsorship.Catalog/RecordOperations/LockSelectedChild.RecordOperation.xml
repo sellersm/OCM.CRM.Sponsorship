@@ -1,0 +1,40 @@
+﻿<RecordOperationSpec 
+	xmlns="bb_appfx_recordoperation"
+	xmlns:common="bb_appfx_commontypes" 
+	ID="c642aa2d-f3f0-4d58-b3f9-a083de9a0009" 
+	Name="LockSelectedChild Record Operation" 
+	Description="Inserts a row into the selected child lock table"
+	Author="Memphis Sellers"
+	OperationType="Update"
+	RecordType="SponsorshipOpportunity"
+	common:SecurityUIFolder="Sponsorship"
+	>
+
+	<SPRecord>
+		<SPOperationImplementation SPName="USR_USP_INSERT_CHILDSELECTION_LOCK_RECORDOPERATION">
+			<common:CreateProcedureSQL>
+				<![CDATA[
+create procedure dbo.USR_USP_INSERT_CHILDSELECTION_LOCK_RECORDOPERATION
+(
+	@ID uniqueidentifier,
+	@CHANGEAGENTID uniqueidentifier
+)
+as begin
+	--check deletion rules, if any
+
+	-- use the system generated delete routine to allow proper recording of the deleting agent
+	exec USR_USP_INSERT_LOCK_CHILD_FOR_SPONSORSHIP_SELECTION @CHANGEAGENTID, @ID
+	return 0;
+	
+end
+				]]>
+			</common:CreateProcedureSQL>
+		</SPOperationImplementation>
+	</SPRecord>
+
+	<!-- optionally, offer a prompt before executing the record operation -->
+	<!--<Prompt>
+		<StandardPrompt Text="Are you sure you want to continue?" />
+	</Prompt>-->
+
+</RecordOperationSpec>

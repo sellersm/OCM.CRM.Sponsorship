@@ -1,0 +1,83 @@
+﻿<AddDataFormTemplateSpec 
+	xmlns="bb_appfx_adddataformtemplate"
+	xmlns:common="bb_appfx_commontypes" 
+	ID="B632390A-1F6C-4818-AD51-D01D216CAE20" 
+	Name="Assign Recurring Gift Add Data Form"
+	Description="Form to allow user to assign a recurring gift to a sponsorship that has no recurring gift" 
+	Author="Cary Mayeda"
+	DataFormInstanceID="D120A8F5-FEC5-40DF-842F-C2A5DC364ECA" 
+	RecordType="SPONSORSHIP"
+	common:SecurityUIFolder="OCM Admin Action Tasks" >
+	<!-- 
+	Remarks:    This will only assign the recurring gift if the REVENUESPLITID column is null on the Sonsorship.
+				Modified ReassignOrphanRecurringGift Add Data Form
+
+	History:
+	Date            Modified By     Comments
+	04-Mar-2013		CMayeda			Initial Version
+	-->
+
+	<SPDataForm>
+		<!-- describe the save SP -->
+		<SaveImplementation SPName="USR_USP_DATAFORMTEMPLATE_ADD_ASSIGN_RECURRINGGIFT">
+			<common:CreateProcedureSQL>
+				<![CDATA[
+create procedure dbo.USR_USP_DATAFORMTEMPLATE_ADD_ASSIGN_RECURRINGGIFT	
+(
+    @ID uniqueidentifier = null output,
+	@CONTEXTID uniqueidentifier,				-- SPONSORSHIPID of the sponsorship user is viewing
+    @CHANGEAGENTID uniqueidentifier = null,
+	@RECURRINGGIFTID uniqueidentifier = null	-- recurring gift guid user enters into form
+)
+as
+
+set nocount on;
+
+if @ID is null
+    set @ID = newid()
+
+if @CHANGEAGENTID is null  
+    exec dbo.USP_CHANGEAGENT_GETORCREATECHANGEAGENT @CHANGEAGENTID output
+
+begin try
+	-- ensure we have a sponsorship id:
+	if @CONTEXTID is null
+		RAISERROR 1000000 'No sponsorship ID was given. Something went wrong, be sure you have a Sponsorship selected.'
+	
+	declare @CURRENTRECURRINGGIFTID uniqueidentifier
+	select @CURRENTRECURRINGGIFTID = REVENUESPLITID from dbo.SPONSORSHIP where ID = @CONTEXTID
+	
+	if @CURRENTRECURRINGGIFTID is not null
+		RAISERROR 1000000 'The sponsorship is not missing a recurring gift.'
+	
+	update dbo.SPONSORSHIP
+	   set REVENUESPLITID = @RECURRINGGIFTID,
+		   DATECHANGED = getdate(),
+		   CHANGEDBYID =  @CHANGEAGENTID		   
+	 where ID = @CONTEXTID
+	 
+end try
+
+begin catch
+    exec dbo.USP_RAISE_ERROR
+    return 1
+end catch
+
+return 0				
+				]]>
+			</common:CreateProcedureSQL>
+		</SaveImplementation>
+	</SPDataForm>
+
+	<!-- describe the context ID for this form (if applicable), which corresponds to a parameter in the SP. -->
+	<Context ContextRecordType="SPONSORSHIP" RecordIDParameter="CONTEXTID"/>
+
+	<!-- describe fields on the form, which correspond to parameters on the SP.  Note that system parameters 
+	like the context @ID, @CONTEXTID, and @CURRENTAPPUSERID need not be listed. -->
+	<common:FormMetaData FixedDialog="true">
+		<common:FormFields>
+			<common:FormField FieldID="RECURRINGGIFTID" Caption="Recurring Gift ID" DataType="Guid"/>
+		</common:FormFields>		
+	</common:FormMetaData>
+
+</AddDataFormTemplateSpec>
