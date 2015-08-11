@@ -772,6 +772,9 @@
     <EmbeddedResource Include="RGL\SponsorshipCommitment.Query.xml" />
     <EmbeddedResource Include="RGL\USP_MERGEMULTIPLESPONSORSHIPCOMMITMENTS.xml" />
     <EmbeddedResource Include="RGL\USP_MERGESPONSORSHIPCOMMITMENTRECURRINGGIFTS.xml" />
+    <EmbeddedResource Include="Query Views\Sponsorship.SystemDatetimes.Query.xml" />
+    <EmbeddedResource Include="Query Views\Revenue.SystemDateTimes.Query.xml" />
+    <EmbeddedResource Include="Query Views\RGL.RevenueBackup.Query.xml" />
     <Content Include="View Forms\SponsorshipCommitmentPageExpression.View.xml" />
     <EmbeddedResource Include="Query Views\SponsorshipExtensionUpdateLog.Query.xml" />
     <EmbeddedResource Include="Query Views\SponsorshipExtensionInsertLog.Query.xml" />
