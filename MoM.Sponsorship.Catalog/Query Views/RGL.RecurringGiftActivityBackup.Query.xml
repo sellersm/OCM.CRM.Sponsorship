@@ -1,0 +1,47 @@
+﻿<QueryViewSpec
+	xmlns="bb_appfx_queryview"
+	xmlns:common="bb_appfx_commontypes"
+	ID="529a1755-89d5-4a25-9b9e-77ead4247031"
+	Name="RGL Recurring Gift Activity Backup Query"
+	Description="RGL Revenue Backup used to view Revenue items changed in Phase I of the RGL process"
+	Author="Cary Mayeda"
+	IsRoot="false"
+	PrimaryKeyField="ID"
+	RecordType="Revenue"
+	common:SecurityUIFolder="Revenue"
+	>
+
+	<!-- define the view used to return data for the query -->
+	<ViewImplementation ViewName="USR_V_QUERY_RGLBACKUP_RECURRINGGIFTACTIVITY">
+		<ViewSQL>
+			<![CDATA[
+
+select 
+	ID,
+	SOURCEREVENUEID,
+	PAYMENTREVENUEID,
+	DATECHANGED
+from
+	dbo.USR_RGLBACKUP_RECURRINGGIFTACTIVITY
+
+			]]>
+		</ViewSQL>
+	</ViewImplementation>
+
+	<!-- describe each field in the view output -->
+	<Output>
+		<OutputFields>
+			<OutputField Caption="System record ID" Category="System Fields" Name="ID" />
+			<OutputField Name="SOURCEREVENUEID" Caption="Source Revenue ID" DataType="Guid" />
+			<OutputField Name="PAYMENTREVENUEID" Caption="Payment Revenue ID" DataType="Guid" />
+			<OutputField Name="DATECHANGED" Caption="Date Changed" DataType="Date" />
+		</OutputFields>
+	</Output>
+
+
+	<RelationshipOperations>
+		<AddToParentView Cardinality="OneToOne" PathAlias="RGL Activity Backup" ParentView="V_QUERY_REVENUE" Field="ID" ParentViewRelatedField="ID" />
+	</RelationshipOperations>
+
+</QueryViewSpec>
+

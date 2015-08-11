@@ -1,0 +1,49 @@
+﻿<QueryViewSpec
+	xmlns="bb_appfx_queryview"
+	xmlns:c="bb_appfx_commontypes" 
+	ID="0a5c789a-779d-4e94-ac66-d6177243186b"
+	Name="Sponsorship Commitment Query"
+	Description="A view defined for querying on sponsorship commitment records"
+	Author="Zuri Group\Ken Swift"
+	IsRoot="true"
+	PrimaryKeyField="ID"
+	RecordType="Sponsorship Commitment"
+	c:SecurityUIFolder="Sponsorship Commitment"
+	>
+
+	<!-- define the view used to return data for the query -->
+	<ViewImplementation ViewName="USR_V_QUERY_SPONSORSHIPCOMMITMENT">
+		<ViewSQL>
+			<![CDATA[
+        select
+	        ID,
+	        CONSTITUENTID,
+	        LOOKUPID,
+          ADDEDBYID,
+          CHANGEDBYID,
+          DATEADDED,
+          DATECHANGED
+        from 
+          SPONSORSHIPCOMMITMENT				
+			]]>
+		</ViewSQL>
+	</ViewImplementation>
+
+	<!-- describe each field in the view output -->
+	<Output>
+		<OutputFields>
+			<OutputField Caption="System record ID" Category="System Fields" Name="ID" />
+			<OutputField Caption="Added by ID" Category="System Fields" Name="ADDEDBYID" />
+			<OutputField Caption="Changed by ID" Category="System Fields" Name="CHANGEDBYID" />
+			<OutputField Caption="Date added" Category="System Fields" Name="DATEADDED" />
+			<OutputField Caption="Date changed" Category="System Fields" Name="DATECHANGED" />      
+			<OutputField Name="CONSTITUENTID" Caption="Constituent" DataType="Guid" IsHidden="true"/>
+			<OutputField Name="LOOKUPID" Caption="Lookup ID" DataType="String" />
+		</OutputFields>
+	</Output>
+  <RelationshipOperations>
+    <AddRelatedView RelatedView="V_QUERY_CONSTITUENT" RelatedField="ID" Field="CONSTITUENTID" PathAlias="Constituent"/>
+    <AddRelatedView RelatedView="V_QUERY_SPONSORSHIP" RelatedField="COMMITMENTID" Field="ID" PathAlias="Sponsorship"/>
+  </RelationshipOperations>
+</QueryViewSpec>
+
