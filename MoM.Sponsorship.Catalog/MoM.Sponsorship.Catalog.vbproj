@@ -765,6 +765,17 @@
     <Content Include="Global Changes\MergeSponsorshipCommitmentRecurringGifts.GlobalChange.xml" />
     <EmbeddedResource Include="View Forms\RecurringGiftLineDetail.View.xml" />
     <EmbeddedResource Include="Query Views\RGL.Query.xml" />
+    <EmbeddedResource Include="RGL\MergeMultipleSponsorshipCommitments.Add.xml" />
+    <EmbeddedResource Include="RGL\MergeMultipleSponsorshipCommitments.GlobalChange.xml" />
+    <EmbeddedResource Include="RGL\MergeSponsorshipCommitmentRecurringGifts.GlobalChange.xml" />
+    <EmbeddedResource Include="RGL\RGL.Package.xml" />
+    <EmbeddedResource Include="RGL\SponsorshipCommitment.Query.xml" />
+    <EmbeddedResource Include="RGL\USP_MERGEMULTIPLESPONSORSHIPCOMMITMENTS.xml" />
+    <EmbeddedResource Include="RGL\USP_MERGESPONSORSHIPCOMMITMENTRECURRINGGIFTS.xml" />
+    <EmbeddedResource Include="Query Views\Sponsorship.SystemDatetimes.Query.xml" />
+    <EmbeddedResource Include="Query Views\Revenue.SystemDateTimes.Query.xml" />
+    <EmbeddedResource Include="Query Views\RGL.RecurringGiftActivityBackup.Query.xml" />
+    <EmbeddedResource Include="Query Views\RGL.RevenueExtBackup.Query.xml" />
     <Content Include="View Forms\SponsorshipCommitmentPageExpression.View.xml" />
     <EmbeddedResource Include="Query Views\SponsorshipExtensionUpdateLog.Query.xml" />
     <EmbeddedResource Include="Query Views\SponsorshipExtensionInsertLog.Query.xml" />

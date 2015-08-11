@@ -1,0 +1,50 @@
+﻿<QueryViewSpec
+	xmlns="bb_appfx_queryview"
+	xmlns:common="bb_appfx_commontypes" 
+	ID="bf5d1e0d-9655-480c-a9df-f0035bf5d499"
+	Name="Revenue System Datetimes Query"
+	Description="Used to display the time portion of DATEADDED and DATECHANGED in the FINANCIALTRANSACTION table"
+	Author="Cary Mayeda"
+	IsRoot="false"
+	PrimaryKeyField="ID"
+	RecordType="Revenue"
+	common:SecurityUIFolder="Revenue"
+	>
+	<!-- 
+	Remarks:    DATEADDED and DATECHANGED cannot be null, so it isn't checked.
+
+	History:
+	Date            Modified By     Comments
+	11-Aug-2015		CMayeda			Initial Version
+	-->
+
+	<!-- define the view used to return data for the query -->
+	<ViewImplementation ViewName="USR_V_QUERY_REVENUE_SYSTEMDATETIMES">
+		<ViewSQL>
+			<![CDATA[
+select
+	ID,
+	convert(varchar, DATEADDED, 120) as DATETTIMEADDED,
+	convert(varchar, DATECHANGED, 120) as DATETIMECHANGED
+from 
+	dbo.FINANCIALTRANSACTION
+	
+			]]>
+		</ViewSQL>
+	</ViewImplementation>
+
+	<!-- describe each field in the view output -->
+	<Output>
+		<OutputFields>
+			<OutputField Caption="System record ID" Category="System Fields" Name="ID" />
+			<OutputField Name="DATETTIMEADDED" Caption="Datetime Added" DataType="String" />
+			<OutputField Name="DATETIMECHANGED" Caption="Datetime Changed" DataType="String" />
+		</OutputFields>
+	</Output>
+
+	<RelationshipOperations>
+		<AddToParentView Cardinality="OneToOne" PathAlias="System Datetimes" ParentView="V_QUERY_REVENUE" Field="ID" ParentViewRelatedField="ID" />
+	</RelationshipOperations>
+
+</QueryViewSpec>
+
