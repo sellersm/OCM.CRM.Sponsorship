@@ -7,6 +7,13 @@
 	Author="Zuri Group\Ken Swift"
 	SPName="USR_USP_MERGEMULTIPLESPONSORSHIPCOMMITMENTS"
 	>
+	<!-- 
+	Remarks:    
+
+	History:
+	Date            Modified By     Comments
+	12-Aug-2015		CMayeda			Added CHANGEDBYID to all update statements
+	-->
 
 	<CreateProcedureSQL>
 		<![CDATA[
@@ -14,10 +21,10 @@ create procedure dbo.USR_USP_MERGEMULTIPLESPONSORSHIPCOMMITMENTS
 (
 	@MERGECOMMITMENTS XML,
 	@EARLIESTSTARTDATE datetime,
-  @DELETERECORDS bit,
-  @NUMBEREDITED int output,
-  @NUMBERDELETED int output,
-  @CHANGEAGENTID uniqueidentifier
+	@DELETERECORDS bit,
+	@NUMBEREDITED int output,
+	@NUMBERDELETED int output,
+	@CHANGEAGENTID uniqueidentifier
 )
 as
 begin	
@@ -72,8 +79,7 @@ begin
 			    from 
 				    SPONSORSHIP S
 			    inner join
-				    smartfield04FC699079A14D108E5E740BA564B02C ESSD on S.CONSTITUENTID = ESSD.ID			
---				    smartfield35EFF8A4CA954D9AA9BA012A8C82C5E3 ESSD on S.CONSTITUENTID = ESSD.ID
+				    smartfield35EFF8A4CA954D9AA9BA012A8C82C5E3 ESSD on S.CONSTITUENTID = ESSD.ID  -- PROD / DEV as of 8/12/15
           inner join 
             SPONSORSHIPCOMMITMENT SC on S.SPONSORSHIPCOMMITMENTID = SC.ID
 			    inner join	
@@ -124,8 +130,9 @@ begin
     update
 	    FINANCIALTRANSACTION
     set
-	    DATE = M.MINDATE,
-      DATECHANGED = @CURRENTDATE
+		DATE = M.MINDATE,
+		CHANGEDBYID = @CHANGEAGENTID,
+		DATECHANGED = @CURRENTDATE
     from
 	    FINANCIALTRANSACTION
     inner join
@@ -136,7 +143,8 @@ begin
 	    RECURRINGGIFTACTIVITY 
     set 
 	    SOURCEREVENUEID = M.TARGETREVENUEID, 
-      DATECHANGED = @CURRENTDATE
+		CHANGEDBYID = @CHANGEAGENTID,
+		DATECHANGED = @CURRENTDATE
     from
 	    RECURRINGGIFTACTIVITY 
     inner join
@@ -147,7 +155,8 @@ begin
 	    RECURRINGGIFTINSTALLMENT
     set
 	    REVENUEID = M.TARGETREVENUEID,
-      DATECHANGED = @CURRENTDATE
+		CHANGEDBYID = @CHANGEAGENTID,
+		DATECHANGED = @CURRENTDATE
     from
 	    RECURRINGGIFTINSTALLMENT
     inner join
@@ -183,7 +192,8 @@ begin
     set 
 	    APPEALID = A.APPEALID,
 	    CHANNELCODEID = A.CHANNELCODEID,
-      DATECHANGED = @CURRENTDATE
+		CHANGEDBYID = @CHANGEAGENTID,
+		DATECHANGED = @CURRENTDATE
     from
 	    REVENUE_EXT	
     inner join
@@ -194,7 +204,8 @@ begin
 	    SPONSORSHIP
     set
 	    REVENUESPLITID = T.ID,
-      DATECHANGED = @CURRENTDATE
+		CHANGEDBYID = @CHANGEAGENTID,
+		DATECHANGED = @CURRENTDATE
     from
 	    SPONSORSHIP S
     inner join

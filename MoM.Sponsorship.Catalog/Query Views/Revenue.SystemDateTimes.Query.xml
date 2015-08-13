@@ -11,7 +11,7 @@
 	common:SecurityUIFolder="Revenue"
 	>
 	<!-- 
-	Remarks:    DATEADDED and DATECHANGED cannot be null, so it isn't checked.
+	Remarks:    NOTE: DATEADDED and DATECHANGED cannot be null, so it isn't checked.
 
 	History:
 	Date            Modified By     Comments
