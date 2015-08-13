@@ -10,6 +10,13 @@
 	RecordType="Revenue"
 	common:SecurityUIFolder="Revenue"
 	>
+	<!-- 
+	Remarks:    
+
+	History:
+	Date            Modified By     Comments
+	11-Aug-2015		CMayeda			Initial Version
+	-->
 
 	<!-- define the view used to return data for the query -->
 	<ViewImplementation ViewName="USR_V_QUERY_RGLBACKUP_RECURRINGGIFTACTIVITY">
@@ -17,13 +24,17 @@
 			<![CDATA[
 
 select 
-	ID,
-	SOURCEREVENUEID,
-	PAYMENTREVENUEID,
-	DATECHANGED
+	rgabackup.SOURCEREVENUEID as ID,
+	rgabackup.PAYMENTREVENUEID,
+	case when ft.DELETEDON is null then ft.CALCULATEDUSERDEFINEDID else null end as PAYMENTREVENUELOOKUPID,
+	ft.DATE as PAYMENTDATE,
+	ftli.TRANSACTIONAMOUNT as PAYMENTAMOUNT,
+	rgabackup.DATECHANGED
 from
-	dbo.USR_RGLBACKUP_RECURRINGGIFTACTIVITY
-
+	dbo.USR_RGLBACKUP_RECURRINGGIFTACTIVITY rgabackup
+	join dbo.FINANCIALTRANSACTIONLINEITEM ftli on rgabackup.PAYMENTREVENUEID = ftli.ID
+	join dbo.FINANCIALTRANSACTION ft on ftli.FINANCIALTRANSACTIONID = ft.ID
+	
 			]]>
 		</ViewSQL>
 	</ViewImplementation>
@@ -32,8 +43,10 @@ from
 	<Output>
 		<OutputFields>
 			<OutputField Caption="System record ID" Category="System Fields" Name="ID" />
-			<OutputField Name="SOURCEREVENUEID" Caption="Source Revenue ID" DataType="Guid" />
-			<OutputField Name="PAYMENTREVENUEID" Caption="Payment Revenue ID" DataType="Guid" />
+			<OutputField Name="PAYMENTREVENUEID" Caption="Payment Revenue System ID" DataType="Guid" />
+			<OutputField Name="PAYMENTREVENUELOOKUPID" Caption="Payment Revenue ID" DataType="String" />
+			<OutputField Name="PAYMENTDATE" Caption="Payment Date" DataType="Date" />
+			<OutputField Name="PAYMENTAMOUNT" Caption="Payment Amount" DataType="Money" />
 			<OutputField Name="DATECHANGED" Caption="Date Changed" DataType="Date" />
 		</OutputFields>
 	</Output>
