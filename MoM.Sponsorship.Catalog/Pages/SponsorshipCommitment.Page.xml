@@ -29,10 +29,12 @@
 		<Tab Caption="Sponsorships" ID="5e6780f3-e855-45df-b4ae-738137518d77">
 			<Sections>
 
-				<Section ID="0D9A19DC-53A2-4007-A014-EBCA979F8609" Caption="CLH - Recurring Gifts">
-					<DataList ID="4a17d4f4-0baf-4de4-bbf2-4daecec85386">
+				<Section ID="0D9A19DC-53A2-4007-A014-EBCA979F8609" Caption="RGL - Recurring Gift Line">
+					<DataList ID="749a0a07-a782-4729-8538-4b714b36c527" AutoDisplayFilters="true">
 						<RenderStyle>
-							<RelationalView IDField="ID" ParentField="PARENTID" SequenceField="COMMITMENTSEQUENCE" />
+							<RelationalView IDField="ID" ParentField="PARENTID" SequenceField="COMMITMENTSEQUENCE">
+								<DetailViewForm ViewDataFormID="afa8948d-6ef5-419b-abe1-462237f63b8b" />
+							</RelationalView>
 						</RenderStyle>
 					</DataList>
 					<SectionContext>
