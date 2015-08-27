@@ -1,0 +1,48 @@
+﻿<SQLStoredProcedureSpec
+	xmlns="bb_appfx_sqlstoredprocedure"
+	xmlns:common="bb_appfx_commontypes" 
+	ID="9BBF231D-B007-4E05-BE2B-C4F3E126CF48"
+	Name="USR_USP_D3_CAMPAIGNPROCESS_GETPARAMETERS"
+	Description="Defines a stored procedure that is used within the business process .NET CLR code to retrieve the instance parameters for a given id. See D3CampaignBusinessProcess.vb"
+	Author="Cary Mayeda"
+	SPName="USR_USP_D3_CAMPAIGNPROCESS_GETPARAMETERS"
+	>
+	
+	<!-- 
+	Remarks:    
+
+	History:
+	Date            Modified By     Comments
+	02-Feb-2015		Memphis			Initial Version copied from Cary's USR_USP_D4CAMPAIGNPROCESS_GETPARAMETERS
+	-->
+	
+	<CreateProcedureSQL>
+		<![CDATA[
+create procedure dbo.USR_USP_D3_CAMPAIGNPROCESS_GETPARAMETERS (
+	@ID uniqueidentifier
+)
+as
+begin
+	-- do work
+	begin try
+		if @ID is null
+			raiserror 100000 'The Campaign Type parameter value is empty! Unable to continue.'
+		
+		select
+			CAMPAIGNTYPE
+		from
+			dbo.USR_D3_CAMPAIGN_BUSINESSPROCESS
+		where
+			ID = @ID	
+	end try
+	
+	begin catch
+		exec dbo.USP_RAISE_ERROR
+		return 1;
+	end catch	
+end
+
+		]]>
+	</CreateProcedureSQL>
+
+</SQLStoredProcedureSpec>

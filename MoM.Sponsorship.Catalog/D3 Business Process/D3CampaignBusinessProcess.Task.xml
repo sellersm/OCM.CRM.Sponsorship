@@ -1,0 +1,31 @@
+﻿<TaskSpec 
+	xmlns:xsd="http://www.w3.org/2001/XMLSchema" 
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+	ID="8BFCB5F7-AC52-4646-A10D-925BED81F3ED" 
+	Name="D3 Campaign Business Process" 
+	Description="View the D3 Campaign Business Process page" 
+	Author="Memphis Sellers" 
+	ImageKey="RES:goto_round" 
+	SmallImageKey="RES:goto_round" 
+	FunctionalAreaID="9ea48d9c-7e2d-42e6-91cc-210792618017" 
+	TaskGroup="Administration" 
+	Sequence="99"
+	DisplayAsAction="true"
+	xmlns="bb_appfx_task"
+	>
+
+	<!-- 
+	Remarks:    
+
+	History:
+	Date            Modified By     Comments
+	02-Feb-2015		Memphis			Initial Version copied from Cary's D4 Campaign Business Process
+	-->
+
+	<ShowPage PageID="AA248408-8CC3-4EE0-8C50-26F5EDC867E8" TabID="8FE8A330-3343-4E9B-A84F-FBE344446F64" xmlns="bb_appfx_commontypes" >
+		<ActionContext>
+			<Expression>7E901696-BFE1-4070-89F6-EC31320EB427</Expression>
+		</ActionContext>
+	</ShowPage>
+
+</TaskSpec>

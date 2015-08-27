@@ -1,0 +1,62 @@
+﻿<TableSpec 
+	xmlns="bb_appfx_table"
+	xmlns:common="bb_appfx_commontypes" 
+	ID="279C5057-7C82-455B-9215-1FA3171149B8"
+	Name="D4 Campaign Business Process"
+	Description="Parameter table for the D4 Campaign business process."
+	Author="Cary Mayeda"
+	Tablename="USR_D4_CAMPAIGN_BUSINESSPROCESS"		   
+	>
+
+	<!-- 
+	Remarks:	Trigger is used to delete rows in system business process table - BUSINESSPROCESSINSTANCE
+				Currently QUERYVIEWID isn't being used.
+				
+				Note:  Curently only one row is added through a script.  There is no UI for a user to add a parameter set.
+				
+	History:
+	Date			Modified By		Comments
+	14-May-2013		CMayeda			Initial Version copied from Memphis' USR_D2_CAMPAIGN_BUSINESSPROCESS
+	-->
+
+
+	<!-- define fields on the table -->
+	<Fields>
+		<TextField Name="NAME" Length="100" Required="true" IsUnique="true" Description="The name of the parameter set"/>
+		<TextField Name="DESCRIPTION" Length="255" Description="Details describing this parameter set"/>
+		<NumberField Name="CAMPAIGNTYPE" Description="Campaign Type" Type="tinyint" />
+	</Fields>
+
+	<!-- define any additional check constraints on the table --><!--
+	<CheckConstraints>
+
+	</CheckConstraints>
+
+	--><!-- define any indexes on the table --><!--
+	<Indexes>
+
+	</Indexes>-->
+		
+	<!-- define any triggers on the table -->
+	<Triggers>
+		<Trigger Name="TR_USR_D4_CAMPAIGN_BUSINESSPROCESS_DELETE_BUSINESSPROCESSINSTANCE"
+             Enabled="true"
+             Description="Used to delete the common business process records associated with this record.">
+			<CreateTriggerSQL>
+				<![CDATA[
+
+create trigger TR_USR_D4_CAMPAIGN_BUSINESSPROCESS_DELETE_BUSINESSPROCESSINSTANCE 
+		on dbo.USR_D4_CAMPAIGN_BUSINESSPROCESS 
+		after delete not for replication
+as begin
+
+	delete from dbo.BUSINESSPROCESSINSTANCE
+	 where BUSINESSPROCESSPARAMETERSETID in (select ID from deleted) 
+ 	   and BUSINESSPROCESSCATALOGID = '0D586E6B-8B8A-4386-8167-EEB07A37A262'; -- guid is the ID from business process spec - see D4Campaign.BusinessProcess.xml
+end 
+				]]>
+			</CreateTriggerSQL>
+		</Trigger>
+	</Triggers>
+
+</TableSpec>

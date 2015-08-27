@@ -1,0 +1,241 @@
+﻿<SQLStoredProcedureSpec
+	xmlns="bb_appfx_sqlstoredprocedure"
+	xmlns:c="bb_appfx_commontypes" 
+	ID="4efac706-b2f4-4543-8a36-246fa6d7baab"
+	Name="USR_USP_MERGEMULTIPLESPONSORSHIPCOMMITMENTS "
+	Description="REPLACE_WITH_DESCRIPTION"
+	Author="Zuri Group\Ken Swift"
+	SPName="USR_USP_MERGEMULTIPLESPONSORSHIPCOMMITMENTS"
+	>
+	<!-- 
+	Remarks:    
+
+	History:
+	Date            Modified By     Comments
+	12-Aug-2015		CMayeda			Added CHANGEDBYID to all update statements
+	-->
+
+	<CreateProcedureSQL>
+		<![CDATA[
+create procedure dbo.USR_USP_MERGEMULTIPLESPONSORSHIPCOMMITMENTS
+(
+	@MERGECOMMITMENTS XML,
+	@EARLIESTSTARTDATE datetime,
+	@DELETERECORDS bit,
+	@NUMBEREDITED int output,
+	@NUMBERDELETED int output,
+	@CHANGEAGENTID uniqueidentifier
+)
+as
+begin	
+	declare @CURRENTDATE datetime
+	set @CURRENTDATE = getdate();
+	if @CHANGEAGENTID is null
+		exec dbo.USP_CHANGEAGENT_GETORCREATECHANGEAGENT @CHANGEAGENTID output;
+
+    declare @COMMITMENT table(ID nvarchar(100))
+    insert into @COMMITMENT
+      select 
+        T.mergecommitments.value('(COMMITMENTID)[1]','nvarchar(100)')   
+      from
+        @MERGECOMMITMENTS.nodes('/MERGECOMMITMENTS/ITEM') T(mergecommitments)
+        
+    declare @CONSTITUENTCOUNT int
+    set @CONSTITUENTCOUNT = (select count(distinct CONSTITUENTID) from @COMMITMENT C inner join SPONSORSHIPCOMMITMENT SC on C.ID = SC.LOOKUPID)
+    if @CONSTITUENTCOUNT > 1 
+    begin
+      raiserror ('Error trying to merge commitments for multiple constituents', 
+                   16, -- Severity.
+                   1 -- State.
+      );
+  end
+        
+
+    -- **********GET A LIST OF ALL THE RECURRING GIFTS THAT BELONG TO A COMMITMENT THAT HAS MORE THAN**************
+    -- **********ONE RECURRING GIFT ************
+    declare @RECURRINGGIFT table (
+	    ROWNUMBER int identity(1,1),
+	    REVENUEID uniqueidentifier,
+	    [RANK] INT,
+	    [DATE] datetime
+    )
+
+    insert into @RECURRINGGIFT
+	    select
+        distinct
+		    R.ID,
+		    ROW_NUMBER() OVER (ORDER BY R.DATE DESC) AS Rank,
+        coalesce((select min(DATE) from RECURRINGGIFTINSTALLMENT where REVENUEID = R.ID), R.DATE)
+	    from
+		    SPONSORSHIP S 
+	    left join
+		    FINANCIALTRANSACTIONLINEITEM RS on S.REVENUESPLITID = RS.ID
+	    left JOIN
+		    FINANCIALTRANSACTION R on RS.FINANCIALTRANSACTIONID = R.ID
+	    where
+		    S.SPONSORSHIPCOMMITMENTID in (
+			    select 
+				    S.SPONSORSHIPCOMMITMENTID
+			    from 
+				    SPONSORSHIP S
+			    inner join
+				    smartfield35EFF8A4CA954D9AA9BA012A8C82C5E3 ESSD on S.CONSTITUENTID = ESSD.ID  -- PROD / DEV as of 8/12/15
+          inner join 
+            SPONSORSHIPCOMMITMENT SC on S.SPONSORSHIPCOMMITMENTID = SC.ID
+			    inner join	
+				    @COMMITMENT C ON SC.LOOKUPID = C.ID
+			    where
+				    ESSD.VALUE > @EARLIESTSTARTDATE
+          group by
+				    S.SPONSORSHIPCOMMITMENTID
+	    )
+
+    --***************CREATE THE MERGE SET - ONE ROW FOR EACH SOURCE TO TARGET RECORD*******************
+    --***************WHERE THE RANK IS GREATER THAN 1 (1 = TARGET)*************************************
+    declare @MERGESET table (
+	    ROWNUMBER int identity(1,1),
+      RANK int,
+	    TARGETREVENUEID uniqueidentifier,
+	    SOURCEREVENUEID uniqueidentifier,
+	    MINDATE datetime,
+	    APPEALID uniqueidentifier,
+	    CHANNELCODEID uniqueidentifier
+    )
+
+    declare @i int = 1
+    declare @max int 
+
+    set @max = (select max(rownumber) from @RECURRINGGIFT)
+
+    while @i <= @max
+    begin
+	    -- INSERT THE MERGE RECORD
+	    insert into @MERGESET
+		    select 
+          RANK,
+			    (select top 1 REVENUEID from @RECURRINGGIFT where RANK = 1),
+			    REVENUEID,
+			    (select min(DATE) from @RECURRINGGIFT),
+			    (select top 1 R.APPEALID from @RECURRINGGIFT RG inner join REVENUE_EXT R on RG.REVENUEID = R.ID where RG.ROWNUMBER = RG1.ROWNUMBER order by [RANK] desc),
+			    (select top 1 R.CHANNELCODEID from @RECURRINGGIFT RG inner join REVENUE_EXT R on RG.REVENUEID = R.ID where RG.ROWNUMBER = RG1.ROWNUMBER order by [RANK] desc)
+		    from
+			    @RECURRINGGIFT RG1
+		    where
+			    ROWNUMBER = @i and RANK > 1
+	    set @i = @i + 1
+    end
+
+    --*******************UPDATE THE DATE OF THE RECURRING GIFTS TO THE*****************************
+    --*******************EARLIEST RECURRING GIFT FOR THIS COMMITMENT*******************************
+    update
+	    FINANCIALTRANSACTION
+    set
+		DATE = M.MINDATE,
+		CHANGEDBYID = @CHANGEAGENTID,
+		DATECHANGED = @CURRENTDATE
+    from
+	    FINANCIALTRANSACTION
+    inner join
+	    @MERGESET M on FINANCIALTRANSACTION.ID = M.TARGETREVENUEID	
+
+    --*******************UPDATE THE RECURRING GIFT ACTIVITY SOURCE ID TO THE NEW RG*****************
+    update 
+	    RECURRINGGIFTACTIVITY 
+    set 
+	    SOURCEREVENUEID = M.TARGETREVENUEID, 
+		CHANGEDBYID = @CHANGEAGENTID,
+		DATECHANGED = @CURRENTDATE
+    from
+	    RECURRINGGIFTACTIVITY 
+    inner join
+	    @MERGESET M on RECURRINGGIFTACTIVITY.SOURCEREVENUEID = M.SOURCEREVENUEID		
+
+    --********************UPDATE THE RECURRING GIFT INSTALLMENTS************************************
+    update 
+	    RECURRINGGIFTINSTALLMENT
+    set
+	    REVENUEID = M.TARGETREVENUEID,
+		CHANGEDBYID = @CHANGEAGENTID,
+		DATECHANGED = @CURRENTDATE
+    from
+	    RECURRINGGIFTINSTALLMENT
+    inner join
+	    @MERGESET M on RECURRINGGIFTINSTALLMENT.REVENUEID = M.SOURCEREVENUEID
+
+    --*************UPDATE THE APPEAL SOURCE LOGIC (MOVE APPEAL AND CHANNEL CODE FROM OLDEST RG TO NEWEST**************
+     declare @APPEALSET table(TARGETREVENUEID uniqueidentifier, APPEALID uniqueidentifier, CHANNELCODEID uniqueidentifier)
+	   declare @OLDESTGIFT table(TARGETREVENUEID uniqueidentifier, APPEALID uniqueidentifier, CHANNELCODEID uniqueidentifier, ROWNUMBER int)
+
+	   insert into @OLDESTGIFT
+          select 
+            M.TARGETREVENUEID,
+            R.APPEALID,
+            R.CHANNELCODEID,
+            ROW_NUMBER() OVER (PARTITION BY M.TARGETREVENUEID ORDER BY M.RANK desc) AS rownumber
+          from 
+            REVENUE_EXT R
+          inner join
+            @MERGESET M on R.ID = M.SOURCEREVENUEID          
+
+      insert into @APPEALSET
+        select
+          TARGETREVENUEID,
+          APPEALID,
+          CHANNELCODEID
+        from 
+            @OLDESTGIFT
+        where 
+            ROWNUMBER = 1
+          
+    update 
+	    REVENUE_EXT
+    set 
+	    APPEALID = A.APPEALID,
+	    CHANNELCODEID = A.CHANNELCODEID,
+		CHANGEDBYID = @CHANGEAGENTID,
+		DATECHANGED = @CURRENTDATE
+    from
+	    REVENUE_EXT	
+    inner join
+	    @APPEALSET A on REVENUE_EXT.ID = A.TARGETREVENUEID
+      
+    --****************RE-POINT the sponsorship to the correct recurring gift***************************
+    update
+	    SPONSORSHIP
+    set
+	    REVENUESPLITID = T.ID,
+		CHANGEDBYID = @CHANGEAGENTID,
+		DATECHANGED = @CURRENTDATE
+    from
+	    SPONSORSHIP S
+    inner join
+	    FINANCIALTRANSACTIONLINEITEM FTLI on S.REVENUESPLITID = FTLI.ID
+    inner join
+	    @MERGESET M on FTLI.FINANCIALTRANSACTIONID = M.SOURCEREVENUEID
+    inner join
+	    FINANCIALTRANSACTIONLINEITEM T on M.TARGETREVENUEID = T.FINANCIALTRANSACTIONID
+      
+    set @NUMBEREDITED = (select count(*) from @MERGESET)
+
+    if @DELETERECORDS = 1
+    begin
+      --**************DELETE any old recurring gift installments******************************************
+      delete from RECURRINGGIFTINSTALLMENT where ID = (select SOURCEREVENUEID from @MERGESET)
+
+      --**************DELETE THE RECURRING GIFTS**********************************************************
+      set @i = 0
+      set @max = (select max(ROWNUMBER) from @MERGESET)
+      declare @DELETEREVENUEID uniqueidentifier
+      while @i < @max
+      begin
+	      set @DELETEREVENUEID = (select SOURCEREVENUEID from @MERGESET where ROWNUMBER = @i +1)
+	      exec USP_REVENUE_DELETE @DELETEREVENUEID, @CHANGEAGENTID
+	      set @i = @i + 1
+      end
+      set @NUMBERDELETED = (select count(*) from @MERGESET)
+    end
+end
+		]]>
+	</CreateProcedureSQL>
+
+</SQLStoredProcedureSpec>

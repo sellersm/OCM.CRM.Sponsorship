@@ -1,0 +1,131 @@
+﻿<EditDataFormTemplateSpec
+	xmlns="bb_appfx_editdataformtemplate"
+	xmlns:c="bb_appfx_commontypes"
+	ID="e816840d-6692-428c-965b-2ebf3745b33d"
+	Name="Update Sponsorship Reason Edit Form"
+	Description="Update sponsorship reason on exiting commitment"
+	Author="Jason Foster"
+	DataFormInstanceID="068023d8-b2b8-4ffc-a2c1-d5435a5bc5c1"
+	RecordType="Sponsorship"
+	c:SecurityUIFolder="Sponsorship"
+	FormHeader="Update Sponsorship Reason"
+>
+
+  <!-- 
+	Remarks:    Edit form to allow direct updating of Sponsorship Reason
+				
+	History:
+	Date            Modified By     Comments
+	10-Mar-2013		  JFoster         Initial Version (Fogbugz Case 1007)
+	-->
+
+  <SPDataForm>
+    <LoadImplementation SPName="USR_USP_DATAFORMTEMPLATE_EDITLOAD_UPDATESPONSORSHIPREASON">
+      <c:CreateProcedureSQL>
+        <![CDATA[
+create procedure dbo.USR_USP_DATAFORMTEMPLATE_EDITLOAD_UPDATESPONSORSHIPREASON
+(
+	@ID uniqueidentifier,
+	@DATALOADED bit = 0 output,
+	@TSLONG bigint = 0 output,
+	@LOOKUPID nvarchar(100) = null output,
+	@OPPORTUNITYNAME nvarchar(100) = null output,
+  @STARTDATE date = null output,
+	@REASONID uniqueidentifier = null output
+)
+
+as
+
+set nocount on;
+
+declare @SOID uniqueidentifier;
+declare @SCID uniqueidentifier;
+select @SOID = SPONSORSHIPOPPORTUNITYID, @SCID = SPONSORSHIPCOMMITMENTID, @STARTDATE = STARTDATE from dbo.SPONSORSHIP where ID = @ID;
+
+if (select COUNT(1) from SPONSORSHIPOPPORTUNITYCHILD where ID = @SOID) > 0 
+	set @LOOKUPID = dbo.USR_UFN_CHILD_GETCHILDLOOKUPID(@SOID, 1) -- 1 specifies including the project lookup id 
+else 
+	select @LOOKUPID = SPONSORSHIPOPPORTUNITY.LOOKUPID from dbo.SPONSORSHIPOPPORTUNITY where SPONSORSHIPOPPORTUNITY.ID = @SOID;
+
+set @OPPORTUNITYNAME = dbo.UFN_SPONSORSHIPOPPORTUNITY_TRANSLATIONFUNCTION(@SOID);
+
+--select @REASONID = SPONSORSHIPREASONID from dbo.SPONSORSHIPOPPORTUNITY where ID = @SOID;
+select @REASONID = SPONSORSHIPREASONID from dbo.SPONSORSHIPTRANSACTION
+where SPONSORSHIPCOMMITMENTID = @SCID 
+and TRANSACTIONSEQUENCE = 
+(
+	select max(TRANSACTIONSEQUENCE) 
+	from dbo.SPONSORSHIPTRANSACTION MAXSEQUENCE 
+	where MAXSEQUENCE.SPONSORSHIPCOMMITMENTID = @SCID 
+	and @ID in (MAXSEQUENCE.CONTEXTSPONSORSHIPID,MAXSEQUENCE.TARGETSPONSORSHIPID,MAXSEQUENCE.DECLINEDSPONSORSHIPID) 
+	and MAXSEQUENCE.ACTIONCODE <> 9
+)
+set @DATALOADED = 1;
+
+return 0;
+]]>
+      </c:CreateProcedureSQL>
+    </LoadImplementation>
+
+    <SaveImplementation SPName="USR_USP_DATAFORMTEMPLATE_EDITSAVE_UPDATESPONSORSHIPREASON">
+      <c:CreateProcedureSQL>
+        <![CDATA[
+create procedure dbo.USR_USP_DATAFORMTEMPLATE_EDITSAVE_UPDATESPONSORSHIPREASON
+(
+	@ID uniqueidentifier,
+	@CHANGEAGENTID uniqueidentifier = null,
+	@REASONID uniqueidentifier
+)
+
+as
+set nocount on;
+
+if @CHANGEAGENTID is null
+  exec dbo.USP_CHANGEAGENT_GETORCREATECHANGEAGENT @CHANGEAGENTID output;
+
+begin try
+  declare @SOID uniqueidentifier;
+  declare @SCID uniqueidentifier;
+  select @SOID = SPONSORSHIPOPPORTUNITYID, @SCID = SPONSORSHIPCOMMITMENTID from dbo.SPONSORSHIP where ID = @ID;
+
+  /*
+  update dbo.SPONSORSHIPOPPORTUNITY
+    set CHANGEDBYID = @CHANGEAGENTID, DATECHANGED = GETDATE(), SPONSORSHIPREASONID = @REASONID
+    where ID = @SOID
+  */
+
+  update dbo.SPONSORSHIPTRANSACTION
+  set CHANGEDBYID = @CHANGEAGENTID, DATECHANGED = GETDATE(), SPONSORSHIPREASONID = @REASONID
+  where SPONSORSHIPCOMMITMENTID = @SCID 
+  and TRANSACTIONSEQUENCE = 
+  (
+	  select max(TRANSACTIONSEQUENCE) 
+	  from dbo.SPONSORSHIPTRANSACTION MAXSEQUENCE 
+	  where MAXSEQUENCE.SPONSORSHIPCOMMITMENTID = @SCID 
+	  and @ID in (MAXSEQUENCE.CONTEXTSPONSORSHIPID,MAXSEQUENCE.TARGETSPONSORSHIPID,MAXSEQUENCE.DECLINEDSPONSORSHIPID) 
+	  and MAXSEQUENCE.ACTIONCODE <> 9
+  )
+end try
+begin catch
+	exec dbo.USP_RAISE_ERROR
+	return 1
+end catch
+
+return 0;
+]]>
+      </c:CreateProcedureSQL>
+    </SaveImplementation>
+  </SPDataForm>
+  
+  <c:FormMetaData>
+    <c:FormFields>
+      <c:FormField FieldID="LOOKUPID" ReadOnly="true" MaxLength="100" Caption="Lookup ID" Description="Commitment Lookup ID"  />
+      <c:FormField FieldID="OPPORTUNITYNAME" ReadOnly="true" MaxLength="100" Caption="Opportunity" Description="Name of opportunity" />
+      <c:FormField FieldID="STARTDATE" ReadOnly="true" MaxLength="100" Caption="Start Date" Description="Start Date" />
+      <c:FormField FieldID="REASONID" DataType="Guid" Required="true" Caption="Reason" Description="Reason to update" >
+        <c:SimpleDataList SimpleDataListID="918097d5-2c26-42c7-8458-e5cc8a79e6c3" />
+      </c:FormField>
+    </c:FormFields>
+  </c:FormMetaData>
+
+</EditDataFormTemplateSpec>

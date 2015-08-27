@@ -1,0 +1,86 @@
+﻿<QueryViewSpec
+	xmlns="bb_appfx_queryview"
+	xmlns:common="bb_appfx_commontypes" 
+	ID="a5d5d09c-9c6b-41c2-8e0c-4e7ec303a550"
+	Name="Sponsorship Delinquency Query"
+	Description="Amount Due based on amount due (ntd for non-monthly)"
+	Author="Cary Mayeda"
+	IsRoot="true"
+	PrimaryKeyField="ID"
+	RecordType="Sponsorship"
+	common:SecurityUIFolder="Sponsorship" >
+	
+	<!-- 
+	Remarks:    
+
+	History:
+	Date            Modified By     Comments
+	19-Aug-2012		CMayeda			Initial Version
+	-->
+
+	<!-- define the view used to return data for the query -->
+	<ViewImplementation ViewName="USR_V_QUERY_SPONSORSHIPDELINQUENCY">
+		<ViewSQL>
+			<![CDATA[
+select 
+	s.ID,
+	dateadd(day, 1, dateadd(month, datediff(month, 0, getdate()), 0)) as SECONDASOFDATE,
+	case 
+		when rsch.FREQUENCYCODE in (0,1,2) then -- Annually, Semi-annually, Quarterly
+			case                                        
+				when day (rsch.NEXTTRANSACTIONDATE) < day (getdate()) then 
+					DATEDIFF(m, rsch.NEXTTRANSACTIONDATE, getdate())+ 1
+				else DATEDIFF(m, rsch.NEXTTRANSACTIONDATE, getdate())							
+			end
+		-- This get's the past due amount as of the 2nd of the current month
+		when rsch.FREQUENCYCODE = 3 then dbo.UFN_RECURRINGGIFT_GETPASTDUEAMOUNT(ft.ID, dateadd(day, 1, dateadd(month, datediff(month, 0, getdate()), 0))) / ft.TRANSACTIONAMOUNT -- Monthly
+		when rsch.FREQUENCYCODE = 6 then dbo.UFN_RECURRINGGIFT_GETPASTDUEAMOUNT(ft.ID, dateadd(day, 1, dateadd(month, datediff(month, 0, getdate()), 0))) / ((ft.TRANSACTIONAMOUNT * 6)/12) -- Bimonthly
+		when rsch.FREQUENCYCODE = 7 then dbo.UFN_RECURRINGGIFT_GETPASTDUEAMOUNT(ft.ID, dateadd(day, 1, dateadd(month, datediff(month, 0, getdate()), 0))) / ((ft.TRANSACTIONAMOUNT * 24)/12) -- Semi-Monthly
+		when rsch.FREQUENCYCODE = 8 then dbo.UFN_RECURRINGGIFT_GETPASTDUEAMOUNT(ft.ID, dateadd(day, 1, dateadd(month, datediff(month, 0, getdate()), 0))) / ((ft.TRANSACTIONAMOUNT * 26)/12) -- Biweekly
+		when rsch.FREQUENCYCODE = 9 then dbo.UFN_RECURRINGGIFT_GETPASTDUEAMOUNT(ft.ID, dateadd(day, 1, dateadd(month, datediff(month, 0, getdate()), 0))) / ((ft.TRANSACTIONAMOUNT * 52)/12) -- Weekly
+	end as MONTHSDELINQUENTONSECOND,
+	case 
+		when rsch.FREQUENCYCODE in (0,1,2) then -- Annually, Semi-annually, Quarterly
+			case                                        
+				when day (rsch.NEXTTRANSACTIONDATE) < day (getdate()) then 
+					DATEDIFF(m, rsch.NEXTTRANSACTIONDATE, getdate())+ 1
+				else DATEDIFF(m, rsch.NEXTTRANSACTIONDATE, getdate())							
+			end
+		-- This get's the past due amount as of the 2nd of the current month
+		when rsch.FREQUENCYCODE = 3 then dbo.UFN_RECURRINGGIFT_GETPASTDUEAMOUNT(ft.ID, getdate()) / ft.TRANSACTIONAMOUNT -- Monthly
+		when rsch.FREQUENCYCODE = 6 then dbo.UFN_RECURRINGGIFT_GETPASTDUEAMOUNT(ft.ID, getdate()) / ((ft.TRANSACTIONAMOUNT * 6)/12) -- Bimonthly
+		when rsch.FREQUENCYCODE = 7 then dbo.UFN_RECURRINGGIFT_GETPASTDUEAMOUNT(ft.ID, getdate()) / ((ft.TRANSACTIONAMOUNT * 24)/12) -- Semi-Monthly
+		when rsch.FREQUENCYCODE = 8 then dbo.UFN_RECURRINGGIFT_GETPASTDUEAMOUNT(ft.ID, getdate()) / ((ft.TRANSACTIONAMOUNT * 26)/12) -- Biweekly
+		when rsch.FREQUENCYCODE = 9 then dbo.UFN_RECURRINGGIFT_GETPASTDUEAMOUNT(ft.ID, getdate()) / ((ft.TRANSACTIONAMOUNT * 52)/12) -- Weekly
+	end as MONTHSDELINQUENTTODAY	
+from 
+	dbo.SPONSORSHIP s 
+	join dbo.SPONSORSHIPOPPORTUNITYCHILD on SPONSORSHIPOPPORTUNITYCHILD.ID = s.SPONSORSHIPOPPORTUNITYID
+	join dbo.REVENUESPLIT rsplit on s.REVENUESPLITID = rsplit.ID
+	join dbo.FINANCIALTRANSACTION ft on ft.ID = rsplit.REVENUEID
+	join dbo.REVENUESCHEDULE rsch on ft.id = rsch.id
+		
+where 
+	s.STATUSCODE = 1  	-- active sponsorship 
+and	rsch.STATUSCODE = 0	-- active recurring gift
+	  		
+			]]>
+		</ViewSQL>
+	</ViewImplementation>
+
+	<!-- describe each field in the view output -->
+	<Output>
+		<OutputFields>
+			<OutputField Caption="System record ID" Category="System Fields" Name="ID" />
+			<OutputField Name="SECONDASOFDATE" Caption="2nd As of Date" DataType="Date" />
+			<OutputField Name="MONTHSDELINQUENTONSECOND" Caption="Months Delinquent as of the 2nd" DataType="Decimal"  />
+			<OutputField Name="MONTHSDELINQUENTTODAY" Caption="Months Delinquent as of today" DataType="Decimal" />
+		</OutputFields>
+	</Output>
+
+	<RelationshipOperations>
+		<AddRelatedView RelatedView="V_QUERY_SPONSORSHIP" RelatedField="ID" Field="ID" PathAlias="Sponsorship"/>
+	</RelationshipOperations>
+
+</QueryViewSpec>
+

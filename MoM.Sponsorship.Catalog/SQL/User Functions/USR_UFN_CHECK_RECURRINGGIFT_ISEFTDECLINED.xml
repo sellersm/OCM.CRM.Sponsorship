@@ -1,0 +1,42 @@
+﻿<SQLFunctionSpec
+	xmlns="bb_appfx_sqlfunction"
+	xmlns:common="bb_appfx_commontypes" 
+	ID="5806291e-8b57-4e76-a768-cf0e9f627efd"
+	Name="USR_UFN_CHECK_RECURRINGGIFT_ISEFTDECLINED"
+	Description="Determines if RG is declined, based on RG Extension table ISEFTDECLINED column."
+	Author="Memphis Sellers"
+	DBFunctionName="USR_UFN_CHECK_RECURRINGGIFT_ISEFTDECLINED"
+	>
+
+	<!-- 
+	Remarks:  This checks to see if this gift is Declined, based on the ISEFTDECLINED field in the recurring gift extension table.
+			  Returns 0 if no, 1 if yes. Defaults to NO.
+
+	History:
+	Date            Modified By     Comments
+	03-Nov-2014		Memphis			Initial Version
+	-->	
+
+	<CreateFunctionSQL>
+		<![CDATA[
+create function dbo.USR_UFN_CHECK_RECURRINGGIFT_ISEFTDECLINED(
+	@REVENUESPLITID uniqueidentifier
+)
+returns bit
+with execute as caller
+as begin
+	-- do work here and return a value
+	declare @isHeld bit = 0;  -- default to No
+	if exists (select 1
+		from dbo.USR_FINANCIALTRANSACTION_EXTENSION
+		where (ID = (select REVENUEID from dbo.REVENUESPLIT where ID = @REVENUESPLITID)
+		and ISEFTDECLINED = 1)
+		)
+		set @isHeld = 1;
+		
+	return @isHeld;
+end
+		]]>
+	</CreateFunctionSQL>
+
+</SQLFunctionSpec>

@@ -1,0 +1,101 @@
+﻿<PageDefinitionSpec 
+    xmlns="bb_appfx_pagedefinition" 
+    xmlns:common="bb_appfx_commontypes"
+    ID="13dd95aa-7f0c-49b2-a58e-a6de299d0079"
+    Name="Prospect Conversion Business Process Page"
+    Description="Status page for Prospect sponsor conversion business process."
+    Author="Memphis Sellers"
+    ContextRecordType="Sponsorship"	
+	ExpressionDataFormID="ca691f58-9a2e-481e-a2e9-8d3b1878aaee"
+    >
+
+	<!-- Note:  A page can optionally have a view form associated with it as the "Expression form".  While implemented as a view data form,
+	this form has no UI in this context, and is simply used as a way of loading additional information associated with the page.  The fields
+	returned by the expression form can be used as expressions in various properties throughout the page.  To specify an expression form for this
+	page, add the following attribute:		ExpressionDataFormID="<some guid>"-->
+
+	<!-- define how the page header should appear -->
+	<PageHeader Caption="Prospect Conversion Business Process Status" />
+
+	<SummarySection ID="55405D34-289D-4FC1-8E44-A16738EFDD1A" HideCaption="True">
+		<DataForm ID="6f2b7627-76b4-483f-b6cc-26d69f0936e3" ShowBorder="true"/>
+		<SectionContext>
+			<Expression xmlns="bb_appfx_commontypes">E893C10B-4E01-496F-9657-0E64CF1B895F</Expression>
+		</SectionContext>
+	</SummarySection>
+
+	<!-- define the tabs for the page - note that if only one tab is present, then that tab's sections are promoted to the page level (ie., the tab
+	itself isn't shown -->
+	<Tabs>
+		<Tab ID="0beca0db-954d-4cf3-bc5d-3845bb6e3d3f" Caption="Recent status">
+			<!-- define the sections for this tab -->
+			<Sections>
+				<Section ID="c173df87-3b33-419d-a8bd-a5981d2956d4" HideCaption="true">
+					<DataForm ID="7cf7a0c1-5848-40b2-b3d6-88a1406efc8b" /><!--Blackbaud's data form - Business Process Parameter Set Recent Status View Form -->
+					<SectionContext>
+						<Expression xmlns="bb_appfx_commontypes">E893C10B-4E01-496F-9657-0E64CF1B895F</Expression>
+					</SectionContext>
+					<Actions>
+						<Action ID="0608F2F1-58AE-43E4-A4FA-DF52FDBD8D0A" Caption="View status report" ImageKey="RES:PrintPreview" >
+							<ShowPage xmlns="bb_appfx_commontypes" PageID="e44d4ccf-02a0-409d-ad40-ebc8c0c3b051" TabID="00000000-0000-0000-0000-000000000000">
+								<ActionContext>
+									<SectionField>ID</SectionField>
+								</ActionContext>
+							</ShowPage>
+						</Action>
+					</Actions>
+				</Section>
+			</Sections>
+		</Tab>
+		<Tab Caption="History" ID="4e4de436-2c44-45b6-aabf-afb30678ca47" >
+			<Sections>
+				<Section ID="FAFF89E3-83C0-4C28-8304-36764AFA1BA9" HideCaption="true">
+					<DataList ID="a6413e92-f9bf-44d9-b443-e245f8c88f8f">
+						<RenderStyle>
+							<StandardView />
+						</RenderStyle>
+					</DataList>
+					<SectionContext>
+						<Expression xmlns="bb_appfx_commontypes">E893C10B-4E01-496F-9657-0E64CF1B895F</Expression>
+					</SectionContext>
+					<Actions>
+						<Action ID="00558712-9206-494E-AD3D-34F0EA027D08" Caption="View status report" ImageKey="RES:PrintPreview">
+							<ShowPage xmlns="bb_appfx_commontypes" PageID="e44d4ccf-02a0-409d-ad40-ebc8c0c3b051" TabID="00000000-0000-0000-0000-000000000000">
+								<ActionContext>
+									<SectionField>ID</SectionField>
+								</ActionContext>
+							</ShowPage>
+						</Action>
+					</Actions>
+				</Section>
+			</Sections>
+		</Tab>
+	</Tabs>
+
+	<!-- define page-level actions groups which appear in the explorer bar area of the shell -->
+	<PageActionGroups>
+		<PageActionGroup ID="C36F9F43-3DD6-47E8-A077-045F990CB797" Caption="Tasks" ImageKey="RES:Tasks" >
+			<Actions>
+				<Action ID="e8b37764-3150-41f0-bc5a-2aad117bae42" Caption="Start process" ImageKey="RES:businessprocessspec">
+					<StartBusinessProcess BusinessProcessID="1e694cd7-2602-45f8-a718-0f3b989c7235" StatusPageID="13dd95aa-7f0c-49b2-a58e-a6de299d0079" StatusTabID="00000000-0000-0000-0000-000000000000" PreprocessEditFormID="00000000-0000-0000-0000-000000000000" xmlns="bb_appfx_commontypes">
+						<ActionContext>
+							<Expression>E893C10B-4E01-496F-9657-0E64CF1B895F</Expression>
+						</ActionContext>
+						<PostActionEvent>
+							<RefreshPage />
+						</PostActionEvent>
+					</StartBusinessProcess>
+				</Action>
+				<Action ID="25bcf843-a9df-4259-9405-061ef9463e9c" Caption="Schedule process" ImageKey="RES:calendarschedule">
+					<ShowAddDataForm DataFormID="f96dff68-2bf5-46fc-9427-e87d2b3afc29" xmlns="bb_appfx_commontypes">
+						<ActionContext>
+							<Expression>= IIf(String.IsNullOrEmpty(Page.Fields!PARAMETERSID.ToString()), "", String.Concat("Prospect Conversion Business Process|1e694cd7-2602-45f8-a718-0f3b989c7235|", Page.Fields!PARAMETERSID.ToString())).ToString()
+							</Expression>
+						</ActionContext>
+					</ShowAddDataForm>
+				</Action>
+			</Actions>
+		</PageActionGroup>
+	</PageActionGroups>
+
+</PageDefinitionSpec>

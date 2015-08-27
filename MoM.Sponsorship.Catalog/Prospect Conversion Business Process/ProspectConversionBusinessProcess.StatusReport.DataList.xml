@@ -1,0 +1,87 @@
+﻿<DataListSpec 
+	xmlns="bb_appfx_datalist"
+	xmlns:common="bb_appfx_commontypes" 
+	ID="a6413e92-f9bf-44d9-b443-e245f8c88f8f" 
+	Name="Prospect Conversion Business Process Results Data List"
+	Description="Displays the hisory of the Prospect sponsor conversion business process." 
+	Author="Memphis Sellers"
+	common:SecurityUIFolder="Sponsorship">
+
+	<!-- define the SP that returns the data for the datalist -->
+	<SPDataList SPName="USR_USP_DATALIST_PROSPECTCONVERSIONBUSINESSPROCESS_RESULTSLIST">
+		<common:CreateProcedureSQL>
+			<![CDATA[
+create procedure dbo.USR_USP_DATALIST_PROSPECTCONVERSIONBUSINESSPROCESS_RESULTSLIST(@CONTEXTID uniqueidentifier)
+as
+	set nocount on;
+
+  declare @BUSINESSPROCESSCATALOGID uniqueidentifier = null
+  
+  select @BUSINESSPROCESSCATALOGID = ID from dbo.BUSINESSPROCESSCATALOG where NAME='Prospect Conversion Business Process'
+  
+  select ID,
+      ProcessName,
+      Status,
+      StatusMessage,
+      StartedBy,
+      StartedOn,
+      EndedOn,
+      Duration,
+      NumberOfRecordsProcessed,
+      NumberOfExceptionRecords,
+      TotalCount,
+      ServerName,
+      ImageKey,
+      Completed,
+      EnableDownload,
+      EnableLetterMailMerge,
+	  EnableLabelMailMerge,
+      EnableMultipleLetterMailMerge,
+      TotalCount Total
+      --case when NumberOfRecordsProcessed &gt; 0 then 1 else 0 end PROCESSREPORT,
+	  --case when NumberOfExceptionRecords &gt; 0 then 1 else 0 end ERRORREPORT
+  --from dbo.UFN_BUSINESSPROCESSSTATUS_STANDARDDATALISTVALUES(@BUSINESSPROCESSCATALOGID, @CONTEXTID, -1)
+  from dbo.UFN_BUSINESSPROCESSSTATUS_STANDARDDATALISTVALUES(@BUSINESSPROCESSCATALOGID, 'E893C10B-4E01-496F-9657-0E64CF1B895F', -1)
+order by StartedOn desc
+			]]>
+		</common:CreateProcedureSQL>
+	</SPDataList>
+
+	<!-- describe the context ID parameter for the SP (if applicable)-->
+	<Context ContextRecordType="Sponsorship" RecordIDParameter="CONTEXTID"/>
+
+	<!-- describe any parameters (other than the context ID) defined on the SP
+	<Parameters>
+		<common:FormMetaData>
+			<common:FormFields>
+				<common:FormField FieldID="PARAMETER1" Caption="Paramter1" DataType="REPLACE_WITH_DATATYPE"/>
+			</common:FormFields>
+		</common:FormMetaData>
+	</Parameters>-->
+
+	<!-- define the output fields in the list -->
+	<Output>
+		<OutputFields>
+			<OutputField FieldID="ID" Caption="ID" IsHidden="true" DataType="Guid" DisplaySequence="1" />
+			<OutputField FieldID="Process" Caption="Process" DataType="String"  DisplaySequence="2" />
+			<OutputField FieldID="Status" Caption="Status" DataType="String"  DisplaySequence="4" />
+			<OutputField FieldID="Status message" Caption="Status message" DataType="String" DisplaySequence="5" />
+			<OutputField FieldID="Started by" Caption="Started by" DataType="String" DisplaySequence="6" />
+			<OutputField FieldID="Started" Caption="Started" DataType="Date" DisplaySequence="7" />
+			<OutputField FieldID="Ended" Caption="Ended" DataType="Date" DisplaySequence="8" />
+			<OutputField FieldID="Duration" Caption="Duration" DataType="String" DisplaySequence="9" />
+			<OutputField FieldID="Number of records processed" Caption="Number of records processed" DataType="String" DisplaySequence="10" />
+			<OutputField FieldID="Number of exception records" Caption="Number of exception records" DataType="String" DisplaySequence="11" />
+			<OutputField FieldID="TotalCount" Caption="Total count" DataType="String" DisplaySequence="12" />
+			<OutputField FieldID="Server name" Caption="Server name" DataType="String" DisplaySequence="13" />
+			<OutputField FieldID="ImageKey" Caption="ImageKey" IsHidden="true" DataType="String" IsImageKey="true" DisplaySequence="14" />
+			<OutputField FieldID="Completed" Caption="Completed" IsHidden="true" DataType="String" DisplaySequence="15" />
+			<OutputField FieldID="EnableDownload" Caption="EnableDownload" IsHidden="true" DataType="String" DisplaySequence="16" />
+			<OutputField FieldID="EnableLetterMailMerge" Caption="Enable Letter Mail Merge" IsHidden="true" DataType="String" DisplaySequence="17" />
+			<OutputField FieldID="EnableLabelMailMerge" Caption="Enable Label Mail Merge" IsHidden="true" DataType="String" DisplaySequence="18" />
+			<OutputField FieldID="EnableMultipleLetterMailMerge" Caption="Enable Multiple Letter Mail Merge" IsHidden="true" DataType="String" DisplaySequence="19" />
+			<OutputField FieldID="Total" Caption="TOTAL" IsHidden="true" DataType="String" DisplaySequence="998" />
+		</OutputFields>
+	</Output>
+
+</DataListSpec>

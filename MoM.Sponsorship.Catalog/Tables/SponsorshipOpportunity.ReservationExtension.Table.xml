@@ -1,0 +1,17 @@
+﻿<TableSpec 
+	xmlns="bb_appfx_table"
+	xmlns:common="bb_appfx_commontypes" 
+	ID="d490c73c-b0b2-47b0-a4cd-063d3b2d2053"
+	Name="Sponsorship Opportunity Reserve Process Extension"
+	Description="Extension of the Reservation Process"
+	Author="Cary Mayeda"
+	Tablename="USR_SPONSORSHIPOPPORTUNITYRESERVEPROCESSEXTENSION"
+	PrimaryKeyAsForeignKeyTablename="SPONSORSHIPOPPORTUNITYRESERVEPROCESS" 
+	WarnOnMissingIndexes="false" >
+
+	<!-- define fields on the table -->
+	<Fields>
+		<ForeignKeyField Name="SOLICITORID" Description ="ID of the unavailable child" Cardinality="ManyToOne" ForeignFieldName="ID" ForeignDataType="uniqueidentifier" ForeignTable="CONSTITUENT" OnDelete="RaiseError" />
+	</Fields>
+
+</TableSpec>

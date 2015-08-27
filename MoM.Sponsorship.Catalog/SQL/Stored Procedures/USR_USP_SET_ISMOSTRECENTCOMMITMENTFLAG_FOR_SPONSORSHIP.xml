@@ -1,0 +1,76 @@
+﻿<SQLStoredProcedureSpec
+	xmlns="bb_appfx_sqlstoredprocedure"
+	xmlns:common="bb_appfx_commontypes" 
+	ID="1177c59e-5573-469a-bebe-44bf56d2be20"
+	Name="USR_USP_SET_ISMOSTRECENTCOMMITMENTFLAG_FOR_SPONSORSHIP"
+	Description="Sets the ISMOSTRECENTCOMMITMENT flag to 1 for the given sponsorshipid"
+	Author="Memphis Sellers"
+	SPName="USR_USP_SET_ISMOSTRECENTCOMMITMENTFLAG_FOR_SPONSORSHIP"
+	>
+
+	<!-- 
+	Remarks:    Sets the ISMOSTRECENTCOMMITMENT flag to 1 for the given sponsorshipid.
+				
+	History:
+	Date            Modified By     Comments
+	07-Feb-2013		Memphis			Initial Version
+	-->	
+	
+	<CreateProcedureSQL>
+		<![CDATA[
+create procedure dbo.USR_USP_SET_ISMOSTRECENTCOMMITMENTFLAG_FOR_SPONSORSHIP
+(
+	@sponsorShipId uniqueidentifier,    -- sponsorship id of the 'current' commitment
+	@CHANGEAGENTID uniqueidentifier
+)
+as
+begin
+	begin try
+		if @CHANGEAGENTID is null
+			exec dbo.USP_CHANGEAGENT_GETORCREATECHANGEAGENT @CHANGEAGENTID output;
+
+		-- this is obtained from the sponsorshpId passed in:
+		declare @SPONSORSHIPCOMMITMENTID uniqueidentifier; 
+
+		select @SPONSORSHIPCOMMITMENTID = SPONSORSHIPCOMMITMENTID
+		from dbo.SPONSORSHIP
+		where ID = @sponsorShipId
+
+		if @SPONSORSHIPCOMMITMENTID is null
+			RAISERROR 10000 'Unable to find Sponsorship Commitment for this Sponsorship!'
+			
+		-- get the 'active' row and ensure the ismostrecentcommitment is set to 1
+		declare @currentMostRecentValue bit;
+		select  @currentMostRecentValue = ISMOSTRECENTFORCOMMITMENT
+		from dbo.SPONSORSHIP
+		where ID = @sponsorShipId
+
+		if @currentMostRecentValue = 0
+			begin
+				-- update flag to 1
+				update dbo.SPONSORSHIP
+				set ISMOSTRECENTFORCOMMITMENT = 1
+				where ID = @sponsorShipId; -- @activeRowId;
+			end
+
+		-- update the remaining commitment line rows, setting the most recent commitment flags to 0
+		update dbo.SPONSORSHIP
+		set ISMOSTRECENTFORCOMMITMENT = 0,
+		    CHANGEDBYID = @CHANGEAGENTID
+		where ID <> @sponsorShipId
+		and SPONSORSHIPCOMMITMENTID = @SPONSORSHIPCOMMITMENTID
+			
+		return 0;
+	end try
+	
+	begin catch
+		exec dbo.USP_RAISE_ERROR;
+		return 1;	
+	end catch
+	
+end
+
+		]]>
+	</CreateProcedureSQL>
+
+</SQLStoredProcedureSpec>

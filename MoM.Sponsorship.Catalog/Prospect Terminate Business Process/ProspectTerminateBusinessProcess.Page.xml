@@ -1,0 +1,92 @@
+﻿<PageDefinitionSpec
+    xmlns="bb_appfx_pagedefinition"
+    xmlns:common="bb_appfx_commontypes"
+    ID="275345C4-4127-4B51-B0C5-5EC364CB46FE"
+    Name="Prospect Terminate Process Page"
+    Description="Displays a list of saved Prospect Terminate process parameter sets"
+    Author="Memphis Sellers"
+    ContextRecordType="Prospect Terminate Business Process"
+    >
+
+	<!--
+	Remarks:	The Security action allows you to set permissions individually per business process instance (parameter set)
+				No Image Key has been specified for the header.
+				
+	History:
+	Date			Modified By		Comments
+    28-Jul-2014		Memphis			Initial Version
+	-->
+
+	<!-- define how the page header should appear -->
+	<PageHeader Caption="Prospect Terminate Process" ImageKey="" />
+
+	<!-- define the tabs for the page - note that if only one tab is present, then that tab's sections are promoted to the page level (ie., the tab
+	itself isn't shown -->
+	<Tabs>
+		<Tab ID="C856BFC2-7A6B-4BCA-88BF-BF22A4F4D0C5" Caption="Prospect Terminate process">
+			<Sections>
+				<Section ID="675674A3-6216-4026-B0AB-1121A28EAD52" Caption="Prospect Terminate processes" >
+					<DataList ID="C6065946-EE10-4222-A9AD-39A42B56F0FA">
+						<RenderStyle>
+							<StandardView />
+						</RenderStyle>
+					</DataList>
+					<Actions>
+						<Action ID="B49A6802-9222-4661-80E6-D007960CF509" Caption="Go to process" ImageKey="RES:goto_round" AppendSeparator="true" >
+							<ShowPage xmlns="bb_appfx_commontypes" PageID="e0e3fece-956c-4210-8213-0c994ebeb80f" TabID="00000000-0000-0000-0000-000000000000">
+								<ActionContext>
+									<SectionField>ID</SectionField>
+								</ActionContext>
+							</ShowPage>
+						</Action>
+						<Action ID="A183C5D4-A10E-4757-A22B-77E5B90297F5" Caption="Start process" ImageKey="RES:businessprocessspec" AppendSeparator="true" >
+							<StartBusinessProcess xmlns="bb_appfx_commontypes" BusinessProcessID="94B4AA0A-06F6-4E6C-A569-809EF942DA6E" StatusPageID="e0e3fece-956c-4210-8213-0c994ebeb80f" StatusTabID="00000000-0000-0000-0000-000000000000" PreprocessEditFormID="00000000-0000-0000-0000-000000000000">
+								<ActionContext>
+									<SectionField>ID</SectionField>
+								</ActionContext>
+							</StartBusinessProcess>
+						</Action>
+						<Action ID="C6C3981A-9A97-4980-9C8F-41F93FCFC85C" Caption="Add" ImageKey="RES:NewItem" >
+							<ShowAddDataForm xmlns="bb_appfx_commontypes" DataFormID="343AA6B8-F233-4607-884C-211E8812C67C" />
+						</Action>
+						<Action ID="2759B5FE-3CA6-4E0D-B663-817ADDF6C704" Caption="Edit" ImageKey="RES:Edit" >
+							<ShowDataForm xmlns="bb_appfx_commontypes" DataFormID="04F4DFB7-F3DD-49F4-BCE3-EE5D5CB0F826">
+								<ActionContext>
+									<SectionField>ID</SectionField>
+								</ActionContext>
+							</ShowDataForm>
+						</Action>
+						<Action ID="9A6A9D79-3922-4883-A417-2FF14FCE3E30" Caption="Delete" ImageKey="RES:Delete" >
+							<ExecuteRecordOperation xmlns="bb_appfx_commontypes" RecordOperationID="5A899E47-D58C-44FB-969E-5E81A7A468BF">
+								<ActionContext>
+									<SectionField>ID</SectionField>
+								</ActionContext>
+								<PostActionEvent>
+									<RefreshPage/>
+								</PostActionEvent>
+							</ExecuteRecordOperation>
+
+						</Action>
+						<Action ID="A4EA4D43-EE4F-4CBB-BF89-8074DADB2EF0" Caption="Security" ImageKey="RES:usersfolder" Visible="= Globals.CurrentAppUserIsSysAdmin() OrElse (Globals.CurrentAppUserID = new System.Guid(CStr(Fields!OwnerID)))" Enabled="= Globals.CurrentAppUserIsSysAdmin() OrElse (Globals.CurrentAppUserID = new System.Guid(CStr(Fields!OwnerID)))">
+							<ShowDataForm xmlns="bb_appfx_commontypes" DataFormID="206e614d-be02-4faa-a7e2-ae64d1b1e454">
+								<ActionContext>
+									<SectionField>ID</SectionField>
+								</ActionContext>
+							</ShowDataForm>
+						</Action>
+					</Actions>
+				</Section>
+			</Sections>
+		</Tab>
+	</Tabs>
+
+	<!-- define page-level actions groups which appear in the explorer bar area of the shell -->
+	<PageActionGroups>
+
+		<PageActionGroup ID="9d475fa6-0ee2-4523-9caf-2d58b812b5ae" Caption="Tasks" ImageKey="RES:Tasks">
+			<!-- for this action group, define the list of actions -->
+		</PageActionGroup>
+
+	</PageActionGroups>
+
+</PageDefinitionSpec>

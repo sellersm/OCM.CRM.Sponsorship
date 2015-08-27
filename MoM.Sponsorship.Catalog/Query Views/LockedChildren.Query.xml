@@ -1,0 +1,86 @@
+﻿<QueryViewSpec
+	xmlns="bb_appfx_queryview"
+	xmlns:common="bb_appfx_commontypes" 
+	ID="afa3ac43-efea-423b-abd5-4f505a8087d8"
+	Name="Locked Children Query"
+	Description="Lists sponsorship opportunity records that are locked."
+	Author="Memphis Sellers"
+	IsRoot="true"
+	PrimaryKeyField="ID"
+	RecordType="Sponsorship Opportunity"
+	common:SecurityUIFolder="Sponsorship Opportunity"
+	>
+
+	<!-- 
+	Remarks:    Created for Pamela to identify Locked Sponsorship opportunities
+
+	History:
+	Date            Modified By     Comments
+	07-Jan-2015		Memphis			Initial Version
+	-->
+
+	<!-- define the view used to return data for the query -->
+	<ViewImplementation ViewName="USR_V_QUERY_LOCKED_SPONSORSHIPOPPORTUNITY">
+		<ViewSQL>
+			<![CDATA[
+--declare @ID uniqueidentifier;
+--declare @CHANGEAGENTID uniqueidentifier;
+
+--select @ID = ID
+--from dbo.SPONSORSHIPLOCATION
+--where lookupid = 'IN-043'
+--ID = '2f20c84e-76bf-4de7-b880-d47d71504857'
+
+--declare @CURRENTDATE datetime
+--set @CURRENTDATE = getdate()
+
+
+--if @CHANGEAGENTID is null  
+--	exec dbo.USP_CHANGEAGENT_GETORCREATECHANGEAGENT @CHANGEAGENTID output;
+												
+--declare @HIERARCHYPATH hierarchyid
+
+--select @HIERARCHYPATH = HIERARCHYPATH
+--from dbo.SPONSORSHIPLOCATION
+--where ID = @ID;
+
+select  so.ID
+		, so.LOOKUPID as 'CHILDID'
+		, dbo.SPONSORSHIPOPPORTUNITYCHILD.[NAME] as 'CHILDNAME'
+		, soLock.LOCKCOUNT
+		, soLock.LOCKED
+		, soLock.SPONSORCOUNT
+		, so.ELIGIBILITY
+		, so.AVAILABILITY
+		, dbo.SPONSORSHIPOPPORTUNITYGROUP.[NAME] as 'OPPORTUNITYNAME'
+		, dbo.SPONSORSHIPLOCATION.LOOKUPID as 'LOCATIONID'
+from dbo.SPONSORSHIPOPPORTUNITY so
+inner join dbo.SPONSORSHIPLOCATION on SPONSORSHIPLOCATION.ID = so.SPONSORSHIPLOCATIONID
+left join dbo.SPONSORSHIPOPPORTUNITYGROUP ON dbo.SPONSORSHIPOPPORTUNITYGROUP.ID = so.SPONSORSHIPOPPORTUNITYGROUPID
+left join dbo.SPONSORSHIPOPPORTUNITYCHILD ON dbo.SPONSORSHIPOPPORTUNITYCHILD.ID = so.ID
+right outer join dbo.SPONSORSHIPOPPORTUNITYLOCK soLock on soLock.ID = so.ID
+--where dbo.SPONSORSHIPOPPORTUNITY.ID in (select ID from dbo.SPONSORSHIPOPPORTUNITYLOCK)
+--where SPONSORSHIPLOCATION.HIERARCHYPATH.IsDescendantOf(@HIERARCHYPATH) = 1			
+where LOCKED > 0;
+	]]>
+		</ViewSQL>
+	</ViewImplementation>
+
+	<!-- describe each field in the view output -->
+	<Output>
+		<OutputFields>
+			<OutputField Caption="System record ID" Category="System Fields" Name="ID" />
+			<OutputField Name="CHILDID" Caption="Child Id" DataType="String" />
+			<OutputField Name="CHILDNAME" Caption="Child Name" DataType="String" />
+			<OutputField Name="LOCKCOUNT" Caption="Lock Count" DataType="Integer" />
+			<OutputField Name="LOCKED" Caption="Locked" DataType="Boolean" />
+			<OutputField Name="SPONSORCOUNT" Caption="Sponsor Count" DataType="Integer" />
+			<OutputField Name="ELIGIBILITY" Caption="Eligibility" DataType="String" />
+			<OutputField Name="AVAILABILITY" Caption="Availability" DataType="String" />
+			<OutputField Name="OPPORTUNITYNAME" Caption="Opportunity Name" DataType="String" />
+			<OutputField Name="LOCATIONID" Caption="Location" DataType="String" />
+		</OutputFields>
+	</Output>
+
+</QueryViewSpec>
+

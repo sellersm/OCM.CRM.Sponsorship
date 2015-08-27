@@ -1,0 +1,51 @@
+﻿<TableSpec 
+	xmlns="bb_appfx_table"
+	xmlns:common="bb_appfx_commontypes" 
+	ID="7ce91d4b-8722-4dc2-beee-142f4871e30c"
+	Name="Prospect Conversion Business Process Status table"
+	Description="Prospect conversion business process status table"
+	Author="Memphis Sellers"
+	Tablename="USR_PROSPECTSPONSOR_CONVERSION_BUSINESSPROCESS"		   
+	>
+
+	<!-- 
+	Remarks:	Trigger is used to delete rows in system business process table - BUSINESSPROCESSINSTANCE
+				Currently QUERYVIEWID isn't being used.
+				
+				Note:  Curently only one row is added through a script.  There is no UI for a user to add a parameter set.
+				
+	History:
+	Date			Modified By		Comments
+    26-Mar-2013		Memphis			Initial Version
+	-->
+
+	<!-- define fields on the table -->
+	<Fields>
+		<TextField Name="NAME" Length="100" Required="true" IsUnique="true" Description="The name of the parameter set"/>
+		<TextField Name="DESCRIPTION" Length="255" Description="Details describing this parameter set"/>
+	</Fields>
+
+
+	<!-- define any triggers on the table -->
+	<Triggers>
+		<Trigger Name="TR_USR_PROSPECTSPONSOR_CONVERSION_BUSINESSPROCESS_DELETE_BUSINESSPROCESSINSTANCE"
+             Enabled="true"
+             Description="Used to delete the common business process records associated with this record.">
+			<CreateTriggerSQL>
+				<![CDATA[
+
+create trigger TR_USR_PROSPECTSPONSOR_CONVERSION_BUSINESSPROCESS_DELETE_BUSINESSPROCESSINSTANCE 
+		on dbo.USR_PROSPECTSPONSOR_CONVERSION_BUSINESSPROCESS 
+		after delete not for replication
+as begin
+
+	delete from dbo.BUSINESSPROCESSINSTANCE
+	 where BUSINESSPROCESSPARAMETERSETID in (select ID from deleted) 
+ 	   and BUSINESSPROCESSCATALOGID = '1e694cd7-2602-45f8-a718-0f3b989c7235'; -- guid is the ID from business process spec - see ProspectConversion.BusinessProcess.xml
+end 
+				]]>
+			</CreateTriggerSQL>
+		</Trigger>
+	</Triggers>
+
+</TableSpec>

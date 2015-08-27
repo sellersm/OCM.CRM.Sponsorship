@@ -1,0 +1,32 @@
+﻿<SQLFunctionSpec
+	xmlns="bb_appfx_sqlfunction"
+	xmlns:common="bb_appfx_commontypes" 
+	ID="5d81f53f-dd92-424d-99ee-fe87a6dc14df"
+	Name="USR_UFN_GETFINANCIALTRANSACTIONID_FORSPONSORSHIP"
+	Description="Gets the financial transaction id for a given sponsorship id."
+	Author="Memphis Sellers"
+	DBFunctionName="USR_UFN_GETFINANCIALTRANSACTIONID_FORSPONSORSHIP"
+	>
+
+	<CreateFunctionSQL>
+		<![CDATA[
+create function dbo.USR_UFN_GETFINANCIALTRANSACTIONID_FORSPONSORSHIP(
+	@SPONSORSHIPID uniqueidentifier
+)
+returns uniqueidentifier
+with execute as caller
+as begin
+	declare @financialTransactionId uniqueidentifier;
+
+	select @financialTransactionId = r.ID
+	from dbo.SPONSORSHIP s
+	join dbo.REVENUESPLIT rs on rs.ID = s.REVENUESPLITID
+	join dbo.REVENUE r on r.ID = rs.REVENUEID
+	where s.ID = @sponsorshipId	
+	
+	return @financialTransactionId;
+end
+		]]>
+	</CreateFunctionSQL>
+
+</SQLFunctionSpec>

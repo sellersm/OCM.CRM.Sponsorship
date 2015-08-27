@@ -1,0 +1,10 @@
+﻿<UIModelWizardMetadata>
+  <SpecFileName>ProjectSponsorship.Add.xml</SpecFileName>
+  <Namespace></Namespace>
+  <ClassName>OCMCustomAddProjectSponsorshipFormUIModel</ClassName>
+  <HtmlInfo GenerateHtml="true">
+    <HtmlFile>OCMCustomAddProjectSponsorshipForm.html</HtmlFile>
+    <HtmlFolder>htmlforms\</HtmlFolder>
+  </HtmlInfo>
+  <GenerateFromDatabase>true</GenerateFromDatabase>
+</UIModelWizardMetadata>

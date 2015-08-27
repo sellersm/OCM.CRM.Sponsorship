@@ -1,0 +1,62 @@
+﻿<PageDefinitionSpec 
+    xmlns="bb_appfx_pagedefinition" 
+    xmlns:common="bb_appfx_commontypes"
+    ID="6992dbfe-35f0-414f-af77-59195d4f70ab"
+    Name="EFT Decline Batch Business Process Page"
+	Description="Displays the EFT Decline Batch Business Process information"
+	Author="Memphis Sellers"
+	ExpressionDataFormID="645f1c0b-2c4d-4a45-9189-ea81d882264b"
+	ContextRecordType="EFTBatch"
+    >
+
+	<!-- Note:  A page can optionally have a view form associated with it as the "Expression form".  While implemented as a view data form,
+	this form has no UI in this context, and is simply used as a way of loading additional information associated with the page.  The fields
+	returned by the expression form can be used as expressions in various properties throughout the page.  To specify an expression form for this
+	page, add the following attribute:		ExpressionDataFormID="<some guid>"-->
+
+	<!-- define how the page header should appear -->
+	<PageHeader Caption="=Fields!NAME" ImageKey="RES:gear" />
+	<SummarySection ID="5c462880-00b5-4a37-9e86-1934182f468f" Caption="Process View Data Form">
+		<DataForm ID="645f1c0b-2c4d-4a45-9189-ea81d882264b" />
+	</SummarySection>
+	<Tabs>
+		<Tab Caption="Recent Status" ID="0e8c64ae-b41c-40e4-95a3-b5050e83e2ab">
+			<Sections>
+				<Section ID="04a5ff78-e70c-4d13-98c8-f8f78a09325b" Caption="Recent status">
+					<DataForm ID="7cf7a0c1-5848-40b2-b3d6-88a1406efc8b" />
+				</Section>
+			</Sections>
+		</Tab>
+		<Tab Caption="History" ID="6f2dae79-5535-42da-a6ab-8037ae033213">
+			<Sections>
+				<Section ID="dd8fd39e-b739-4e1b-b3bf-d086ce6aa911" Caption="History">
+					<DataList ID="c7617394-ddda-4c64-9c8b-09f778e8668d">
+						<RenderStyle>
+							<GroupedView>
+								<Groups>
+									<Group ColumnName="BATCHNUMBER" />
+								</Groups>
+							</GroupedView>
+						</RenderStyle>
+					</DataList>
+				</Section>
+			</Sections>
+		</Tab>
+	</Tabs>
+	<PageActionGroups>
+		<PageActionGroup ID="1a6dcc7e-7b6a-45a2-81f0-fc4fb0c7f414" Caption="Process">
+			<Actions>
+				<Action ID="f692055c-a7d8-4603-abf6-db8574bb295e" Caption="Run Process" ImageKey="RES:businessprocessspec">
+					<StartBusinessProcess BusinessProcessID="3cb4a9f8-ede0-4497-acff-c351057f8a87" StatusPageID="6992dbfe-35f0-414f-af77-59195d4f70ab" StatusTabID="00000000-0000-0000-0000-000000000000" PreprocessEditFormID="00000000-0000-0000-0000-000000000000" xmlns="bb_appfx_commontypes">
+						<ActionContext>
+							<Expression>3cb4a9f8-ede0-4497-acff-c351057f8a87</Expression>
+						</ActionContext>
+						<PostActionEvent>
+							<RefreshPage />
+						</PostActionEvent>
+					</StartBusinessProcess>
+				</Action>
+			</Actions>
+		</PageActionGroup>
+	</PageActionGroups>
+</PageDefinitionSpec>

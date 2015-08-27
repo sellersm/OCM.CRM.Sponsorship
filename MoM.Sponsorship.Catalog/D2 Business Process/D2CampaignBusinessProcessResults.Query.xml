@@ -1,0 +1,56 @@
+﻿<QueryViewSpec
+	xmlns="bb_appfx_queryview"
+	xmlns:common="bb_appfx_commontypes" 
+	ID="c469e6b7-a4ba-4381-977b-9180d60e493f"
+	Name="D2 Campaign Business Process Results Query"
+	Description="Query to display results of D2 Campaign business process"
+	Author="Memphis Sellers"
+	IsRoot="true"
+	PrimaryKeyField="ID"
+	RecordType="Constituent"
+	common:SecurityUIFolder="Sponsorship"
+	>
+
+	<!-- 
+	Remarks:    Displays the results of the D2 biz process.
+
+	History:
+	Date            Modified By     Comments
+	19-Feb-2015		Memphis			Changed Record Type to Constituent
+	-->
+
+	<!-- define the view used to return data for the query -->
+	<ViewImplementation ViewName="USR_V_QUERY_D2CAMPAIGN_BUSINESSPROCESS_RESULTS">
+		<ViewSQL>
+			<![CDATA[
+SELECT	c.ID, 
+		r.SPONSORLOOKUPID, 
+		r.D2CAMPAIGNDATE, 
+		r.DATEADDED, 
+		case when r.CAMPAIGNTYPE = 0 then 'Cash'
+			when r.CAMPAIGNTYPE = 1 then 'EFT Active'
+			when r.CAMPAIGNTYPE = 2 then 'EFT Held Credit Card'
+			when r.CAMPAIGNTYPE = 3 then 'EFT Held Direct Debit'
+			when r.CAMPAIGNTYPE = 4 then 'Phone (all)'
+			end as TYPE, 
+		r.D2INTERACTIONSTATUS 
+FROM dbo.USR_D2_CAMPAIGN_BUSINESSPROCESS_RESULTS r
+join dbo.CONSTITUENT c on r.SPONSORLOOKUPID = c.LOOKUPID
+	]]>
+		</ViewSQL>
+	</ViewImplementation>
+
+	<!-- describe each field in the view output -->
+	<Output>
+		<OutputFields>
+			<OutputField Caption="System record ID" Category="System Fields" Name="ID" />
+			<OutputField Name="SPONSORLOOKUPID" Caption="Sponsor Lookup Id" DataType="String" />
+			<OutputField Name="D2CAMPAIGNDATE" Caption="D2 Campaign Date" DataType="Date" />
+			<OutputField Name="DATEADDED" Caption="Date Added" DataType="Date" />
+			<OutputField Name="TYPE" Caption="Campaign Type" DataType="String" />
+			<OutputField Name="D2INTERACTIONSTATUS" Caption="Result" DataType="String" />
+		</OutputFields>
+	</Output>
+
+</QueryViewSpec>
+

@@ -1,0 +1,94 @@
+﻿<QueryViewSpec
+	xmlns="bb_appfx_queryview"
+	xmlns:common="bb_appfx_commontypes" 
+	ID="0275f3bc-a130-4111-a0e9-14068ef75b18"
+	Name="RGL Query"
+	Description="RGL Query"
+	Author="Memphis Sellers"
+	IsRoot="true"
+	PrimaryKeyField="ID"
+	RecordType="Sponsorship Commitment"
+	common:SecurityUIFolder="Sponsorship"
+	>
+
+	<!-- define the view used to return data for the query -->
+	<ViewImplementation ViewName="USR_V_QUERY_RGL">
+		<ViewSQL>
+			<![CDATA[
+SELECT			
+	   dbo.SPONSORSHIPCOMMITMENT.ID as ID,
+       sponsor.LOOKUPID as SPONSORID,
+       sponsor.[NAME] as SPONSORNAME,
+       dbo.UFN_SPONSORSHIPOPPORTUNITY_TRANSLATIONFUNCTION(soc.ID) as CHILD, --OPPORTUNITYID,
+       rgl.STARTDATE,
+       rgl.ENDDATE,
+       rgl.[TYPE] as RGLTYPE,
+       --ISREASSIGN,
+       SOURCE,
+       SOURCECATEGORY,
+       PACKAGE,
+       INBOUNDCHANNEL,
+       CONVERSIONDATE,
+       DAYSTOCONVERT,
+       rgl.STATUS,
+	   case
+		when CANCELSPONSORSHIPREASONID is null then ''
+		else (select REASON from dbo.SPONSORSHIPREASON where ID = CANCELSPONSORSHIPREASONID)
+		end as CANCELREASON,
+		case
+			when rgl.FINANCIALSPONSORID is null then ''
+			else (select NAME from dbo.UFN_CONSTITUENT_DISPLAYNAME(rgl.FINANCIALSPONSORID))
+		end as FINANCIALSPONSORNAME, 
+		(select LOOKUPID from dbo.CONSTITUENT where ID = rgl.FINANCIALSPONSORID) as FINANCIALSPONSORID,
+       ISACCOUNTCORRECTION,
+       (select LOOKUPID from dbo.REVENUE where ID = rgl.RECURRINGGIFTID) as REVENUELOOKUPID, --RECURRINGGIFTID,
+       dbo.SPONSORSHIPCOMMITMENT.LOOKUPID as COMMITMENTID  --COMMITMENTID
+  FROM dbo.USR_COMMITMENTLINE_RECURRINGGIFT rgl
+	join dbo.CONSTITUENT sponsor on sponsor.ID = SPONSORID
+	join dbo.REVENUE r on r.ID = rgl.RECURRINGGIFTID
+	join dbo.REVENUESPLIT rs on rs.REVENUEID = rgl.RECURRINGGIFTID
+	join dbo.SPONSORSHIP on REVENUESPLITID = rs.ID
+	join dbo.SPONSORSHIPOPPORTUNITYCHILD soc on soc.ID = SPONSORSHIP.SPONSORSHIPOPPORTUNITYID
+	inner join dbo.SPONSORSHIPTRANSACTION CREATETRANSACTION on CREATETRANSACTION.SPONSORSHIPCOMMITMENTID = SPONSORSHIP.SPONSORSHIPCOMMITMENTID 
+			and CREATETRANSACTION.TRANSACTIONSEQUENCE = (select min(TRANSACTIONSEQUENCE) from dbo.SPONSORSHIPTRANSACTION MINSEQUENCE where MINSEQUENCE.SPONSORSHIPCOMMITMENTID = SPONSORSHIP.SPONSORSHIPCOMMITMENTID and MINSEQUENCE.TARGETSPONSORSHIPID = SPONSORSHIP.ID)
+	inner join dbo.SPONSORSHIPTRANSACTION LASTTRANSACTION on LASTTRANSACTION.SPONSORSHIPCOMMITMENTID = SPONSORSHIP.SPONSORSHIPCOMMITMENTID 
+			and LASTTRANSACTION.TRANSACTIONSEQUENCE = (select max(TRANSACTIONSEQUENCE) from dbo.SPONSORSHIPTRANSACTION MAXSEQUENCE where MAXSEQUENCE.SPONSORSHIPCOMMITMENTID = SPONSORSHIP.SPONSORSHIPCOMMITMENTID and SPONSORSHIP.ID in(MAXSEQUENCE.CONTEXTSPONSORSHIPID,MAXSEQUENCE.TARGETSPONSORSHIPID,MAXSEQUENCE.DECLINEDSPONSORSHIPID) and MAXSEQUENCE.ACTIONCODE <> 9)
+	join dbo.SPONSORSHIPCOMMITMENT on dbo.SPONSORSHIPCOMMITMENT.ID = CREATETRANSACTION.SPONSORSHIPCOMMITMENTID
+	left outer join dbo.SPONSORSHIP REASSIGNED on REASSIGNED.ID = case SPONSORSHIP.STATUSCODE when 1 then LASTTRANSACTION.CONTEXTSPONSORSHIPID when 2 then LASTTRANSACTION.TARGETSPONSORSHIPID end 
+			and LASTTRANSACTION.ACTIONCODE = 5
+
+
+				
+			]]>
+		</ViewSQL>
+	</ViewImplementation>
+
+	<!-- describe each field in the view output -->
+	<Output>
+		<OutputFields>
+			<OutputField Caption="System record ID" Category="System Fields" Name="ID" />
+			<OutputField Name="SPONSORID" Caption="Sponsor ID" DataType="String" />
+			<OutputField Name="SPONSORNAME" Caption="Sponsor" DataType="String" />
+			<OutputField Name="CHILD" Caption="Child" DataType="String" />
+			<OutputField Name="STARTDATE" Caption="Start Date" DataType="Date" />
+			<OutputField Name="ENDDATE" Caption="End Date" DataType="Date" />
+			<OutputField Name="RGLTYPE" Caption="Type" DataType="String" />
+			<!--<OutputField Name="ISREASSIGN" Caption="Reassign" DataType="Boolean" />-->
+			<OutputField Name="SOURCE" Caption="Source" DataType="String" />
+			<OutputField Name="SOURCECATEGORY" Caption="Source Category" DataType="String" />
+			<OutputField Name="PACKAGE" Caption="Package" DataType="String" />
+			<OutputField Name="INBOUNDCHANNEL" Caption="Channel" DataType="String" />
+			<OutputField Name="CONVERSIONDATE" Caption="Conversion Date" DataType="Date" />
+			<OutputField Name="DAYSTOCONVERT" Caption="Days to Convert" DataType="Integer" />
+			<OutputField Name="STATUS" Caption="Status" DataType="String" />
+			<OutputField Name="CANCELREASON" Caption="Cancel Reason" DataType="String" />
+			<OutputField Name="FINANCIALSPONSORNAME" Caption="Financial Sponsor" DataType="String" />
+			<OutputField Name="FINANCIALSPONSORID" Caption="Financial Sponsor Id" DataType="String" />
+			<OutputField Name="ISACCOUNTCORRECTION" Caption="Account Correction" DataType="Boolean" />
+			<OutputField Name="REVENUELOOKUPID" Caption="RG ID" DataType="String" />
+			<OutputField Name="COMMITMENTID" Caption="Commitment ID" DataType="String" />
+		</OutputFields>
+	</Output>
+
+</QueryViewSpec>
+

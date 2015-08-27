@@ -1,0 +1,65 @@
+﻿<SmartFieldSpec
+	xmlns="bb_appfx_smartfield"
+	xmlns:common="bb_appfx_commontypes" 
+	ID="c37f81f1-3f73-4f24-9e93-ae3689ef0d05"
+	Name="Count of Sponsorships Per Child Smart Field"
+	Description="Used to count the number of sponsors a child had"
+	Author="Trucmai Gupta"
+	SPName="USR_USP_SMARTFIELD_COUNTOFSPONSORSBASEDONCHILDCORRESPONDENCE"
+  DataType="Integer"
+	RecordType="Sponsorshipopportunitychild" 
+	DisplayName="Count of Sponsorships Per Child" 
+	SmartFieldFolder="Sponsorship opportunity child"
+	>
+  <!--
+  
+  /* **********************************************************************************
+  Query for smart field to calculate the count of sponsors that a child had.  
+  Currenntly this query runs off of 4 views. the first 3 to sort through the data to 
+  verify that we are using a sponsor that is truly linked to the current child (and not 
+  a reused child id, issues from the last last system).
+  The 4th view filters criteria that Andrew VAnderput requested that the child knew 
+  they were sponsored in order to count the sponsorship. This was done by saying if the 
+  child knew they were sponsored they would write a letter to the sponsor. The data
+  was most accurate after 5/1/2009. Before this date we based that a child knew they
+  were sponsored if the sponsorship was more than 60 days in length. 
+  ********************************************************************************** */
+
+   
+  Remarks:      This is used to count the number of sponsors a child had, based on if the child corresponded to the sponsor,
+                        or (before 5/1/2009) if the length of sponsorship was over 60 days.
+  History:
+  Date            Modified By        Comments
+  30-Sept-2013    RZarling           Initial Version
+  
+  -->
+
+  <!-- describe the SP used to calculate the smart field values -->
+	<CreateProcedureSQL>
+		<![CDATA[
+
+
+create procedure  dbo.USR_USP_SMARTFIELD_COUNTOFSPONSORSBASEDONCHILDCORRESPONDENCE ( 
+      @ASOF datetime         
+) 
+as 
+begin 
+
+  select 
+    count(v.SponsorshipGuid) as CountOfSponsorships,      -- count sponsorships
+    ChildLookupId                                         -- child's lookup id
+  from 
+    USR_V_CHILDVALIDSPONSORSHIP_BASEDONCHILDCORRESPONDENCE v    -- view for valid sponsorship based on child letter or > 60 days sponsored
+  group by
+    ChildLookupId
+  order by 
+    CountOfSponsorships desc
+
+end  
+
+		]]>
+	</CreateProcedureSQL>
+
+	<!-- describe any parameters (other than the ASOF date) defined on the SP -->
+	
+</SmartFieldSpec>

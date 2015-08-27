@@ -1,0 +1,12 @@
+﻿<DataFormAddInSpec
+	xmlns="bb_appfx_dataformaddin"
+	xmlns:common="bb_appfx_commontypes"
+	ID="99496bd0-8c4f-4cb7-9cae-cd81c0aae923"
+	Name="Sponsorship Add Form (Wrapped) AddIn"
+	Description="Add In for validating and controlling the Payment tab on the custom Sponorship Add Form" 
+	Author="Cary Mayeda"
+	DataFormInstanceID="bd01386b-95f1-47d4-aab5-49822ed9126f" >
+	
+	<DataFormAddIn AssemblyName="MoM.Sponsorship.UIModel" ClassName="MoM.Sponsorship.UIModel.SponsorshipAddIn" />
+
+</DataFormAddInSpec>

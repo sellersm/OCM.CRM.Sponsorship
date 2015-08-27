@@ -1,0 +1,61 @@
+﻿<QueryViewSpec
+	xmlns="bb_appfx_queryview"
+	xmlns:common="bb_appfx_commontypes"
+	ID="7339FF9B-FC74-4682-8E43-782DC0674F11"
+	Name="RGL Revenue Ext Backup Query"
+	Description="RGL Revenue Ext Backup used to view Revenue items changed in Phase I of the RGL process"
+	Author="Cary Mayeda"
+	IsRoot="false"
+	PrimaryKeyField="ID"
+	RecordType="Revenue"
+	common:SecurityUIFolder="Revenue"
+	>
+	<!-- 
+	Remarks:    
+
+	History:
+	Date            Modified By     Comments
+	11-Aug-2015		CMayeda			Initial Version
+	-->
+
+	<!-- define the view used to return data for the query -->
+	<ViewImplementation ViewName="USR_V_QUERY_RGL_REVENUEEXT_BACKUP">
+		<ViewSQL>
+			<![CDATA[
+
+select
+	rglbackup.ID,
+	rglbackup.APPEALID,
+	a.[NAME],
+	rglbackup.CHANNELCODEID,
+	c.[DESCRIPTION],
+	rglbackup.DATECHANGED
+	
+from 
+	dbo.USR_RGLBACKUP_REVENUE_EXT rglbackup
+	left join dbo.APPEAL a on rglbackup.APPEALID = a.ID
+	left join dbo.CHANNELCODE c on rglbackup.CHANNELCODEID = c.ID
+
+			]]>
+		</ViewSQL>
+	</ViewImplementation>
+
+	<!-- describe each field in the view output -->
+	<Output>
+		<OutputFields>
+			<OutputField Caption="System record ID" Category="System Fields" Name="ID" />
+			<OutputField Name="APPEALID" Caption="Appeal ID" DataType="Guid" />
+			<OutputField Name="NAME" Caption="Appeal Name" DataType="String" />
+			<OutputField Name="CHANNELCODEID" Caption="Channel Code ID" DataType="Guid" />
+			<OutputField Name="DESCRIPTION" Caption="Channel Description" DataType="String" />
+			<OutputField Name="DATECHANGED" Caption="Date Changed" DataType="Date" />
+		</OutputFields>
+	</Output>
+
+
+	<RelationshipOperations>
+		<AddToParentView Cardinality="OneToOne" PathAlias="RGL Ext Backup" ParentView="V_QUERY_REVENUE" Field="ID" ParentViewRelatedField="ID" />
+	</RelationshipOperations>
+
+</QueryViewSpec>
+

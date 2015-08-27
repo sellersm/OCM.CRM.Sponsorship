@@ -1,0 +1,60 @@
+﻿<QueryViewSpec
+	xmlns="bb_appfx_queryview"
+	xmlns:common="bb_appfx_commontypes" 
+	ID="B7664494-138F-4EA8-AEEF-A50B9CB3D68F"
+	Name="D3 Campaign Business Process Results Query"
+	Description="Query to display results of D3 Campaign business process"
+	Author="Memphis Sellers"
+	IsRoot="true"
+	PrimaryKeyField="ID"
+	RecordType="Constituent"
+	common:SecurityUIFolder="Sponsorship"
+	>
+
+	<!-- 
+	Remarks:    
+
+	History:
+	Date            Modified By     Comments
+	02-Feb-2015		Memphis			Initial Version copied from Cary's D4 Campaign Business Process Results Query
+
+	-->
+
+	<!-- define the view used to return data for the query -->
+	<ViewImplementation ViewName="USR_V_QUERY_D3CAMPAIGN_BUSINESSPROCESS_RESULTS">
+		<ViewSQL>
+			<![CDATA[
+
+SELECT	c.ID, 
+		r.ID as RESULTID,
+		r.SPONSORLOOKUPID,
+		c.NAME as SPONSORNAME,		
+		r.D3CAMPAIGNDATE, 
+		r.DATEADDED, 
+		r.D3INTERACTIONSTATUS
+FROM dbo.USR_D3_CAMPAIGN_BUSINESSPROCESS_RESULTS r
+join dbo.CONSTITUENT c on r.SPONSORLOOKUPID = c.LOOKUPID
+
+	]]>
+		</ViewSQL>
+	</ViewImplementation>
+
+	<!-- describe each field in the view output -->
+	<Output>
+		<OutputFields>
+			<OutputField Name="ID" Caption="Sponsor record ID" Category="System Fields" DataType="Guid"/>
+			<OutputField Name="RESULTID" Caption="System record ID" Category="System Fields" />
+			<OutputField Name="SPONSORLOOKUPID" Caption="Sponsor Lookup Id" DataType="String" />
+			<OutputField Name="SPONSORNAME" Caption="Sponsor Name" DataType="String" />
+			<OutputField Name="D3CAMPAIGNDATE" Caption="D3 Campaign Date" DataType="Date" />
+			<OutputField Name="DATEADDED" Caption="Date Added" DataType="Date" />
+			<OutputField Name="D3INTERACTIONSTATUS" Caption="Result" DataType="String" />
+		</OutputFields>
+	</Output>
+
+	
+	<RelationshipOperations>
+		<AddRelatedView RelatedView="V_QUERY_CONSTITUENT" PathAlias="Sponsor" Field="ID" RelatedField="ID"/>
+	</RelationshipOperations>
+</QueryViewSpec>
+
