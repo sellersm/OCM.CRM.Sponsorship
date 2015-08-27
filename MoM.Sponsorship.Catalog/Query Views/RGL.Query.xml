@@ -23,7 +23,7 @@ SELECT
        rgl.STARTDATE,
        rgl.ENDDATE,
        rgl.[TYPE] as RGLTYPE,
-       ISREASSIGN,
+       --ISREASSIGN,
        SOURCE,
        SOURCECATEGORY,
        PACKAGE,
@@ -38,7 +38,8 @@ SELECT
 		case
 			when rgl.FINANCIALSPONSORID is null then ''
 			else (select NAME from dbo.UFN_CONSTITUENT_DISPLAYNAME(rgl.FINANCIALSPONSORID))
-		end as FINANCIALSPONSORNAME,       
+		end as FINANCIALSPONSORNAME, 
+		(select LOOKUPID from dbo.CONSTITUENT where ID = rgl.FINANCIALSPONSORID) as FINANCIALSPONSORID,
        ISACCOUNTCORRECTION,
        (select LOOKUPID from dbo.REVENUE where ID = rgl.RECURRINGGIFTID) as REVENUELOOKUPID, --RECURRINGGIFTID,
        dbo.SPONSORSHIPCOMMITMENT.LOOKUPID as COMMITMENTID  --COMMITMENTID
@@ -56,6 +57,7 @@ SELECT
 	left outer join dbo.SPONSORSHIP REASSIGNED on REASSIGNED.ID = case SPONSORSHIP.STATUSCODE when 1 then LASTTRANSACTION.CONTEXTSPONSORSHIPID when 2 then LASTTRANSACTION.TARGETSPONSORSHIPID end 
 			and LASTTRANSACTION.ACTIONCODE = 5
 
+
 				
 			]]>
 		</ViewSQL>
@@ -71,7 +73,7 @@ SELECT
 			<OutputField Name="STARTDATE" Caption="Start Date" DataType="Date" />
 			<OutputField Name="ENDDATE" Caption="End Date" DataType="Date" />
 			<OutputField Name="RGLTYPE" Caption="Type" DataType="String" />
-			<OutputField Name="ISREASSIGN" Caption="Reassign" DataType="Boolean" />
+			<!--<OutputField Name="ISREASSIGN" Caption="Reassign" DataType="Boolean" />-->
 			<OutputField Name="SOURCE" Caption="Source" DataType="String" />
 			<OutputField Name="SOURCECATEGORY" Caption="Source Category" DataType="String" />
 			<OutputField Name="PACKAGE" Caption="Package" DataType="String" />
@@ -81,6 +83,7 @@ SELECT
 			<OutputField Name="STATUS" Caption="Status" DataType="String" />
 			<OutputField Name="CANCELREASON" Caption="Cancel Reason" DataType="String" />
 			<OutputField Name="FINANCIALSPONSORNAME" Caption="Financial Sponsor" DataType="String" />
+			<OutputField Name="FINANCIALSPONSORID" Caption="Financial Sponsor Id" DataType="String" />
 			<OutputField Name="ISACCOUNTCORRECTION" Caption="Account Correction" DataType="Boolean" />
 			<OutputField Name="REVENUELOOKUPID" Caption="RG ID" DataType="String" />
 			<OutputField Name="COMMITMENTID" Caption="Commitment ID" DataType="String" />
