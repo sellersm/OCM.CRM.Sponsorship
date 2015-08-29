@@ -15,6 +15,7 @@
 	History:
 	Date            Modified By     Comments
 	04-Mar-2013		CMayeda			Initial Version
+	28-Aug-2015		CMayeda			Changed raiserror syntax to work with SQL Server 2012 (CRM 4.0)
 	-->
 
 	<SPDataForm>
@@ -42,13 +43,13 @@ if @CHANGEAGENTID is null
 begin try
 	-- ensure we have a sponsorship id:
 	if @CONTEXTID is null
-		RAISERROR 1000000 'No sponsorship ID was given. Something went wrong, be sure you have a Sponsorship selected.'
+		RAISERROR ('No sponsorship ID was given. Something went wrong, be sure you have a Sponsorship selected.', 16, 1)
 	
 	declare @CURRENTRECURRINGGIFTID uniqueidentifier
 	select @CURRENTRECURRINGGIFTID = REVENUESPLITID from dbo.SPONSORSHIP where ID = @CONTEXTID
 	
 	if @CURRENTRECURRINGGIFTID is not null
-		RAISERROR 1000000 'The sponsorship is not missing a recurring gift.'
+		RAISERROR ('The sponsorship is not missing a recurring gift.', 16, 1)
 	
 	update dbo.SPONSORSHIP
 	   set REVENUESPLITID = @RECURRINGGIFTID,

@@ -20,6 +20,7 @@
 	History:
 	Date            Modified By     Comments
 	22-Sep-2012		Memphis			Initial Version
+	28-Aug-2015		CMayeda			Changed raiserror syntax to work with SQL Server 2012 (CRM 4.0)
 	-->
 
 	<c:InstalledProductList>
@@ -103,7 +104,7 @@ begin try
 	
 	-- if not valid, don't let them save
 	if @ISVALID = 0
-		RAISERROR 1000000 'The combination of Interaction Type and Cancellation Reason is not valid.'
+		RAISERROR ('The combination of Interaction Type and Cancellation Reason is not valid.', 16, 1)
 		
 /*
 *     ********* NOT SURE WE NEED THIS FOR PENDING SPONSORSHIP CANCELLATION?  ************
@@ -112,7 +113,7 @@ begin try
 	select @ISVALID = dbo.USR_UFN_VALIDATE_SPONSORSHIP_CANCELLATION_INTERACTIONTYPECODE (@ID, @INTERACTIONTYPECODEID)
 	
 	if @ISVALID = 0
-		RAISERROR 1000000 'The combination of Interaction Type and Opportunity Type is not valid.'
+		RAISERROR ('The combination of Interaction Type and Opportunity Type is not valid.', 16, 1)
 */
 
 end try
@@ -140,7 +141,7 @@ from dbo.SPONSORSHIP
 where ID = @ID
 
 if @CHILDID is null
-	RAISERROR 1000000 'Unable to locate Child for this Sponsorship. Cannot create Interaction.'
+	RAISERROR ('Unable to locate Child for this Sponsorship. Cannot create Interaction.', 16, 1)
 
 /*
 *  MOVED THIS CODE TO USR_USP_HANDLE_SPONSORSHIP_CANCELLATION
@@ -162,7 +163,7 @@ exec dbo.USR_USP_SPONSORSHIP_CREATESPONSORSHIPCANCELLATIONINTERACTIONS
 set @CONSTITUENTID = dbo.USR_UFN_SPONSORSHIP_GETFINANCIALSPONSOR (@ID)
 
 if @CONSTITUENTID is null
-	RAISERROR 1000000 'Unable to locate Financial Sponsor for this Sponsorship.'
+	RAISERROR ('Unable to locate Financial Sponsor for this Sponsorship.', 16, 1)
 
 -- call the sproc that does all the work related to 'extra' things like constituencycodes and sponsorship extension:
 exec dbo.USR_USP_HANDLE_SPONSORSHIP_CANCELLATION

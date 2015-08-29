@@ -25,7 +25,7 @@
 	28-Sep-2012		CMayeda			Set Child Welcome Letter expected date to 2 months out - FogBugz Case 855
 	29-Sep-2012		CMayeda			Only create call /email interaction if new sponsor/prospect sponsor - FogBugz Case 862, 863
 	14-Oct-2012		CMayeda			Fixed the child letter interaction going to the financial sponsor if the correspondent and financial sponsor had the same address - FogBugz Case 907
-	
+	28-Aug-2015		CMayeda			Changed raiserror syntax to work with SQL Server 2012 (CRM 4.0)	
 	-->
 
 	<CreateProcedureSQL>
@@ -124,23 +124,23 @@ begin
 	begin try
 		select @interactionTypeCodeID_WelcomePacket = ID from dbo.USR_NEWSPONSORSHIPINTERACTIONTYPECODE where lower (DESCRIPTION) = lower (@interactionTypeCodeDesc_WelcomePacket)
 		if @interactionTypeCodeID_WelcomePacket is null
-			raiserror 100000 @interactionTypeCodeErrorMsg_WelcomePacket
+			raiserror (@interactionTypeCodeErrorMsg_WelcomePacket, 16, 1)
 		
 		select @interactionTypeCodeID_WelcomePacketAndProfile = ID from dbo.USR_NEWSPONSORSHIPINTERACTIONTYPECODE where lower (DESCRIPTION) = lower (@interactionTypeCodeDesc_WelcomePacketAndProfile)
 		if @interactionTypeCodeID_WelcomePacketAndProfile is null
-			raiserror 100000 @interactionTypeCodeErrorMsg_WelcomePacketAndProfile
+			raiserror (@interactionTypeCodeErrorMsg_WelcomePacketAndProfile, 16, 1)
 			
 		select @interactionTypeCodeID_WelcomeLetter = ID from dbo.USR_NEWSPONSORSHIPINTERACTIONTYPECODE where lower (DESCRIPTION) = lower (@interactionTypeCodeDesc_WelcomeLetter)
 		if @interactionTypeCodeID_WelcomeLetter is null
-			raiserror 100000 @interactionTypeCodeErrorMsg_WelcomeLetter
+			raiserror (@interactionTypeCodeErrorMsg_WelcomeLetter, 16, 1)
 
 		select @interactionTypeCodeID_AdditionalChildLetter = ID from dbo.USR_NEWSPONSORSHIPINTERACTIONTYPECODE where lower (DESCRIPTION) = lower (@interactionTypeCodeDesc_AdditionalChildLetter)
 		if @interactionTypeCodeID_AdditionalChildLetter is null
-			raiserror 100000 @interactionTypeCodeErrorMsg_AdditionalChildLetter
+			raiserror (@interactionTypeCodeErrorMsg_AdditionalChildLetter, 16, 1)
 	
 		select @interactionTypeCodeID_AdditionalChildLetterAndProfile = ID from dbo.USR_NEWSPONSORSHIPINTERACTIONTYPECODE where lower (DESCRIPTION) = lower (@interactionTypeCodeDesc_AdditionalChildLetterAndProfile)
 		if @interactionTypeCodeID_AdditionalChildLetterAndProfile is null
-			raiserror 100000 @interactionTypeCodeErrorMsg_AdditionalChildLetterAndProfile
+			raiserror (@interactionTypeCodeErrorMsg_AdditionalChildLetterAndProfile, 16, 1)
 	
 	end try
 	begin catch

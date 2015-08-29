@@ -22,6 +22,7 @@
 	21-Oct-2012		CMayeda			Updated Sympathy and Cancellation Letter value to look for in USR_SPONSORSHIPCANCELLATIONINTERACTIONTYPECODE - FogBugz Case 934
 	21-Oct-2012		CMayeda			Removed cancellation of pending interactions
 	29-Oct-2012		CMayeda			Fixed defect - FogBugz Case 933
+	28-Aug-2015		CMayeda			Changed raiserror syntax to work with SQL Server 2012 (CRM 4.0)
 	-->
 	<CreateProcedureSQL>
 		<![CDATA[
@@ -97,23 +98,23 @@ begin
 	begin try
 		select @interactionTypeCodeID_CancellationLetter = ID from dbo.USR_SPONSORSHIPCANCELLATIONINTERACTIONTYPECODE where lower (DESCRIPTION) = lower (@interactionTypeCodeDesc_CancellationLetter)
 		if @interactionTypeCodeID_CancellationLetter is null
-			raiserror 100000 @interactionTypeCodeErrorMsg_CancellationLetter
+			raiserror (@interactionTypeCodeErrorMsg_CancellationLetter, 16, 1)
 		
 		select @interactionTypeCodeID_ChildCondolenceLetter = ID from dbo.USR_SPONSORSHIPCANCELLATIONINTERACTIONTYPECODE where lower (DESCRIPTION) = lower (@interactionTypeCodeDesc_ChildCondolenceLetter)
 		if @interactionTypeCodeID_ChildCondolenceLetter is null
-			raiserror 100000 @interactionTypeCodeErrorMsg_ChildCondolenceLetter
+			raiserror (@interactionTypeCodeErrorMsg_ChildCondolenceLetter, 16, 1)
 			
 		select @interactionTypeCodeID_DepartureCancellationLetter = ID from dbo.USR_SPONSORSHIPCANCELLATIONINTERACTIONTYPECODE where lower (DESCRIPTION) = lower (@interactionTypeCodeDesc_DepartureCancellationLetter)
 		if @interactionTypeCodeID_DepartureCancellationLetter is null
-			raiserror 100000 @interactionTypeCodeErrorMsg_DepartureCancellationLetter
+			raiserror (@interactionTypeCodeErrorMsg_DepartureCancellationLetter, 16, 1)
 
 		select @interactionTypeCodeID_ProgramCompletionCancellationLetter = ID from dbo.USR_SPONSORSHIPCANCELLATIONINTERACTIONTYPECODE where lower (DESCRIPTION) = lower (@interactionTypeCodeDesc_ProgramCompletionCancellationLetter)
 		if @interactionTypeCodeID_ProgramCompletionCancellationLetter is null
-			raiserror 100000 @interactionTypeCodeErrorMsg_ProgramCompletionCancellationLetter
+			raiserror (@interactionTypeCodeErrorMsg_ProgramCompletionCancellationLetter, 16, 1)
 	
 		select @interactionTypeCodeID_SympathyAndCancellationLetter = ID from dbo.USR_SPONSORSHIPCANCELLATIONINTERACTIONTYPECODE where lower (DESCRIPTION) = lower (@interactionTypeCodeDesc_SympathyAndCancellationLetter)
 		if @interactionTypeCodeID_SympathyAndCancellationLetter is null
-			raiserror 100000 @interactionTypeCodeErrorMsg_SympathyAndCancellationLetter
+			raiserror (@interactionTypeCodeErrorMsg_SympathyAndCancellationLetter, 16, 1)
 
 		-- Set the Interaction Subcategory IDs	
 		exec dbo.USR_USP_INTERACTION_GETSUBCATEGORYID @interactionSubcategoryID_CancellationLetter output, @interactionCategoryDesc_SponsorshipCancellation, @interactionTypeCodeDesc_CancellationLetter, @raiseErrorIfNotFound
@@ -144,7 +145,7 @@ begin
 												 end
 
 		if @cancellationLetterSubcategoryDesc = 'unknown'
-			raiserror 100000 'Unknown interaction type selected.'
+			raiserror ('Unknown interaction type selected.', 16, 1)
 	
 	
 	end try

@@ -9,7 +9,13 @@
 	RecordType="FinancialTransaction"
 	common:SecurityUIFolder="Sponsorship"
 	>
+	<!-- 
+	Remarks:    
 
+	History:
+	Date            Modified By     Comments
+	28-Aug-2015		CMayeda			Changed raiserror syntax to work with SQL Server 2012 (CRM 4.0)
+	-->
 	<SPRecord>
 		<SPOperationImplementation SPName="USR_USP_FINANCIALTRANSACTIONEXTENSION_DELETE">
 			<common:CreateProcedureSQL>
@@ -22,7 +28,7 @@ create procedure dbo.USR_USP_FINANCIALTRANSACTIONEXTENSION_DELETE
 as begin
 	begin try
 		if @ID is null
-			raiserror 100000 'No recurring gift ID given.'
+			raiserror ('No recurring gift ID given.', 16, 1)
 
 		-- use the system generated delete routine to allow proper recording of the deleting agent
 		exec USP_USR_FINANCIALTRANSACTION_EXTENSION_DELETEBYID_WITHCHANGEAGENTID @ID, @CHANGEAGENTID		

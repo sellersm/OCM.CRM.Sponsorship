@@ -8,6 +8,13 @@
 	DataFormInstanceID="48ca6053-22f2-4abe-91e1-73c10496e242"
 	RecordType="Sponsorship"
 	common:SecurityUIFolder="Sponsorship\Opportunity\Child" >
+	<!-- 
+	Remarks:    
+
+	History:
+	Date            Modified By     Comments
+		28-Aug-2015		CMayeda			Changed raiserror syntax to work with SQL Server 2012 (CRM 4.0)
+	-->
 
 	<SPDataForm>
 
@@ -52,7 +59,7 @@ as begin
 	begin try
 		set @SPONSORID = dbo.USR_UFN_SPONSORSHIP_GETFINANCIALSPONSOR (@ID)
 		if  @SPONSORID = null
-			RAISERROR 100000 'Could not find the Sponsor ID'
+			RAISERROR ('Could not find the Sponsor ID', 16, 1)
 
 		
 		select @toSponsorshipID = NEXTSPONSORSHIP.ID
@@ -67,7 +74,7 @@ as begin
 	  
 	
 		if @FROMSPONSORSHIPID is null or @toSponsorshipID is null
-			RAISERROR 100000 'Could not find the transfered sponsorships'
+			RAISERROR ('Could not find the transfered sponsorships', 16, 1)
 
 		--** change to use this?? UFN_SPONSORSHIPOPPORTUNITY_TRANSLATIONFUNCTION
 		
@@ -116,7 +123,7 @@ as
 	begin try
 		/*set @sponsorID = dbo.USR_UFN_SPONSORSHIP_GETFINANCIALSPONSOR (@ID)
 		if  @sponsorID = null
-			RAISERROR 100000 'Could not find the Sponsor ID'
+			RAISERROR ('Could not find the Sponsor ID', 16, 1)
 		*/
 				
 		select @toSponsorshipID = NEXTSPONSORSHIP.ID
@@ -141,7 +148,7 @@ as
 				@changeAgentID = @CHANGEAGENTID				
 
 		else
-			RAISERROR 100000 'Could not find the transfer sponsorships'
+			RAISERROR ('Could not find the transfer sponsorships', 16, 1)
 			
 	end try
 	begin catch

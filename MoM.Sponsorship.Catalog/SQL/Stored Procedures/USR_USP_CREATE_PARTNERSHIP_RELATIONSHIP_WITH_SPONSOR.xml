@@ -19,6 +19,7 @@
 										RECIPROCALCONSTITUENTID,
 										RELATIONSHIPTYPECODEID,
 										RECIPROCALTYPECODEID,
+	28-Aug-2015		CMayeda			Changed raiserror syntax to work with SQL Server 2012 (CRM 4.0)
 	-->
 	
 	<CreateProcedureSQL>
@@ -146,7 +147,7 @@ begin
 		where lower([DESCRIPTION]) = lower('Soft Credit')
 		
 		if @PRIMARYRECOGNITIONTYPECODEID is null
-			RAISERROR 1000000 'Could not find the Soft Credit recognition code!'
+			RAISERROR ('Could not find the Soft Credit recognition code!', 16, 1)
 				
 		--set @PRIMARYRECOGNITIONTYPECODEID = @RECIPROCALRECOGNITIONTYPECODEID
 			

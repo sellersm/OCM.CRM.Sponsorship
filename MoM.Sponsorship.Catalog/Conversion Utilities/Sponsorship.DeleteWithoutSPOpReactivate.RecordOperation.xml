@@ -16,6 +16,7 @@
 	History:
 	Date            Modified By     Comments
 	04-Mar-2013		CMayeda			Initial Version
+	28-Aug-2015		CMayeda			Changed raiserror syntax to work with SQL Server 2012 (CRM 4.0)
 	-->
 
 	

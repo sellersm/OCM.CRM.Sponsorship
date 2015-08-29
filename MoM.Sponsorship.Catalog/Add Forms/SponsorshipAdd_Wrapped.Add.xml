@@ -27,6 +27,7 @@
 	23-Sep-2012		CMayeda			added code to set reservation to Sponsored marked by "***  CMayeda - reservation code" - Fogbugz Case 842
 	25-Sep-2012		Memphis			added call to new function to determine if already has sponsor constituency code: FogBugz Case 845
 	28-Sep-2012		Memphis			added call to sproc to insert row into sponsorship extension, for each child being sponsored.
+	28-Aug-2015		CMayeda			Changed raiserror syntax to work with SQL Server 2012 (CRM 4.0)
 	-->
 
 	<c:ImpliedSecurityList>
@@ -407,7 +408,7 @@ begin try
 			 @changeAgentID = @CHANGEAGENTID	-- Used to specify change agent for CHANGEDBYID and ADDEDBYID fields.  USP_CHANGEAGENT_GETORCREATECHANGEAGENT is called if it's null
 	end
 	else
-		RAISERROR 1000000 'There are no Children for which to set Interactions!'
+		RAISERROR ('There are no Children for which to set Interactions!', 16, 1)
 	
 	-- add the 'Sponsor' constituency code if not already there:
 	-- get the constituencycodeid of 'Sponsor'
@@ -417,7 +418,7 @@ begin try
 	where lower([DESCRIPTION]) = lower('Sponsor')
 
 	if @CONSTITUENCYCODEID is null
-		RAISERROR 1000000 'Could not find the "Sponsor" constituency code!'
+		RAISERROR ('Could not find the "Sponsor" constituency code!', 16, 1)
 
 	-- check now for the given constituency code for the given constituent
 	declare @ISSPONSOR bit = 0;
@@ -435,7 +436,7 @@ begin try
 	-- check for a value of 2 and inform the user that the code exists with today's end date:
 	if @constituencyCheckCode = 2
 		begin
-			RAISERROR 1000000 'The constituent has a Sponsor constituency code with a "Date To" field value of today.  Please verify the accuracy of the Sponsor constituency code before adding a new sponsorship.'
+			RAISERROR ('The constituent has a Sponsor constituency code with a "Date To" field value of today.  Please verify the accuracy of the Sponsor constituency code before adding a new sponsorship.', 16, 1)
 		end
 	else
 		begin
