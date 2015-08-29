@@ -10,7 +10,13 @@
 	common:SecurityUIFolder="Revenue"
 	FormHeader="Replace This Credit Card Form"
 	>
+	<!-- 
+	Remarks:    
 
+	History:
+	Date            Modified By     Comments
+	28-Aug-2015		CMayeda			Changed raiserror syntax to work with SQL Server 2012 (CRM 4.0)
+	-->
 	<SPDataForm>
 		<!-- describe the save SP -->
 		<SaveImplementation SPName="USR_USP_DATAFORMTEMPLATE_ADD_COPYCREDITCARD">
@@ -43,7 +49,7 @@ begin try
 			@revenueId = @CONTEXTID,				 -- this is passed in from the form as context of the recurring gift user is "sitting on", it's CC will be replaced
 			@revenueLookupId = @REVENUELOOKUPID  -- this is the value the user entered into the form
 	else
-		raiserror 1000000 'You must enter a Revenue Lookup Id value, otherwise click the Cancel button.'
+		raiserror ('You must enter a Revenue Lookup Id value, otherwise click the Cancel button.', 16, 1)
 
 end try
 

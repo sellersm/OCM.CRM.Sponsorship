@@ -9,7 +9,13 @@
     RecordType="Sponsorship"
     c:SecurityUIFolder="Sponsorship"
     >
+	<!-- 
+	Remarks:    
 
+	History:
+	Date            Modified By     Comments
+	28-Aug-2015		CMayeda			Changed raiserror syntax to work with SQL Server 2012 (CRM 4.0)
+	-->
 
 	<c:ImpliedSecurityList>
 		<c:ImpliedSecurity Type="Datalist" ID="26c9edcb-a40f-4cf3-9cd4-fb01f773a777" />
@@ -352,7 +358,7 @@ begin try
 		where lower([DESCRIPTION]) = lower('Prospect Project Sponsor')
 
 		if @CONSTITUENCYCODEID is null
-			RAISERROR 1000000 'Could not find the "Prospect Project Sponsor" constituency code!'
+			RAISERROR ('Could not find the "Prospect Project Sponsor" constituency code!', 16, 1)
 
 		-- check now for the given constituency code for the given constituent
 		
@@ -368,7 +374,7 @@ begin try
 		-- check for a value of 2 and inform the user that the code exists with today's end date:
 		if @constituencyCheckCode = 2
 			begin
-				RAISERROR 1000000 'The constituent has a Prospect Project Sponsor constituency code with a "Date To" field value of today.  Please verify the accuracy of the Prospect Sponsor constituency code before adding a new sponsorship.'
+				RAISERROR ('The constituent has a Prospect Project Sponsor constituency code with a "Date To" field value of today.  Please verify the accuracy of the Prospect Sponsor constituency code before adding a new sponsorship.', 16, 1)
 			end
 		else
 			begin
@@ -394,7 +400,7 @@ begin try
 			where lower([DESCRIPTION]) = lower('Project Sponsor')
 
 			if @CONSTITUENCYCODEID is null
-				RAISERROR 1000000 'Could not find the "Project Sponsor" constituency code!'
+				RAISERROR ('Could not find the "Project Sponsor" constituency code!', 16, 1)
 
 			-- check now for the given constituency code for the given constituent
 		
@@ -410,7 +416,7 @@ begin try
 			-- check for a value of 2 and inform the user that the code exists with today's end date:
 			if @constituencyCheckCode = 2
 				begin
-					RAISERROR 1000000 'The constituent has a Project Sponsor constituency code with a "Date To" field value of today.  Please verify the accuracy of the Sponsor constituency code before adding a new sponsorship.'
+					RAISERROR ('The constituent has a Project Sponsor constituency code with a "Date To" field value of today.  Please verify the accuracy of the Sponsor constituency code before adding a new sponsorship.', 16, 1)
 				end
 			else
 				begin

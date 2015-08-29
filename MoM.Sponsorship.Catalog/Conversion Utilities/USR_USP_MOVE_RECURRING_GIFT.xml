@@ -7,6 +7,13 @@
 	Author="Memphis Sellers"
 	SPName="USR_USP_MOVE_RECURRING_GIFT"
 	>
+	<!-- 
+	Remarks:    
+
+	History:
+	Date            Modified By     Comments
+	28-Aug-2015		CMayeda			Changed raiserror syntax to work with SQL Server 2012 (CRM 4.0)
+	-->
 
 	<CreateProcedureSQL>
 		<![CDATA[
@@ -72,12 +79,12 @@ begin try
 				end
 			else
 				begin
-					RAISERROR 1000000 'This recurring gift is in use with another sponsorship!'
+					RAISERROR ('This recurring gift is in use with another sponsorship!', 16, 1)
 				end
 		end
 	else
 		begin
-			RAISERROR 1000000 'Unable to locate recurring gift, or it is not an orphan gift!'
+			RAISERROR ('Unable to locate recurring gift, or it is not an orphan gift!', 16, 1)
 			--print 'Not an orphan';
 		end
 end try

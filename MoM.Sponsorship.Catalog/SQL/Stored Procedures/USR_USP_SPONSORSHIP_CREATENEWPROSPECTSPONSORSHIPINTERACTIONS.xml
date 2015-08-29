@@ -22,6 +22,7 @@
 	22-Sep-2012		CMayeda			Removed responses from Prospect Thank You emails - FogBugz Case 840
 	26-Sep-2012		CMayeda			Added Packet Received response category to Phone Call interaction  - FogBugz Case 849
 									Fixed @changeAgentID = null on USR_USP_INTERACTION_SPONSOR_ADDCHILDREN call. This shouldn't affect anything, it's just better to set it, since we have it.
+	28-Aug-2015		CMayeda			Changed raiserror syntax to work with SQL Server 2012 (CRM 4.0)
 	-->
 
 	<CreateProcedureSQL>
@@ -102,15 +103,15 @@ begin
 	begin try
 		select @interactionTypeCodeID_ProspectWelcomePacket = ID from dbo.USR_NEWPROSPECTSPONSORSHIPINTERACTIONTYPECODE where lower (DESCRIPTION) = lower (@interactionTypeCodeDesc_ProspectWelcomePacket)
 		if @interactionTypeCodeID_ProspectWelcomePacket is null
-			raiserror 100000 @interactionTypeCodeErrorMsg_ProspectWelcomePacket
+			raiserror (@interactionTypeCodeErrorMsg_ProspectWelcomePacket, 16, 1)
 		
 		select @interactionTypeCodeID_ProspectWelcomePacketAndProfile = ID from dbo.USR_NEWPROSPECTSPONSORSHIPINTERACTIONTYPECODE where lower (DESCRIPTION) = lower (@interactionTypeCodeDesc_ProspectWelcomePacketAndProfile)
 		if @interactionTypeCodeID_ProspectWelcomePacketAndProfile is null
-			raiserror 100000 @interactionTypeCodeErrorMsg_ProspectWelcomePacketAndProfile
+			raiserror (@interactionTypeCodeErrorMsg_ProspectWelcomePacketAndProfile, 16, 1)
 			
 		select @interactionTypeCodeID_ProspectWelcomeLetter = ID from dbo.USR_NEWPROSPECTSPONSORSHIPINTERACTIONTYPECODE where lower (DESCRIPTION) = lower (@interactionTypeCodeDesc_ProspectWelcomeLetter)
 		if @interactionTypeCodeID_ProspectWelcomeLetter is null
-			raiserror 100000 @interactionTypeCodeErrorMsg_ProspectWelcomeLetter
+			raiserror (@interactionTypeCodeErrorMsg_ProspectWelcomeLetter, 16, 1)
 	
 	end try
 	begin catch

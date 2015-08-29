@@ -14,6 +14,7 @@
 	History:
 	Date            Modified By     Comments
 	14-Sep-2012		Memphis			Initial Version
+	28-Aug-2015		CMayeda			Changed raiserror syntax to work with SQL Server 2012 (CRM 4.0)
 	-->
 	
 	<CreateProcedureSQL>
@@ -49,7 +50,7 @@ begin
 				where ID = @SPONSORSHIPID
 		
 		if @REVENUESPLITID is null
-			raiserror 10000 'Unable to find REVENUESPLITID for this Sponsorship!'
+			raiserror ('Unable to find REVENUESPLITID for this Sponsorship!', 16, 1)
 		
 		select @AMOUNT = AMOUNT 
 				from dbo.REVENUESPLIT

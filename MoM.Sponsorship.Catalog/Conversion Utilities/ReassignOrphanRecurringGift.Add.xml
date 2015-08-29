@@ -9,6 +9,13 @@
 	RecordType="SPONSORSHIP"
 	common:SecurityUIFolder="OCM Admin Action Tasks"
 	>
+	<!-- 
+	Remarks:    
+
+	History:
+	Date            Modified By     Comments
+	28-Aug-2015		CMayeda			Changed raiserror syntax to work with SQL Server 2012 (CRM 4.0)
+	-->
 
 	<SPDataForm>
 		<!-- describe the save SP -->
@@ -38,7 +45,7 @@ set @CURRENTDATE = getdate()
 begin try
 	-- ensure we have a sponsorship id:
 	if @CONTEXTID is null
-		RAISERROR 1000000 'No sponsorship ID was given. Something went wrong, be sure you have a Sponsorship selected.'
+		RAISERROR ('No sponsorship ID was given. Something went wrong, be sure you have a Sponsorship selected.', 16, 1)
 		
 	-- call the sproc to perform the work:
 	exec dbo.USR_USP_MOVE_RECURRING_GIFT

@@ -10,7 +10,13 @@
 	common:SecurityUIFolder="Revenue"
 	FormHeader="Replace Credit Card NO Validation!"
 	>
+	<!-- 
+	Remarks:    
 
+	History:
+	Date            Modified By     Comments
+	28-Aug-2015		CMayeda			Changed raiserror syntax to work with SQL Server 2012 (CRM 4.0)
+	-->
 
 	<SPDataForm>
 		<!-- describe the save SP -->
@@ -45,7 +51,7 @@ begin try
 			@revenueLookupId = @REVENUELOOKUPID,	-- this is the value the user entered into the form
 			@overrideConstituentCheck = 1			-- flag for checking that the credit card belongs to the same constituent, we don't want to perform the check!
 	else
-		raiserror 1000000 'You must enter a Revenue Lookup Id value, otherwise click the Cancel button.'
+		raiserror ('You must enter a Revenue Lookup Id value, otherwise click the Cancel button.', 16, 1)
 
 end try
 
