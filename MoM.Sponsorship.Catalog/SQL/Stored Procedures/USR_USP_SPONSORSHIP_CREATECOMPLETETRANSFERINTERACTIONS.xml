@@ -13,7 +13,7 @@
 	History:
 	Date            Modified By     Comments
 	08-Oct-2012		CMayeda			Initial Version
-
+	28-Aug-2015		CMayeda			Changed raiserror syntax to work with SQL Server 2012 (CRM 4.0)
 	-->
 	
 	<CreateProcedureSQL>
@@ -80,31 +80,31 @@ as begin
 		
 	begin try
 		if @interactionTypeCodeID is null
-			raiserror 100000 'InteractionTypeCodeID cannot be null'
+			raiserror ('InteractionTypeCodeID cannot be null', 16, 1)
 			
 		select @interactionTypeCodeID_ChildTransferLetter = ID from dbo.USR_SPONSORSHIPCOMPLETETRANSFERINTERACTIONTYPECODE where lower (DESCRIPTION) = lower (@interactionTypeCodeDesc_ChildTransferLetter)
 		if @interactionTypeCodeID_ChildTransferLetter is null
-			raiserror 100000 @interactionTypeCodeErrorMsg_ChildTransferLetter
+			raiserror (@interactionTypeCodeErrorMsg_ChildTransferLetter, 16, 1)
 		
 		select @interactionTypeCodeID_DoubleSponsorshipLetter = ID from dbo.USR_SPONSORSHIPCOMPLETETRANSFERINTERACTIONTYPECODE where lower (DESCRIPTION) = lower (@interactionTypeCodeDesc_DoubleSponsorshipLetter)
 		if @interactionTypeCodeID_DoubleSponsorshipLetter is null
-			raiserror 100000 @interactionTypeCodeErrorMsg_DoubleSponsorshipLetter
+			raiserror (@interactionTypeCodeErrorMsg_DoubleSponsorshipLetter, 16, 1)
 
 		set @fromChildID = (select SPONSORSHIPOPPORTUNITYID from dbo.SPONSORSHIP where ID = @fromSponsorshipID) 
 		if @fromChildID is null
-			raiserror 100000 'Could not find the transferred from child'
+			raiserror ('Could not find the transferred from child', 16, 1)
 		
 		set @toChildID = (select SPONSORSHIPOPPORTUNITYID from dbo.SPONSORSHIP where ID = @toSponsorshipID)
 		if @toChildID  is null
-			raiserror 100000 'Could not find the transferred to child'
+			raiserror ('Could not find the transferred to child', 16, 1)
 
 		select @donorContactCodeID_Contact = ID from dbo.USR_UNAVAILABLE_SPONSORSHIP_CONTACTCODE where DESCRIPTION = lower ('Contact')
 		if @donorContactCodeID_Contact is null 
-			RAISERROR 100000 'Could not find the "Contact" donor contact code'
+			RAISERROR ('Could not find the "Contact" donor contact code', 16, 1)
 			
 		select @donorContactCodeID_NoContact = ID from dbo.USR_UNAVAILABLE_SPONSORSHIP_CONTACTCODE where DESCRIPTION = lower ('No Contact')
 		if @donorContactCodeID_NoContact is null 
-			RAISERROR 100000 'Could not find the "No Contact" donor contact code'
+			RAISERROR ('Could not find the "No Contact" donor contact code', 16, 1)
 	end try
 	begin catch
 	    exec dbo.USP_RAISE_ERROR

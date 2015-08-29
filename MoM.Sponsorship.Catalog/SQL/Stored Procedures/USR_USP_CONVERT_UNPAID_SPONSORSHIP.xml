@@ -16,6 +16,7 @@
 	09-Feb-2015		CMayeda			Initial Version
 									Modified a copy of USR_USP_CONVERT_PROSPECT_SPONSOR
 	02-Mar-2015		CMayeda			Modified Interaction update to only update interactions that include the specific child.		
+	28-Aug-2015		CMayeda			Changed raiserror syntax to work with SQL Server 2012 (CRM 4.0)
 	-->
 
 
@@ -50,7 +51,7 @@ begin
 
 		set @currentStatusIdSponsored = dbo.USR_UFN_CURRENTOPPORTUNITYSPONSORSHIPSTATUSCODE_GETID_FORDESCRIPTION('Sponsored')
 		if @currentStatusIdSponsored is null 
-			RAISERROR 100000 'Could not find the "Sponsored" current Sponsorship status code'
+			RAISERROR ('Could not find the "Sponsored" current Sponsorship status code', 16, 1)
 		
 		exec dbo.USR_USP_INTERACTION_GETSUBCATEGORYID 
 				@interactionSubcategoryID_UnpaidTransferReminder output,
@@ -58,7 +59,7 @@ begin
 				@interactionSubcategoryDesc_UnpaidTransferReminder,
 				1
 		if @interactionSubcategoryID_UnpaidTransferReminder is null 
-			RAISERROR 100000 'Could not find the "Unpaid Transfer Reminder" subcategory id'
+			RAISERROR ('Could not find the "Unpaid Transfer Reminder" subcategory id', 16, 1)
 			
 		exec dbo.USR_USP_INTERACTION_GETSUBCATEGORYID 
 				@interactionSubcategoryID_UnpaidTransferFinalLetter output,
@@ -66,7 +67,7 @@ begin
 				@interactionSubcategoryDesc_UnpaidTransferFinalLetter,
 				1
 		if @interactionSubcategoryID_UnpaidTransferFinalLetter is null 
-			RAISERROR 100000 'Could not find the "Unpaid Transfer Reminder" subcategory id'
+			RAISERROR ('Could not find the "Unpaid Transfer Reminder" subcategory id', 16, 1)
 		
 		select 
 			@opportunityChildId = SPONSORSHIPOPPORTUNITYID,
@@ -77,10 +78,10 @@ begin
 			ID = @sponsorshipId
 		
 		if @opportunityChildId is null 
-			RAISERROR 100000 'Could not find the Child ID for the current sponsorship'
+			RAISERROR ('Could not find the Child ID for the current sponsorship', 16, 1)
 		
 		if @sponsorId is null 
-			RAISERROR 100000 'Could not find the Sponsor ID for the current sponsorship'
+			RAISERROR ('Could not find the Sponsor ID for the current sponsorship', 16, 1)
 		
 	end try
 	begin catch

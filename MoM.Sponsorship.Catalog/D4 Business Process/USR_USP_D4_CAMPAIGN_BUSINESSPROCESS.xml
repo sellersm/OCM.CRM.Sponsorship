@@ -20,6 +20,7 @@
 	06-Jan-2014		CMayeda			Updated to use USR_UFN_RECURRINGGIFT_GETNUMBEROFMONTHSPASTDUE
 									Removed some old temporary commented out code
 	07-Jan-2014		CMayeda			Deleted records that were less than 4 months delinquent after inserting into @d4ResultsTable
+	28-Aug-2015		CMayeda			Changed raiserror syntax to work with SQL Server 2012 (CRM 4.0)
 	-->
 
 	<CreateProcedureSQL>
@@ -183,41 +184,41 @@ begin
 		*/
 		
 		if @doNotContactSolicitCodeId is null
-			raiserror 100000 'Unable to locate solicit code: Do not contact! Unable to continue.'
+			raiserror ('Unable to locate solicit code: Do not contact! Unable to continue.', 16, 1)
 
 		if @doNotEmailSolicitCodeId is null
-			raiserror 100000 'Unable to locate solicit code: Do not email! Unable to continue.'
+			raiserror ('Unable to locate solicit code: Do not email! Unable to continue.', 16, 1)
 
 		if @doNotMailSolicitCodeId is null
-			raiserror 100000 'Unable to locate solicit code: Do not mmail! Unable to continue.'
+			raiserror ('Unable to locate solicit code: Do not mmail! Unable to continue.', 16, 1)
 
 		if @noSystemLettersSolicitCodeId is null
-			raiserror 100000 'Unable to locate solicit code: No system letters! Unable to continue.'
+			raiserror ('Unable to locate solicit code: No system letters! Unable to continue.', 16, 1)
 
 		if @affiliateOfficeConstituencyId is null
-			raiserror 100000 'Unable to locate constituency code: Affiliate Office! Unable to continue.'
+			raiserror ('Unable to locate constituency code: Affiliate Office! Unable to continue.', 16, 1)
 				
 		if @preventAutoCancelConstituencyId is null
-			raiserror 100000 'Unable to locate constituency code: Prevent Auto Cancel! Unable to continue.'
+			raiserror ('Unable to locate constituency code: Prevent Auto Cancel! Unable to continue.', 16, 1)
 
 		/* if @mailContactMethodID is null 
-			RAISERROR 1000000 'Unable to locate the contact method: Phone.'
+			RAISERROR ('Unable to locate the contact method: Phone.', 16, 1)
 		*/
 		
 		if @emailContactMethodID is null
-			RAISERROR 1000000 'Unable to locate the contact method: Email.'
+			RAISERROR ('Unable to locate the contact method: Email.', 16, 1)
 		
 		if @interactionCategoryId is null
-			RAISERROR 1000000 'Unable to locate the interaction category: Sponsorship Delinquency.'
+			RAISERROR ('Unable to locate the interaction category: Sponsorship Delinquency.', 16, 1)
 
 		if @childCountLetterVersion_OneChildLetter is null 
-			RAISERROR 1000000 'Unable to locate the child count code: One Child Letter.'
+			RAISERROR ('Unable to locate the child count code: One Child Letter.', 16, 1)
 		
 		if @childCountLetterVersion_OneChildLetter is null 
-			RAISERROR 1000000 'Unable to locate the child count code: Two Children Letter.'
+			RAISERROR ('Unable to locate the child count code: Two Children Letter.', 16, 1)
 		
 		if @childCountLetterVersion_MultipleChildrenLetter is null 
-			RAISERROR 1000000 'Unable to locate the child count code: Multiple Children Letter.'
+			RAISERROR ('Unable to locate the child count code: Multiple Children Letter.', 16, 1)
 	
 	end try
 	begin catch

@@ -9,7 +9,14 @@
 	Author="Memphis Sellers"
 	SPName="USR_USP_D2CAMPAIGNPROCESS_GETPARAMETERS"
 	>
+	<!-- 
+	Remarks:    
 
+	History:
+	Date            Modified By     Comments
+	28-Aug-2015		CMayeda			Changed raiserror syntax to work with SQL Server 2012 (CRM 4.0)
+	-->
+	
 	<CreateProcedureSQL>
 		<![CDATA[
 create procedure dbo.USR_USP_D2CAMPAIGNPROCESS_GETPARAMETERS (
@@ -20,7 +27,7 @@ begin
 	-- do work
 	begin try
 		if @ID is null
-			raiserror 100000 'The Campaign Type parameter value is empty! Unable to continue.'
+			raiserror ('The Campaign Type parameter value is empty! Unable to continue.', 16, 1)
 		
 		select
 			CAMPAIGNTYPE

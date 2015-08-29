@@ -15,6 +15,7 @@
 	History:
 	Date            Modified By     Comments
 	02-Feb-2015		Memphis			Initial Version copied from Cary's USR_USP_D4_CAMPAIGN_BUSINESSPROCESS
+	28-Aug-2015		CMayeda			Changed raiserror syntax to work with SQL Server 2012 (CRM 4.0)
 	-->
 
 	<CreateProcedureSQL>
@@ -162,22 +163,22 @@ begin
 	begin try
 		-- this sproc won't process Phone campaigns, so throw an exception if that campaign type is passed in:
 	-- Removed for D3 	if @CAMPAIGNTYPE > 3
-	-- Removed for D3 		raiserror 100000 'Unable to process the given Campaign Parameter Type of Phone.'
+	-- Removed for D3 		raiserror ('Unable to process the given Campaign Parameter Type of Phone.', 16, 1)
 
 		if @doNotContactSolicitCodeId is null
-			raiserror 100000 'Unable to locate solicit code: Do Not Contact! Unable to continue.'
+			raiserror ('Unable to locate solicit code: Do Not Contact! Unable to continue.', 16, 1)
 
 		if @affiliateOfficeId is null
-			raiserror 100000 'Unable to locate constituency code: Affiliate Office! Unable to continue.'
+			raiserror ('Unable to locate constituency code: Affiliate Office! Unable to continue.', 16, 1)
 				
 	--		if @phoneContactMethodID is null 
-	--			RAISERROR 1000000 'Unable to locate the contact method: Phone.'
+	--			RAISERROR ('Unable to locate the contact method: Phone.', 16, 1)
 		
 	-- Removed for D3 	if @emailContactMethodID is null
-	-- Removed for D3 		RAISERROR 1000000 'Unable to locate the contact method: Email.'
+	-- Removed for D3 		RAISERROR ('Unable to locate the contact method: Email.', 16, 1)
 		
 		if @interactionCategoryId is null
-			RAISERROR 1000000 'Unable to locate the interaction category: Sponsorship Delinquency.'
+			RAISERROR ('Unable to locate the interaction category: Sponsorship Delinquency.', 16, 1)
 
 
 		--'First Day of Previous Month'

@@ -22,6 +22,7 @@
 	17-Oct-2012		CMayeda			Added "Unavailable Child Notification" phone call interaction - FogBugz Case 910
 	29-Oct-2012		CMayeda			Added @interactionFulfillmentStatus_CallInProcess to Prospect Thank You Letter/Phone - FogBugz Case 927
 									Added @callCenterManagerConstituentID to Unavailable Child Notification phone call - FogBugz Case 928
+	28-Aug-2015		CMayeda			Changed raiserror syntax to work with SQL Server 2012 (CRM 4.0)
 	-->
 
 	<CreateProcedureSQL>
@@ -110,11 +111,11 @@ begin
 		-- These are required for the sproc to work correctly, so we need to throw an exception if the IDs aren't found
 		select @unavailableSponsorshipContactCodeID_Contact = ID from dbo.USR_UNAVAILABLE_SPONSORSHIP_CONTACTCODE where DESCRIPTION = lower ('Contact')
 		if @unavailableSponsorshipContactCodeID_Contact is null 
-			RAISERROR 100000 'Could not find the "Contact" donor contact code'
+			RAISERROR ('Could not find the "Contact" donor contact code', 16, 1)
 			
 		select @unavailableSponsorshipContactCodeID_NoContact = ID from dbo.USR_UNAVAILABLE_SPONSORSHIP_CONTACTCODE where DESCRIPTION = lower ('No Contact')
 		if @unavailableSponsorshipContactCodeID_NoContact is null 
-			RAISERROR 100000 'Could not find the "No Contact" donor contact code'
+			RAISERROR ('Could not find the "No Contact" donor contact code', 16, 1)
 	end try
 	begin catch
 	    exec dbo.USP_RAISE_ERROR
@@ -228,9 +229,9 @@ begin
 	begin
 		begin try
 			if @unavailableChildID is null
-				RAISERROR 1000000 'Unavailable Child ID cannot be null'
+				RAISERROR ('Unavailable Child ID cannot be null', 16, 1)
 			if @transferChildID is null
-				RAISERROR 1000000 'Transfer Child ID cannot be null'			
+				RAISERROR ('Transfer Child ID cannot be null', 16, 1)
 		end try
 		begin catch
 			exec dbo.USP_RAISE_ERROR
@@ -382,7 +383,7 @@ begin
 	
 	begin try
 		if @childCounter = 0
-			RAISERROR 1000000 'No children processed in cursor'
+			RAISERROR ('No children processed in cursor', 16, 1)
 	end try
 	begin catch
 	exec dbo.USP_RAISE_ERROR

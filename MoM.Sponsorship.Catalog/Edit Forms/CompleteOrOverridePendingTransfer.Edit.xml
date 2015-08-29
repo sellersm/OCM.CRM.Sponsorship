@@ -14,14 +14,15 @@
 
 
 	<!-- 
-        Remarks:    This is a 'copy' of the OOB Override Transfer form, combined with Complete Transfer.
-                                It will call all the OOB Blackbaud stuff, then adds the custom things we need it to do.
-        History:
-        Date            Modified By     Comments
-        30-Jan-2013     Memphis         Initial Version
-		18-Feb-2013		Memphis			Fogbugz Case 977, 978, 979
-		20-Feb-2013		Memphis			Fogbugz Case 985, 987, 988, 989, 990, 991
-        -->
+    Remarks:    This is a 'copy' of the OOB Override Transfer form, combined with Complete Transfer.
+                            It will call all the OOB Blackbaud stuff, then adds the custom things we need it to do.
+    History:
+    Date            Modified By     Comments
+    30-Jan-2013     Memphis         Initial Version
+	18-Feb-2013		Memphis			Fogbugz Case 977, 978, 979
+	20-Feb-2013		Memphis			Fogbugz Case 985, 987, 988, 989, 990, 991
+	28-Aug-2015		CMayeda			Changed raiserror syntax to work with SQL Server 2012 (CRM 4.0)
+    -->
 
 	<common:DependencyList>
 		<common:Dependency CatalogAssembly="Blackbaud.AppFx.Constituent.Catalog.dll" CatalogItem="Blackbaud.AppFx.Constituent.Catalog.Constituent.Search.xml" />
@@ -484,7 +485,7 @@
                         where ID = @ID
 
                         if @sponsorId is null
-                            RAISERROR 1000000 'Unable to locate the Sponsor from this SponsorshipID.'
+                            RAISERROR ('Unable to locate the Sponsor from this SponsorshipID.', 16, 1)
                         else
                             begin
 								-- perform the custom procedure after transfer's been done

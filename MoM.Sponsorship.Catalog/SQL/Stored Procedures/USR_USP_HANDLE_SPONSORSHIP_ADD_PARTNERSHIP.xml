@@ -19,6 +19,7 @@
 	Date            Modified By     Comments
 	04-Oct-2012		Memphis			Initial Version
 	08-Oct-2012		Memphis			FogBugz Case 813:  fix to add the correct partner code of "Church Partnership"
+	28-Aug-2015		CMayeda			Changed raiserror syntax to work with SQL Server 2012 (CRM 4.0)
 	-->	
 
 	<CreateProcedureSQL>
@@ -116,14 +117,14 @@ begin
 		end
 	end
 	else
-		RAISERROR 1000000 'No rows returned from temp table!'
+		RAISERROR ('No rows returned from temp table!', 16, 1)
 	
 	-- set the values & call the create relationship sproc
 	set @RECIPROCALCONSTITUENTID = @PFMID				-- this is the PFM ID the user selected
 	
 	-- be sure we have some relationship codes to look for:
 	if (@reciprocalDescription is null) or (@relationshipDescription is null)
-		RAISERROR 1000000 'Either the @reciprocalDescription or @relationshipDescription is Null!'
+		RAISERROR ('Either the @reciprocalDescription or @relationshipDescription is Null!', 16, 1)
 		
 	-- this is the code of the 'CHURCH' relationship type, which describes the reciprocal/PFM org: 
 	set @reciprocalDescription = lower(@reciprocalDescription);
@@ -141,7 +142,7 @@ begin
 			
 	-- make sure we have the ID values or we can't continue
 	if (@RECIPROCALTYPECODEID is null) or (@RELATIONSHIPTYPECODEID is null)
-		RAISERROR 1000000 'Could not find either the @reciprocalDescription or @relationshipDescription Relationship Type code!'
+		RAISERROR ('Could not find either the @reciprocalDescription or @relationshipDescription Relationship Type code!', 16, 1)
 	else
 	begin								
 		set @RELATIONSHIPSTARTDATE = getdate()   -- date the relationship started
@@ -190,7 +191,7 @@ begin
 	*/
 
 	if @CONSTITUENCYCODEID is null
-		RAISERROR 1000000 'Could not find the partnership constituency code!'
+		RAISERROR ('Could not find the partnership constituency code!', 16, 1)
 			
 	-- check now for the given constituency code for the given constituent
 	declare @ISPARTNER bit = 0;

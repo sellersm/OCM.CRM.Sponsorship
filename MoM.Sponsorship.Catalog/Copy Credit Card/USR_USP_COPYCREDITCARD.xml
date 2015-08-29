@@ -20,6 +20,7 @@
 	29-Dec-2012		Memphis			Added the optional parameter so we can call this and override the check for the same constituent, so that
 									the user can actually use the credit card from a different constituent/payer/donor. This will be called
 									from a new Action Task called "Apply different Credit Card"
+	28-Aug-2015		CMayeda			Changed raiserror syntax to work with SQL Server 2012 (CRM 4.0)
 	-->
 	
 	<CreateProcedureSQL>
@@ -141,12 +142,12 @@ begin
 					end
 				else
 					--print 'CC Invalid, cannot continue...'
-					raiserror 1000000 'Credit Card is expired, cannot use it!'
+					raiserror ('Credit Card is expired, cannot use it!', 16, 1)
 
 			end
 		else  --if @sameSponsor = 1
 			begin
-				raiserror 1000000 'The recurring gift you entered is for a different sponsor, cannot continue!'
+				raiserror ('The recurring gift you entered is for a different sponsor, cannot continue!', 16, 1)
 			end
 		
 		return 0;

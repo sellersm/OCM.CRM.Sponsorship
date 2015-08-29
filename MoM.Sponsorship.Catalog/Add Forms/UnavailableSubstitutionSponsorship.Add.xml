@@ -23,6 +23,7 @@
 	25-Sep-2012		Memphis			added call to new function to determine if already has sponsor constituency code: FogBugz Case 845
 	26-Sep-2012		Memphis			added code on behalf of Cary, to set reservation to Sponsored marked by "***  CMayeda - reservation code" - Fogbugz Case 842
 	28-Sep-2012		Memphis			added call to insert new row into sponsorship extension table.	
+	28-Aug-2015		CMayeda			Changed raiserror syntax to work with SQL Server 2012 (CRM 4.0)
 	-->
 
 
@@ -272,7 +273,7 @@ begin try
 			
 		-- make sure we have the ID values or we can't continue
 		if (@RECIPROCALTYPECODEID is null) or (@RELATIONSHIPTYPECODEID is null)
-			RAISERROR 1000000 'Could not find either the "Church" or "Church Member" Relationship Type code!'
+			RAISERROR ('Could not find either the "Church" or "Church Member" Relationship Type code!', 16, 1)
 		else
 		begin								
 			set @RELATIONSHIPSTARTDATE = getdate()   -- date the relationship started
@@ -318,7 +319,7 @@ begin try
 		where lower([DESCRIPTION]) = lower('Partnership for Mercy')
 
 		if @CONSTITUENCYCODEID is null
-			RAISERROR 1000000 'Could not find the "Partnership for mercy" constituency code!'
+			RAISERROR ('Could not find the "Partnership for mercy" constituency code!', 16, 1)
 			
 		-- check now for the given constituency code for the given constituent
 		declare @ISPARTNER bit = 0;
@@ -549,7 +550,7 @@ begin try
 		where lower([DESCRIPTION]) = lower('Prospect Sponsor')
 
 		if @CONSTITUENCYCODEID is null
-			RAISERROR 1000000 'Could not find the "Prospect Sponsor" constituency code!'
+			RAISERROR ('Could not find the "Prospect Sponsor" constituency code!', 16, 1)
 
 		-- check now for the given constituency code for the given constituent
 		
@@ -565,7 +566,7 @@ begin try
 		-- check for a value of 2 and inform the user that the code exists with today's end date:
 		if @constituencyCheckCode = 2
 			begin
-				RAISERROR 1000000 'The constituent has a Prospect Sponsor constituency code with a "Date To" field value of today.  Please verify the accuracy of the Prospect Sponsor constituency code before adding a new sponsorship.'
+				RAISERROR ('The constituent has a Prospect Sponsor constituency code with a "Date To" field value of today.  Please verify the accuracy of the Prospect Sponsor constituency code before adding a new sponsorship.', 16, 1)
 			end
 		else
 			begin
@@ -599,7 +600,7 @@ begin try
 			where lower([DESCRIPTION]) = lower('Sponsor')
 
 			if @CONSTITUENCYCODEID is null
-				RAISERROR 1000000 'Could not find the "Sponsor" constituency code!'
+				RAISERROR ('Could not find the "Sponsor" constituency code!', 16, 1)
 
 			-- check now for the given constituency code for the given constituent
 		
@@ -615,7 +616,7 @@ begin try
 			-- check for a value of 2 and inform the user that the code exists with today's end date:
 			if @constituencyCheckCode = 2
 				begin
-					RAISERROR 1000000 'The constituent has a Sponsor constituency code with a "Date To" field value of today.  Please verify the accuracy of the Sponsor constituency code before adding a new sponsorship.'
+					RAISERROR ('The constituent has a Sponsor constituency code with a "Date To" field value of today.  Please verify the accuracy of the Sponsor constituency code before adding a new sponsorship.', 16, 1)
 				end
 			else
 				begin

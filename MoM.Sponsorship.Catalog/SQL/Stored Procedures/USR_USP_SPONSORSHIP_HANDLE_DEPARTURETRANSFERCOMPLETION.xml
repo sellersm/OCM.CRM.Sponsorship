@@ -21,6 +21,7 @@
 	20-Feb-2013		Memphis			Fogbugz Case 988, 989, 990, 991
 	23-Feb-2013		Memphis			Fogbugz Case 1005: need to check the isPaidAheadOrActiveEFT variable instead of just isPaidAhead
 	27-Feb-2013		Memphis			Fogbugz Case 1013: don't populate the departure reason/other if admin type but not project closure
+	28-Aug-2015		CMayeda			Changed raiserror syntax to work with SQL Server 2012 (CRM 4.0)
 	-->
 
 
@@ -181,58 +182,58 @@ where LOWER([DESCRIPTION]) = LOWER('Pending')
 	
 	-- ensure we have all the values we need:
 	if @sponsorId is null
-		RAISERROR 1000000 'Sponsor is missing! Unable to continue.'
+		RAISERROR ('Sponsor is missing! Unable to continue.', 16, 1)
 		
 	if @transferSponsorshipId is null
-		RAISERROR 1000000 'Transfer Sponsorship ID is missing! Unable to continue.'
+		RAISERROR ('Transfer Sponsorship ID is missing! Unable to continue.', 16, 1)
 		
 	if @departedSponsorshipId is null
-		RAISERROR 1000000 'Departed Sponsorship ID is missing! Unable to continue.'
+		RAISERROR ('Departed Sponsorship ID is missing! Unable to continue.', 16, 1)
 		
 	if @transferChildId is null
-		RAISERROR 1000000 'Transfer Child ID is missing! Unable to continue.'
+		RAISERROR ('Transfer Child ID is missing! Unable to continue.', 16, 1)
 	
 	if @departedChildId is null
-		RAISERROR 1000000 'Departed Child ID is missing! Unable to continue.'
+		RAISERROR ('Departed Child ID is missing! Unable to continue.', 16, 1)
 		
 	if @sponsorContactCodeId is null
-		RAISERROR 1000000 'Donor Contact Type Code is missing! Unable to continue.'
+		RAISERROR ('Donor Contact Type Code is missing! Unable to continue.', 16, 1)
 	
 	if @sponsoredInitialStatusId is null
-		RAISERROR 1000000 'Unable to locate the Initial Opportunity Sponsorship Status Code of Sponsored'
+		RAISERROR ('Unable to locate the Initial Opportunity Sponsorship Status Code of Sponsored', 16, 1)
 		
 	if @sponsoredCurrentStatusId is null
-		RAISERROR 1000000 'Unable to locate the Current Opportunity Sponsorship Status Code of Sponsored'
+		RAISERROR ('Unable to locate the Current Opportunity Sponsorship Status Code of Sponsored', 16, 1)
 	
 	if @unpaidTransferInitialStatusId is null
-		RAISERROR 1000000 'Unable to locate the Initial Opportunity Sponsorship Status Code of Unpaid Transfer'
+		RAISERROR ('Unable to locate the Initial Opportunity Sponsorship Status Code of Unpaid Transfer', 16, 1)
 	
 	if @unpaidSponsoredCurrentStatusId is null
-		RAISERROR 1000000 'Unable to locate the Current Opportunity Sponsorship Status Code of Unpaid Sponsored'
+		RAISERROR ('Unable to locate the Current Opportunity Sponsorship Status Code of Unpaid Sponsored', 16, 1)
 	
 	if @prospectSponsoredCurrentStatusId is null
-		RAISERROR 1000000 'Unable to locate the Current Opportunity Sponsorship Status Code of Prospect Sponsored'
+		RAISERROR ('Unable to locate the Current Opportunity Sponsorship Status Code of Prospect Sponsored', 16, 1)
 	
 	if @prospectTransferInitialStatusId is null
-		RAISERROR 1000000 'Unable to locate the Initial Opportunity Sponsorship Status Code of Prospect Transfer'
+		RAISERROR ('Unable to locate the Initial Opportunity Sponsorship Status Code of Prospect Transfer', 16, 1)
 	
 	if @contactedLetterTypeCodeId is null
-		RAISERROR 1000000 'Unable to locate the InteractionExtension LetterType Code of Contacted'
+		RAISERROR ('Unable to locate the InteractionExtension LetterType Code of Contacted', 16, 1)
 	
 	if @notContactedLetterTypeCodeId is null
-		RAISERROR 1000000 'Unable to locate the InteractionExtension LetterType Code of Not Contacted'
+		RAISERROR ('Unable to locate the InteractionExtension LetterType Code of Not Contacted', 16, 1)
 	
 	if @prospectSponsorCodeId is null
-		RAISERROR 1000000 'Unable to locate the Constituency Code ID for code Prospect Sponsor'
+		RAISERROR ('Unable to locate the Constituency Code ID for code Prospect Sponsor', 16, 1)
 		
 	if @sponsorCodeId is null
-		RAISERROR 1000000 'Unable to locate the Constituency Code ID for code Sponsor'
+		RAISERROR ('Unable to locate the Constituency Code ID for code Sponsor', 16, 1)
 	
 	if @adminProjectClosureId is null
-		RAISERROR 1000000 'Unable to locate the Departure Administrative code of Admin - Project Closed'
+		RAISERROR ('Unable to locate the Departure Administrative code of Admin - Project Closed', 16, 1)
 		
 	if @fulfillmentStatusCodeId_Pending is null
-		RAISERROR 1000000 'Unable to locate the InteractionExtension Fulfillment Status code of Pending'
+		RAISERROR ('Unable to locate the InteractionExtension Fulfillment Status code of Pending', 16, 1)
 
 -- for testing only
 --set @isProspect = 0;
@@ -242,14 +243,14 @@ where LOWER([DESCRIPTION]) = LOWER('Pending')
 	if @isSponsor = 1 and @isProspect = 1
 		begin
 			-- raise an error
-			RAISERROR 1000000 'This Sponsor cannot be both a Sponsor and a Prospect Sponsor! Unable to continue.'
+			RAISERROR ('This Sponsor cannot be both a Sponsor and a Prospect Sponsor! Unable to continue.', 16, 1)
 		end
 	else
 		-- check for the opposite condition, this must be at least ONE type of constituency!
 		if @isSponsor = 0 and @isProspect = 0
 			begin
 				-- raise an error
-				RAISERROR 1000000 'This Sponsor must be either a Sponsor or a Prospect Sponsor! Unable to continue.'
+				RAISERROR ('This Sponsor must be either a Sponsor or a Prospect Sponsor! Unable to continue.', 16, 1)
 			end
 		
 end try
@@ -751,7 +752,7 @@ begin try
 			end)
 
 	if @letterSubcategoryDesc is null
-		RAISERROR 1000000 'Unable to set the correct Interaction Subcategory name. Unable to continue.'
+		RAISERROR ('Unable to set the correct Interaction Subcategory name. Unable to continue.', 16, 1)
 
 	-- Fogbugz 978: left out of workflow doc, 
 	-- if Autopay (eft) then eftBrochure Code is No, else Yes
