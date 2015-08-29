@@ -24,6 +24,7 @@
 								3.	If the card expiration date is not null then the card number needs to be not null
 								4.	If the Account info has a value, then the card number and/or card expiration fields need to be null.
 								    Keep the BatchType hidden to use it for validation when saving.
+	28-Aug-2015		CMayeda			Changed raiserror syntax to work with SQL Server 2012 (CRM 4.0)
 	-->
 
 
@@ -123,13 +124,13 @@ as
 		
 		--decline reason is required no matter what batch type:
 		if (@DECLINEREASON is null or @DECLINEREASON = '')
-			RAISERROR 1000000 'Decline reason is required.'				
+			RAISERROR ('Decline reason is required.', 16, 1)
 
 		if lower(@BATCHTYPE) = 'direct debit'   
 			begin
 				--Direct Debit
 				if (@ACCOUNTINFO is null or @ACCOUNTINFO = '')
-					RAISERROR 1000000 'Please enter the Account Info for a Direct Debit decline.'
+					RAISERROR ('Please enter the Account Info for a Direct Debit decline.', 16, 1)
 					
 				-- set the credit card fields to NULL before saving? *OR* just do two different updates???
 				set @CARDHOLDERNAME = '';
@@ -140,15 +141,15 @@ as
 			begin
 				--Credit Card				
 				if (@CARDNUMBER is null or @CARDNUMBER = '')
-					RAISERROR 1000000 'Card number is required for a Credit Card decline.'
+					RAISERROR ('Card number is required for a Credit Card decline.', 16, 1)
 				
 				--an empty fuzzy date value is:  00000000
 				if (@CARDEXPIRATION is null or @CARDEXPIRATION = '' or @CARDEXPIRATION = '00000000')
-					RAISERROR 1000000 'Card expiration is required if there is a Credit Card number, for a Credit Card decline.'
+					RAISERROR ('Card expiration is required if there is a Credit Card number, for a Credit Card decline.', 16, 1)
 				
 				--check for cardholder
 				if (@CARDHOLDERNAME is null or @CARDHOLDERNAME = '')
-					RAISERROR 1000000 'Card holder name is required for a Credit Card decline.'				
+					RAISERROR ('Card holder name is required for a Credit Card decline.', 16, 1)
 								
 				set @ACCOUNTINFO = '';				
 			end

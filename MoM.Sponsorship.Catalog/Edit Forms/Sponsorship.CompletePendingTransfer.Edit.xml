@@ -17,6 +17,7 @@
 	History:
 	Date            Modified By     Comments
 	08-Oct-2012		CMayeda			Initial Version
+	28-Aug-2015		CMayeda			Changed raiserror syntax to work with SQL Server 2012 (CRM 4.0)
 	-->
 
 	<SPDataForm>
@@ -57,7 +58,7 @@ as begin
 	begin try
 		set @SPONSORID = dbo.USR_UFN_SPONSORSHIP_GETFINANCIALSPONSOR (@ID)
 		if  @SPONSORID = null
-			RAISERROR 100000 'Could not find the Sponsor ID'
+			RAISERROR ('Could not find the Sponsor ID', 16, 1)
 
 		declare @FROMSPONSORSHIPID uniqueidentifier = null
 		declare @TOSPONSORSHIPID uniqueidentifier = null
@@ -68,7 +69,7 @@ as begin
 			@TOSPONSORSHIPID output
 	
 		if @FROMSPONSORSHIPID is null or @TOSPONSORSHIPID is null
-			RAISERROR 100000 'Could not find the pending transfer sponsorships'
+			RAISERROR ('Could not find the pending transfer sponsorships', 16, 1)
 
 		--** change to use this?? UFN_SPONSORSHIPOPPORTUNITY_TRANSLATIONFUNCTION
 		
@@ -118,7 +119,7 @@ as
 	begin try
 		/*set @sponsorID = dbo.USR_UFN_SPONSORSHIP_GETFINANCIALSPONSOR (@ID)
 		if  @sponsorID = null
-			RAISERROR 100000 'Could not find the Sponsor ID'
+			RAISERROR ('Could not find the Sponsor ID', 16, 1)
 		*/
 		
 		exec dbo.USP_GETPENDINGTRANSFERSPONSORSHIPS
@@ -132,7 +133,7 @@ as
 				-- Get the opportunity status of the sponsorship before calling the complete transfer sproc
 				set @fromCurrentOpportunityStatusCodeID = dbo.USR_UFN_SPONSORSHIP_GETCURRENTOPPORTUNITYSTATUSCODEID (@fromSponsorshipID)		
 				if @fromCurrentOpportunityStatusCodeID is null
-					RAISERROR 100000 'Could not determine the opportunity status of the "from" sponsorship'
+					RAISERROR ('Could not determine the opportunity status of the "from" sponsorship', 16, 1)
 	
 				exec dbo.USP_SPONSORSHIP_COMPLETETRANSFER
 					@toSponsorshipID,
@@ -149,7 +150,7 @@ as
 
 			end 
 		else
-			RAISERROR 100000 'Could not find the pending transfer sponsorships'
+			RAISERROR ('Could not find the pending transfer sponsorships', 16, 1)
 			
 	end try
 	begin catch

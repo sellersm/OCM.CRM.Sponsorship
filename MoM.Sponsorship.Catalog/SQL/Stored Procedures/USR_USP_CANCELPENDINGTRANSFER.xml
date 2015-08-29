@@ -14,6 +14,7 @@
 	History:
 	Date            Modified By     Comments
 	12-Mar-2013		Memphis			Initial Version.
+	28-Aug-2015		CMayeda			Changed raiserror syntax to work with SQL Server 2012 (CRM 4.0)
 	-->
 
 	
@@ -91,7 +92,7 @@ begin
 				and ID in (select ID from dbo.USR_INTERACTIONEXTENSION where DEPARTEDCHILDID = @departedChildId)
 			end
 		else
-			RAISERROR 1000000 'Unable to find the Child ID of the Departed child. Unable to cancel interactions and continue.'
+			RAISERROR ('Unable to find the Child ID of the Departed child. Unable to cancel interactions and continue.', 16, 1)
 
 	end try
 

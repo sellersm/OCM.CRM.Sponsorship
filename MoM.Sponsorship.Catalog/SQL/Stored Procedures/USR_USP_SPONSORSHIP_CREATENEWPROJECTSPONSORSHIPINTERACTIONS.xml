@@ -13,6 +13,7 @@
 	History:
 	Date            Modified By     Comments
 	30-Sep-2012		CMayeda			Initial Version
+	28-Aug-2015		CMayeda			Changed raiserror syntax to work with SQL Server 2012 (CRM 4.0)
 	-->
 
 
@@ -85,19 +86,19 @@ begin
 	begin try
 		select @interactionTypeCodeID_ThankYouLetter = ID from dbo.USR_PAIDPROJECTSPONSORSHIPINTERACTIONTYPECODE where lower (DESCRIPTION) = lower (@interactionTypeCodeDesc_ThankYouLetter)
 		if @interactionTypeCodeID_ThankYouLetter is null
-			raiserror 100000 @interactionTypeCodeErrorMsg_ThankYouLetter
+			raiserror (@interactionTypeCodeErrorMsg_ThankYouLetter, 16, 1)
 		
 		select @interactionTypeCodeID_ThankYouLetterAndProfile = ID from dbo.USR_PAIDPROJECTSPONSORSHIPINTERACTIONTYPECODE where lower (DESCRIPTION) = lower (@interactionTypeCodeDesc_ThankYouLetterAndProfile)
 		if @interactionTypeCodeID_ThankYouLetterAndProfile is null
-			raiserror 100000 @interactionTypeCodeErrorMsg_ThankYouLetterAndProfile
+			raiserror (@interactionTypeCodeErrorMsg_ThankYouLetterAndProfile, 16, 1)
 			
 		select @interactionTypeCodeID_ReminderLetter = ID from dbo.USR_PROSPECTPROJECTSPONSORSHIPINTERACTIONTYPECODE where lower (DESCRIPTION) = lower (@interactionTypeCodeDesc_ReminderLetter)
 		if @interactionTypeCodeID_ReminderLetter is null
-			raiserror 100000 @interactionTypeCodeErrorMsg_ReminderLetter
+			raiserror (@interactionTypeCodeErrorMsg_ReminderLetter, 16, 1)
 
 		select @interactionTypeCodeID_ReminderLetterAndProfile = ID from dbo.USR_PROSPECTPROJECTSPONSORSHIPINTERACTIONTYPECODE where lower (DESCRIPTION) = lower (@interactionTypeCodeDesc_ReminderLetterAndProfile)
 		if @interactionTypeCodeID_ReminderLetterAndProfile is null
-			raiserror 100000 @interactionTypeCodeErrorMsg_ReminderLetterAndProfile
+			raiserror (@interactionTypeCodeErrorMsg_ReminderLetterAndProfile, 16, 1)
 	
 	end try
 	begin catch

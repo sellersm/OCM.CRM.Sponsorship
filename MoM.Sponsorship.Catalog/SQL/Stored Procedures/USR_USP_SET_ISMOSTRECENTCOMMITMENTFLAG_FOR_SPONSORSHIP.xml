@@ -14,6 +14,7 @@
 	History:
 	Date            Modified By     Comments
 	07-Feb-2013		Memphis			Initial Version
+	28-Aug-2015		CMayeda			Changed raiserror syntax to work with SQL Server 2012 (CRM 4.0)
 	-->	
 	
 	<CreateProcedureSQL>
@@ -37,7 +38,7 @@ begin
 		where ID = @sponsorShipId
 
 		if @SPONSORSHIPCOMMITMENTID is null
-			RAISERROR 10000 'Unable to find Sponsorship Commitment for this Sponsorship!'
+			RAISERROR ('Unable to find Sponsorship Commitment for this Sponsorship!', 16, 1)
 			
 		-- get the 'active' row and ensure the ismostrecentcommitment is set to 1
 		declare @currentMostRecentValue bit;

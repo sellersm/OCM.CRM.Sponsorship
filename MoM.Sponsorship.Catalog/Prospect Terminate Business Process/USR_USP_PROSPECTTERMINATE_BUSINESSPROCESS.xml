@@ -15,6 +15,7 @@
 	History:
 	Date            Modified By     Comments
 	28-Jul-2014		Memphis			Initial Version 
+	28-Aug-2015		CMayeda			Changed raiserror syntax to work with SQL Server 2012 (CRM 4.0)
 	-->
 
 	<CreateProcedureSQL>
@@ -61,11 +62,11 @@ begin
 			exec dbo.USP_CHANGEAGENT_GETORCREATECHANGEAGENT @changeAgentID output;
 
 		if @prospectFormerlySponsoredCurrentStatusId is null
-			raiserror 100000 'Unable to locate current status code: "Formerly Prospect Sponsored" Unable to continue.'
+			raiserror ('Unable to locate current status code: "Formerly Prospect Sponsored" Unable to continue.', 16, 1)
 		if @prospectSponsoredCurrentStatusId is null
-			raiserror 100000 'Unable to locate current status code: "Prospect Sponsored" Unable to continue.'
+			raiserror ('Unable to locate current status code: "Prospect Sponsored" Unable to continue.', 16, 1)
 		if @formerlySponsoredCurrentStatusId is null
-			raiserror 100000 'Unable to locate current status code: "Formerly Sponsored" Unable to continue.'
+			raiserror ('Unable to locate current status code: "Formerly Sponsored" Unable to continue.', 16, 1)
 	end try
 	begin catch
 		exec dbo.USP_RAISE_ERROR
