@@ -47,7 +47,8 @@ as begin
 	(7, null, 'Internet', 0, ''),
 	(9, null, 'Ministry Representative', 1, 'Enter the Representative'),
 	(10, null, 'Radio', 1, 'Enter the Radio Call Letters'),
-	(11, null, 'Other ', 1, 'Enter How You Heard About OCM')
+	(11, null, 'Shine A Light Tour', 0, ''),
+	(12, null, 'Other ', 1, 'Enter How You Heard About OCM')
 
 	select	SORTORDER,
 			APPEALID,
