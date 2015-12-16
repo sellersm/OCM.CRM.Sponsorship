@@ -15,6 +15,8 @@
 	History:
 	Date            Modified By     Comments
 	23-Apr-2015		CMayeda			Initial Version
+	15-Dec-2015		Memphis			Changed parameter for Go To recurring Gift action: 
+										added RECURRINGGIFTID
 	-->
 
 	<ResourceFile AssemblyName="Blackbaud.AppFx.Sponsorship.Catalog.dll" ClassName="Blackbaud.AppFx.Sponsorship.Catalog.Sponsor.Page" />
@@ -52,7 +54,7 @@
 						<Action ID="0E52865C-B3C2-422F-9048-30407039CDB7" Caption="Go to recurring gift" ImageKey="RES:goto_round" Visible="=Not Fields!ID.Equals(String.Empty)">
 							<ShowPage PageID="387f861b-6c03-486c-9ff5-9cc5bb7a5275" TabID="00000000-0000-0000-0000-000000000000" xmlns="bb_appfx_commontypes">
 								<ActionContext>
-									<SectionField>ID</SectionField>
+									<SectionField>RECURRINGGIFTID</SectionField>
 								</ActionContext>
 							</ShowPage>
 						</Action>

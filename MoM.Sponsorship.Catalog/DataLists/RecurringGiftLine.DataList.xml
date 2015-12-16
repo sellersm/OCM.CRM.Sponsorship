@@ -13,6 +13,7 @@
 	History:
 	Date            Modified By     Comments
 	01-Jul-2015		Memphis			Initial Prototype Version
+	15-Dec-2015		Memphis			Added the RecurringGiftID column
 	-->
 
 	<common:DependencyList>
@@ -56,7 +57,8 @@ select distinct
 	clh.ID,
 	null PARENTID,
 	-1 COMMITMENTSEQUENCE,
-	-1 SPONSORSHIPSEQUENCE
+	-1 SPONSORSHIPSEQUENCE,
+	clh.RECURRINGGIFTID
 from 
 	dbo.USR_COMMITMENTLINE_RECURRINGGIFT clh
 where 
@@ -110,7 +112,8 @@ select distinct
 	clh.ID,
 	clh.ID PARENTID,
 	SPONSORSHIPCOMMITMENT.COMMITMENTSEQUENCE,
-	-1 SPONSORSHIPSEQUENCE
+	-1 SPONSORSHIPSEQUENCE,
+	clh.RECURRINGGIFTID
 from 
 	USR_COMMITMENTLINE_RECURRINGGIFT clh
 	--join dbo.SPONSORSHIP on SPONSORSHIPCOMMITMENTID = clh.COMMITMENTID
@@ -165,6 +168,7 @@ end
 			<OutputField FieldID="PARENTID" Caption="PARENTID" IsHidden="true" DataType="Guid" DisplaySequence="13" />
 			<OutputField FieldID="COMMITMENTSEQUENCE" Caption="COMMITMENTSEQUENCE" IsHidden="true" DataType="SmallInt" DisplaySequence="14"  />
 			<OutputField FieldID="SPONSORSHIPSEQUENCE" Caption="SPONSORSHIPSEQUENCE" IsHidden="true" DataType="SmallInt" DisplaySequence="15" />
+			<OutputField FieldID="RECURRINGGIFTID" Caption="RECURRINGGIFTID" IsHidden="true" DataType="Guid" DisplaySequence="16" />
 		</OutputFields>
 	</Output>
 
