@@ -1,4 +1,4 @@
-﻿<GlobalChangeSpec 
+﻿<GlobalChangeSpec
 	xmlns="bb_appfx_globalchange"
 	xmlns:c="bb_appfx_commontypes"
 	ID="8f8f09bc-5e3e-4193-8462-d8146ed0dceb"
@@ -53,17 +53,17 @@ as
 		like the context @CHANGEAGENTID, @ASOF, @NUMBERADDED, @NUMBEREDITED, and @NUMBERDELETED need not be listed. -->
 		<FormMetaData xmlns="bb_appfx_commontypes">
 			<FormFields>
-        <FormField FieldID="MERGECOMMITMENTS" Caption="Merge commitment" DataType="XML">
-          <Collection>
-            <Fields>
-              <FormField FieldID="COMMITMENTID" Caption="Commitment" DataType="String" Required="true" />
-            </Fields>
-          </Collection>
-        </FormField>
-        <FormField FieldID="EARLIESTSTARTDATE" Caption="Earliest startdate" DataType="Date"/>
-        <FormField FieldID="DELETERECORDS" Caption="Delete records" DataType="Boolean" DefaultValueText="0"/>
-      </FormFields>
+				<FormField FieldID="MERGECOMMITMENTS" Caption="Merge commitment" DataType="XML">
+					<Collection>
+						<Fields>
+							<FormField FieldID="COMMITMENTID" Caption="Commitment" DataType="String" Required="true" />
+						</Fields>
+					</Collection>
+				</FormField>
+				<FormField FieldID="EARLIESTSTARTDATE" Caption="Earliest startdate" DataType="Date"/>
+				<FormField FieldID="DELETERECORDS" Caption="Delete records" DataType="Boolean" DefaultValueText="0"/>
+			</FormFields>
 		</FormMetaData>
 	</ParametersFormMetaData>
-	
+
 </GlobalChangeSpec>
