@@ -1,37 +1,36 @@
-﻿<AddDataFormTemplateSpec 
+﻿<AddDataFormTemplateSpec
 	xmlns="bb_appfx_adddataformtemplate"
-	xmlns:c="bb_appfx_commontypes" 
-	ID="7cd5ccc3-3de5-46a6-8c9e-7659d2c028a1" 
-	Name="Merge Multiple Sponsorship Commitments Add Data Form"
-	Description="A data form for adding merge multiple sponsorship commitments records" 
+	xmlns:c="bb_appfx_commontypes"
+	ID="8d50e7f8-1bde-4744-b84c-3d822a57c935"
+	Name="Merge Commitments Add Data Form"
+	Description="A data form for adding merge commitments records"
 	Author="Zuri Group\Ken Swift"
-	DataFormInstanceID="2550b89f-5e59-411f-8fc2-7da80f56f80a" 
-	RecordType="Merge Multiple Sponsorship Commitments"
-	c:SecurityUIFolder="Merge Multiple Sponsorship Commitments"
-	FormHeader="Add a merge multiple sponsorship commitments"
+	DataFormInstanceID="9292179c-0473-40f9-95ae-c4b0092e2f4d"
+	RecordType="Merge Commitments"
+	c:SecurityUIFolder="Merge Commitments"
+	FormHeader="Merge sponsorship commitments"
 	>
 
 	<SPDataForm>
+		<!-- describe the preload SP (if applicable), which should be used to fetch field default values from the database.  If no
+		preload is needed, then this section can be removed -->
+
 		<!-- describe the save SP -->
-		<SaveImplementation SPName="USR_USP_DATAFORMTEMPLATE_ADD_MERGEMULTIPLESPONSORSHIPCOMMITMENTS">
+		<SaveImplementation SPName="USR_USP_DATAFORMTEMPLATE_ADD_MERGECOMMITMENTS">
 			<c:CreateProcedureSQL>
 				<![CDATA[
-create procedure dbo.USR_USP_DATAFORMTEMPLATE_ADD_MERGEMULTIPLESPONSORSHIPCOMMITMENTS
+create procedure dbo.USR_USP_DATAFORMTEMPLATE_ADD_MERGECOMMITMENTS
 (
     @ID uniqueidentifier = null output,
-  	@CONTEXTID uniqueidentifier,
+  	@CONTEXTID nvarchar(100),
     @CHANGEAGENTID uniqueidentifier = null,
-  	@MERGECOMMITMENTS xml,
-	  @EARLIESTSTARTDATE date = '2009-01-01',
+	  @MERGECOMMITMENTS xml = null,
+    @EARLIESTSTARTDATE datetime = null,
     @DELETERECORDS bit = 0
 )
 as
 
 set nocount on;
-
-declare  @NUMBEREDITED int 
-declare @NUMBERDELETED int 
-
 
 if @ID is null
     set @ID = newid()
@@ -43,24 +42,36 @@ declare @CURRENTDATE datetime
 set @CURRENTDATE = getdate()
 
 begin try
-    declare @COMMITMENT table(ID nvarchar(100))
-    insert into @COMMITMENT
-      select 
-        T.mergecommitments.value('(COMMITMENTID)[1]','nvarchar(100)')   
-      from
-        @MERGECOMMITMENTS.nodes('/MERGECOMMITMENTS/ITEM') T(mergecommitments)
+	-- handle inserting the data 
+  
+declare @MERGESET table(ID nvarchar(100))
+insert into @MERGESET
+  select 
+    T.mergecommitments.value('(COMMITMENTID)[1]','nvarchar(100)')   
+  from
+    @MERGECOMMITMENTS.nodes('/MERGECOMMITMENTS/ITEM') T(mergecommitments)
 
-    declare @CONSTITUENTCOUNT int
-    set @CONSTITUENTCOUNT = (select count(*) from SPONSORSHIPCOMMITMENT SC inner join @COMMITMENT C on SC.LOOKUPID = C.ID where SC.CONSTITUENTID != @CONTEXTID)
-    if (@CONSTITUENTCOUNT > 0)
-    begin
-      raiserror ('One or more of the commitments does not belong to this sponsor', 
-                    16, -- Severity.
-                    1 -- State.
-      );    
-    end
+declare @COMMITMENTID uniqueidentifier
+set @COMMITMENTID = (select ID from SPONSORSHIPCOMMITMENT where LOOKUPID = @CONTEXTID)
 
-    exec USR_USP_MERGEMULTIPLESPONSORSHIPCOMMITMENTS @MERGECOMMITMENTS, @EARLIESTSTARTDATE, @DELETERECORDS, @NUMBEREDITED output, @NUMBERDELETED output, @CHANGEAGENTID
+--CHANGE ALL THE SPONSORSHIPIDS FROM THE MERGE COMMITMENTS TO THE TARGET (CONTEXT) COMMITMENT
+update
+  SPONSORSHIP
+set
+  SPONSORSHIPCOMMITMENTID = @COMMITMENTID,
+  ISMOSTRECENTFORCOMMITMENT = 0
+where
+  SPONSORSHIPCOMMITMENTID in (select SC.ID from @MERGESET M inner join SPONSORSHIPCOMMITMENT SC on M.ID = SC.LOOKUPID)
+
+--NOW THAT ALL THE COMMITMENTS ARE MERGED...MERGE ALL THE RECURRING GIFTS TOGETHER
+declare @SPONSORSHIPCOMMITMENTSELECTIONID uniqueidentifier
+declare @LOOKUPID nvarchar(100)
+declare @NUMBEREDITED int
+declare @NUMBERDELETED int
+set @LOOKUPID = @CONTEXTID
+
+exec USR_USP_MERGESPONSORSHIPCOMMITMENTRECURRINGGIFTS @SPONSORSHIPCOMMITMENTSELECTIONID, @LOOKUPID, @EARLIESTSTARTDATE, @DELETERECORDS, @NUMBEREDITED, @NUMBERDELETED, @CHANGEAGENTID
+	
 end try
 
 begin catch
@@ -75,22 +86,22 @@ return 0
 	</SPDataForm>
 
 	<!-- describe the context ID for this form (if applicable), which corresponds to a parameter in the SP. -->
-	<Context ContextRecordType="Sponsor" RecordIDParameter="CONTEXTID"/>
+	<Context ContextRecordType="Sponsorship Commitment" RecordIDParameter="CONTEXTID"/>
 
 	<!-- describe fields on the form, which correspond to parameters on the SP.  Note that system parameters 
 	like the context @ID, @CONTEXTID, and @CURRENTAPPUSERID need not be listed. -->
 	<FormMetaData xmlns="bb_appfx_commontypes">
 		<FormFields>
-        <FormField FieldID="MERGECOMMITMENTS" Caption="Merge commitment" DataType="XML" Required="true">
-          <Collection>
-            <Fields>
-              <FormField FieldID="COMMITMENTID" Caption="Commitment" DataType="String" Required="true" />
-            </Fields>
-          </Collection>
-        </FormField>
-        <FormField FieldID="EARLIESTSTARTDATE" Caption="Earliest startdate" DataType="Date" DefaultValueText="2009-01-01" Required="true"/>
-        <FormField FieldID="DELETERECORDS" Caption="Delete records" DataType="Boolean" DefaultValueText="0"/>
-      </FormFields>
+			<FormField FieldID="MERGECOMMITMENTS" Caption="Merge commitment" DataType="XML">
+				<Collection>
+					<Fields>
+						<FormField FieldID="COMMITMENTID" Caption="Commitment" DataType="String" Required="true" />
+					</Fields>
+				</Collection>
+			</FormField>
+			<FormField FieldID="EARLIESTSTARTDATE" Caption="Earliest startdate" DataType="Date" Hidden="true"/>
+			<FormField FieldID="DELETERECORDS" Caption="Delete records" DataType="Boolean" DefaultValueText="0" Hidden="true"/>
+		</FormFields>
 	</FormMetaData>
 
 </AddDataFormTemplateSpec>

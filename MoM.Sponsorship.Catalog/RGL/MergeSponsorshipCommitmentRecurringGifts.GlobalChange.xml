@@ -1,4 +1,4 @@
-﻿<GlobalChangeSpec 
+﻿<GlobalChangeSpec
 	xmlns="bb_appfx_globalchange"
 	xmlns:c="bb_appfx_commontypes"
 	ID="f71ff3df-ba51-40e9-ada1-03036d6f30a5"
@@ -55,17 +55,17 @@ as
 		<FormMetaData xmlns="bb_appfx_commontypes">
 			<FormFields>
 				<FormField FieldID="SPONSORSHIPCOMMITMENTSELECTIONID" Caption="Sponsorship commitment selection" DataType="Guid">
-          <SearchList SearchListID="1F0E603C-1C55-4E1E-8218-BDB877B2CBE8">
-            <FormFieldOverrides>
-              <FormFieldOverride FieldID="RECORDTYPE" DefaultValueText="Sponsorship Commitment" ReadOnly="true" Caption="Record type" Hidden="false"/>
-            </FormFieldOverrides>
-          </SearchList>          
-        </FormField>
+					<SearchList SearchListID="1F0E603C-1C55-4E1E-8218-BDB877B2CBE8">
+						<FormFieldOverrides>
+							<FormFieldOverride FieldID="RECORDTYPE" DefaultValueText="Sponsorship Commitment" ReadOnly="true" Caption="Record type" Hidden="false"/>
+						</FormFieldOverrides>
+					</SearchList>
+				</FormField>
 				<FormField FieldID="LOOKUPID" Caption="Commitment lookup ID (optional)" DataType="String" />
 				<FormField FieldID="EARLIESTSTARTDATE" Caption="Earlist sponsorship date (smart field)" DataType="Date" />
 				<FormField FieldID="DELETERECORDS" Caption="Delete old recurring gift(s)" DataType="Boolean" />
 			</FormFields>
 		</FormMetaData>
 	</ParametersFormMetaData>
-	
+
 </GlobalChangeSpec>
