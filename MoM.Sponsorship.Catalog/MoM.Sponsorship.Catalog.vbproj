@@ -762,7 +762,7 @@
   <ItemGroup>
     <EmbeddedResource Include="DataLists\CommitmentLineHistory.RecurringGifts.DataList.xml" />
     <EmbeddedResource Include="DataLists\RecurringGiftLine.DataList.xml" />
-    <EmbeddedResource Include="Global Changes\MergeSponsorshipCommitmentRecurringGifts.GlobalChange.xml" />
+    <Content Include="Global Changes\MergeSponsorshipCommitmentRecurringGifts.GlobalChange.xml" />
     <EmbeddedResource Include="View Forms\RecurringGiftLineDetail.View.xml" />
     <EmbeddedResource Include="Query Views\RGL.Query.xml" />
     <EmbeddedResource Include="RGL\MergeMultipleSponsorshipCommitments.Add.xml" />
@@ -784,7 +784,7 @@
     <EmbeddedResource Include="Query Views\SameChildMultipleCommitmentsAndRG.Query.xml" />
     <EmbeddedResource Include="Query Views\IdentifyDupChildMergeRGTargetIsAppealNotAssignments.Query.xml" />
     <EmbeddedResource Include="Pages\SponsorshipCommitment.Page.xml" />
-    <EmbeddedResource Include="Query Views\SponsorshipCommitment.Query.xml" />
+    <Content Include="Query Views\SponsorshipCommitment.Query.xml" />
     <EmbeddedResource Include="Tables\CLHRecurringGift.Table.xml" />
     <EmbeddedResource Include="Query Views\SponsorshipCommitmentsWithMultipleRG.AllRankings.Query.xml" />
     <EmbeddedResource Include="Query Views\SponsorshipCommitmentsWithMultipleRG.Query.xml" />
