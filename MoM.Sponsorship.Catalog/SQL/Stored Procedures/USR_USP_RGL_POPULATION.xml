@@ -1,0 +1,495 @@
+﻿<SQLStoredProcedureSpec
+	xmlns="bb_appfx_sqlstoredprocedure"
+	xmlns:common="bb_appfx_commontypes" 
+	ID="132c910d-992a-42ae-a5a6-46dc78517aaa"
+	Name="USR_USP_RGL_POPULATION"
+	Description="Populates the RGL table"
+	Author="Memphis Sellers"
+	SPName="USR_USP_RGL_POPULATION"
+	GrantServiceRolePermission="true"
+	>
+
+	<CreateProcedureSQL>
+		<![CDATA[
+create procedure dbo.USR_USP_RGL_POPULATION
+as
+begin
+	DECLARE @dateAdded   DATETIME = getdate ();
+	--DECLARE @isDebug   BIT = 0; -- 1=show output, 0=do not show: used for outputting various debugging information, select statements, etc. to troubleshoot
+
+	DECLARE @SPONTRANID   UNIQUEIDENTIFIER;
+	DECLARE @SPONCOMMITMENTID   UNIQUEIDENTIFIER;
+	DECLARE @SPONSORLOOKUPID   NVARCHAR (100);
+	DECLARE @SPONSORID   UNIQUEIDENTIFIER;
+	DECLARE @SPONSORSHIPSTARTDATE   DATE;
+	DECLARE @INITIALSTATUS   NVARCHAR (MAX);
+	DECLARE @CONVERSIONDATE   DATE;
+	DECLARE @SPONOPPORTUNITYID   UNIQUEIDENTIFIER;
+	DECLARE @SPONSORSHIPID   UNIQUEIDENTIFIER;
+	DECLARE @LASTCONVERSIONDATE   DATE;
+	DECLARE @TARGETACTIONCODE   TINYINT;
+	DECLARE @REVENUEID   UNIQUEIDENTIFIER;
+	DECLARE @lastSponsorshipId   UNIQUEIDENTIFIER;
+
+	DECLARE @TARGETSPONSORSHIPID   UNIQUEIDENTIFIER;
+	DECLARE @MINSTARTDATE   DATE;
+	DECLARE @MAXENDDATE   DATE;
+	DECLARE @GIFTSPONSORID   UNIQUEIDENTIFIER;
+	DECLARE @SPONSORSHIPREASONID   UNIQUEIDENTIFIER;
+	DECLARE @APPEALCATEGORY   NVARCHAR (500);
+	DECLARE @APPEALNAME   NVARCHAR (500);
+	DECLARE @APPEALSOURCE   NVARCHAR (MAX);
+	DECLARE @INBOUNDCHANNEL   NVARCHAR (MAX);
+	DECLARE @SPONSORSHIPENDDATE   DATETIME;
+	DECLARE @LASTTRANACTION   NVARCHAR (100);
+	DECLARE @DAYSTOCONVERT   INT;
+	DECLARE @TRANSEQUENCE   INT;
+
+	DECLARE @rglType   INT = 0;                                         -- Unknown
+	DECLARE @rglConversionDate   DATE;
+	DECLARE @rglDaysToConvert   INT;
+
+	DECLARE @unknownTypeCodeValue   TINYINT = 0;
+	DECLARE @directTypeCodeValue   TINYINT = 1;
+	DECLARE @prospectTypeCodeValue   TINYINT = 2;
+	DECLARE @conversionTypeCodeValue   TINYINT = 3;
+	DECLARE @reassignedTypeCodeValue   TINYINT = 5;
+
+	DECLARE @rglStatusActive   TINYINT = 0;
+	DECLARE @rglStatusActiveTransferPending   TINYINT = 1;
+	DECLARE @rglStatusActiveReassigned   TINYINT = 2;
+	DECLARE @rglStatusInactive   TINYINT = 3;
+	DECLARE @rglStatusCancelled   TINYINT = 6;
+	DECLARE @rglStatusTerminated   TINYINT = 8;
+	DECLARE @rglStatusReassigned   TINYINT = 9;
+
+	DECLARE @addActionCode   TINYINT = 0;
+	DECLARE @reassignActionCode   TINYINT = 5;
+
+	-- THIS NEEDS TO BECOME A PERMANENT TABLE:  dbo.USR_RGL_POPULATION_EXCEPTION
+	/*
+	declare @exceptionTable table (
+	 RGID uniqueidentifier,
+	 SPONSORLOOKUPID nvarchar(100),
+	 TARGETSPONSORSHIPID uniqueidentifier,
+	 INITIALSTATUS nvarchar(max),
+	 CONVERSIONDATE date,
+	 TARGETACTIONCODE nvarchar(max)
+	)
+	*/
+
+
+	----PRINT '';
+	----PRINT 'about to process the Prospect Sponsored rows, if there are any...';
+	----PRINT '';
+
+	DECLARE
+	   nextSponsorshipCursor CURSOR LOCAL FAST_FORWARD FOR
+		  SELECT TARGETSPONSORSHIPID,
+				 REVENUEID,
+				 TARGETINITIALSTATUS,
+				 TARGETCONVERSIONDATE,
+				 TARGETACTIONCODE,
+				 MINSTARTDATE,
+				 SPONSORID,
+				 lastSponsorshipId
+			FROM dbo.USR_RGLTABLE tt
+		   WHERE tt.TARGETINITIALSTATUS = 'Prospect Sponsored'
+
+	OPEN nextSponsorshipCursor;
+
+	FETCH NEXT FROM nextSponsorshipCursor
+		 INTO @TARGETSPONSORSHIPID,
+			  @REVENUEID,
+			  @INITIALSTATUS,
+			  @CONVERSIONDATE,
+			  @TARGETACTIONCODE,
+			  @SPONSORSHIPSTARTDATE,
+			  @SPONSORID,
+			  @lastSponsorshipId
+
+	-- cursor loop, for the given commitment and child:
+	-- if INITIALSTATUS = 'Prospect Sponsored' and CONVERSIONDATE is null
+	--   check for any other sponsorships, for the given commitment and child,
+	--     that have INITIALSTATUS = 'Prospect Sponsored'
+	--  we are done looping when we finally either:
+	--   find a record with a Conversion Date value, *OR*
+	--   find a record with an INITIALSTATUS <> 'Prospect Sponsored', if this is found, **THROW EXCEPTION!**, *OR*
+	--   find NO more Sponsorships for the given commitment and child:
+	DECLARE @isConverted   BIT = 0;
+	DECLARE @isException   BIT = 0;
+	DECLARE @isNoMore   BIT = 0;
+	DECLARE @nextCount   INT = 0;
+	DECLARE @doneChecking   BIT = 0;
+	DECLARE @conversionDateValue   DATE;
+	DECLARE @startDate   DATE;
+
+	WHILE (@@FETCH_STATUS = 0)
+	BEGIN
+	--   --PRINT 'checking the Prospect Sponsored...';
+	   SET @SPONSORLOOKUPID = NULL;
+
+	   -- get the @SPONSORLOOKUPID value from the sponsorid:
+	   SELECT @SPONSORLOOKUPID = LOOKUPID
+	   FROM dbo.CONSTITUENT
+	   WHERE ID = @SPONSORID;
+
+	   SET @isConverted = 0;
+	   SET @isException = 0;
+	   SET @isNoMore = 0;
+	   SET @nextCount = 0;
+	   SET @doneChecking = 0;
+	   SET @conversionDateValue = NULL;
+	   SET @startDate = NULL;
+	   SET @rglType = 0;                           --Unknown, let it get set below
+
+	   -- check if this has a conversion associated with the last sponsorship, if there's not a conversion
+	   --   of the target sponsorship:
+	   IF @CONVERSIONDATE IS NULL
+		  BEGIN
+			 SELECT @LASTCONVERSIONDATE = CONVERSIONDATE
+			 FROM dbo.USR_SPONSORSHIPEXTENSION
+			 WHERE ID = @lastSponsorshipId;               -- @TARGETSPONSORSHIPID;
+		  END
+
+
+	   -- first check if this has a conversion date, if so, then we're done:
+	   IF (@CONVERSIONDATE IS NOT NULL OR @LASTCONVERSIONDATE IS NOT NULL)
+		  BEGIN
+			 -- set the RGL values based on this conversion of the commitment:
+			 -- RGL Type = Conversion, ConversionDate = ConversionDate, DaysToConvert value:
+			 -- v7 of workflow, rgl Type is based on Target Action Code of Add or Reassign:
+			 IF @TARGETACTIONCODE = @addActionCode
+				BEGIN
+				   --PRINT 'this is a Target Action of ADD.';
+				   SET @rglType = @conversionTypeCodeValue;
+				END
+
+			 IF @TARGETACTIONCODE = @reassignActionCode
+				BEGIN
+				   SET @rglType = @reassignedTypeCodeValue;
+				END
+
+			 SET @rglConversionDate = @conversionDateValue;
+			 SET @rglDaysToConvert =datediff (dd,@SPONSORSHIPSTARTDATE,ISNULL (@CONVERSIONDATE, @LASTCONVERSIONDATE));
+
+			 -- don't need to check any further:
+			 SET @doneChecking = 1;
+
+			 -- put these values into dbo.USR_RGLTARGETTABLE so the insert below will be accurate for this commitment
+			 UPDATE dbo.USR_RGLTABLE
+				SET TARGETCONVERSIONDATE =ISNULL (@CONVERSIONDATE, @LASTCONVERSIONDATE),
+					DAYSTOCONVERT = @rglDaysToConvert, --datediff(dd, @SPONSORSHIPSTARTDATE, @conversionDateValue),
+					RGLTYPE = @conversionTypeCodeValue
+			  --where SPONTRANID = @SPONTRANID;
+			  WHERE REVENUEID = @REVENUEID;
+
+		  END
+	   ELSE
+		  BEGIN
+			 -- check if there are any more sponsorships for this commitment at all:
+			 IF NOT EXISTS
+				   (SELECT 1
+					  FROM dbo.sponsorship s
+						   LEFT JOIN dbo.revenuesplit rs
+							  ON rs.ID = s.REVENUESPLITID
+						   LEFT JOIN dbo.revenue r ON r.ID = rs.REVENUEID
+					 --where sponex.ID is not null
+					 WHERE s.ID <> @TARGETSPONSORSHIPID AND r.ID = @REVENUEID)
+				BEGIN
+				   -- we don't have any more sponsorships for this commitment!
+				   SET @isNoMore = 1;
+				   SET @doneChecking = 1;
+				END
+			 ELSE
+				BEGIN
+				   -- if there ARE more sponsorships, then check for one of these conditions:
+				   -- find a record with a Conversion Date value
+				   SELECT @conversionDateValue = sponex.CONVERSIONDATE,
+						  @startDate = s.STARTDATE
+					 FROM dbo.sponsorship s
+						  LEFT JOIN dbo.USR_SPONSORSHIPEXTENSION sponex ON sponex.ID = s.ID        --and sponex.ISCURRENT = 1
+						  LEFT JOIN dbo.USR_INITIALOPPORTUNITYSPONSORSHIPSTATUSCODE initial ON initial.ID = INITIALOPPORTUNITYSPONSORSHIPSTATUSCODEID
+						  LEFT JOIN dbo.USR_CURRENTOPPORTUNITYSPONSORSHIPSTATUSCODE [current] ON [current].ID = CURRENTOPPORTUNITYSPONSORSHIPSTATUSCODEID
+						  LEFT JOIN dbo.revenuesplit rs ON rs.ID = s.REVENUESPLITID
+						  LEFT JOIN dbo.revenue r ON r.ID = rs.REVENUEID
+					WHERE sponex.ID IS NOT NULL
+						  AND s.ID <> @TARGETSPONSORSHIPID
+						  AND r.ID = @REVENUEID
+						  AND CONVERSIONDATE IS NOT NULL
+						  AND initial.description IN ('Prospect Sponsored', 'Prospect Transfer')
+
+				   IF @conversionDateValue IS NOT NULL
+					  BEGIN
+						 -- we found a conversion for this commitment!
+						 SET @isConverted = 1;
+						 SET @doneChecking = 1;
+					  END
+				   ELSE
+					  BEGIN
+						 -- check if we found a record at all:
+						 IF EXISTS
+							   (SELECT 1
+								  FROM dbo.sponsorship s
+									   LEFT JOIN dbo.USR_SPONSORSHIPEXTENSION sponex ON sponex.ID = s.ID --and sponex.ISCURRENT = 1
+									   LEFT JOIN dbo.USR_INITIALOPPORTUNITYSPONSORSHIPSTATUSCODE initial ON initial.ID = INITIALOPPORTUNITYSPONSORSHIPSTATUSCODEID
+									   LEFT JOIN dbo.USR_CURRENTOPPORTUNITYSPONSORSHIPSTATUSCODE [current] ON [current].ID = CURRENTOPPORTUNITYSPONSORSHIPSTATUSCODEID
+									   LEFT JOIN dbo.revenuesplit rs ON rs.ID = s.REVENUESPLITID
+									   LEFT JOIN dbo.revenue r ON r.ID = rs.REVENUEID
+								 WHERE sponex.ID IS NOT NULL
+									   AND s.ID <> @TARGETSPONSORSHIPID
+									   AND r.ID = @REVENUEID
+									   --and CONVERSIONDATE is not null
+									   AND initial.description IN ('Prospect Sponsored','Prospect Transfer'))
+							BEGIN
+							   -- we found another sponsorship that is either Prospect Sponsored or Prospect Transfer
+							   SET @isConverted = 0;
+							   SET @doneChecking = 1;
+							END
+					  END
+
+
+				   IF @doneChecking = 0
+					  BEGIN
+						 -- didn't find what we wanted up above, so now check for a record with an INITIALSTATUS <> 'Prospect Sponsored':
+						 IF EXISTS
+							   (SELECT 1
+								  FROM dbo.sponsorship s
+									   LEFT JOIN dbo.USR_SPONSORSHIPEXTENSION sponex ON sponex.ID = s.ID --and sponex.ISCURRENT = 1
+									   LEFT JOIN dbo.USR_INITIALOPPORTUNITYSPONSORSHIPSTATUSCODE initial ON initial.ID = INITIALOPPORTUNITYSPONSORSHIPSTATUSCODEID
+									   LEFT JOIN dbo.USR_CURRENTOPPORTUNITYSPONSORSHIPSTATUSCODE [current] ON [current].ID = CURRENTOPPORTUNITYSPONSORSHIPSTATUSCODEID
+									   LEFT JOIN dbo.revenuesplit rs ON rs.ID = s.REVENUESPLITID
+									   LEFT JOIN dbo.revenue r ON r.ID = rs.REVENUEID
+								 WHERE sponex.ID IS NOT NULL
+									   AND s.ID <> @TARGETSPONSORSHIPID
+									   AND r.ID = @REVENUEID
+									   AND (    initial.description IS NOT NULL
+											AND initial.description <>
+												   'Prospect Sponsored'))
+							BEGIN
+							   -- we found an exception for this commitment!
+							   SET @isException = 1;
+							   SET @doneChecking = 1;
+							END
+					  END
+				END -- if there are more records or not
+
+			 -- process the results from above:
+			 IF @doneChecking = 0
+				BEGIN
+				   -- not sure what to do here, this really should never happen!
+				   SET @isException = 1;
+				END
+
+			 IF @isException = 1
+				BEGIN
+				   -- put this record into some place to notify Pamela:
+				   -- @TARGETSPONSORSHIPID, @REVENUEID, @INITIALSTATUS, @CONVERSIONDATE, @TARGETACTIONCODE
+				   INSERT
+					 INTO dbo.USR_RGL_POPULATION_EXCEPTION (RGID,
+															SPONSORLOOKUPID,
+															TARGETSPONSORSHIPID,
+															INITIALSTATUS,
+															CONVERSIONDATE,
+															TARGETACTIONCODE,
+															INSERTDATE)
+				   VALUES (@REVENUEID,
+						   @SPONSORLOOKUPID,
+						   @TARGETSPONSORSHIPID,
+						   @INITIALSTATUS,
+						   @CONVERSIONDATE,
+						   @TARGETACTIONCODE,
+						   getdate ())
+				END
+
+			 IF @isConverted = 1
+				BEGIN
+				   -- set the RGL values based on this conversion of the commitment:
+				   -- RGL Type = Conversion, ConversionDate = ConversionDate, DaysToConvert value:
+				   SET @rglType = @conversionTypeCodeValue;
+				   SET @rglConversionDate = @conversionDateValue;
+				   --set @rglDaysToConvert = datediff(dd, @startDate, @conversionDateValue);
+				   SET @rglDaysToConvert =datediff (dd,@SPONSORSHIPSTARTDATE,@conversionDateValue);
+
+				   -- put these values into dbo.USR_RGLTARGETTABLE so the insert below will be accurate for this commitment
+				   UPDATE dbo.USR_RGLTABLE
+					  SET TARGETCONVERSIONDATE = @conversionDateValue,
+						  DAYSTOCONVERT = @rglDaysToConvert, --datediff(dd, @startDate, @conversionDateValue),
+						  RGLTYPE = @conversionTypeCodeValue
+					--where SPONTRANID = @SPONTRANID;
+					WHERE REVENUEID = @REVENUEID;
+
+				END
+
+			 IF (@isNoMore = 1 OR (@isConverted = 0 AND @doneChecking = 1))
+				BEGIN
+				   -- set the RGl values based on the fact that there are no more sponsorships:
+				   -- set RGL Type to Prospect, ConversionDate = NULL, DaysToConvert = NULL
+				   -- v7 of workflow, rgl Type is based on Target Action Code of Add or Reassign:
+				   SET @rglType =
+						  (CASE
+							  WHEN @TARGETACTIONCODE = @addActionCode
+							  THEN
+								 @prospectTypeCodeValue
+							  WHEN @TARGETACTIONCODE = @reassignActionCode
+							  THEN
+								 @reassignedTypeCodeValue
+							  ELSE
+								 @prospectTypeCodeValue
+						   END);
+
+				   SET @rglConversionDate = NULL;
+				   SET @rglDaysToConvert = NULL;
+
+				   -- put these values into dbo.USR_RGLTARGETTABLE so the insert below will be accurate for this commitment
+				   UPDATE dbo.USR_RGLTABLE
+					  SET TARGETCONVERSIONDATE = NULL,
+						  DAYSTOCONVERT = 0,                    --null not allowed
+						  RGLTYPE = @rglType              --@prospectTypeCodeValue
+					--where SPONTRANID = @SPONTRANID;
+					WHERE REVENUEID = @REVENUEID;
+
+				END
+		  END
+
+	   FETCH NEXT FROM nextSponsorshipCursor
+			INTO @TARGETSPONSORSHIPID,
+				 @REVENUEID,
+				 @INITIALSTATUS,
+				 @CONVERSIONDATE,
+				 @TARGETACTIONCODE,
+				 @SPONSORSHIPSTARTDATE,
+				 @SPONSORID,
+				 @lastSponsorshipId
+	END
+
+	CLOSE nextSponsorshipCursor;
+	DEALLOCATE nextSponsorshipCursor;
+
+	BEGIN TRY
+	   BEGIN TRANSACTION insertTrans
+
+	   DECLARE @CHANGEAGENTID   UNIQUEIDENTIFIER = NULL;
+
+	   IF @CHANGEAGENTID IS NULL
+		  EXEC dbo.USP_CHANGEAGENT_GETORCREATECHANGEAGENT @CHANGEAGENTID OUTPUT;
+
+	   --  Comment this out for now, while testing so don't insert:
+	   INSERT INTO dbo.USR_COMMITMENTLINE_RECURRINGGIFT(
+		   ID
+		  ,SPONSORID
+		  --,OPPORTUNITYID
+		  ,STARTDATE
+		  ,ENDDATE
+		  ,TYPECODE
+		  ,ISREASSIGN
+		  ,SOURCE
+		  ,SOURCECATEGORY
+		  ,PACKAGE
+		  ,INBOUNDCHANNEL
+		  ,CONVERSIONDATE
+		  ,DAYSTOCONVERT
+		  ,STATUSCODE
+		  ,CANCELSPONSORSHIPREASONID
+		  ,FINANCIALSPONSORID
+		  ,ISACCOUNTCORRECTION
+		  --,CUSTOMIDENTIFIER
+		  ,ADDEDBYID
+		  ,CHANGEDBYID
+		  ,DATEADDED
+		  ,DATECHANGED
+		  ,RECURRINGGIFTID
+		  --,COMMITMENTID
+		) 
+		--VALUES (
+		--	RGREVENUEID uniqueidentifier,
+		--	RGSTARTINGDATE date,
+		--	RGENDINGDATE date
+		select distinct --top 500
+		   newid()				-- ID - uniqueidentifier
+		  ,SPONSORID			-- SPONSORID - uniqueidentifier
+		  --,'BE24B158-E629-4EF3-A891-03C7C57B8B31' --,SPONOPPORTUNITYID	-- OPPORTUNITYID - uniqueidentifier
+		  ,MINSTARTDATE --,SPONSORSHIPSTARTDATE	-- STARTDATE - date
+		  ,lastSponEndDate --,SPONSORSHIPENDDATE	-- ENDDATE - date
+		  ,case when (RGLTYPE is null or RGLTYPE = 0) 
+			then (case when (TARGETINITIALSTATUS = 'Prospect Sponsored' and TARGETCONVERSIONDATE is not null) then @conversionTypeCodeValue
+							  when (TARGETINITIALSTATUS = 'Sponsored') then (case when TARGETACTIONCODE = @reassignActionCode then @reassignedTypeCodeValue else @directTypeCodeValue end)
+				else @unknownTypeCodeValue     -- TYPECODE - tinyint
+			end)
+				else RGLTYPE
+			end
+		  ,0				-- ISREASSIGN - bit
+		  ,case when APPEALSOURCE is null then ''		-- SOURCE - nvarchar(100)
+				else APPEALSOURCE
+			end
+		  ,case when (APPEALCATEGORY like '%fundraiser%') then LTRIM(substring(APPEALCATEGORY, (CHARINDEX('-', APPEALCATEGORY)) + 1, 100))	-- SOURCECATEGORY - nvarchar(100)
+				else APPEALCATEGORY
+			end
+		  ,case when APPEALNAME is null then '' 
+				else APPEALNAME		-- PACKAGE - nvarchar(100)
+			end
+		  ,case when INBOUNDCHANNEL is not null then INBOUNDCHANNEL	-- INBOUNDCHANNEL - nvarchar(100)
+				else ''
+			end
+		  ,TARGETCONVERSIONDATE
+		  ,case when (DAYSTOCONVERT is not null) then DAYSTOCONVERT
+		  		else 0
+			end			
+		  ,case when lastSponEndDate is null then (case when lastACTIONCODE = 2 then @rglStatusCancelled
+														when lastACTIONCODE = 3 then @rglStatusTerminated
+														when lastACTIONCODE = 5 then @rglStatusActiveReassigned
+														when lastACTIONCODE = 6 then @rglStatusActiveTransferPending
+														when lastACTIONCODE = 8 then @rglStatusActive
+														else @rglStatusActive  -- change to 0, status of Active  
+													  end)
+				when lastSponEndDate is not null then (case when lastACTIONCODE = 2 then @rglStatusCancelled
+															when lastACTIONCODE = 3 then @rglStatusTerminated
+															when lastACTIONCODE = 5 then @rglStatusReassigned
+															--when lastACTIONCODE = 6 then @rglStatusActiveTransferPending
+															--when lastACTIONCODE = 8 then @rglStatusActive
+															else @rglStatusInactive  -- change to 3, status of Inactive  
+														  end)
+			end		-- STATUSCODE - tinyint			
+		  ,case when lastSponEndDate is not null then lastSponReasonId		-- CANCELSPONSORSHIPREASONID - uniqueidentifier
+				else null
+			end
+		  ,case when createGiftSponsor is not null then createGiftSponsor -- FINANCIALSPONSORID - uniqueidentifier
+				else null
+			end
+		  ,case when TARGETACCOUNTCORRECTION is not null then TARGETACCOUNTCORRECTION    -- ISACCOUNTCORRECTION - bit
+				else 0
+			end
+		  --,N'' -- CUSTOMIDENTIFIER - nvarchar(100)
+		  ,@CHANGEAGENTID	-- ADDEDBYID - uniqueidentifier
+		  ,@CHANGEAGENTID	-- CHANGEDBYID - uniqueidentifier
+		  ,getdate()		-- DATEADDED - datetime
+		  ,getdate()		-- DATECHANGED - datetime
+		  ,REVENUEID		-- RECURRINGGIFTID - uniqueidentifier
+		  --,'7C2D75CB-E59C-45C1-8FCF-7D8F37D61F82' -- Hard coded just for now...SPONCOMMITMENTID -- COMMITMENTID - uniqueidentifier
+		from dbo.USR_RGLTABLE
+		   WHERE NOT EXISTS
+					(SELECT 1
+					   FROM dbo.USR_COMMITMENTLINE_RECURRINGGIFT
+					  WHERE RECURRINGGIFTID = REVENUEID)
+
+	   --*/
+
+	   COMMIT TRANSACTION insertTrans
+	END TRY
+	BEGIN CATCH
+	   ROLLBACK TRANSACTION insertTrans
+	   DECLARE @ErrMsg AS NVARCHAR (MAX);
+	   DECLARE @ErrSeverity   INT;
+	   -- Raise an error with the details of the exception
+	   SELECT @ErrMsg = ERROR_MESSAGE (),
+			  @ErrSeverity = ERROR_SEVERITY ()
+
+	   RAISERROR (@ErrMsg, @ErrSeverity, 1)
+	END CATCH
+
+end
+
+		]]>
+	</CreateProcedureSQL>
+
+</SQLStoredProcedureSpec>
