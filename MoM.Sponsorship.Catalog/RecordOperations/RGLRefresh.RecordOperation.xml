@@ -1,0 +1,43 @@
+﻿<RecordOperationSpec 
+	xmlns="bb_appfx_recordoperation"
+	xmlns:common="bb_appfx_commontypes" 
+	ID="af9999fc-a36a-448f-a086-7b4a10f1f301" 
+	Name="Refresh RGL Record Op" 
+	Description="Refresh RGL Record Op"
+	Author="Memphis Sellers"
+	OperationType="Update"
+	RecordType="RGL"
+	common:SecurityUIFolder="RGL"	
+	>
+
+	<SPRecord>
+		<SPOperationImplementation SPName="USR_USP_RGL_REFRESH">
+			<common:CreateProcedureSQL>
+				<![CDATA[
+create procedure dbo.USR_USP_RGL_REFRESH
+(
+	@ID uniqueidentifier,
+	@CHANGEAGENTID uniqueidentifier
+)
+as begin
+	--check deletion rules, if any
+
+	-- use the system generated delete routine to allow proper recording of the deleting agent
+	exec dbo.USR_USP_RGL_POPULATE_PRETEMPTABLES @ID;
+	
+	exec dbo.USR_USP_RGL_POPULATION
+	
+	return 0;
+	
+end
+				]]>
+			</common:CreateProcedureSQL>
+		</SPOperationImplementation>
+	</SPRecord>
+
+	<!-- optionally, offer a prompt before executing the record operation -->
+	<Prompt>
+		<StandardPrompt Text="Are you sure you want to refresh the RGL data?" />
+	</Prompt>
+
+</RecordOperationSpec>
