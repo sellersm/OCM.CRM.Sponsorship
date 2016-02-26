@@ -15,6 +15,8 @@
 	History:
 	Date            Modified By     Comments
 	22-Apr-2015		Memphis			Initial Prototype Version
+	26-Feb-2016		Memphis			Updates:  removed few columns
+									added new type Prospect Reassign
 	-->
 
 	<!--
@@ -51,9 +53,9 @@
 	<!-- define fields on the table -->
 	<Fields>
 		<ForeignKeyField Name="SPONSORID" Description="Sponsor's constituent ID" Cardinality="ManyToOne" ForeignTable="CONSTITUENT" ForeignFieldName="ID" OnDelete="SetToNull"/>
-		<ForeignKeyField Name="OPPORTUNITYID" Description="Child ID" ForeignFieldName="ID" ForeignTable="SPONSORSHIPOPPORTUNITY" OnDelete="SetToNull" Required="false"/>
+		<!--<ForeignKeyField Name="OPPORTUNITYID" Description="Child ID" ForeignFieldName="ID" ForeignTable="SPONSORSHIPOPPORTUNITY" OnDelete="SetToNull" Required="false"/>-->
 		<ForeignKeyField Name="RECURRINGGIFTID" Description="Recurring Gift ID" ForeignFieldName="ID" ForeignTable="FINANCIALTRANSACTION" Cardinality="OneToOne" Required="true" OnDelete="CascadeDelete"/>
-		<ForeignKeyField Name="COMMITMENTID" Description="Commitment ID" ForeignFieldName="ID" ForeignTable="SPONSORSHIPCOMMITMENT" Required="true" Cardinality="ManyToOne" OnDelete="CascadeDelete"/>
+		<!--<ForeignKeyField Name="COMMITMENTID" Description="Commitment ID" ForeignFieldName="ID" ForeignTable="SPONSORSHIPCOMMITMENT" Required="true" Cardinality="ManyToOne" OnDelete="CascadeDelete"/>-->
 		<DateField Name="STARTDATE" Description="The date the 'Add' transaction of the first sponorship date" IncludeTime="false" />
 		<DateField Name="ENDDATE" Description="The date the 'terminate' or 'cancel' transaction of the last sponsorship" IncludeTime="false" />
 		<EnumField Name="TYPECODE" Description="Direct, Prospect, Conversion, Account Correction" DefaultValue="0">
@@ -64,7 +66,7 @@
 				<EnumValue ID="3" Translation="Conversion"/>
 				<EnumValue ID="4" Translation="Account Correction"/>
 				<EnumValue ID="5" Translation="Reassign"/>
-				<EnumValue ID="6" Translation="N/A"/>
+				<EnumValue ID="6" Translation="Prospect Reassign"/>
 			</EnumValues>
 		</EnumField>
 		<BooleanField Name="ISREASSIGN" Description="Reassign"/>

@@ -9,6 +9,17 @@
 	GrantServiceRolePermission="true"
 	>
 
+	<!-- 
+	Remarks:    Populates the RGL table using rows from the 'temp' RGL Table, USR_RGLTABLE
+	
+	History:
+	Date            Modified By     Comments
+	18-Feb-2016		Memphis			Initial Version
+	23-Feb-2016		Memphis			Changed the cteLastSpon CTE to use the IsMostRecentForCommitment flag to identify
+									the latest Sponsorship record for any Reassign/Transfer/etc.
+	-->
+
+	
 	<CreateProcedureSQL>
 		<![CDATA[
 create procedure dbo.USR_USP_RGL_POPULATE_PRETEMPTABLES (
@@ -32,30 +43,35 @@ begin
 					from dbo.USR_COMMITMENTLINE_RECURRINGGIFT
 					where sponsorid = @SPONSORID
 				end
+			else
+				begin
+					-- if there is no specific sponsor, then remove all RGL rows as we're running it for everyone
+					truncate table dbo.USR_COMMITMENTLINE_RECURRINGGIFT;
+				end
+				
 
-
-			-- 1-27-16: I think I can populate the USR_RGLCOMMITMENTS_TEMP table with both the Post-2009 and Pre-2009 selections
-			--  and then perform the rest of the processing, which pulls records out of the USR_RGLCOMMITMENTS_TEMP table...
-			--   - For the Refresh Task, or the Biz Process, the following SQL should work to populate the USR_RGLCOMMITMENTS_TEMP table
-			--      and then call the main SPROC that will do the rest of the work, pulling rows out of the USR_RGLCOMMITMENTS_TEMP table.
-
-			truncate table dbo.USR_RGLCOMMITMENTS_TEMP_POST2009;
+			truncate table dbo.USR_RGLCOMMITMENTSPONSORSHIPS_TEMP;
 
 			-- populate temp table with all the sponsorship commitments for the given RG:
-			-- This is the 1st pass for the post-2009 sponsors/ships:
-			--insert dbo.USR_RGLCOMMITMENTS_TEMP  --dbo.USR_RGLCOMMITMENTS_TEMP
-			insert dbo.USR_RGLCOMMITMENTS_TEMP_POST2009
-			select	distinct
-					sponsorCon.ID,
-					s.SPONSORSHIPCOMMITMENTID,
-					SPONSORSHIPCOMMITMENT.LOOKUPID,
-					r.ID,
-					s.STARTDATE
+			insert dbo.USR_RGLCOMMITMENTSPONSORSHIPS_TEMP
+			select	--distinct
+					sponsorCon.ID
+					,s.SPONSORSHIPCOMMITMENTID
+					,SPONSORSHIPCOMMITMENT.LOOKUPID
+					,r.ID
+					,s.ID
+					,s.STARTDATE
+					,s.ENDDATE
+					,s.[STATUS]
+					,s.STATUSCODE
+					,s.ISMOSTRECENTFORCOMMITMENT
+					,ESSD.VALUE
 					,dbo.UFN_APPEALCATEGORYCODE_GETDESCRIPTION(a.APPEALCATEGORYCODEID) as AppealCategory
 					,a.[NAME] as AppealName
 					,dbo.UFN_APPEALREPORT1CODE_GETDESCRIPTION(a.AppealReport1CodeID) as AppealSource
 					,CHANNELCODE.[DESCRIPTION] as InboundChannel
 					,MIN(SPONSORSHIPCOMMITMENT.commitmentsequence) over (partition by SPONSORSHIPCOMMITMENT.ID)
+					,commitmentsequence
 			from dbo.sponsorship s --dbo.sponsorshiptransaction st
 				inner join dbo.SPONSORSHIPCOMMITMENT on SPONSORSHIPCOMMITMENT.ID = s.SPONSORSHIPCOMMITMENTID and s.constituentid = SPONSORSHIPCOMMITMENT.constituentid 
 				join dbo.CONSTITUENT sponsorCon on sponsorCon.ID = dbo.SPONSORSHIPCOMMITMENT.CONSTITUENTID
@@ -67,72 +83,75 @@ begin
 				--inner join SMARTFIELDF896CC5033AE41FB88676CD24BAB3FD0 ESSD on dbo.SPONSORSHIPCOMMITMENT.CONSTITUENTID = ESSD.ID and ESSD.VALUE >= '1/1/2009'	
 				-- 1/4/16: This is the new SmartField table to use in DEV:
 				-- dbo.SMARTFIELDBB91D38CB66F44A3A65E37E7F4D99941
-				inner join dbo.SMARTFIELDBB91D38CB66F44A3A65E37E7F4D99941 ESSD on dbo.SPONSORSHIPCOMMITMENT.CONSTITUENTID = ESSD.ID and ESSD.VALUE >= '1/1/2009'	
+	
+				-- 2-23-16: TOOK OUT THE DATE CONSTRAINT, JUST PUT THEM ALL IN THE TEMP TABLE:
+				inner join dbo.SMARTFIELDBB91D38CB66F44A3A65E37E7F4D99941 ESSD on dbo.SPONSORSHIPCOMMITMENT.CONSTITUENTID = ESSD.ID  -- and ESSD.VALUE >= '1/1/2009'	
+				-- END 2-23-16:
+	
 				where sc.ID is not null	
-				and sponsorCon.ID = coalesce(@SPONSORID, sponsorCon.ID) -- '270206'
-				--AND ReportedByUserID = COALESCE(@reportedByUserID, ReportedByUserID)
+				and sponsorCon.ID = coalesce(@SPONSORID, sponsorCon.ID) 
 			order by r.ID, s.STARTDATE
 
-			-- *********** 2nd part for pre-2009 sponsors/ships *************************
-			-- populate temp table with all the sponsorship commitments for the given RG:
-			-- This is the 2nd pass for the pre-2009 sponsors/ships
-			--   NOTE: Only insert if not already accounted for by script above
-			truncate table dbo.USR_RGLCOMMITMENTS_TEMP_PRE2009;
-
-			insert dbo.USR_RGLCOMMITMENTS_TEMP_PRE2009  --dbo.USR_RGLCOMMITMENTS_TEMP
-			select	distinct
-					sponsorCon.ID,
-					s.SPONSORSHIPCOMMITMENTID,
-					SPONSORSHIPCOMMITMENT.LOOKUPID,
-					r.ID,
-					s.STARTDATE
-					,dbo.UFN_APPEALCATEGORYCODE_GETDESCRIPTION(a.APPEALCATEGORYCODEID) as AppealCategory
-					,a.[NAME] as AppealName
-					,dbo.UFN_APPEALREPORT1CODE_GETDESCRIPTION(a.AppealReport1CodeID) as AppealSource
-					,CHANNELCODE.[DESCRIPTION] as InboundChannel
-					,MIN(SPONSORSHIPCOMMITMENT.commitmentsequence) over (partition by SPONSORSHIPCOMMITMENT.ID)
-			from dbo.sponsorship s --dbo.sponsorshiptransaction st
-				inner join dbo.SPONSORSHIPCOMMITMENT on SPONSORSHIPCOMMITMENT.ID = s.SPONSORSHIPCOMMITMENTID and s.constituentid = SPONSORSHIPCOMMITMENT.constituentid 
-				join dbo.CONSTITUENT sponsorCon on sponsorCon.ID = dbo.SPONSORSHIPCOMMITMENT.CONSTITUENTID
-				left outer join dbo.SPONSORSHIPOPPORTUNITYCHILD sc on sc.ID = s.SPONSORSHIPOPPORTUNITYID
-				join dbo.REVENUESPLIT rs on rs.ID = s.REVENUESPLITID
-				join dbo.REVENUE r on r.ID = rs.REVENUEID
-				left join dbo.APPEAL a on a.ID = r.APPEALID
-				left join dbo.CHANNELCODE on CHANNELCODE.ID = r.CHANNELCODEID
-				-- 1/4/16: This is the new SmartField table to use in DEV:
-				-- dbo.SMARTFIELDBB91D38CB66F44A3A65E37E7F4D99941
-				inner join dbo.SMARTFIELDBB91D38CB66F44A3A65E37E7F4D99941 ESSD on dbo.SPONSORSHIPCOMMITMENT.CONSTITUENTID = ESSD.ID and ESSD.VALUE < '1/1/2009'	
-				where sc.ID is not null	
-				and (s.STARTDATE is not null and s.STARTDATE >= '10/1/2012')
-					--or (s.STARTDATE is null and TRANSACTIONDATE > '10/1/2012'))	
-				-- do not insert if already populated by post-2009 script above
-				and s.SPONSORSHIPCOMMITMENTID not in (select SPONCOMMITMENTID from dbo.USR_RGLCOMMITMENTS_TEMP_POST2009)
-				and sponsorCon.ID = coalesce(@SPONSORID, sponsorCon.ID)
-				--and sponsorCon.lookupid = @testSponsorID -- '270206'
-			order by r.ID, s.STARTDATE
-
-			-- Need to get the TARGET row data from spontran table
-			-- from the other query script, need to modify for usage here:
-			-- 1-25-16: need to get these values also:
-			--	*** TARGETINITIALSTATUS,
-			--	*** TARGETACCOUNTCORRECTION,
-			--	*** TARGETCONVERSIONDATE,
-			-- 1-27-16: combine the two temp tables into USR_RGLCOMMITMENTS_TEMP
 			truncate table dbo.USR_RGLCOMMITMENTS_TEMP;
 
-			insert dbo.USR_RGLCOMMITMENTS_TEMP
-			select	SPONSORID
-					,SPONCOMMITMENTID
-					,COMMITMENTLOOKUPID
-					,RGID
-					,STARTDATE
-					,APPEALCATEGORY
-					,APPEALNAME
-					,APPEALSOURCE
-					,INBOUNDCHANNEL
-					,minCommitSeq
-					,0
-			from dbo.USR_RGLCOMMITMENTS_TEMP_POST2009 
+			-- **** 2-23-16: NEW!  Trying to put all sponsorships for the RGL/Commitments into one flat table
+			--      Now, figure out which rows to keep based on the ESSDVALUE rules:
+			declare @cteTable table (
+				minSponStartDate date,
+				minRglCommitSeq int,
+				ESSDVALUE date,
+				startdate date,
+				RGID uniqueidentifier,
+				LOOKUPID nvarchar(max),
+				SPONSORID uniqueidentifier,
+				createGiftSponsor uniqueidentifier,
+				createTranSeq int,
+				targetSponsorshipId uniqueidentifier,
+				TARGETACTIONCODE int,
+				createTranDate date,
+				createCommitment uniqueidentifier,
+				createInitialStatus nvarchar(max),
+				ISACCOUNTCORRECTION bit,
+				CONVERSIONDATE date,
+				DAYSTOCONVERT int,
+				SPONCOMMITMENTID uniqueidentifier,
+				APPEALCATEGORY   NVARCHAR (500) NULL,
+				APPEALNAME       NVARCHAR (500) NULL,
+				APPEALSOURCE     NVARCHAR (MAX) NULL,
+				INBOUNDCHANNEL   NVARCHAR (MAX) NULL,
+				maxRglCommitSeq  int
+			)
+
+			;with ctePre2009Rows as (
+				select	distinct
+						RGID,
+						min(STARTDATE) over (partition by RGID) as minSponStartDate,
+						min(commitmentseq) over (partition by RGID) as minRglCommitSeq,
+						ESSDVALUE,
+						commitmentseq,
+						SPONSORID,
+						SPONCOMMITMENTID,
+						COMMITMENTLOOKUPID,
+						SPONSORSHIPID,
+						STARTDATE,
+						ENDDATE,
+						SPONSORSHIPSTATUS,
+						SPONSORSHIPSTATUSCODE,
+						ISMOSTRECENT,
+						APPEALCATEGORY,
+						APPEALNAME,
+						APPEALSOURCE,
+						INBOUNDCHANNEL,
+						minCommitSeq
+				from dbo.USR_RGLCOMMITMENTSPONSORSHIPS_TEMP
+			)
+			, cteRows as (
+				select	*,
+						max(commitmentseq) over (partition by RGID) as maxRglCommitSeq
+				from ctePre2009Rows
+				where ((ESSDVALUE < '1/1/2009' and minSponStartDate >= '10/1/2012')
+				or (ESSDVALUE >= '1/1/2009'))
+			)
 
 			insert dbo.USR_RGLCOMMITMENTS_TEMP
 			select	SPONSORID
@@ -145,9 +164,9 @@ begin
 					,APPEALSOURCE
 					,INBOUNDCHANNEL
 					,minCommitSeq
-					,1
-			from dbo.USR_RGLCOMMITMENTS_TEMP_PRE2009
-			where SPONCOMMITMENTID not in (select SPONCOMMITMENTID from dbo.USR_RGLCOMMITMENTS_TEMP_POST2009);
+					,(case when (ESSDVALUE < '1/1/2009' and minSponStartDate >= '10/1/2012') then 1
+						when (ESSDVALUE >= '1/1/2009') then 0 end)
+			from cteRows
 
 			truncate table dbo.USR_RGLTARGETTABLE;
 
@@ -185,8 +204,6 @@ begin
 			-- 1-27-16: added this to correctly obtain the pre2009/post2012 sponsorships only:
 			and 1 = (case when isPre2009 = 1 then (case when s.startdate >= '10/1/2012' then 1 else 0 end) else 1 end)
 
-			--where maxCommitSequence = (select max(maxCommitSequence) from @commitSeqTable ct where cst.RGID = ct.RGID)
-
 			order by rct.RGID,CREATETRANSACTION.TRANSACTIONDATE;
 
 			-- Now work on the LAST values:
@@ -200,7 +217,6 @@ begin
 					sc.ID,
 					rg.RGID,
 					MAX(sc.commitmentsequence) over (partition by sc.ID)
-			--from dbo.sponsorshiptransaction st
 			from dbo.sponsorshipcommitment sc 
 			join dbo.USR_RGLCOMMITMENTS_TEMP rg on rg.SPONCOMMITMENTID = sc.ID
 			where sc.constituentid  = rg.SPONSORID
@@ -234,7 +250,6 @@ begin
 			-- ** This appears to work for getting the last spontran items for each RG!
 			insert into dbo.USR_RGL_LASTSPONTRANRGTABLE
 			select	distinct
-					--'get last SponTran values',
 					MAX(st.transactionsequence) over (partition by cte.RGID) as maxTranSequence,
 					st.actioncode,
 					st.sponsorshipreasonid,
@@ -246,66 +261,35 @@ begin
 			join dbo.USR_RGL_COMMITMENTSEQUENCE cst on cst.SPONCOMMITMENTID = cte.SPONCOMMITMENTID and st.sponsorshipcommitmentID = cte.SPONCOMMITMENTID
 			join dbo.sponsorshipcommitment sc on sc.ID = cte.SPONCOMMITMENTID and sc.ID = st.sponsorshipcommitmentID and sc.commitmentsequence = cst.maxCommitSequence
 			where st.transactionsequence = (select distinct MAX(transactionsequence) from dbo.sponsorshiptransaction
-												--join dbo.sponsorshipcommitment sc on sc.ID = sponsorshipcommitmentid 
 											join @maxCommitmentTable cte on cte.SPONCOMMITMENTID = sponsorshipcommitmentID 
 											join dbo.USR_RGL_COMMITMENTSEQUENCE cst on cst.SPONCOMMITMENTID = cte.SPONCOMMITMENTID 
 												and st.sponsorshipcommitmentID = cte.SPONCOMMITMENTID
 											join dbo.sponsorshipcommitment sc on sc.ID = cte.SPONCOMMITMENTID 
 												and sc.ID = sponsorshipcommitmentID and sc.commitmentsequence = cst.maxCommitSequence)
 
-
 			---  Now we'll need to get the related data from the related Sponsorships: EndDate, Status, etc.
 			truncate table dbo.USR_RGL_LASTSPONTRANTABLE;
-
-
-			-- 2-8-16: DEFECT - if the Sponsorship is still Active, then we take the Target SponID for last sponsorship
-			--                - if the Sponsorship is NOT Active, then we take the Context SponID for last sponsorship
-			--  PROBLEM: how do we get the correct Sponsorship record to check the STATUS????
-			-- 2-17-16: IF this is a Reassign From, then use Target
-			--          IF this is a Reassign To, then use Context
-
-			-- for sponsor: 234677 commitment sp-10783793 (02/16/2013) which is Reassigned FROM:
-			--contextStatus	contextSponEndDate	targetSponStatus	targetSponEndDate
-			--2				2013-02-16			1					NULL
-
-			-- for sponsor: 129325, commitment 10786884 (07/30/2013) which is Reassigned TO:
-			--contextStatus	contextSponEndDate	targetSponStatus	targetSponEndDate
-			--2				2013-08-15			1					NULL
-
-			--This is from the Sponsorship data list from Blackbaud CRM code:
-			-- left outer join dbo.SPONSORSHIP REASSIGNED on REASSIGNED.ID = case SPONSORSHIP.STATUSCODE when 1 then LASTTRANSACTION.CONTEXTSPONSORSHIPID 
-			--			when 2 then LASTTRANSACTION.TARGETSPONSORSHIPID end 
-			--  and LASTTRANSACTION.ACTIONCODE = 5
-
-
-			/* PROBLEM with this one for Sponsor 522129:
-			maxSponTranSeq	lastActionCode	lastSponReasonId						lastTargetSponId	lastContextSponId						RGID
-			4				3				AA79160B-A36E-470A-B561-B2EE28829014	NULL				C9B48873-AA40-4CE9-AE82-BC3F591EB68A	23CC6042-A508-4047-BA91-FD5E4B534F7C
-			*/
 
 			-- get last sponsorship id value, based on action & sponsorship status:
 			;with cteLastSponId as (
 				select	
+						(case when reassigned.ISMOSTRECENTFORCOMMITMENT = 1 then reassigned.ID
+							  when s.ISMOSTRECENTFORCOMMITMENT = 1 then s.ID end) as newLastSponId,
 						isnull(reassigned.ID,s.ID) as lastSponId,
+						(case when reassigned.ISMOSTRECENTFORCOMMITMENT = 1 then reassigned.ENDDATE
+							  when s.ISMOSTRECENTFORCOMMITMENT = 1 then s.ENDDATE end) as newEndDate,
 						(case when reassigned.ID is not null then reassigned.ENDDATE else s.ENDDATE end) as enddate,
-						lst.*,
-						s.ID as sIdVal,
-						reassigned.ID as SponIdValue,
-						s.[status] as sStatus,
-						reassigned.status as ReassignedSponStatus
+						lst.*
 				from dbo.USR_RGL_LASTSPONTRANRGTABLE lst
-				--join dbo.sponsorship s on s.ID = isnull(lst.lastTargetSponId, lst.lastContextSponId)
-				-- 2-8-16: MEMPHIS TESTING: do 2 joins to Sponsorship, one on the context, one on the target
-				--         when the lastActionCode = 5 (Reassign)
 				left outer join dbo.sponsorship contReassigned on contReassigned.ID = (case when lst.lastActionCode = 5 then lst.lastContextSponId end)
 				left outer join dbo.sponsorship targReassigned on targReassigned.ID = (case when lst.lastActionCode = 5 then lst.lastTargetSponId end)
-		
 				join dbo.USR_RGLTARGETTABLE rgt on rgt.RGID = lst.RGID
-
-				left outer join dbo.sponsorship reassigned on reassigned.ID = case when contReassigned.constituentid = rgt.SPONSORID then contReassigned.ID
-																			  else targReassigned.ID end	
-				join dbo.sponsorship s on s.ID = isnull(lst.lastTargetSponId, lst.lastContextSponId)									
+				-- try using the contReassigned.ISMOSTRECENTFORCOMMITMENT
+				left outer join dbo.sponsorship reassigned on reassigned.ID = case when contReassigned.ISMOSTRECENTFORCOMMITMENT = 1 and contReassigned.constituentid = rgt.SPONSORID then contReassigned.ID
+																			  when targReassigned.ISMOSTRECENTFORCOMMITMENT = 1 and targReassigned.constituentid = rgt.SPONSORID then targReassigned.ID end
+				join dbo.sponsorship s on s.ID = isnull(lst.lastTargetSponId, lst.lastContextSponId)
 			)
+
 			-- get the sponsorshipextension values:
 			insert dbo.USR_RGL_LASTSPONTRANTABLE
 			select	cte.maxSponTranSeq,
@@ -365,8 +349,6 @@ begin
 					,tt.INBOUNDCHANNEL
 					,tt.targetSponsorshipId		
 					,tt.createGiftSponsor		
-					--,tt.createTranSeq
-					--,tt.createCommitment
 					,lastRows.lastActionCode
 					,lastRows.lastSponReasonId	
 					,lastRows.lastSponsorshipId	
@@ -395,10 +377,6 @@ begin
 		@ErrSeverity = ERROR_SEVERITY()
 
 	  RAISERROR(@ErrMsg, @ErrSeverity, 1);
-	  --raiserror ('Error trying to merge commitments for multiple constituents', 
-	  --                 16, -- Severity.
-	  --                 1 -- State.
-	  --    );
 	end catch
 end
 
