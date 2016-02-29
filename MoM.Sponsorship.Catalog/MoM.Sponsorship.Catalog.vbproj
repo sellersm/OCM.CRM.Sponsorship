@@ -791,6 +791,7 @@
     <EmbeddedResource Include="Query Views\SameChildMultipleCommitmentsAndRG.Query.xml" />
     <EmbeddedResource Include="Query Views\IdentifyDupChildMergeRGTargetIsAppealNotAssignments.Query.xml" />
     <EmbeddedResource Include="Pages\SponsorshipCommitment.Page.xml" />
+    <EmbeddedResource Include="Query Views\RGLDataOnly.Query.xml" />
     <Content Include="Query Views\SponsorshipCommitment.Query.xml" />
     <EmbeddedResource Include="Tables\CLHRecurringGift.Table.xml">
       <SubType>Designer</SubType>
