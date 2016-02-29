@@ -1,0 +1,85 @@
+﻿<QueryViewSpec
+	xmlns="bb_appfx_queryview"
+	xmlns:common="bb_appfx_commontypes" 
+	ID="5df53c31-56d4-422b-a83c-bfa5d3004df3"
+	Name="RGL Data Only Query"
+	Description="RGL Data Only-No commitments or sponsorships"
+	Author="Memphis Sellers"
+	IsRoot="true"
+	PrimaryKeyField="ID"
+	RecordType="Constituent"
+	common:SecurityUIFolder="Sponsorship"
+	>
+
+	<!-- 
+	Remarks:    Created for Pamela to fix Defect D-01157: display only the RGL data, 
+				not related commitments/sponsorships.
+				This is of type Constituent so it will open to the Sponsor Page.
+
+	History:
+	Date            Modified By     Comments
+	29-Feb-2016		Memphis			Initial Version on leap year day!
+	-->
+
+	<!-- define the view used to return data for the query -->
+	<ViewImplementation ViewName="USR_V_QUERY_RGLDATAONLY">
+		<ViewSQL>
+			<![CDATA[
+SELECT			
+	   rgl.SPONSORID as ID,
+       sponsor.LOOKUPID as SPONSORID,
+       sponsor.[NAME] as SPONSORNAME,
+       rgl.STARTDATE,
+       rgl.ENDDATE,
+       rgl.[TYPE] as RGLTYPE,
+       SOURCE,
+       SOURCECATEGORY,
+       PACKAGE,
+       INBOUNDCHANNEL,
+       CONVERSIONDATE,
+       DAYSTOCONVERT,
+       rgl.STATUS,
+	   case
+		when CANCELSPONSORSHIPREASONID is null then ''
+		else (select REASON from dbo.SPONSORSHIPREASON where ID = CANCELSPONSORSHIPREASONID)
+		end as CANCELREASON,
+		case
+			when rgl.FINANCIALSPONSORID is null then ''
+			else (select NAME from dbo.UFN_CONSTITUENT_DISPLAYNAME(rgl.FINANCIALSPONSORID))
+		end as FINANCIALSPONSORNAME, 
+		(select LOOKUPID from dbo.CONSTITUENT where ID = rgl.FINANCIALSPONSORID) as FINANCIALSPONSORID,
+       ISACCOUNTCORRECTION,
+       (select LOOKUPID from dbo.REVENUE where ID = rgl.RECURRINGGIFTID) as REVENUELOOKUPID --RECURRINGGIFTID,
+  FROM dbo.USR_COMMITMENTLINE_RECURRINGGIFT rgl
+	join dbo.CONSTITUENT sponsor on sponsor.ID = SPONSORID
+
+			]]>
+		</ViewSQL>
+	</ViewImplementation>
+
+	<!-- describe each field in the view output -->
+	<Output>
+		<OutputFields>
+			<OutputField Caption="System record ID" Category="System Fields" Name="ID" />
+			<OutputField Name="SPONSORID" Caption="Sponsor ID" DataType="String" />
+			<OutputField Name="SPONSORNAME" Caption="Sponsor" DataType="String" />
+			<OutputField Name="STARTDATE" Caption="Start Date" DataType="Date" />
+			<OutputField Name="ENDDATE" Caption="End Date" DataType="Date" />
+			<OutputField Name="RGLTYPE" Caption="Type" DataType="String" />
+			<OutputField Name="SOURCE" Caption="Source" DataType="String" />
+			<OutputField Name="SOURCECATEGORY" Caption="Source Category" DataType="String" />
+			<OutputField Name="PACKAGE" Caption="Package" DataType="String" />
+			<OutputField Name="INBOUNDCHANNEL" Caption="Channel" DataType="String" />
+			<OutputField Name="CONVERSIONDATE" Caption="Conversion Date" DataType="Date" />
+			<OutputField Name="DAYSTOCONVERT" Caption="Days to Convert" DataType="Integer" />
+			<OutputField Name="STATUS" Caption="Status" DataType="String" />
+			<OutputField Name="CANCELREASON" Caption="Cancel Reason" DataType="String" />
+			<OutputField Name="FINANCIALSPONSORNAME" Caption="Financial Sponsor" DataType="String" />
+			<OutputField Name="FINANCIALSPONSORID" Caption="Financial Sponsor Id" DataType="String" />
+			<OutputField Name="ISACCOUNTCORRECTION" Caption="Account Correction" DataType="Boolean" />
+			<OutputField Name="REVENUELOOKUPID" Caption="RG ID" DataType="String" />
+		</OutputFields>
+	</Output>
+
+</QueryViewSpec>
+
