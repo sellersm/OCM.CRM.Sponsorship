@@ -6,7 +6,7 @@
     Description="Display RGL Business Process items"
     Author="Memphis Sellers"
     ContextRecordType="RGL Business Process"
-	AllowNonExistentFeatures="true"	
+	AllowNonExistentFeatures="false"	
 	ExpressionDataFormID="691d84f0-5162-4cc4-85a6-eff67580263e"
     >
 
@@ -19,7 +19,7 @@
 	<PageHeader Caption="RGL Business Process Page" ImageKey="RES:gear" />
 	
 	<SummarySection ID="4b19eb2c-72fe-47a5-8dd3-b7049d54b854" Caption="RGL Business Process Summary">
-		<DataForm ID="92fce32e-6451-4eea-9b1d-21c6bec8f4aa" />
+		<DataForm ID="2c37a907-74ad-4583-9d8b-b9cf0119f1c0" />
 	</SummarySection>
 	
 	<Tabs>

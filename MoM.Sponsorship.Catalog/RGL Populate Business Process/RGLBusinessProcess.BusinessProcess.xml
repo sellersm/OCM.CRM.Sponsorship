@@ -2,7 +2,7 @@
 	xmlns="bb_appfx_businessprocess"
 	xmlns:common="bb_appfx_commontypes"
 	ID="9c549afc-c37c-4eb9-8e98-23d4d4e6ada4"
-	Name="RGL Business Process Business Process"
+	Name="RGL Business Process"
 	Description="Business Process to populate RGL data."
 	Author="Memphis Sellers"
 	GeneratesOutput="false"
