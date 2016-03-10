@@ -15,6 +15,8 @@
 	Date            Modified By     Comments
 	07-Feb-2013		Memphis			Initial Version
 	28-Aug-2015		CMayeda			Changed raiserror syntax to work with SQL Server 2012 (CRM 4.0)
+	09-Mar-2016		Memphis			Changed to use the RGID value instead of sponsorshipcommitmentid
+									because of the merged commitments issue.
 	-->	
 	
 	<CreateProcedureSQL>
@@ -31,13 +33,18 @@ begin
 			exec dbo.USP_CHANGEAGENT_GETORCREATECHANGEAGENT @CHANGEAGENTID output;
 
 		-- this is obtained from the sponsorshpId passed in:
-		declare @SPONSORSHIPCOMMITMENTID uniqueidentifier; 
+		--declare @SPONSORSHIPCOMMITMENTID uniqueidentifier; 
+		
+		-- 3-7-16: TESTING FIX: use the RGID value instead of the commitmentid:
+		declare @RGID uniqueidentifier; 
 
-		select @SPONSORSHIPCOMMITMENTID = SPONSORSHIPCOMMITMENTID
+		--select @SPONSORSHIPCOMMITMENTID = SPONSORSHIPCOMMITMENTID
+		select @RGID = REVENUESPLITID
 		from dbo.SPONSORSHIP
 		where ID = @sponsorShipId
 
-		if @SPONSORSHIPCOMMITMENTID is null
+		if @RGID is null
+		--if @SPONSORSHIPCOMMITMENTID is null
 			RAISERROR ('Unable to find Sponsorship Commitment for this Sponsorship!', 16, 1)
 			
 		-- get the 'active' row and ensure the ismostrecentcommitment is set to 1
@@ -46,21 +53,29 @@ begin
 		from dbo.SPONSORSHIP
 		where ID = @sponsorShipId
 
+		--print @SPONSORSHIPCOMMITMENTID;
+		--print @RGID;
+		--print @currentMostRecentValue;
+		
 		if @currentMostRecentValue = 0
 			begin
 				-- update flag to 1
 				update dbo.SPONSORSHIP
-				set ISMOSTRECENTFORCOMMITMENT = 1
+				set ISMOSTRECENTFORCOMMITMENT = 1,
+				CHANGEDBYID = @CHANGEAGENTID
 				where ID = @sponsorShipId; -- @activeRowId;
 			end
 
 		-- update the remaining commitment line rows, setting the most recent commitment flags to 0
+		-- 3-9-16: Memphis - need to use the RGID value because in merged commitments, 
+		--         the SponCommitmentid values won't match
 		update dbo.SPONSORSHIP
 		set ISMOSTRECENTFORCOMMITMENT = 0,
 		    CHANGEDBYID = @CHANGEAGENTID
 		where ID <> @sponsorShipId
-		and SPONSORSHIPCOMMITMENTID = @SPONSORSHIPCOMMITMENTID
-			
+		--and SPONSORSHIPCOMMITMENTID = @SPONSORSHIPCOMMITMENTID
+		and REVENUESPLITID = @RGID
+					
 		return 0;
 	end try
 	

@@ -1,0 +1,47 @@
+﻿<TableSpec 
+	xmlns="bb_appfx_table"
+	xmlns:common="bb_appfx_commontypes" 
+	ID="cb6cdbcb-b2e9-4184-8d38-ebd395b7b58e"
+	Name="RGL Business Process Parameters"
+	Description="Holds parameter for RGL populate business process"
+	Author="Memphis Sellers"
+	Tablename="USR_RGLPOPULATE_BUSINESSPROCESS"		   
+	>
+
+	<!-- define fields on the table -->
+	<Fields>
+		<TextField Name="NAME" Length="100" Required="true" IsUnique="true" Description="The name of the parameter set"/>
+		<TextField Name="DESCRIPTION" Length="255" Description="Details describing this parameter set"/>
+	</Fields>
+
+	<!-- define any additional check constraints on the table -->
+	<!--<CheckConstraints>
+
+	</CheckConstraints>-->
+
+	<!-- define any indexes on the table -->
+	<!--<Indexes>
+
+	</Indexes>-->
+		
+	<!-- define any triggers on the table -->
+	<Triggers>
+		<Trigger Name="TR_USR_RGLPOPULATE_BUSINESSPROCESS_DELETE_BUSINESSPROCESSINSTANCE"
+             Enabled="true"
+             Description="Used to delete the common business process records associated with this record.">
+			<CreateTriggerSQL>
+				<![CDATA[
+			create trigger TR_USR_RGLPOPULATE_BUSINESSPROCESS_DELETE_BUSINESSPROCESSINSTANCE 
+					on dbo.USR_RGLPOPULATE_BUSINESSPROCESS 
+					after delete not for replication
+			as begin
+				delete from dbo.BUSINESSPROCESSINSTANCE
+				where BUSINESSPROCESSPARAMETERSETID in (select ID from deleted) 
+ 				and BUSINESSPROCESSCATALOGID = '9c549afc-c37c-4eb9-8e98-23d4d4e6ada4'; -- guid is the ID from business process spec - see RGLBusinessProcess.BusinessProcess.xml
+			end 
+				]]>
+			</CreateTriggerSQL>
+		</Trigger>
+	</Triggers>
+
+</TableSpec>

@@ -1,0 +1,46 @@
+﻿<SQLStoredProcedureSpec
+	xmlns="bb_appfx_sqlstoredprocedure"
+	xmlns:common="bb_appfx_commontypes" 
+	ID="4791af8e-4c7b-4a3f-9ce2-a50c2a036838"
+	Name="USR_USP_RGL_POPULATE_BUSINESSPROCESS"
+	Description="SPROC for RGL Populate Business Process"
+	Author="Memphis Sellers"
+	SPName="USR_USP_RGL_POPULATE_BUSINESSPROCESS"
+	GrantServiceRolePermission="true"	
+	>
+
+	<CreateProcedureSQL>
+		<![CDATA[
+create procedure dbo.USR_USP_RGL_POPULATE_BUSINESSPROCESS (
+	@successCount int OUTPUT,
+	@exceptionCount int OUTPUT
+)
+as
+begin
+	begin try
+		begin transaction transPopulateRGL
+			exec dbo.USR_USP_RGL_POPULATE_PRETEMPTABLES @SPONSORID = NULL;
+			
+			exec dbo.USR_USP_RGL_POPULATION 	
+				@successCounterOutput = @successCount output,
+				@exceptionCounterOutput = @exceptionCount output;
+		
+		commit transaction transPopulateRGL
+	end try
+
+	begin catch
+	  rollback transaction transPopulateRGL
+	  DECLARE @ErrMsg AS NVARCHAR(MAX);
+	  declare @ErrSeverity int;
+	  -- Raise an error with the details of the exception
+	  SELECT @ErrMsg = ERROR_MESSAGE(),
+		@ErrSeverity = ERROR_SEVERITY()
+
+	  RAISERROR(@ErrMsg, @ErrSeverity, 1)	      
+	end catch
+end
+
+		]]>
+	</CreateProcedureSQL>
+
+</SQLStoredProcedureSpec>

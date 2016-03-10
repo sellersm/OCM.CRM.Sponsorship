@@ -1,0 +1,42 @@
+﻿<TableSpec 
+	xmlns="bb_appfx_table"
+	xmlns:common="bb_appfx_commontypes" 
+	ID="0f68517f-d71f-44e7-b28d-21701c67c36c"
+	Name="RGL Business Process Results"
+	Description="RGL Business Process Results Table"
+	Author="Memphis Sellers"
+	Tablename="USR_RGLPOPULATE_BUSINESSPROCESS_RESULTS"		   
+	>
+
+	<!-- 
+	Remarks:    Table to hold parameters/results of RGL Biz Process
+
+	History:
+	Date            Modified By     Comments
+	03-Mar-2016		Memphis			Initial Version
+	-->
+	
+	
+	<!-- define fields on the table -->
+	<Fields>
+		<DateField Name="RGLPROCESSDATE" DefaultValue="GETDATE()" IncludeTime="false" Description="RGL Process Date" Required="true" />
+		<NumberField Name="RGLCREATEDCOUNT" Description="Number of RGL records inserted" Type="int"  />
+		<NumberField Name="EXCEPTIONCOUNT" Description="Exception records count" Type="int" />
+	</Fields>
+
+	<!-- define any additional check constraints on the table -->
+	<!--<CheckConstraints>
+
+	</CheckConstraints>-->
+
+	<!-- define any indexes on the table -->
+	<!--<Indexes>
+
+	</Indexes>-->
+		
+	<!-- define any triggers on the table -->
+	<!--<Triggers>
+
+	</Triggers>-->
+
+</TableSpec>

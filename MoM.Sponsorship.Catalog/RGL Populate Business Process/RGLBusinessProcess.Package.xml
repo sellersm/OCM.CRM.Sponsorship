@@ -1,0 +1,94 @@
+<PackageSpec 
+    xmlns="bb_appfx_package"
+    xmlns:common="bb_appfx_commontypes"
+    ID="b9042380-24c3-4cce-9161-88cdacec70e9"
+    Name="RGL Business Process Package"
+    Description="Loads specs for RGL biz process"
+    Author="Memphis Sellers"
+    >
+
+	<!-- 
+	Remarks:    
+
+	History:
+	Date            Modified By     Comments
+	08-Mar-2016		Memphis			Initial Version.
+	-->
+
+	<!-- Note:  the order of the items listed here is important.  For example, you won't be able to load a data form that references 
+	a table that hasn't been loaded, etc.  In general, the following order is recommended:
+	
+		(functions and procedures first)
+		SQLFunctionSpec
+		SQLStoredProcedureSpec
+		TranslationFunctionSpec
+
+		(tables next)
+		CodeTableSpec
+		TableSpec
+
+		(features next)
+		SimpleDataListSpec		
+		SearchListSpec
+		RecordOperationSpec
+		DataListSpec
+		
+		(forms next)
+		AddDataFormTemplateSpec
+		EditDataFormTemplateSpec
+		ViewDataFormTemplateSpec		
+
+		(more feature types)
+		BatchTypeSpec
+		BusinessProcessSpec
+		FlashDashSpec
+		IDMapperSpec
+		KpiSpec
+		MergeConfiguration
+		MergeTaskSpec
+		QueryViewSpec
+		ReportSpec
+		SmartFieldSpec
+		SmartQuerySpec
+
+		(functional areas, pages, and tasks last)
+		PageDefinitionSpec
+		FunctionalAreaSpec
+		TaskSpec	
+	-->
+
+	<common:DependencyList>
+		<!-- Tables -->
+		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.RGLBusinessProcessParameters.Table.xml" />
+		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.RGLBusinessProcessResults.Table.xml" />
+
+		<!-- SQL -->
+		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.USR_USP_RGL_POPULATE_PRETEMPTABLES.xml" />
+		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.USR_USP_RGL_POPULATION.xml" />
+		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.USR_USP_RGL_POPULATE_BUSINESSPROCESS.xml" />
+		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.USR_USP_RGL_POPULATE_BUSINESSPROCESS_GETPARAMETERS.xml" />
+
+		<!-- Forms -->
+
+		<!-- Data Lists -->
+		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.RGLBusinessProcess.DataList.xml" />
+
+		<!-- Views -->
+		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.RGLBusinessProcessSummary.View.xml" />
+
+		<!-- Record Operations -->
+
+		<!-- Queries -->
+
+		<!-- Pages -->
+		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.RGLBusinessProcess.Page.xml" />
+
+		<!-- Biz Process Spec -->
+		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.RGLBusinessProcess.BusinessProcess.xml" />
+
+		<!-- Tasks -->
+		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.RGLBusinessProcess.Task.xml" />
+
+	</common:DependencyList>
+	
+</PackageSpec>

@@ -1,0 +1,58 @@
+﻿<DataListSpec 
+	xmlns="bb_appfx_datalist"
+	xmlns:common="bb_appfx_commontypes" 
+	ID="cdd97c0b-d74d-4dc1-a92e-1feb65c24ab6" 
+	Name="RGL Business Process Data List"
+	Description="RGL Business Process Data List" 
+	Author="Memphis Sellers"
+	common:SecurityUIFolder="Sponsorship">
+
+	<!-- define the SP that returns the data for the datalist -->
+	<SPDataList SPName="USR_USP_DATALIST_RGLPOPULATE_BUSINESSPROCESS">
+		<common:CreateProcedureSQL>
+			<![CDATA[
+create procedure dbo.USR_USP_DATALIST_RGLPOPULATE_BUSINESSPROCESS(
+	@CURRENTAPPUSERID uniqueidentifier = null
+)
+as
+	set nocount on;
+
+	select bizproc.ID,
+		   bizproc.NAME,
+		   bizproc.DESCRIPTION,
+		   BPI.OWNERID
+	from dbo.USR_RGLPOPULATE_BUSINESSPROCESS bizproc
+	LEFT JOIN
+		dbo.BUSINESSPROCESSINSTANCE BPI on bizproc.ID = BPI.BUSINESSPROCESSPARAMETERSETID
+	where 
+		dbo.UFN_SECURITY_APPUSER_GRANTED_BUSINESSPROCESSINSTANCE_IN_SYSTEMROLE(@CURRENTAPPUSERID, bizproc.ID) = 1
+	order by 
+		bizproc.NAME
+			]]>
+		</common:CreateProcedureSQL>
+	</SPDataList>
+
+	<!-- describe the context ID parameter for the SP (if applicable)-->
+	<!--<Context ContextRecordType="REPLACE_WITH_RECORDTYPE" RecordIDParameter="CONTEXTID"/>-->
+
+	<!-- describe any parameters (other than the context ID) defined on the SP
+	<Parameters>
+		<common:FormMetaData>
+			<common:FormFields>
+				<common:FormField FieldID="PARAMETER1" Caption="Paramter1" DataType="REPLACE_WITH_DATATYPE"/>
+			</common:FormFields>
+		</common:FormMetaData>
+	</Parameters>-->
+
+	<!-- define the output fields in the list -->
+	<Output>
+		<OutputFields>
+			<OutputField FieldID="ID" Caption="ID" DataType="Guid" IsHidden="true" />
+			<OutputField FieldID="NAME" Caption="Name" DataType="String" />
+			<OutputField FieldID="DESCRIPTION" Caption="Description" DataType="String" />
+			<!--<OutputField FieldID="CAMPAIGNTYPE" Caption="Campaign Type" DataType="TinyInt" />-->
+			<OutputField FieldID="OWNERID" Caption="Owner ID" DataType="Guid" IsHidden="true" />
+		</OutputFields>
+	</Output>
+
+</DataListSpec>

@@ -1,0 +1,33 @@
+﻿<BusinessProcessSpec
+	xmlns="bb_appfx_businessprocess"
+	xmlns:common="bb_appfx_commontypes"
+	ID="9c549afc-c37c-4eb9-8e98-23d4d4e6ada4"
+	Name="RGL Business Process Business Process"
+	Description="Business Process to populate RGL data."
+	Author="Memphis Sellers"
+	GeneratesOutput="false"
+	ParameterTableName="USR_RGLPOPULATE_BUSINESSPROCESS"
+	RecordType="Sponsorship"
+	common:SecurityUIFolder="Sponsorship">
+
+	<ProcessorComponent AssemblyName="MoM.Sponsorship.Catalog" ClassName="MoM.Sponsorship.Catalog.RGLBusinessProcessBusinessProcess" >
+		<common:GrantExecuteList>
+			<common:GrantExecute>dbo.USR_USP_RGL_POPULATE_BUSINESSPROCESS_GETPARAMETERS</common:GrantExecute>
+			<common:GrantExecute>dbo.USR_USP_RGL_POPULATE_BUSINESSPROCESS</common:GrantExecute>
+			<common:GrantExecute>dbo.USR_USP_RGL_POPULATE_PRETEMPTABLES</common:GrantExecute>
+			<common:GrantExecute>dbo.USR_USP_RGL_POPULATION</common:GrantExecute>
+		</common:GrantExecuteList>
+		<!--<common:GrantSelectList>
+			<common:GrantSelect>dbo.USR_EFTDECLINEBATCH_BUSINESSPROCESS_RESULTS</common:GrantSelect>
+			<common:GrantSelect>dbo.USR_EFTDECLINEBATCH_BUSINESSPROCESS</common:GrantSelect>
+			<common:GrantSelect>dbo.USR_EFTDECLINE_BATCH_SPONSORS</common:GrantSelect>
+		</common:GrantSelectList>-->
+	</ProcessorComponent>
+
+	<!--<common:FormMetaData>
+		<common:FormFields>
+			<common:FormField Caption="REPLACE_WITH_CAPTION" DataType="REPLACE_WITH_DATATYPE" Description="REPLACE_WITH_DESCRIPTION" FieldID="REPLACE_WITH_FIELDID" />
+		</common:FormFields>
+	</common:FormMetaData>-->
+
+</BusinessProcessSpec>

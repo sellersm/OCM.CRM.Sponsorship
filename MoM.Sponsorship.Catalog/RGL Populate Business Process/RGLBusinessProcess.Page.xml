@@ -1,0 +1,128 @@
+﻿<PageDefinitionSpec 
+    xmlns="bb_appfx_pagedefinition" 
+    xmlns:common="bb_appfx_commontypes"
+    ID="89c32f71-8a25-41cc-a97b-777d99f76d27"
+    Name="RGL Business Process Page"
+    Description="Display RGL Business Process items"
+    Author="Memphis Sellers"
+    ContextRecordType="RGL Business Process"
+	AllowNonExistentFeatures="true"	
+	ExpressionDataFormID="691d84f0-5162-4cc4-85a6-eff67580263e"
+    >
+
+	<!-- Note:  A page can optionally have a view form associated with it as the "Expression form".  While implemented as a view data form,
+	this form has no UI in this context, and is simply used as a way of loading additional information associated with the page.  The fields
+	returned by the expression form can be used as expressions in various properties throughout the page.  To specify an expression form for this
+	page, add the following attribute:		ExpressionDataFormID="<some guid>"-->
+
+	<!-- define how the page header should appear -->
+	<PageHeader Caption="RGL Business Process Page" ImageKey="RES:gear" />
+	
+	<SummarySection ID="4b19eb2c-72fe-47a5-8dd3-b7049d54b854" Caption="RGL Business Process Summary">
+		<DataForm ID="92fce32e-6451-4eea-9b1d-21c6bec8f4aa" />
+	</SummarySection>
+	
+	<Tabs>
+		<Tab Caption="Recent Status" ID="0e8c64ae-b41c-40e4-95a3-b5050e83e2ab">
+			<Sections>
+				<Section ID="04a5ff78-e70c-4d13-98c8-f8f78a09325b" Caption="Recent status">
+					<DataForm ID="7cf7a0c1-5848-40b2-b3d6-88a1406efc8b" />
+					<SectionContext>
+						<Expression xmlns="bb_appfx_commontypes">9c549afc-c37c-4eb9-8e98-23d4d4e6ada4</Expression>
+					</SectionContext>				
+				</Section>
+			</Sections>
+		</Tab>
+		<Tab Caption="History" ID="6f2dae79-5535-42da-a6ab-8037ae033213">
+			<Sections>
+				<Section ID="dd8fd39e-b739-4e1b-b3bf-d086ce6aa911" Caption="History">
+					<DataList ID="cdd97c0b-d74d-4dc1-a92e-1feb65c24ab6">
+						<RenderStyle>
+							<GroupedView>
+								<Groups>
+									<Group ColumnName="NAME" />
+								</Groups>
+							</GroupedView>
+						</RenderStyle>
+					</DataList>
+				</Section>
+			</Sections>
+		</Tab>
+
+		<!-- Trying to get the ability to Edit the job schedule -->
+		<Tab Caption="Job schedules" ID="277700ba-00db-49df-8526-e646d0a6b7da">
+			<Sections>
+				<Section ID="4d31c37d-66f7-43ed-b3d7-0821051324ec">
+					<DataList ID="20153a24-7b1d-41f5-8d3e-97bc0abe06b6">
+						<RenderStyle>
+							<StandardView />
+						</RenderStyle>
+					</DataList>
+					<SectionContext>
+						<PageExpressionField xmlns="bb_appfx_commontypes">BUSINESSPROCESSCATALOGID</PageExpressionField>
+					</SectionContext>
+					<Actions>
+						<Action ID="fb43dbb5-6390-4a04-9f66-ecd5da65b0c1" Caption="Add" ImageKey="RES:NewItem">
+							<ShowAddDataForm DataFormID="f96dff68-2bf5-46fc-9427-e87d2b3afc29" xmlns="bb_appfx_commontypes">
+								<ActionContext>
+									<Expression>= IIf(String.IsNullOrEmpty(Page.Fields!BUSINESSPROCESSCATALOGID.ToString()), "", String.Concat("RGL Business Process Business Process|9c549afc-c37c-4eb9-8e98-23d4d4e6ada4|", Page.Fields!BUSINESSPROCESSCATALOGID.ToString())).ToString()</Expression>
+								</ActionContext>
+								<PostActionEvent>
+									<RefreshPage />
+								</PostActionEvent>
+							</ShowAddDataForm>
+						</Action>
+						<Action ID="3c8dfa08-4d96-458a-9064-29b132225907" Caption="Edit" ImageKey="RES:Edit" DefaultAction="true">
+							<ShowDataForm DataFormID="1422b257-ed58-447e-a46b-56ec155473e4" xmlns="bb_appfx_commontypes">
+								<ActionContext>
+									<SectionField>Schedule ID</SectionField>
+								</ActionContext>
+								<PostActionEvent>
+									<RefreshSection />
+								</PostActionEvent>
+							</ShowDataForm>
+						</Action>
+						<Action ID="d784ea1a-3fb1-41ba-83cd-58445277dff3" Caption="Delete" ImageKey="RES:Delete">
+							<ExecuteRecordOperation RecordOperationID="99119b73-cf09-4e93-8595-d007e87492be" xmlns="bb_appfx_commontypes">
+								<ActionContext>
+									<SectionField>Job ID</SectionField>
+								</ActionContext>
+							</ExecuteRecordOperation>
+						</Action>
+					</Actions>
+				</Section>
+			</Sections>
+		</Tab>
+
+
+	</Tabs>
+	
+	<PageActionGroups>
+		<PageActionGroup ID="1a6dcc7e-7b6a-45a2-81f0-fc4fb0c7f414" Caption="Process">
+			<Actions>
+				<Action ID="f692055c-a7d8-4603-abf6-db8574bb295e" Caption="Run Process" ImageKey="RES:businessprocessspec">
+					<StartBusinessProcess BusinessProcessID="9c549afc-c37c-4eb9-8e98-23d4d4e6ada4" StatusPageID="89c32f71-8a25-41cc-a97b-777d99f76d27" StatusTabID="00000000-0000-0000-0000-000000000000" PreprocessEditFormID="00000000-0000-0000-0000-000000000000" xmlns="bb_appfx_commontypes">
+						<ActionContext>
+							<Expression>9c549afc-c37c-4eb9-8e98-23d4d4e6ada4</Expression>
+						</ActionContext>
+						<PostActionEvent>
+							<RefreshPage />
+						</PostActionEvent>
+					</StartBusinessProcess>
+				</Action>
+				<Action ID="de321995-db7e-4ad5-8692-0c20a77eeaaf" Caption="Create job schedule" ImageKey="RES:calendarschedule" ToolTipText="Creates a SQL Server Agent job using an ActiveX script to run the selected business process.">
+					<ShowAddDataForm DataFormID="f96dff68-2bf5-46fc-9427-e87d2b3afc29" xmlns="bb_appfx_commontypes">
+						<ActionContext>
+							<Expression>= IIf(String.IsNullOrEmpty(Page.Fields!BUSINESSPROCESSCATALOGID.ToString()), "", String.Concat("RGL Business Process Business Process|9c549afc-c37c-4eb9-8e98-23d4d4e6ada4|", Page.Fields!BUSINESSPROCESSCATALOGID.ToString())).ToString()</Expression>
+						</ActionContext>
+						<PostActionEvent>
+							<RefreshPage />
+						</PostActionEvent>
+					</ShowAddDataForm>
+				</Action>
+			</Actions>
+		</PageActionGroup>
+	
+	</PageActionGroups>
+	
+</PageDefinitionSpec>
