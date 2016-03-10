@@ -19,6 +19,7 @@
 	History:
 	Date            Modified By     Comments
 	29-Feb-2016		Memphis			Initial Version on leap year day!
+	07-Mar-2016		Memphis			Added the Total Paid column per Pamela
 	-->
 
 	<!-- define the view used to return data for the query -->
@@ -49,9 +50,11 @@ SELECT
 		end as FINANCIALSPONSORNAME, 
 		(select LOOKUPID from dbo.CONSTITUENT where ID = rgl.FINANCIALSPONSORID) as FINANCIALSPONSORID,
        ISACCOUNTCORRECTION,
-       (select LOOKUPID from dbo.REVENUE where ID = rgl.RECURRINGGIFTID) as REVENUELOOKUPID --RECURRINGGIFTID,
+       (select LOOKUPID from dbo.REVENUE where ID = rgl.RECURRINGGIFTID) as REVENUELOOKUPID,
+	   	coalesce((select sum(RECURRINGGIFTACTIVITY.AMOUNT) from dbo.RECURRINGGIFTACTIVITY where SOURCEREVENUEID = RECURRINGGIFTID and TYPECODE = 0), 0) as TOTALPAIDAMOUNT
   FROM dbo.USR_COMMITMENTLINE_RECURRINGGIFT rgl
 	join dbo.CONSTITUENT sponsor on sponsor.ID = SPONSORID
+	inner join revenue r on r.id = rgl.recurringgiftid
 
 			]]>
 		</ViewSQL>
@@ -78,6 +81,7 @@ SELECT
 			<OutputField Name="FINANCIALSPONSORID" Caption="Financial Sponsor Id" DataType="String" />
 			<OutputField Name="ISACCOUNTCORRECTION" Caption="Account Correction" DataType="Boolean" />
 			<OutputField Name="REVENUELOOKUPID" Caption="RG ID" DataType="String" />
+			<OutputField Name="TOTALPAIDAMOUNT" Caption="Total Paid" DataType="Money" />
 		</OutputFields>
 	</Output>
 

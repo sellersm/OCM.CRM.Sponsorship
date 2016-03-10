@@ -1,0 +1,27 @@
+﻿<TaskSpec
+	xmlns="bb_appfx_task"
+	xmlns:common="bb_appfx_commontypes" 
+	ID="424114a6-562d-40dd-ace0-7cb38c42af93"
+	Name="RGL Business Process"
+	Description="Task to launch RGL biz process"
+	Author="Memphis Sellers"
+	FunctionalAreaID="9ea48d9c-7e2d-42e6-91cc-210792618017"
+	TaskGroup="Administration"
+	Sequence="99"
+	DisplayAsAction="true"
+	>
+
+	<!-- 
+	Remarks:   Task to display the RGL Business Process page. 
+
+	History:
+	Date            Modified By     Comments
+	03-Mar-2016		Memphis			Initial Version.
+	-->
+
+	<ShowPage PageID="89c32f71-8a25-41cc-a97b-777d99f76d27" TabID="0e8c64ae-b41c-40e4-95a3-b5050e83e2ab" xmlns="bb_appfx_commontypes" >
+		<ActionContext>
+			<Expression>7E901696-BFE1-4070-89F6-EC31320EB427</Expression>
+		</ActionContext>
+	</ShowPage>
+</TaskSpec>

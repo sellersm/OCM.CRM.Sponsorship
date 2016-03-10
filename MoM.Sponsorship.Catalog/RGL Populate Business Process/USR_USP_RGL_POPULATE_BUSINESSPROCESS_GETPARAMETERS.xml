@@ -1,0 +1,24 @@
+﻿<SQLStoredProcedureSpec
+	xmlns="bb_appfx_sqlstoredprocedure"
+	xmlns:common="bb_appfx_commontypes" 
+	ID="93b1b576-c20b-465f-a1a7-93ab5b020762"
+	Name="USR_USP_RGL_POPULATE_BUSINESSPROCESS_GETPARAMETERS"
+	Description="Gets biz proc parameters for RGL Populate."
+	Author="Memphis Sellers"
+	SPName="USR_USP_RGL_POPULATE_BUSINESSPROCESS_GETPARAMETERS"
+	>
+
+	<CreateProcedureSQL>
+		<![CDATA[
+create procedure dbo.USR_USP_RGL_POPULATE_BUSINESSPROCESS_GETPARAMETERS
+as
+begin
+	select ID
+	from dbo.USR_RGLPOPULATE_BUSINESSPROCESS
+
+end
+
+		]]>
+	</CreateProcedureSQL>
+
+</SQLStoredProcedureSpec>

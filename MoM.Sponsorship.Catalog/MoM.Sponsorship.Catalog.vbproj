@@ -78,6 +78,7 @@
     <Compile Include="My Project\AssemblyInfo.vb" />
     <Compile Include="Prospect Conversion Business Process\ProspectConversion.BusinessProcess.vb" />
     <Compile Include="Prospect Terminate Business Process\ProspectTerminate.BusinessProcess.vb" />
+    <Compile Include="RGL Populate Business Process\RGLBusinessProcess.BusinessProcess.vb" />
     <Compile Include="Sponsor Terminate Business Process\SponsorTerminate.BusinessProcess.vb" />
   </ItemGroup>
   <ItemGroup>
@@ -760,11 +761,22 @@
     <EmbeddedResource Include="Query Views\OrphanRecurringGifts.Query.xml" />
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="RGL Populate Business Process\RGLBusinessProcess.PageExpression.View.xml" />
+    <EmbeddedResource Include="RGL Populate Business Process\RGLBusinessProcess.BusinessProcess.xml" />
+    <EmbeddedResource Include="RGL Populate Business Process\RGLBusinessProcess.DataList.xml" />
+    <EmbeddedResource Include="RGL Populate Business Process\RGLBusinessProcess.Package.xml" />
+    <EmbeddedResource Include="RGL Populate Business Process\RGLBusinessProcess.Page.xml" />
+    <EmbeddedResource Include="RGL Populate Business Process\RGLBusinessProcess.Task.xml" />
+    <EmbeddedResource Include="RGL Populate Business Process\RGLBusinessProcessParameters.Table.xml" />
+    <EmbeddedResource Include="RGL Populate Business Process\RGLBusinessProcessResults.Table.xml" />
+    <EmbeddedResource Include="RGL Populate Business Process\RGLBusinessProcessSummary.View.xml" />
+    <EmbeddedResource Include="RGL Populate Business Process\USR_USP_RGL_POPULATE_BUSINESSPROCESS.xml" />
+    <EmbeddedResource Include="RGL Populate Business Process\USR_USP_RGL_POPULATE_BUSINESSPROCESS_GETPARAMETERS.xml" />
     <EmbeddedResource Include="RecordOperations\RGLRefresh.RecordOperation.xml" />
-    <EmbeddedResource Include="SQL\Stored Procedures\USR_USP_RGL_POPULATION.xml">
+    <EmbeddedResource Include="RGL Populate Business Process\USR_USP_RGL_POPULATION.xml">
       <SubType>Designer</SubType>
     </EmbeddedResource>
-    <EmbeddedResource Include="SQL\Stored Procedures\USR_USP_RGL_POPULATE_PRETEMPTABLES.xml">
+    <EmbeddedResource Include="RGL Populate Business Process\USR_USP_RGL_POPULATE_PRETEMPTABLES.xml">
       <SubType>Designer</SubType>
     </EmbeddedResource>
     <EmbeddedResource Include="DataLists\CommitmentLineHistory.RecurringGifts.DataList.xml" />
