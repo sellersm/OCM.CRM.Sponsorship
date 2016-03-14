@@ -1,0 +1,54 @@
+﻿<QueryViewSpec
+	xmlns="bb_appfx_queryview"
+	xmlns:common="bb_appfx_commontypes" 
+	ID="2e617981-efe0-4a8a-a02f-bf153c75ad3a"
+	Name="Active Sponsorships Not Most Recent For Commitment"
+	Description="Active Sponsorships IsMostRecentForCommitment flag is NO."
+	Author="Memphis Sellers"
+	IsRoot="true"
+	PrimaryKeyField="ID"
+	RecordType="Constituent"
+	common:SecurityUIFolder="Sponsorship"
+	>
+
+	<!-- 
+	Remarks:    Created for Pamela to view the Active Sponsorships where 
+				IsMostRecentForCommitment column value is 0 (no).
+				This is of type Constituent so it will open to the Sponsor Page.
+
+	History:
+	Date            Modified By     Comments
+	13-Mar-2016		Memphis			Initial Version!
+	-->	
+	
+	<!-- define the view used to return data for the query -->
+	<ViewImplementation ViewName="USR_V_QUERY_ACTIVESPONSORSHIPS_NOTMOSTRECENTFORCOMMITMENT">
+		<ViewSQL>
+			<![CDATA[
+	select	c.ID,
+			sc.LOOKUPID as COMMITMENTID, 
+			c.LOOKUPID as SPONSORID, 
+			s.ISMOSTRECENTFORCOMMITMENT, 
+			s.STARTDATE
+	from dbo.SPONSORSHIP s
+	left join dbo.SPONSORSHIPCOMMITMENT sc on sc.ID = s.SPONSORSHIPCOMMITMENTID
+	left join dbo.CONSTITUENT c on c.ID = s.CONSTITUENTID
+	where ISMOSTRECENTFORCOMMITMENT = 0
+	and [STATUS] = 'Active'
+			]]>
+		</ViewSQL>
+	</ViewImplementation>
+
+	<!-- describe each field in the view output -->
+	<Output>
+		<OutputFields>
+			<OutputField Caption="System record ID" Category="System Fields" Name="ID" />
+			<OutputField Name="COMMITMENTID" Caption="Commitment Id" DataType="String" />
+			<OutputField Name="SPONSORID" Caption="Sponsor Id" DataType="String" />
+			<OutputField Name="ISMOSTRECENTFORCOMMITMENT" Caption="Is Most Recent" DataType="Boolean" />
+			<OutputField Name="STARTDATE" Caption="Start Date" DataType="Date" />
+		</OutputFields>
+	</Output>
+
+</QueryViewSpec>
+
