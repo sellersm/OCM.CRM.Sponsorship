@@ -761,6 +761,7 @@
     <EmbeddedResource Include="Query Views\OrphanRecurringGifts.Query.xml" />
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="Tables\RGLPopulateExceptions.Table.xml" />
     <EmbeddedResource Include="RGL Populate Business Process\RGLBusinessProcess.PageExpression.View.xml" />
     <EmbeddedResource Include="RGL Populate Business Process\RGLBusinessProcess.BusinessProcess.xml" />
     <EmbeddedResource Include="RGL Populate Business Process\RGLBusinessProcess.DataList.xml" />
@@ -805,6 +806,8 @@
     <EmbeddedResource Include="Pages\SponsorshipCommitment.Page.xml" />
     <EmbeddedResource Include="Query Views\RGLDataOnly.Query.xml" />
     <EmbeddedResource Include="Query Views\Sponsorship.IsMostRecentForCommitment.Active.Query.xml" />
+    <EmbeddedResource Include="Pages\AddRGLSectionToSponsor.Page.xml" />
+    <EmbeddedResource Include="Query Views\RGLPopulateExceptions.Query.xml" />
     <Content Include="Query Views\SponsorshipCommitment.Query.xml" />
     <EmbeddedResource Include="Tables\CLHRecurringGift.Table.xml">
       <SubType>Designer</SubType>

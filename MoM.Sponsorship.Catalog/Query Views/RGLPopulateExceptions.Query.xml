@@ -1,0 +1,61 @@
+﻿<QueryViewSpec
+	xmlns="bb_appfx_queryview"
+	xmlns:common="bb_appfx_commontypes" 
+	ID="94fa1976-4556-4938-9380-9bc6c9934a60"
+	Name="RGL Populate Exceptions Query"
+	Description="Displays rows in exception table from RGL populate script."
+	Author="Memphis Sellers"
+	IsRoot="true"
+	PrimaryKeyField="ID"
+	RecordType="Constituent"
+	common:SecurityUIFolder="Sponsorship"
+	>
+
+	<!-- 
+	Remarks:    Displays the exceptions from the RGL Populate process. 
+				These are records where the Initial Status is Prospect Sponsored
+				but don't end up in one of the desired Status values, 
+				as per the workflow document.
+
+	History:
+	Date            Modified By     Comments
+	16-Mar-2016		Memphis			Initial Version.
+	-->
+	
+	<!-- define the view used to return data for the query -->
+	<ViewImplementation ViewName="USR_V_QUERY_RGLPOPULATE_EXCEPTIONS">
+		<ViewSQL>
+			<![CDATA[
+	select	c.ID
+			,r.lookupid as REVENUEID
+			,sc.lookupid as COMMITMENTID
+			,USR_RGL_POPULATION_EXCEPTION.SPONSORLOOKUPID
+			,USR_RGL_POPULATION_EXCEPTION.INITIALSTATUS
+			,USR_RGL_POPULATION_EXCEPTION.CONVERSIONDATE
+			,USR_RGL_POPULATION_EXCEPTION.TARGETACTIONCODE	
+			,USR_RGL_POPULATION_EXCEPTION.INSERTDATE
+	from dbo.USR_RGL_POPULATION_EXCEPTION
+	join dbo.REVENUE r on r.ID = RGID
+	join dbo.SPONSORSHIP s on s.ID = TARGETSPONSORSHIPID
+	join dbo.SPONSORSHIPCOMMITMENT sc on sc.ID = s.SPONSORSHIPCOMMITMENTID
+	join dbo.CONSTITUENT c on c.LOOKUPID = SPONSORLOOKUPID
+			]]>
+		</ViewSQL>
+	</ViewImplementation>
+
+	<!-- describe each field in the view output -->
+	<Output>
+		<OutputFields>
+			<OutputField Caption="System record ID" Category="System Fields" Name="ID" />
+			<OutputField Name="REVENUEID" Caption="RG ID" DataType="String" />
+			<OutputField Name="COMMITMENTID" Caption="Commitment ID" DataType="String" />
+			<OutputField Name="SPONSORLOOKUPID" Caption="Sponsor ID" DataType="String" />
+			<OutputField Name="INITIALSTATUS" Caption="Initial Status" DataType="String" />
+			<OutputField Name="CONVERSIONDATE" Caption="Conversion Date" DataType="Date" />
+			<OutputField Name="TARGETACTIONCODE" Caption="Target Action" DataType="Integer" />
+			<OutputField Name="INSERTDATE" Caption="Date Inserted" DataType="Date" />
+		</OutputFields>
+	</Output>
+
+</QueryViewSpec>
+

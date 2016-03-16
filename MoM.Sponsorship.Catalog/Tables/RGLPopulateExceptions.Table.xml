@@ -1,0 +1,37 @@
+﻿<TableSpec 
+	xmlns="bb_appfx_table"
+	xmlns:common="bb_appfx_commontypes" 
+	ID="580f2a0f-2f85-44f3-b26a-a71e9a558be1"
+	Name="RGL Populate Exceptions Table"
+	Description="RGL Populate Exception table"
+	Author="Memphis Sellers"
+	Tablename="USR_RGL_POPULATION_EXCEPTION"		   
+	>
+
+	<!-- define fields on the table -->
+	<Fields>
+		<GuidField Name="RGID" Description="RG ID" Required="true"/>
+		<TextField Name="SPONSORLOOKUPID" Description="Sponsor Lookup Id" Length="10" />
+		<GuidField Name="TARGETSPONSORSHIPID" Description="Target Sponsorship Id"/>
+		<TextField Name="NITIALSTATUS" Description="Initial Status" Length="4000"/>
+		<DateField Name="CONVERSIONDATE" Description="Conversion Date" />
+		<NumberField Name="TARGETACTIONCODE" Description="Target Action Code" Type="tinyint" />
+		<DateField Name="INSERTDATE" Description="Insert Date" />
+	</Fields>
+
+	<!-- define any additional check constraints on the table --><!--
+	<CheckConstraints>
+
+	</CheckConstraints>
+
+	--><!-- define any indexes on the table --><!--
+	<Indexes>
+
+	</Indexes>
+		
+	--><!-- define any triggers on the table --><!--
+	<Triggers>
+
+	</Triggers>-->
+
+</TableSpec>
