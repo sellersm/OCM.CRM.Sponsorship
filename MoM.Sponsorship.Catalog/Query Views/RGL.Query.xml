@@ -11,6 +11,16 @@
 	common:SecurityUIFolder="Sponsorship"
 	>
 
+	<!-- 
+	Remarks:    RGL Query to display the RGL related data.
+				This is of type Sponsorship Commitment so it will open to the Sponsorship Commitment Page.
+
+	History:
+	Date            Modified By     Comments
+	29-Feb-2016		Memphis			Initial Version on leap year day!
+	15-Mar-2016		Memphis			Added Number of months sponsorship per Pamela
+	-->
+
 	<!-- define the view used to return data for the query -->
 	<ViewImplementation ViewName="USR_V_QUERY_RGL">
 		<ViewSQL>
@@ -22,6 +32,8 @@ SELECT
        dbo.UFN_SPONSORSHIPOPPORTUNITY_TRANSLATIONFUNCTION(soc.ID) as CHILD, --OPPORTUNITYID,
        rgl.STARTDATE,
        rgl.ENDDATE,
+       (case when rgl.ENDDATE is null then DATEDIFF(m, rgl.STARTDATE, GETDATE())
+			 when rgl.ENDDATE is not null then DATEDIFF(m, rgl.STARTDATE, rgl.ENDDATE) end) as SPONSORSHIPMONTHS,	   
        rgl.[TYPE] as RGLTYPE,
        --ISREASSIGN,
        SOURCE,
@@ -75,6 +87,7 @@ SELECT
 			<OutputField Name="CHILD" Caption="Child" DataType="String" />
 			<OutputField Name="STARTDATE" Caption="Start Date" DataType="Date" />
 			<OutputField Name="ENDDATE" Caption="End Date" DataType="Date" />
+			<OutputField Name="SPONSORSHIPMONTHS" Caption="Sponsorship Months" DataType="Integer" />
 			<OutputField Name="RGLTYPE" Caption="Type" DataType="String" />
 			<!--<OutputField Name="ISREASSIGN" Caption="Reassign" DataType="Boolean" />-->
 			<OutputField Name="SOURCE" Caption="Source" DataType="String" />

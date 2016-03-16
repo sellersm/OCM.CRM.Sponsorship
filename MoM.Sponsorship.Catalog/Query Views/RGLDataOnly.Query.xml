@@ -20,6 +20,7 @@
 	Date            Modified By     Comments
 	29-Feb-2016		Memphis			Initial Version on leap year day!
 	07-Mar-2016		Memphis			Added the Total Paid column per Pamela
+	15-Mar-2016		Memphis			Added Number of months sponsorship per Pamela
 	-->
 
 	<!-- define the view used to return data for the query -->
@@ -32,6 +33,8 @@ SELECT
        sponsor.[NAME] as SPONSORNAME,
        rgl.STARTDATE,
        rgl.ENDDATE,
+       (case when ENDDATE is null then DATEDIFF(m, STARTDATE, GETDATE())
+			 when ENDDATE is not null then DATEDIFF(m, STARTDATE, ENDDATE) end) as SPONSORSHIPMONTHS,	   
        rgl.[TYPE] as RGLTYPE,
        SOURCE,
        SOURCECATEGORY,
@@ -68,6 +71,7 @@ SELECT
 			<OutputField Name="SPONSORNAME" Caption="Sponsor" DataType="String" />
 			<OutputField Name="STARTDATE" Caption="Start Date" DataType="Date" />
 			<OutputField Name="ENDDATE" Caption="End Date" DataType="Date" />
+			<OutputField Name="SPONSORSHIPMONTHS" Caption="Sponsorship Months" DataType="Integer" />
 			<OutputField Name="RGLTYPE" Caption="Type" DataType="String" />
 			<OutputField Name="SOURCE" Caption="Source" DataType="String" />
 			<OutputField Name="SOURCECATEGORY" Caption="Source Category" DataType="String" />
