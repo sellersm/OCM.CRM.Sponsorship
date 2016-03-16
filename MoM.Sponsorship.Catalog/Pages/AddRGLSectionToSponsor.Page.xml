@@ -1,0 +1,70 @@
+﻿<PageDefinitionSpec 
+    xmlns="bb_appfx_pagedefinition" 
+    xmlns:common="bb_appfx_commontypes"
+    ID="db0abd70-090a-4e50-bf0c-25f051880ecc"
+    Name="Add RGL Section To Sponsor-Alter Page"
+    Description="Alters Sponsor page to add RGL section."
+    Author="Memphis Sellers"
+    ContextRecordType="Sponsorship"	
+    >
+
+	<!-- 
+	Remarks:    Alters the Sponsor page to add the RGL Section under the Sponsorship Tab.
+
+	History:
+	Date            Modified By     Comments
+	16-Mar-2016		Memphis			Initial version
+	-->
+
+	<!-- Note:  A page can optionally have a view form associated with it as the "Expression form".  While implemented as a view data form,
+	this form has no UI in this context, and is simply used as a way of loading additional information associated with the page.  The fields
+	returned by the expression form can be used as expressions in various properties throughout the page.  To specify an expression form for this
+	page, add the following attribute:		ExpressionDataFormID="<some guid>"-->
+
+	<!-- define how the page header should appear -->
+	<PageHeader Caption="REPLACE_WITH_CAPTION" ImageKey="REPLACE_WITH_IMAGEKEY" />
+
+	<AlterExistingPages>
+		<AlterPages>
+			<AlterPage PageID="35740996-3dbb-4414-903f-c992d7504afb" >
+				<AlterTabs>
+					<!-- Sponsorships Tab -->
+					<AlterTab TabID="416dc73b-1209-4a0b-a939-c367f54b4f1d">						
+						<AlterSections>
+							<!-- add the RGL data list section to Sponsorship tab -->
+							<AddSection>
+								<Section ID="f974923c-e772-4e60-922b-82ef6527fb53" Caption="RGL-Recurring Gift Line">
+									<DataList ID="749a0a07-a782-4729-8538-4b714b36c527" AutoDisplayFilters="true">
+										<RenderStyle>
+											<RelationalView IDField="ID" ParentField="PARENTID" SequenceField="COMMITMENTSEQUENCE">
+												<DetailViewForm ViewDataFormID="afa8948d-6ef5-419b-abe1-462237f63b8b" />
+											</RelationalView>
+										</RenderStyle>
+									</DataList>
+									<SectionContext>
+										<PageExpressionField xmlns="bb_appfx_commontypes">CONSTITUENTID</PageExpressionField>
+									</SectionContext>
+								</Section>
+							</AddSection>
+						</AlterSections>
+					</AlterTab>
+				</AlterTabs>
+			</AlterPage>
+		</AlterPages>
+	</AlterExistingPages>
+
+	<!-- define page-level actions groups which appear in the explorer bar area of the shell -->
+	<!--<PageActionGroups>
+		
+		<PageActionGroup ID="6c9e46ff-8d26-4d90-9bd4-21068ffec6d3" Caption="Tasks" ImageKey="RES:Tasks">
+			--><!-- for this action group, define the list of actions --><!--
+			<Actions>
+				<Action ID="836a929c-bf7a-4f45-a3fb-5f64ad5b0bf3" Caption="Action caption" ImageKey="res:newitem">
+					<common:ShowPage PageID="REPLACE_WITH_PAGEID" />
+				</Action>
+			</Actions>
+		</PageActionGroup>
+		
+	</PageActionGroups>-->
+	
+</PageDefinitionSpec>
