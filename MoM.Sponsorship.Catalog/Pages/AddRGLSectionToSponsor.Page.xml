@@ -14,6 +14,7 @@
 	History:
 	Date            Modified By     Comments
 	16-Mar-2016		Memphis			Initial version
+	17-Mar-2016		Memphis			Added the Action for Go to recurring gift in the RGL Data list section.
 	-->
 
 	<!-- Note:  A page can optionally have a view form associated with it as the "Expression form".  While implemented as a view data form,
@@ -44,15 +45,25 @@
 									<SectionContext>
 										<PageExpressionField xmlns="bb_appfx_commontypes">CONSTITUENTID</PageExpressionField>
 									</SectionContext>
+									<Actions>
+										<Action ID="6434d725-8cd0-4787-a002-1cf72491c96e" Caption="Go to recurring gift" ImageKey="RES:goto_round" Visible="=Not Fields!RECURRINGGIFTID.Equals(String.Empty)" CaptionResourceKey="$$go_to_recurring_gift">
+											<ShowPage PageID="387f861b-6c03-486c-9ff5-9cc5bb7a5275" TabID="00000000-0000-0000-0000-000000000000" xmlns="bb_appfx_commontypes">
+												<ActionContext>
+													<SectionField>REVENUEID</SectionField>
+												</ActionContext>
+											</ShowPage>
+										</Action>
+									</Actions>
 								</Section>
-							</AddSection>
-						</AlterSections>
-					</AlterTab>
+							</AddSection>							
+						</AlterSections>	
+					</AlterTab>					
 				</AlterTabs>
-			</AlterPage>
-		</AlterPages>
-	</AlterExistingPages>
-
+			</AlterPage>			
+		</AlterPages>		
+	</AlterExistingPages>	
+	
+	
 	<!-- define page-level actions groups which appear in the explorer bar area of the shell -->
 	<!--<PageActionGroups>
 		
