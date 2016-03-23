@@ -61,6 +61,7 @@
 		<!-- Tables -->
 		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.RGLBusinessProcessParameters.Table.xml" />
 		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.RGLBusinessProcessResults.Table.xml" />
+		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.CLHRecurringGift.Table.xml" />
 
 		<!-- SQL -->
 		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.USR_USP_RGL_POPULATE_PRETEMPTABLES.xml" />
@@ -72,11 +73,16 @@
 
 		<!-- Data Lists -->
 		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.RGLBusinessProcess.DataList.xml" />
+		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.RecurringGiftLine.DataList.xml" />
 
 		<!-- Views -->
 		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.RGLBusinessProcessSummary.View.xml" />
+		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.RGLBusinessProcess.PageExpression.View.xml" />
+		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.SponsorshipCommitmentPageExpression.View.xml" />
+		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.RecurringGiftLineDetail.View.xml" />
 
 		<!-- Record Operations -->
+		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.RGLRefresh.RecordOperation.xml" />
 
 		<!-- Queries -->
 
