@@ -49,7 +49,7 @@
 										<Action ID="6434d725-8cd0-4787-a002-1cf72491c96e" Caption="Go to recurring gift" ImageKey="RES:goto_round" Visible="=Not Fields!RECURRINGGIFTID.Equals(String.Empty)" CaptionResourceKey="$$go_to_recurring_gift">
 											<ShowPage PageID="387f861b-6c03-486c-9ff5-9cc5bb7a5275" TabID="00000000-0000-0000-0000-000000000000" xmlns="bb_appfx_commontypes">
 												<ActionContext>
-													<SectionField>REVENUEID</SectionField>
+													<SectionField>RECURRINGGIFTID</SectionField>
 												</ActionContext>
 											</ShowPage>
 										</Action>

@@ -85,6 +85,10 @@
 		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.RGLRefresh.RecordOperation.xml" />
 
 		<!-- Queries -->
+		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.RGL.Query.xml" />
+		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.RGLDataOnly.Query.xml" />
+		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.RGLPopulateExceptions.Query.xml" />
+		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.Sponsorship.IsMostRecentForCommitment.Active.Query.xml" />
 
 		<!-- Pages -->
 		<common:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.RGLBusinessProcess.Page.xml" />
