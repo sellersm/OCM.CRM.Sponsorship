@@ -761,6 +761,7 @@
     <EmbeddedResource Include="Query Views\OrphanRecurringGifts.Query.xml" />
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="RecordOperations\InsertRGLBizProcGuid.RecordOperation.xml" />
     <EmbeddedResource Include="Tables\RGLPopulateExceptions.Table.xml" />
     <EmbeddedResource Include="RGL Populate Business Process\RGLBusinessProcess.PageExpression.View.xml" />
     <EmbeddedResource Include="RGL Populate Business Process\RGLBusinessProcess.BusinessProcess.xml" />
