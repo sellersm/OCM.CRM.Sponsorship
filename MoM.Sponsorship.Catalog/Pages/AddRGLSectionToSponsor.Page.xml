@@ -15,6 +15,7 @@
 	Date            Modified By     Comments
 	16-Mar-2016		Memphis			Initial version
 	17-Mar-2016		Memphis			Added the Action for Go to recurring gift in the RGL Data list section.
+	06-Apr-2016		Memphis			Added AddAction sections to get the Tasks under the Admin section of taskbar on left.
 	-->
 
 	<!-- Note:  A page can optionally have a view form associated with it as the "Expression form".  While implemented as a view data form,
@@ -24,17 +25,17 @@
 
 	<!-- define how the page header should appear -->
 	<PageHeader Caption="REPLACE_WITH_CAPTION" ImageKey="REPLACE_WITH_IMAGEKEY" />
-
-	<AlterExistingPages>
+	
+	<AlterExistingPages>		
 		<AlterPages>
-			<AlterPage PageID="35740996-3dbb-4414-903f-c992d7504afb" >
+			<AlterPage PageID="35740996-3dbb-4414-903f-c992d7504afb" >				
 				<AlterTabs>
 					<!-- Sponsorships Tab -->
 					<AlterTab TabID="416dc73b-1209-4a0b-a939-c367f54b4f1d">						
 						<AlterSections>
 							<!-- add the RGL data list section to Sponsorship tab -->
-							<AddSection>
-								<Section ID="f974923c-e772-4e60-922b-82ef6527fb53" Caption="RGL-Recurring Gift Line">
+							<AddSection Sequence="99">
+								<Section ID="f974923c-e772-4e60-922b-82ef6527fb53" Caption="RGL-Recurring Gift Line" >
 									<DataList ID="749a0a07-a782-4729-8538-4b714b36c527" AutoDisplayFilters="true">
 										<RenderStyle>
 											<RelationalView IDField="ID" ParentField="PARENTID" SequenceField="COMMITMENTSEQUENCE">
@@ -59,6 +60,65 @@
 						</AlterSections>	
 					</AlterTab>					
 				</AlterTabs>
+				<!-- Memphis add the Tasks to the Admin section-->
+				<AlterOrAddPageActionGroups>
+					<AlterOrAddPageActionGroup ID="e2c87b73-f7e0-4455-904d-707fa679c827" Caption="Admin" >						
+						<AddAction>
+							<Action ID="624c15bf-0db0-4549-a6fe-48ba9d721ed4" Caption="Edit financial sponsor date range">
+								<ShowDataForm DataFormID="5129566d-221a-471d-95c6-d40aa6cfa57c" xmlns="bb_appfx_commontypes">
+									<ActionContext>
+										<PageContextID />
+									</ActionContext>
+									<PostActionEvent>
+										<RefreshPage />
+									</PostActionEvent>
+								</ShowDataForm>
+							</Action>
+						</AddAction>
+					</AlterOrAddPageActionGroup>
+					<AlterOrAddPageActionGroup ID="e2c87b73-f7e0-4455-904d-707fa679c827" Caption="Admin" >
+						<AddAction>							
+							<Action ID="86217f12-ca3b-49e2-a3dd-548ec4ab268c" Caption="MEMPHIS TEST: insert guid">
+								<ExecuteRecordOperation RecordOperationID="508049b0-651f-42dd-9ac7-5a429bc05d4d" xmlns="bb_appfx_commontypes">
+									<ActionContext>
+										<PageContextID />
+									</ActionContext>
+									<PostActionEvent>
+										<RefreshPage />
+									</PostActionEvent>
+								</ExecuteRecordOperation>
+							</Action>
+						</AddAction>
+					</AlterOrAddPageActionGroup>
+					<AlterOrAddPageActionGroup ID="e2c87b73-f7e0-4455-904d-707fa679c827" Caption="Admin" >
+						<AddAction>
+							<Action ID="e52d58b7-e5db-47b3-9cc2-26ece5b1b532" Caption="Merge commitments">
+								<ShowAddDataForm DataFormID="2550b89f-5e59-411f-8fc2-7da80f56f80a" xmlns="bb_appfx_commontypes">
+									<ActionContext>
+										<PageContextID />
+									</ActionContext>
+									<PostActionEvent>
+										<RefreshPage />
+									</PostActionEvent>
+								</ShowAddDataForm>
+							</Action>
+						</AddAction>
+					</AlterOrAddPageActionGroup>
+					<AlterOrAddPageActionGroup ID="e2c87b73-f7e0-4455-904d-707fa679c827" Caption="Admin" >
+						<AddAction>
+							<Action ID="980dc510-7e0f-43d1-9877-1ee4eaf16dab" Caption="Refresh RGL" ImageKey="RES:RecordOperationSpec">
+								<ExecuteRecordOperation RecordOperationID="af9999fc-a36a-448f-a086-7b4a10f1f301" xmlns="bb_appfx_commontypes">
+									<ActionContext>
+										<PageContextID />
+									</ActionContext>
+									<PostActionEvent>
+										<RefreshPage />
+									</PostActionEvent>
+								</ExecuteRecordOperation>
+							</Action>
+						</AddAction>
+					</AlterOrAddPageActionGroup>
+				</AlterOrAddPageActionGroups>
 			</AlterPage>			
 		</AlterPages>		
 	</AlterExistingPages>	
