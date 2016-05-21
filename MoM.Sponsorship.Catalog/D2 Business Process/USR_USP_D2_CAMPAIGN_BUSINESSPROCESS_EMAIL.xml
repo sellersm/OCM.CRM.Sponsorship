@@ -37,6 +37,7 @@
 									the check for a new Sponsor in the cursor loop. In PROD this wouldn't work right...
 	28-Aug-2015		CMayeda			Changed raiserror syntax to work with SQL Server 2012 (CRM 4.0)
 	16-May-2016		Memphis			Revised per new workflow and biz requirements. Creates BOTH Email and Mail Interaction types.
+	19-May-2016		Memphis			Fixed 3 defects from Pamela: Summary text, not handling Do Not Email, Do Not Mail codes correctly.
 	-->
 
 
@@ -572,6 +573,10 @@ declare @D2ChildrenList table (
 											set @noInteractionCreatedMessage = 'No valid mail address';
 										end
 								end
+							else
+								begin
+									set @createMailInteraction = 0;
+								end
 							
 							if @isNoEmail = 0
 								begin
@@ -588,7 +593,11 @@ declare @D2ChildrenList table (
 		                                    --set @writeToExceptionLog = 1;
 		                                    set @noInteractionCreatedMessage = 'No valid email';
 										end
-								end														
+								end
+							else
+								begin
+									set @createEmailInteraction = 0;
+								end
 
                             -- new Memphis 6/3/13: check the number of months past due to determine if this really is delinquent 2 months or not:
                             -- but only if we're about to create an interaction, otherwise we don't care:
@@ -620,9 +629,9 @@ declare @D2ChildrenList table (
 
 							if (@createMailInteraction = 1 or @createEmailInteraction = 1)
 								begin
-									set @interactionSummary = case when @payMethod in (0,1,9) then 'Cash – D2 Campaign'
-										when @payMethod IN (2,3) and @isEftDeclined = 0 then 'Active EFT – D2 Campaign'
-										when @payMethod IN (2,3) and @isEftDeclined = 1 then 'Held EFT – D2 Campaign' 
+									set @interactionSummary = case when @payMethod in (0,1,9) then 'Cash – Delinquent 2 Months'
+										when @payMethod IN (2,3) and @isEftDeclined = 0 then 'EFT Active – Delinquent 2 Months'
+										when @payMethod IN (2,3) and @isEftDeclined = 1 then 'EFT Declined – Delinquent 2 Months' 
 										end;
 
 									-- prevent this from creating multiple sponsor interactions per child
