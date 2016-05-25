@@ -16,6 +16,8 @@
 	Date            Modified By     Comments
 	02-Feb-2015		Memphis			Initial Version copied from Cary's USR_USP_D4_CAMPAIGN_BUSINESSPROCESS
 	28-Aug-2015		CMayeda			Changed raiserror syntax to work with SQL Server 2012 (CRM 4.0)
+	24-May-2016		Memphis			Revisions as per new requirements, now creates 2 Interactions:
+									Phone and Mail (if allowed), and now checks payment methods for Phone
 	-->
 
 	<CreateProcedureSQL>
@@ -35,7 +37,7 @@ begin
 	--declare @outputTableName nvarchar(100)
 	--declare	@successCount int = 0 
 	--declare	@exceptionCount int = 0 
-	declare @rowCount int = 0
+	--declare @rowCount int = 0
 
 	-- passed in by the parameter set record user was on when biz proc was started:
 	--declare @campaignType tinyint = 2;  -- 0=Cash, 1=EFT Active, 2=EFT Held Credit Card, 3=EFT Held Direct Debit
@@ -72,12 +74,14 @@ begin
 
 	declare @subcategoryID uniqueidentifier;
 
+	-- Memphis 5-18-16: now D3 will attempt to create both Mail and Phone Interactions
 	declare @interactionContactMethodId uniqueidentifier;
-	--declare @phoneContactMethodID uniqueidentifier;
+	declare @phoneContactMethodID uniqueidentifier;
 	--declare @emailContactMethodID uniqueidentifier;
 
 	-- Phone
-	--select @phoneContactMethodID = ID from dbo.INTERACTIONTYPECODE where lower(DESCRIPTION) = lower ('Phone')
+	select @phoneContactMethodID = ID from dbo.INTERACTIONTYPECODE where lower(DESCRIPTION) = lower ('Phone')
+	
 	-- Email
 	--select @emailContactMethodID = ID from dbo.INTERACTIONTYPECODE where lower(DESCRIPTION) = lower ('Email')
 
@@ -91,33 +95,39 @@ begin
 	declare @heldEFTCreditCardSubcategoryName nvarchar(100) = 'Delinquent 2 Month - Credit Card';
 	declare @heldEFTDirectDebitSubcategoryName nvarchar(100) = 'Delinquent 2 Month - Direct Debit';
 	declare @activeEFTSubcategoryName nvarchar(100) = 'Delinquent 2 Month - EFT';
-	*/declare @raiseErrorIfNotFound_True bit = 1
+	*/
+	declare @raiseErrorIfNotFound_True bit = 1
 
 	declare @writeToExceptionLog bit = 0;		-- flag to identify when to write a record to the output table indicating no interaction was created
 
 	declare @subcategoryName nvarchar(100);		-- will hold one of the category name values above based on campaign type
 
 	-- Removed for D3 if @campaignType = 0 -- cash
-		set @subcategoryName = @cashSubcategoryName;
+	set @subcategoryName = @cashSubcategoryName;
 
 	-- Removed for D3 if @campaignType = 1 -- eft active
 	-- Removed for D3 	set @subcategoryName = @activeEFTSubcategoryName;
 
 
-	--declare @contactMethodDesc_Phone nvarchar (100) = 'Phone';
-	declare @contactMethodDesc_Email nvarchar (100) = 'Email';
+	declare @contactMethodDesc_Phone nvarchar (100) = 'Phone';
+	--declare @contactMethodDesc_Email nvarchar (100) = 'Email';
 	declare @contactMethodDesc_Mail nvarchar (100) = 'Mail';
 	declare @contactMethodDesc nvarchar(100);   -- this will get populated by either of the above values before creating the interaction
 
 	declare @exceptionMessage nvarchar(100) = '';
 	declare @amountException bit = 0;
-	declare @noEmailMessage nvarchar(100) = '';
+	--declare @noEmailMessage nvarchar(100) = '';
+	--declare @noPhoneMessage nvarchar(100) = '';
+	declare @noInteractionCreatedMessage nvarchar(100) = '';	-- holds the reason we didn't create an interaction, no phone, no mail, do not contact, blackout, etc.
+
 
 	declare @expectedDate date = cast(getdate() as date);
 
 	declare @solicitCodeList table (CODEDESCRIPTION nvarchar(100))
-	declare @isNoEmailOrLetters bit = 0;
+	declare @isNoMailOrLetters bit = 0;
 	declare @isNoCalls bit = 0;
+	declare @isDoNotContact bit = 0;	-- do not contact Sponsor at all (set to True also for Blackout Communication sponsors)
+
 
 	declare @interactionSummary nvarchar(100);		-- holds the value of the interaction objective, based on payment type
 	declare @interactionContactMethod nvarchar(100);-- holds the contact method which is based on solicit code
@@ -139,11 +149,19 @@ begin
 	declare @isNewSponsor bit = 0;					-- flag to keep track of when sponsor changes
 	declare @currentSponsorId uniqueidentifier = NewId();		-- holds the sponsorid that was just looped in the cursor, used to identify when sponsorId changes in the cursor loop
 	--declare @doPhoneProcess bit = 0;				-- flag that says to perform the phone interaction workflow
-	declare @createInteractions bit = 0;			-- flag to identify to create the interactions or not
+	--declare @createInteractions bit = 0;			-- flag to identify to create the interactions or not
+	declare @createMailInteraction bit = 0;			-- flag to tell whether or not to create a Mail interaction or not	
+	declare @createPhoneInteraction bit = 0;		-- flag to tell whether or not to create a Phone Interaction or not
+
 
 	declare @childrenExistForSponsor bit = 0;		-- flag identifying if this sponsor has kids for the given campaign type:
 	declare @giftFinancialSponsorId uniqueidentifier = null;  -- used to ensure this isn't a corresponding sponsor
 	declare @isCorrespondent bit = 0;				-- flag to identify if correspondent sponsorship
+	
+	-- Memphis 5-19-16 added to identify paymethod/campaign type for Sponsor: Cash, Declined EFT, Active EFT
+	declare @isAllCash bit = 0;
+	declare @isActiveEFT bit = 0;
+	declare @isDeclinedEFT bit = 0;
 
 	-- Response Category descriptions
 	declare @interactionResponseCategory_DonorContact nvarchar(100) = 'Donor Contact'
@@ -161,9 +179,6 @@ begin
 
 
 	begin try
-		-- this sproc won't process Phone campaigns, so throw an exception if that campaign type is passed in:
-	-- Removed for D3 	if @CAMPAIGNTYPE > 3
-	-- Removed for D3 		raiserror ('Unable to process the given Campaign Parameter Type of Phone.', 16, 1)
 
 		if @doNotContactSolicitCodeId is null
 			raiserror ('Unable to locate solicit code: Do Not Contact! Unable to continue.', 16, 1)
@@ -171,12 +186,9 @@ begin
 		if @affiliateOfficeId is null
 			raiserror ('Unable to locate constituency code: Affiliate Office! Unable to continue.', 16, 1)
 				
-	--		if @phoneContactMethodID is null 
-	--			RAISERROR ('Unable to locate the contact method: Phone.', 16, 1)
-		
-	-- Removed for D3 	if @emailContactMethodID is null
-	-- Removed for D3 		RAISERROR ('Unable to locate the contact method: Email.', 16, 1)
-		
+		if @phoneContactMethodID is null 
+			RAISERROR ('Unable to locate the contact method: Phone.', 16, 1)
+			
 		if @interactionCategoryId is null
 			RAISERROR ('Unable to locate the interaction category: Sponsorship Delinquency.', 16, 1)
 
@@ -386,7 +398,7 @@ begin
 		)
 	*/	order by NTD;
 		
-		select @rowCount = count(*) from @D3ResultsTable
+		--select @rowCount = count(*) from @D3ResultsTable
 
 --		print ''
 --		print 'D3 Results prior to removal of rows'
@@ -399,7 +411,20 @@ begin
 		  from @D3ResultsTable D3results
 		where NumberOfMonthsPastDue < 3 or NumberOfMonthsPastDue >= 4 
 
-		select @rowCount = count(*) from @D3ResultsTable
+		--select @rowCount = count(*) from @D3ResultsTable
+
+
+-- TESTING TESTING TESTING ****************
+--select	count(distinct paymethod) as DistinctPayMethodCnt,
+--		SPONSORID
+--from @D3ResultsTable 
+--where PAYMETHOD in (0,1,9)
+--group by SPONSORID
+
+
+-- ************** END TESTING *************
+
+
 
 --		print ''
 --		print 'D3 Results after removal of rows'
@@ -443,200 +468,358 @@ begin
 
 				if @isNewSponsor = 1 
 					begin					
-						set @createInteractions = 0;				
+						set @createMailInteraction = 1;
+						set @createPhoneInteraction = 1;
+						set @isDoNotContact = 0;
+						set @writeToExceptionLog = 0;
+
+						--set @createInteractions = 0;				
 						set @currentSponsorId = @sponsorId
 				
 						-- rebuild the solicit code stuff for the new sponsor
 						-- do the work of creating interactions based on payment method, etc.
 						insert @solicitCodeList
 						select * from dbo.USR_UFN_GET_CONSTITUENT_SOLICITCODES_LIST(@sponsorId)
-
-						if exists(select 1 from @solicitCodeList where lower(CODEDESCRIPTION) in ('do not mail', 'do not mail except magazine', 'email only - no direct mail', 'no system letters', 'blackout all communication', 'do not contact'))
-	                        begin
-								set @isNoEmailOrLetters = 1;  -- true
-	                            set @noEmailMessage = 'Solicit Code of Do Not Mail or similar';
-	                        end
-						else 
-	                        begin
-								set @isNoEmailOrLetters = 0;  -- false
-	                            set @noEmailMessage = '';
-	                        end
-
-
 						
+						-- Memphis 5-18-16: check for the correct solicit codes per new requirements
+						-- first check for do not contact or blackout, which means no interaction created at all:
+						if exists(select 1 from @solicitCodeList where lower(CODEDESCRIPTION) in ('blackout all communication', 'do not contact'))
+							begin
+								set @isDoNotContact = 1;
+								set @childrenExistForSponsor = 0;
+								set @writeToExceptionLog = 1;
+								set @noInteractionCreatedMessage = 'Blackout/Do Not Contact Solicit Code';
+							end
+						else
+							begin
+								-- check for the do not mail type of solicit codes:
+								if exists(select 1 from @solicitCodeList where lower(CODEDESCRIPTION) in ('do not mail', 'do not mail except magazine', 'email only - no direct mail', 'no system letters'))
+			                        begin
+										set @isNoMailOrLetters = 1;  -- true
+			                            set @noInteractionCreatedMessage = 'Solicit Code of Do Not Mail or similar';
+			                        end
+								else 
+			                        begin
+										set @isNoMailOrLetters = 0;  -- false
+			                            set @noInteractionCreatedMessage = '';
+			                        end
+
+								-- check for the do not call type of solicit codes:
+								if exists(select 1 from @solicitCodeList where lower(CODEDESCRIPTION) in ('do not call', 'no phone calls'))
+									begin
+										set @isNoCalls = 1; -- true
+										set @noInteractionCreatedMessage = 'Solicit Code of Do Not Call or similar';
+									end
+								else
+									begin
+										set @isNoCalls = 0; -- false
+										set @noInteractionCreatedMessage = '';
+									end
+								
 								insert @childIDList 
 								select CHILDID
 								from @D3ResultsTable 
 								where (SPONSORID = @sponsorId)
 
-						-- this sponsor may not have children for this campaigntype, so see if there are any kids in the list:
-						if exists (select 1 from @childIDList)
-							begin
-								set @childrenExistForSponsor = 1;
-								--print 'Children exist for this sponsor: ' + Cast(@payMethod as nvarchar(4)) + Cast(@isHeld as nvarchar(2));
-							end
-						else
-							begin
-								set @childrenExistForSponsor = 0;
-								--print 'No children exist for this sponsor: ' + Cast(@payMethod as nvarchar(4)) + Cast(@isHeld as nvarchar(2));
-							end
-								
+								-- this sponsor may not have children for this campaigntype, so see if there are any kids in the list:
+								if exists (select 1 from @childIDList)
+									begin
+										set @childrenExistForSponsor = 1;
+										--print 'Children exist for this sponsor: ' + Cast(@payMethod as nvarchar(4)) + Cast(@isHeld as nvarchar(2));
+									end
+								else
+									begin
+										set @childrenExistForSponsor = 0;
+										--print 'No children exist for this sponsor: ' + Cast(@payMethod as nvarchar(4)) + Cast(@isHeld as nvarchar(2));
+									end
+							end	
 					end
 		
 
 					if @childrenExistForSponsor = 1 
-						begin			
-							-- check if sponsor has valid primary address:
-							if exists (select 1 from dbo.ADDRESS 
-							            where CONSTITUENTID = @sponsorId
-										  and ISPRIMARY = 1 and DONOTMAIL = 0 
-							              and (rtrim(ltrim(ADDRESSBLOCK)) <> '' or rtrim(ltrim(CITY)) <> '') and ENDDATE = '0000')
+						begin		
+							-- Memphis 5-18-16: if this is a mail contact type, check for valid primary address:
+							if @isNoMailOrLetters = 0
 								begin
-									-- check if 2.3 Does the financial sponsor have one or more of the solicit codes: 
-									-- Do not email, No System Letters
-									if @isNoEmailOrLetters = 1
+									-- we will be creating a Mail interaction so check valid primary mail address:
+									-- check if sponsor has valid primary address:
+									if exists (select 1 from dbo.ADDRESS 
+									            where CONSTITUENTID = @sponsorId
+												  and ISPRIMARY = 1 and DONOTMAIL = 0 
+									              and (rtrim(ltrim(ADDRESSBLOCK)) <> '' or rtrim(ltrim(CITY)) <> '') and ENDDATE = '0000')
 										begin
-											--do not create email interaction
-											--set @doPhoneProcess = 1;										
-											set @createInteractions = 0;
-	                                        set @writeToExceptionLog = 1;
+											-- valid primary mail address so OK to create mail interaction:
+											set @createMailInteraction = 1;
+	                                        set @writeToExceptionLog = 0;
 										end
 									else
 	                                    begin
-									        set @createInteractions = 1;
-	                                        set @writeToExceptionLog = 0;
+									        set @createMailInteraction = 0;
+											set @noInteractionCreatedMessage = 'No valid mail address';
 	                                    end
 								end
 							else
-								-- sponsor does not have a valid primary address, so do tests for phone interaction
 								begin
-									--2.2 goes here, no address so can't create any interaction for this sponsor
-									set @createInteractions = 0;
-	                                set @writeToExceptionLog = 1;
-	                                set @noEmailMessage = 'No valid primary address';
+									set @createMailInteraction = 0;
+								end
+								
+							-- Memphis 5-18-16: if this is a phone contact type, check for valid phone:
+							if @isNoCalls = 0								
+								begin
+									-- check for at least 1 valid primary sponsor phone:
+									if dbo.UFN_PHONE_PRIMARYCOUNT(@sponsorId) >= 1
+										begin
+											set @createPhoneInteraction = 1;
+			                                set @writeToExceptionLog = 0;			                                
+										end
+									else
+										begin
+											set @createPhoneInteraction = 0;
+											set @noInteractionCreatedMessage = 'No valid/primary phone';
+										end
+								end
+							else
+								begin
+									set @createPhoneInteraction = 0;
 								end
 
 	                        -- new Memphis 6/3/13: check the number of months past due to determine if this really is delinquent 2 months or not:
 	                        -- but only if we're about to create an interaction, otherwise we don't care:
-	                        if (@createInteractions = 1 and @writeToExceptionLog = 0)
+	                        if ((@createPhoneInteraction = 1 or @createMailInteraction = 1) and @writeToExceptionLog = 0)
 	                            begin
 	                                -- number of months past due should be between 0 and 2:
 	                                if (@numberOfMonthsPastDue < 3 or @numberOfMonthsPastDue >= 4)
 	                                    begin
-											set @createInteractions = 0;
+											set @createMailInteraction = 0;
+											set @createPhoneInteraction = 0;
 											set @writeToExceptionLog = 1;
 	                                        set @amountException = 1;
-	                                        set @noEmailMessage = '';
+	                                        set @noInteractionCreatedMessage = '';
 	                                    end
 	                                else
 	                                    begin
-	                                        set @createInteractions = 1;
 	                                        set @amountException = 0;
 	                                        set @writeToExceptionLog = 0;
-	                                        set @noEmailMessage = '';
+	                                        set @noInteractionCreatedMessage = '';
 	                                    end
 	                            end
 	                        else
 	                            set @amountException = 0;
 
 
-							if @createInteractions = 1
+							if (@createPhoneInteraction = 1 or @createMailInteraction = 1)
 								begin
-									set @interactionSummary = 'D3 Campaign'
-									/* Removed for D3 
-									case when @payMethod in (0,1,9) then 'Cash – D3 Campaign'
-										when @payMethod IN (2,3) and @isHeld = 0 then 'Active EFT – D3 Campaign'
-										when @payMethod IN (2,3) and @isHeld = 1 then 'Held EFT – D3 Campaign' 
-										end;
-									*/
-									-- prevent this from creating multiple sponsor interactions per child
-									if not exists (select 1 from dbo.INTERACTION
-										where (dbo.INTERACTION.INTERACTIONSUBCATEGORYID in (select ID from dbo.INTERACTIONSUBCATEGORY 
-												where dbo.INTERACTIONSUBCATEGORY.INTERACTIONCATEGORYID = @interactionCategoryId)
-										and dbo.INTERACTION.CONSTITUENTID = @sponsorId
-										and Cast(EXPECTEDDATE as date) = CAST(getdate() as DATE)
-										and OBJECTIVE = @interactionSummary))
-										begin									
-											-- create the interactions here
-											-- set the subcategory name based on payment method if this is eft held:
-											-- (2) ='Credit card' (3) ='Direct debit' 
-	/* Removed for D3										if @campaignType = 2 or @campaignType = 3
-												set @subcategoryName = case when @payMethod = 3 then @heldEFTDirectDebitSubcategoryName
-																			when @payMethod = 2 then @heldEFTCreditCardSubcategoryName
-																	   end;
-	*/							
-											exec dbo.USR_USP_INTERACTION_GETSUBCATEGORYID @subcategoryID output, @categoryName, @subcategoryName, @raiseErrorIfNotFound_True
-									  
-											-- set these values for email interactions, since this only creates email types of interactions:
-											set @contactMethodDesc = @contactMethodDesc_Mail;
-											set @interactionOwner = null;                      
-								
-											exec dbo.USR_USP_INTERACTION_SPONSOR_ADD_PENDING 
-													@id = @sponsorInteractionId output,
-													@constituentID = @sponsorId,
-													@summary = @interactionSummary,
-													@categoryName = @categoryName,
-													@subcategoryName = @subcategoryName,
-													@expectedDate = @expectedDate,
-													@owner = @interactionOwner,
-													@contactMethodDesc = @contactMethodDesc,
-													@comment = 'D3 - Added through business process. Included in phone campaign as well.',                                                                      
-													@letterTypeDesc = '',
-													@fulfillmentStatusDesc = '',
-													@eftBrochureCode = 0,
-													@resendCode = 0,
-													@changeAgentID = @CHANGEAGENTID  
-								
-											-- add the delinquent children to the interaction just created:
-											if @sponsorInteractionId  is not null
-												begin
-													exec dbo.USR_USP_INTERACTION_SPONSOR_ADDCHILDREN 
-														@interactionID = @sponsorInteractionId,
-														@childIDList = @childIDList,
-														@changeAgentID = null
-													
-													--increment the successcounter
-													set @successCounter = @successCounter + 1;
+									-- ********************* MEMPHIS NOTE *********************************
+									-- *** NOTE ***: 5-18-16 refactor this as per new workflow D3 changes!!
+									
+									-- The following is only for Phone Interactions:
+									if @createPhoneInteraction = 1
+										begin
+											-- *** USE THIS METHOD TO DETERMINE PAYMETHOD TYPES *****
+											declare @cashCounter int = 0;
+											declare @acftiveEFTCounter int = 0;
+											declare @heldEFTCounter int = 0;
 
-													select @sponsorLookupId = LOOKUPID
-													from dbo.CONSTITUENT
-													where ID = @sponsorId;
-					
-													if @sponsorLookupId is not null
+											;with ctePaymentMethods as (
+												select	--count(paymethod) over (partition by SPONSORID) as PayMethCount,		
+													SUM(CASE WHEN (SPONSORID = @sponsorId and (paymethod) in(0,1,9)) THEN 1 ELSE 0 END ) as CashCount,
+													SUM(CASE WHEN (SPONSORID = @sponsorId and (paymethod) in(2,3) and ISHELD=0) THEN 1 ELSE 0 END ) as EFTActiveCount,
+													SUM(CASE WHEN (SPONSORID = @sponsorId and (paymethod) in(2,3) and ISHELD=1) THEN 1 ELSE 0 END ) as EFTDeclinedCount,
+													SPONSORID
+												from @D3ResultsTable 
+												--join dbo.constituent c on c.ID = SPONSORID
+												where SPONSORID = @sponsorId
+												group by SPONSORID
+											)
+											select	@cashCounter = CashCount,
+													@acftiveEFTCounter = EFTActiveCount,
+													@heldEFTCounter = EFTDeclinedCount
+											from ctePaymentMethods;
+
+											if @cashCounter > 1
+												set @isAllCash = 1;
+											else
+												set @isAllCash = 0;
+												
+											if @acftiveEFTCounter > 1
+												set @isActiveEFT = 1;
+											else
+												set @isActiveEFT = 0;
+
+											if @heldEFTCounter > 1
+												set @isDeclinedEFT = 1;
+											else
+												set @isDeclinedEFT = 0;
+
+											
+											-- Memphis 5-23-16: new rules - set Summary based on payment method type:
+											set @interactionSummary = case when @isAllCash = 1 then 'D3 Campaign Cash'
+																			when @isActiveEFT = 1 then 'D3 Campaign Active EFT'
+																			when @isDeclinedEFT = 1 then 'D3 Campaign Declined EFT' 
+																		else 'D3 Campaign' 
+																		end;
+											
+											
+											-- prevent this from creating multiple sponsor interactions per child
+											if not exists (select 1 from dbo.INTERACTION
+												where (dbo.INTERACTION.INTERACTIONSUBCATEGORYID in (select ID from dbo.INTERACTIONSUBCATEGORY 
+														where dbo.INTERACTIONSUBCATEGORY.INTERACTIONCATEGORYID = @interactionCategoryId)
+												and dbo.INTERACTION.CONSTITUENTID = @sponsorId
+												and Cast(EXPECTEDDATE as date) = CAST(getdate() as DATE)
+												and OBJECTIVE = @interactionSummary))
+												begin									
+													-- create the interactions here
+													-- set the subcategory name based on payment method if this is eft held:
+													-- (2) ='Credit card' (3) ='Direct debit' 													
+													set @subcategoryName = case when @isAllCash = 1 then 'D3 Cash'
+																			when @isActiveEFT = 1 then 'D3 Active EFT'
+																			when @isDeclinedEFT = 1 then 'D3 Declined EFT' 
+																		else 'D3 Cash' 
+																		end;
+
+													exec dbo.USR_USP_INTERACTION_GETSUBCATEGORYID @subcategoryID output, @categoryName, @subcategoryName, @raiseErrorIfNotFound_True
+											  
+													-- Memphis 5-18-16: Add ability to create Phone Interaction as well
+													set @contactMethodDesc = @contactMethodDesc_Phone;
+													set @interactionOwner = null;                      
+										
+													exec dbo.USR_USP_INTERACTION_SPONSOR_ADD_PENDING 
+															@id = @sponsorInteractionId output,
+															@constituentID = @sponsorId,
+															@summary = @interactionSummary,
+															@categoryName = @categoryName,
+															@subcategoryName = @subcategoryName,
+															@expectedDate = @expectedDate,
+															@owner = @interactionOwner,
+															@contactMethodDesc = @contactMethodDesc,
+															@comment = 'D3 - Added through business process.',                                                                      
+															@letterTypeDesc = '',
+															@fulfillmentStatusDesc = '',
+															@eftBrochureCode = 0,
+															@resendCode = 0,
+															@changeAgentID = @CHANGEAGENTID  
+										
+													-- add the delinquent children to the interaction just created:
+													if @sponsorInteractionId  is not null
 														begin
-															insert into dbo.USR_D3_CAMPAIGN_BUSINESSPROCESS_RESULTS 
-																(SPONSORLOOKUPID
-																, D3CAMPAIGNDATE
-																, CAMPAIGNTYPE
-																, D3INTERACTIONSTATUS
-																, ADDEDBYID
-																, DATEADDED
-																, CHANGEDBYID
-																, DATECHANGED
-																)
-															values 
-																(@sponsorLookupId
-																, CAST(GETDATE() as date)
-																, 0 -- Removed for D3 @CAMPAIGNTYPE
-																, @contactMethodDesc + ' interaction created'
-																, @changeAgentID
-																, @currentDate
-																, @changeAgentID
-																, @currentDate
-																);
+															exec dbo.USR_USP_INTERACTION_SPONSOR_ADDCHILDREN 
+																@interactionID = @sponsorInteractionId,
+																@childIDList = @childIDList,
+																@changeAgentID = null
+															
+															--increment the successcounter
+															set @successCounter = @successCounter + 1;
+
+															select @sponsorLookupId = LOOKUPID
+															from dbo.CONSTITUENT
+															where ID = @sponsorId;
+							
+															if @sponsorLookupId is not null
+																begin
+																	insert into dbo.USR_D3_CAMPAIGN_BUSINESSPROCESS_RESULTS 
+																		(SPONSORLOOKUPID
+																		, D3CAMPAIGNDATE
+																		, CAMPAIGNTYPE
+																		, D3INTERACTIONSTATUS
+																		, ADDEDBYID
+																		, DATEADDED
+																		, CHANGEDBYID
+																		, DATECHANGED
+																		)
+																	values 
+																		(@sponsorLookupId
+																		, CAST(GETDATE() as date)
+																		, 0 -- Removed for D3 @CAMPAIGNTYPE
+																		, @contactMethodDesc + ' interaction created'
+																		, @changeAgentID
+																		, @currentDate
+																		, @changeAgentID
+																		, @currentDate
+																		);
+																end
 														end
-												end
+												end -- if this interaction doesn't exist
+										end  -- if creating a phone interaction
+										
+										-- Memphis 5-23-16: new, it now creates a Mail campaign as well, if allowed:
+										if @createMailInteraction = 1
+											begin												
+												set @interactionSummary = 'D3 Campaign'					
+												
+												-- prevent this from creating multiple sponsor interactions per child
+												if not exists (select 1 from dbo.INTERACTION
+													where (dbo.INTERACTION.INTERACTIONSUBCATEGORYID in (select ID from dbo.INTERACTIONSUBCATEGORY 
+															where dbo.INTERACTIONSUBCATEGORY.INTERACTIONCATEGORYID = @interactionCategoryId)
+													and dbo.INTERACTION.CONSTITUENTID = @sponsorId
+													and Cast(EXPECTEDDATE as date) = CAST(getdate() as DATE)
+													and OBJECTIVE = @interactionSummary))
+													begin									
+														-- create the interactions here
+														set @subcategoryName = @cashSubcategoryName;
+
+														exec dbo.USR_USP_INTERACTION_GETSUBCATEGORYID @subcategoryID output, @categoryName, @subcategoryName, @raiseErrorIfNotFound_True
+												  
+														-- Memphis 5-18-16: Add ability to create Phone Interaction as well
+														set @contactMethodDesc = @contactMethodDesc_Mail;
+														set @interactionOwner = null;                      
+											
+														exec dbo.USR_USP_INTERACTION_SPONSOR_ADD_PENDING 
+																@id = @sponsorInteractionId output,
+																@constituentID = @sponsorId,
+																@summary = @interactionSummary,
+																@categoryName = @categoryName,
+																@subcategoryName = @subcategoryName,
+																@expectedDate = @expectedDate,
+																@owner = @interactionOwner,
+																@contactMethodDesc = @contactMethodDesc,
+																@comment = 'D3 - Added through business process. Included in phone campaign as well.',                                                                      
+																@letterTypeDesc = '',
+																@fulfillmentStatusDesc = '',
+																@eftBrochureCode = 0,
+																@resendCode = 0,
+																@changeAgentID = @CHANGEAGENTID  
+											
+														-- add the delinquent children to the interaction just created:
+														if @sponsorInteractionId  is not null
+															begin
+																exec dbo.USR_USP_INTERACTION_SPONSOR_ADDCHILDREN 
+																	@interactionID = @sponsorInteractionId,
+																	@childIDList = @childIDList,
+																	@changeAgentID = null
+																
+																--increment the successcounter
+																set @successCounter = @successCounter + 1;
+
+																select @sponsorLookupId = LOOKUPID
+																from dbo.CONSTITUENT
+																where ID = @sponsorId;
 								
-											-- if this is a Phone type of interaction, add the responses:
-											/*
-											Interaction Responses:
-												Donor Contact = No
-												EFT Received = No
-												Left Message = No
-												Message Type = None
-												Cancelled = No
-											*/
-										end  -- if this interaction doesn't exist
+																if @sponsorLookupId is not null
+																	begin
+																		insert into dbo.USR_D3_CAMPAIGN_BUSINESSPROCESS_RESULTS 
+																			(SPONSORLOOKUPID
+																			, D3CAMPAIGNDATE
+																			, CAMPAIGNTYPE
+																			, D3INTERACTIONSTATUS
+																			, ADDEDBYID
+																			, DATEADDED
+																			, CHANGEDBYID
+																			, DATECHANGED
+																			)
+																		values 
+																			(@sponsorLookupId
+																			, CAST(GETDATE() as date)
+																			, 0 -- Removed for D3 @CAMPAIGNTYPE
+																			, @contactMethodDesc + ' interaction created'
+																			, @changeAgentID
+																			, @currentDate
+																			, @changeAgentID
+																			, @currentDate
+																			);
+																	end
+															end
+													end -- if this interaction doesn't exist											
+											end -- if creating mail interaction
 								end  -- if @createInteractions = 1
 						end  -- if @childrenExistForSponsor = 1
 
@@ -647,7 +830,7 @@ begin
 						where ID = @sponsorId;
 	                    
 	                    set @exceptionMessage = case when @amountException = 1 then 'NTD and Amount Past Due do not match: ' + Cast(ISNULL(@NTD, '') as nvarchar(30)) + '  ' + Cast(@numberOfMonthsPastDue as nvarchar(5))
-	                                                 when @amountException = 0 then 'No D3 mail interaction created: ' + @noEmailMessage
+	                                                 when @amountException = 0 then 'No D3 mail interaction created: ' + @noInteractionCreatedMessage
 	                                                 end;
 				
 						if @sponsorLookupId is not null
@@ -676,7 +859,7 @@ begin
 						
 						set @exceptionCounter = @exceptionCounter + 1;
 	                    -- clear out the variables used for exception message
-	                    set @noEmailMessage = '';
+	                    set @noInteractionCreatedMessage = '';
 	                    set @amountException = 0;
 	                    set @exceptionMessage = '';
 	                    set @writeToExceptionLog = 0;
@@ -695,11 +878,12 @@ begin
 						-- reset stuff that's specific to the sponsor:	
 						delete from @solicitCodeList;
 				
-						set @isNoEmailOrLetters = 0;	-- false
-						set @isNoCalls = 0;				-- false								
+						set @isNoMailOrLetters = 0;	-- false
+						set @isNoCalls = 0;				-- false	
+						set @isDoNotContact = 0;
 						set @childrenExistForSponsor = 0;
 						--set @doPhoneProcess = 0;
-	                    set @noEmailMessage = '';
+	                    set @noInteractionCreatedMessage = '';
 	                    set @amountException = 0;
 	                    set @writeToExceptionLog = 0;
 				
@@ -717,9 +901,6 @@ begin
 		set @successCount = @successCounter;
 		set @exceptionCount = @exceptionCounter;
 
---		print ''
---		print 'Success Count = ' + cast (@successCount as nvarchar(10))
---		print 'Exception Count = ' + cast (@exceptionCounter as nvarchar(10))
 	end try
 
 	begin catch
