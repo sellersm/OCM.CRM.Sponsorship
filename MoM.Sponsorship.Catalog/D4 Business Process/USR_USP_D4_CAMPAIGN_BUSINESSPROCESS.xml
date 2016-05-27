@@ -21,11 +21,11 @@
 									Removed some old temporary commented out code
 	07-Jan-2014		CMayeda			Deleted records that were less than 4 months delinquent after inserting into @d4ResultsTable
 	28-Aug-2015		CMayeda			Changed raiserror syntax to work with SQL Server 2012 (CRM 4.0)
+	26-May-2016		Memphis			Refactored for new requirements: create both Email and Mail interactions, no checking solicit codes for Mail type.
 	-->
 
 	<CreateProcedureSQL>
 		<![CDATA[
-
 create procedure dbo.USR_USP_D4_CAMPAIGN_BUSINESSPROCESS (
 	@campaignType tinyint,
 	@changeAgentID uniqueidentifier,
@@ -73,30 +73,13 @@ begin
 	declare @statusCode_Cancelled tinyint = 4
 	declare @statusCode_Declined tinyint = 5
 
-	/* 
-	This is temporary, since the "normal" process will not need a phone call interaction
-	-- Response Category descriptions
-	declare @interactionResponseCategory_DonorContact nvarchar(100) = 'Donor Contact'
-	declare @interactionResponseCategory_LeftMessage nvarchar(100) = 'Left Message'
-	declare @interactionResponseCategory_MessageType nvarchar(100) = 'Message Type'
-	declare @interactionResponseCategory_Cancelled nvarchar(100) = 'Cancelled'
-	declare @interactionResponseCategory_EFTReceived nvarchar(100) = 'EFT Received'
-
-	declare @interactionResponse_No nvarchar(100) = 'No'
-	declare @interactionResponse_None nvarchar(100) = 'None'
-
-	
-	declare @interactionResponseID_DonorContact_No uniqueidentifier
-	declare @interactionResponseID_LeftMessage_No uniqueidentifier
-	declare @interactionResponseID_MessageType_None uniqueidentifier
-	declare @interactionResponseID_Cancelled_No uniqueidentifier
-	declare @interactionResponseID_EFTReceived_No uniqueidentifier
-	*/
-
 	-- Solicit Codes and Constituencies
 	declare @doNotContactSolicitCodeId uniqueidentifier;
+	
 	declare @doNotEmailSolicitCodeId uniqueidentifier;
-	declare @doNotMailSolicitCodeId uniqueidentifier;
+
+	-- Memphis 5-26-16: no longer checking, Pamela does it in QA:
+	--declare @doNotMailSolicitCodeId uniqueidentifier;
 	declare @noSystemLettersSolicitCodeId uniqueidentifier;
 
 	declare @affiliateOfficeConstituencyId uniqueidentifier;
@@ -120,10 +103,11 @@ begin
 	  from dbo.SOLICITCODE
 	 where lower(DESCRIPTION) = lower('Do not email')
 
-	select @doNotMailSolicitCodeId = ID
-	  from dbo.SOLICITCODE
-	 where lower(DESCRIPTION) = lower('Do not mail')
-
+-- Memphis 5-26-16: don't check these, Pamela does it with a query during QA...
+--	select @doNotMailSolicitCodeId = ID
+--	  from dbo.SOLICITCODE
+--	 where lower(DESCRIPTION) = lower('Do not mail')
+--
 	select @noSystemLettersSolicitCodeId = ID
 	  from dbo.SOLICITCODE
 	 where lower(DESCRIPTION) = lower('No system letters')
@@ -148,52 +132,17 @@ begin
 	begin try
 		exec dbo.USR_USP_INTERACTION_GETSUBCATEGORYID @subcategoryID output, @categoryName, @subcategoryName, @raiseErrorIfNotFound_True
 		
-		/* 
-		 -- ** This is temporary, since the "normal" process will not need a phone call interaction
-		exec dbo.USR_USP_INTERACTION_GETSUBCATEGORYID @subcategoryID_Phone output, @categoryName, @subcategoryName_Phone, @raiseErrorIfNotFound_True
-
-		exec dbo.USR_USP_INTERACTION_GETRESPONSEID 
-			@responseID = @interactionResponseID_DonorContact_No output,		
-			@responseCategoryName = @interactionResponseCategory_DonorContact,
-			@response = @interactionResponse_No,
-			@raiseErrorIfNotFound = 1
-
-		exec dbo.USR_USP_INTERACTION_GETRESPONSEID 
-			@responseID = @interactionResponseID_LeftMessage_No output,		
-			@responseCategoryName = @interactionResponseCategory_LeftMessage,
-			@response = @interactionResponse_No,
-			@raiseErrorIfNotFound = 1
-
-		exec dbo.USR_USP_INTERACTION_GETRESPONSEID 
-			@responseID = @interactionResponseID_MessageType_None output,		
-			@responseCategoryName = @interactionResponseCategory_MessageType,
-			@response = @interactionResponse_None,
-			@raiseErrorIfNotFound = 1
-
-		exec dbo.USR_USP_INTERACTION_GETRESPONSEID 
-			@responseID = @interactionResponseID_Cancelled_No output,		
-			@responseCategoryName = @interactionResponseCategory_Cancelled,
-			@response = @interactionResponse_No,
-			@raiseErrorIfNotFound = 1
-
-		exec dbo.USR_USP_INTERACTION_GETRESPONSEID 
-			@responseID = @interactionResponseID_EFTReceived_No output,		
-			@responseCategoryName = @interactionResponseCategory_EFTReceived,
-			@response = @interactionResponse_No,
-			@raiseErrorIfNotFound = 1
-		*/
-		
 		if @doNotContactSolicitCodeId is null
 			raiserror ('Unable to locate solicit code: Do not contact! Unable to continue.', 16, 1)
 
 		if @doNotEmailSolicitCodeId is null
 			raiserror ('Unable to locate solicit code: Do not email! Unable to continue.', 16, 1)
 
-		if @doNotMailSolicitCodeId is null
-			raiserror ('Unable to locate solicit code: Do not mmail! Unable to continue.', 16, 1)
-
-		if @noSystemLettersSolicitCodeId is null
-			raiserror ('Unable to locate solicit code: No system letters! Unable to continue.', 16, 1)
+--		if @doNotMailSolicitCodeId is null
+--			raiserror ('Unable to locate solicit code: Do not mmail! Unable to continue.', 16, 1)
+--
+--		if @noSystemLettersSolicitCodeId is null
+--			raiserror ('Unable to locate solicit code: No system letters! Unable to continue.', 16, 1)
 
 		if @affiliateOfficeConstituencyId is null
 			raiserror ('Unable to locate constituency code: Affiliate Office! Unable to continue.', 16, 1)
@@ -232,6 +181,8 @@ begin
 		declare @firstDayThreeMonthsAgo date
 		set @firstDayThreeMonthsAgo =  dateadd(month, datediff(month, 0, getdate()) - 3, 0)
 		
+		-- Memphis 5-26-16: NEED to add the payment method so we can tell if EFT or not when creating the Mail Interaction:
+		-- Use this Function:  dbo.USR_UFN_GET_PAYMENTMETHODCODE_BY_REVENUESPLITID(ACTIVESPONSORSHIP.REVENUESPLITID) as PAYMETHOD
 		declare @d4ResultsTable table (
 			sponsorshipID uniqueidentifier,
 			childID uniqueidentifier, 
@@ -243,11 +194,8 @@ begin
 			sponsorshipRevenueSplitID uniqueidentifier, 
 			sponsorshipRecurringGiftID uniqueidentifier,
 			NTD date, 
-			numberOfMonthsPastDue decimal(6,3)
-			/*
-			-- This will be removed in the future
-			lastPaymentDate date,
-			jubileeWaiverAmount money */
+			numberOfMonthsPastDue decimal(6,3),
+			payMethod int
 			);
 				
 		insert @d4ResultsTable	
@@ -261,18 +209,8 @@ begin
 				sp.REVENUESPLITID as sponsorshipRevenueSplitID,
 				rev.ID as sponsorshipRecurringGiftID,
 				case when revschedule.NEXTTRANSACTIONDATE > revschedule.ENDDATE then null else revschedule.NEXTTRANSACTIONDATE end as NTD,
-				dbo.USR_UFN_RECURRINGGIFT_GETNUMBEROFMONTHSPASTDUE(rev.ID, dateadd(day, 1, dateadd(month, datediff(month, 0, getdate()), 0))) as numberOfMonthsPastDue
-				/* old method of getting number of months past due
-				case 
-					when revschedule.FREQUENCYCODE = 3 then dbo.UFN_RECURRINGGIFT_GETPASTDUEAMOUNT(rev.ID, null) / rev.TRANSACTIONAMOUNT -- Monthly
-					when revschedule.FREQUENCYCODE = 6 then dbo.UFN_RECURRINGGIFT_GETPASTDUEAMOUNT(rev.ID, null) / ((rev.TRANSACTIONAMOUNT * 6)/12) -- Bimonthly
-					when revschedule.FREQUENCYCODE = 7 then dbo.UFN_RECURRINGGIFT_GETPASTDUEAMOUNT(rev.ID, null) / ((rev.TRANSACTIONAMOUNT * 24)/12) -- Semi-Monthly
-					when revschedule.FREQUENCYCODE = 8 then dbo.UFN_RECURRINGGIFT_GETPASTDUEAMOUNT(rev.ID, null) / ((rev.TRANSACTIONAMOUNT * 26)/12) -- Biweekly
-					when revschedule.FREQUENCYCODE = 9 then dbo.UFN_RECURRINGGIFT_GETPASTDUEAMOUNT(rev.ID, null) / ((rev.TRANSACTIONAMOUNT * 52)/12) -- Weekly
-					else -1
-				end
-				*/
-				
+				dbo.USR_UFN_RECURRINGGIFT_GETNUMBEROFMONTHSPASTDUE(rev.ID, dateadd(day, 1, dateadd(month, datediff(month, 0, getdate()), 0))) as numberOfMonthsPastDue,
+				dbo.USR_UFN_GET_PAYMENTMETHODCODE_BY_REVENUESPLITID(sp.REVENUESPLITID) as PAYMETHOD
 		  from	dbo.SPONSORSHIP sp
 		  
 		  join	dbo.REVENUESPLIT revsplit on sp.REVENUESPLITID = revsplit.ID
@@ -303,11 +241,6 @@ begin
 		   and	not exists  (select	1 
 		                       from	dbo.INTERACTION int_
 							  where	int_.INTERACTIONSUBCATEGORYID = @subcategoryID 
-/* I'm going off a specific subcategory, so I don't need the following:
-										(select ID 
-										   from dbo.INTERACTIONSUBCATEGORY int_subcat 
-							              where int_subcat.INTERACTIONCATEGORYID = @interactionCategoryId
-							                and int_subcat.ID = @subcategoryID) */
 							    and	int_.CONSTITUENTID = sponsor.ID
 							    and DATEPART(m, int_.EXPECTEDDATE) = DATEPART(m, DATEADD(m, -1, getdate()))
 			                    and YEAR(int_.EXPECTEDDATE) = YEAR(DATEADD(m, -1, getdate()))
@@ -325,20 +258,19 @@ begin
 		delete from @d4ResultsTable
 		where numberOfMonthsPastDue < 4;
 
-
+		-- Memphis 5-26-16: need to identify if any paymethods are EFT or not:
 		declare @D4Interactions table (
 			financialSponsorID uniqueidentifier,
 			financialSponsorLookupID nvarchar(100), 
 			interactionID uniqueidentifier,
-			/*phoneInteractionID uniqueidentifier,  -- ** This is temporary, since the "normal" process will not need a phone call interaction */
-			/* d4Group tinyint, */
 			hasValidPrimaryEmail bit,
 			doNotEmail bit,
 			doNotMail bit,
 			noSystemLetters bit,
 			numberOfChildren int,
 			isException bit,
-			exceptionMessage nvarchar(255)
+			exceptionMessage nvarchar(255),
+			isEFT bit
 			)
 
 		insert @D4Interactions (financialSponsorID, financialSponsorLookupID)
@@ -346,14 +278,6 @@ begin
 		
 		update	@D4Interactions
 		   set	interactionID = newid(),
-				/* phoneInteractionID = newid(),  -- ** This is temporary, since the "normal" process will not need a phone call interaction */
-				/* d4Group =	case
-								when exists (select 1 from @D4Group3Sponsors g3 where  g3.financialSponsorID = d4Int.financialSponsorID) then 3
-								when exists (select 1 from @D4Group2Sponsors g2 where  g2.financialSponsorID = d4Int.financialSponsorID) then 2
-								when exists (select 1 from @D4Group1Sponsors g1 where  g1.financialSponsorID = d4Int.financialSponsorID) then 1
-								else 0
-							end,
-				*/
 				hasValidPrimaryEmail =	case 
 											when exists (select 1 from dbo.EMAILADDRESS where DONOTEMAIL = 0 and ISPRIMARY = 1 and CONSTITUENTID = d4Int.financialSponsorID) then 1 
 											else 0 
@@ -367,40 +291,52 @@ begin
 								else 0 
 							end,
 
-				doNotMail = case
+				-- Memphis 5-26-16: not checking for valid Mail solicitation, Pamela does in QA:
+				doNotMail = 0,
+				/*case
 								when exists (select 1 from dbo.CONSTITUENTSOLICITCODE constit_sol
 								 	          where constit_sol.CONSTITUENTID = d4Int.financialSponsorID
 									            and constit_sol.SOLICITCODEID = @doNotMailSolicitCodeId 
 										        and (constit_sol.ENDDATE is null or constit_sol.ENDDATE > GETDATE())) then 1 
 								else 0 
 							end,
-				
-				noSystemLetters =	case 
+				*/
+				noSystemLetters = case 
 										when exists (select 1 from dbo.CONSTITUENTSOLICITCODE constit_sol
 							 						  where constit_sol.CONSTITUENTID = d4Int.financialSponsorID
 														and constit_sol.SOLICITCODEID = @noSystemLettersSolicitCodeId 
 														and (constit_sol.ENDDATE is null or constit_sol.ENDDATE > GETDATE())) then 1 
 										else 0 
-									end,
+									end,									
 									
-				numberOfChildren = (select count(d4Results.childID) from @d4ResultsTable d4Results where d4Int.financialSponsorID = d4Results.financialSponsorID group by d4Results.financialSponsorID )
-
+				numberOfChildren = (select count(d4Results.childID) from @d4ResultsTable d4Results where d4Int.financialSponsorID = d4Results.financialSponsorID group by d4Results.financialSponsorID),
+				
+				isEFT = case 
+							when exists (select 1 from @d4ResultsTable d4R where d4Int.financialSponsorID = d4R.financialSponsorID
+											and paymethod in(2,3)) then 1
+							else 0
+						end 
+						
 		  from	@D4Interactions d4Int
 		  
+		-- Memphis 5-26-16: need to refactor this because we must create a Mail interaction, if possible,
+		--  and also create an Email interaction, if possible.
+		-- The isException field will only be set based on the number of months past due: <4 or not.
+		-- The exceptionMessage is set the same as the isException field.
 		update	@D4Interactions
 		   set isException = case 
-								when   (noSystemLetters = 1
-									or (hasValidPrimaryEmail = 1 and doNotEmail = 1 and doNotMail = 1)
-									or (hasValidPrimaryEmail = 0 and doNotMail = 1)) then 1
+--								when   (noSystemLetters = 1
+--									or (hasValidPrimaryEmail = 1 and doNotEmail = 1 and doNotMail = 1)
+--									or (hasValidPrimaryEmail = 0 and doNotMail = 1)) then 1
 							    when exists (select 1 from @d4ResultsTable results where results.numberOfMonthsPastDue < 4 
 																					 and results.financialSponsorID = D4Int.financialSponsorID)  then 1
 								else 0
 							 end,
 							 
 				exceptionMessage =	case 
-										when noSystemLetters = 1 then 'No system letter'
-									    when hasValidPrimaryEmail = 1 and doNotEmail = 1 and doNotMail = 1 then 'Do not email and Do not Mail solicit codes'
-									    when hasValidPrimaryEmail = 0 and doNotMail = 1 then 'Do not mail solicit code'
+--										when noSystemLetters = 1 then 'No system letter'
+--									    when hasValidPrimaryEmail = 1 and doNotEmail = 1 and doNotMail = 1 then 'Do not email and Do not Mail solicit codes'
+--									    when hasValidPrimaryEmail = 0 and doNotMail = 1 then 'Do not mail solicit code'
 									    when exists (select 1 from @d4ResultsTable results where results.numberOfMonthsPastDue < 4 
 																							 and results.financialSponsorID = D4Int.financialSponsorID)  then
 											'NTD and Amount Past Due do not match'
@@ -408,7 +344,7 @@ begin
 									 end
 		  from	@D4Interactions D4Int
 							 					
-
+		-- Perform the insert here for Mail Interactions first:
 		insert into dbo.INTERACTION (
 			ID,
 			INTERACTIONSUBCATEGORYID,
@@ -430,30 +366,37 @@ begin
 			financialSponsorID,
 			@currentDate,
 			null,
-			case 
-				when hasValidPrimaryEmail = 1 and doNotEmail = 0 then @emailContactMethodID
-				else @mailContactMethodID
-			end,
-			case 
-				when hasValidPrimaryEmail = 1 and doNotEmail = 0 then 'D4 Campaign - Email'
-				else 'D4 Campaign - Mail'
-			end,
+			@mailContactMethodID,
+--			case 
+--				when hasValidPrimaryEmail = 1 and doNotEmail = 0 then @emailContactMethodID
+--				else @mailContactMethodID
+--			end,
+			'D4 Campaign - Mail',
+--			case 
+--				when hasValidPrimaryEmail = 1 and doNotEmail = 0 then 'D4 Campaign - Email'
+--				else 'D4 Campaign - Mail'
+--			end,
 			@statusCode_Pending,
 			'' /* 'D4 - Group ' + CAST (d4Group as nvarchar(1)) */
 			
 		  from @D4Interactions
 		 where isException = 0
+		 
 
-		insert dbo.USR_INTERACTIONEXTENSION (ID, ADDEDBYID, CHANGEDBYID, DATEADDED, DATECHANGED, CHILDCOUNTLETTERVERSIONCODEID)
+		-- Memphis 5-26-16: need to populate the EFTBROCHURECODE value: treat as a bit - 0 is No, 1 is Yes.
+		insert dbo.USR_INTERACTIONEXTENSION (ID, ADDEDBYID, CHANGEDBYID, DATEADDED, DATECHANGED, CHILDCOUNTLETTERVERSIONCODEID, EFTBROCHURECODE)
 		select interactionID, @changeAgentID, @changeAgentID, @currentDate, @currentDate,
 			   case numberOfChildren
 					when 0 then null
 					when 1 then @childCountLetterVersion_OneChildLetter
 					when 2 then @childCountLetterVersion_TwoChildrenLetter
 					else @childCountLetterVersion_MultipleChildrenLetter
-				end
+				end,
+				-- NEED THE PAYMENT METHOD!
+				isEFT
 		  from @D4Interactions
 		 where isException = 0
+		 
 
 		insert dbo.USR_INTERACTIONEXTENSIONCHILDREN
 				(INTERACTIONID, SPONSORSHIPOPPORTUNITYCHILDID, ADDEDBYID, CHANGEDBYID, DATEADDED, DATECHANGED)
@@ -461,7 +404,6 @@ begin
 			  from @D4Interactions d4Int
 			  join @d4ResultsTable	d4Results on d4Int.financialSponsorID = d4Results.financialSponsorID
 		 where isException = 0
-		
 		
 		insert dbo.USR_D4_CAMPAIGN_BUSINESSPROCESS_RESULTS 
 			(SPONSORLOOKUPID
@@ -485,10 +427,12 @@ begin
 			
 		  from @D4Interactions
 		  where isException = 1
-/*		  
--- ** This is temporary, since the "normal" process will not need a phone call interaction		 
--- ************************
-
+		
+		-- perform insert for Email Interaction:
+		-- must reset/recreate the interactionID value so it's not reused from above:
+		update	@D4Interactions
+		   set	interactionID = newid();
+		
 		insert into dbo.INTERACTION (
 			ID,
 			INTERACTIONSUBCATEGORYID,
@@ -503,29 +447,33 @@ begin
 			COMMENT
 		) 
 		select	
-			phoneInteractionID,
-			@subcategoryID_Phone,
+			interactionID,
+			@subcategoryID,
 			@changeAgentID,
 			@changeAgentID,
 			financialSponsorID,
 			@currentDate,
-			@callCenterManagerConstituentID,
-			@phoneContactMethodID,
-			case 
-				when d4Group = 2 then 'D4 Campaign - Phone call (group 2)' 
-				when d4Group = 3 then 'D4 Campaign - Phone call (group 3)' 
-			end,
+			null,
+			@emailContactMethodID,
+--			case 
+--				when hasValidPrimaryEmail = 1 and doNotEmail = 0 then @emailContactMethodID
+--				else @mailContactMethodID
+--			end,
+			'D4 Campaign - Email',
+--			case 
+--				when hasValidPrimaryEmail = 1 and doNotEmail = 0 then 'D4 Campaign - Email'
+--				else 'D4 Campaign - Mail'
+--			end,
 			@statusCode_Pending,
-			case 
-				when d4Group = 2 then 'D4 - Group 2 - No jubilee waiver, No 2013 payment' 
-				when d4Group = 3 then 'D4 - Group 3 - Made a 2013 payment' 
-			end
+			'' /* 'D4 - Group ' + CAST (d4Group as nvarchar(1)) */
+			
 		  from @D4Interactions
 		 where isException = 0
-		   and d4Group in (2,3)
+		 and hasValidPrimaryEmail = 1 
+		 and doNotEmail = 0
 
 		insert dbo.USR_INTERACTIONEXTENSION (ID, ADDEDBYID, CHANGEDBYID, DATEADDED, DATECHANGED, CHILDCOUNTLETTERVERSIONCODEID)
-		select phoneInteractionID, @changeAgentID, @changeAgentID, @currentDate, @currentDate,
+		select interactionID, @changeAgentID, @changeAgentID, @currentDate, @currentDate,
 			   case numberOfChildren
 					when 0 then null
 					when 1 then @childCountLetterVersion_OneChildLetter
@@ -534,17 +482,19 @@ begin
 				end
 		  from @D4Interactions
 		 where isException = 0
-		   and d4Group in (2,3)
+		 and hasValidPrimaryEmail = 1 
+		 and doNotEmail = 0
 
 		insert dbo.USR_INTERACTIONEXTENSIONCHILDREN
 				(INTERACTIONID, SPONSORSHIPOPPORTUNITYCHILDID, ADDEDBYID, CHANGEDBYID, DATEADDED, DATECHANGED)
-		select d4int.phoneInteractionID, d4Results.childID, @changeAgentID, @changeAgentID, @currentDate, @currentDate
+		select d4int.interactionID, d4Results.childID, @changeAgentID, @changeAgentID, @currentDate, @currentDate
 			  from @D4Interactions d4Int
 			  join @d4ResultsTable	d4Results on d4Int.financialSponsorID = d4Results.financialSponsorID
 		 where isException = 0
-		   and d4Group in (2,3)
+		 and hasValidPrimaryEmail = 1 
+		 and doNotEmail = 0
 		
-/* Removed		
+		
 		insert dbo.USR_D4_CAMPAIGN_BUSINESSPROCESS_RESULTS 
 			(SPONSORLOOKUPID
 			, D4CAMPAIGNDATE
@@ -559,91 +509,30 @@ begin
 			financialSponsorLookupID,
 			@currentDate,
 			@campaignType,
-			'Phone interaction created',
+			'Not created - ' + exceptionMessage,
+						/*	case 
+								when isException = 1 then exceptionMessage
+								when hasValidPrimaryEmail = 0 then 'No Valid Email'
+								when doNotEmail = 1 then 'Do Not Email'
+							end,  */
 			@changeAgentID,
 			@currentDate,
 			@changeAgentID,
 			@currentDate
 			
 		  from @D4Interactions
-		 where isException = 0
-		   and d4Group in (2,3)
-*/
-
-		insert dbo.INTERACTIONRESPONSE 
-			(INTERACTIONID, RESPONSEID, ADDEDBYID, CHANGEDBYID, DATEADDED, DATECHANGED)
-
-		select	phoneInteractionID,
-				@interactionResponseID_DonorContact_No,
-				@changeAgentID, 
-				@changeAgentID, 
-				@currentDate,
-				@currentDate
-		  from @D4Interactions
-		 where isException = 0
-		   and d4Group in (2,3)
-
-	 union all	
-
-		select	phoneInteractionID,
-				@interactionResponseID_LeftMessage_No,
-				@changeAgentID, 
-				@changeAgentID, 
-				@currentDate,
-				@currentDate
-		  from @D4Interactions
-		 where isException = 0
-		   and d4Group in (2,3)
-
-
-	 union all	
-
-		select	phoneInteractionID,
-				@interactionResponseID_MessageType_None,
-				@changeAgentID, 
-				@changeAgentID, 
-				@currentDate,
-				@currentDate
-		  from @D4Interactions
-		 where isException = 0
-		   and d4Group in (2,3)
-
-	union all	
-
-		select	phoneInteractionID,
-				@interactionResponseID_Cancelled_No,
-				@changeAgentID, 
-				@changeAgentID, 
-				@currentDate,
-				@currentDate
-		  from @D4Interactions
-		 where isException = 0
-		   and d4Group in (2,3)
-
-	union all	
-
-		select	phoneInteractionID,
-				@interactionResponseID_EFTReceived_No,
-				@changeAgentID, 
-				@changeAgentID, 
-				@currentDate,
-				@currentDate
-		  from @D4Interactions
-		 where isException = 0
-		   and d4Group in (2,3)
-
-				 
-		 
--- ************************
--- ** End of temporary code
-*/
+		  where isException = 1
+		  --or hasValidPrimaryEmail = 0
+		  --or doNotEmail = 1	  
+		---- END OF EMAIL INTERACTION **********
 		
-		set @successCount = (select count(*) from @D4Interactions where isException = 0)
-
-		set @exceptionCount = (select count(*) from @D4Interactions where isException = 1)
-
-		print @successCount 
-		print @exceptionCount 
+		
+		-- Memphis 5-26-16: REFACTOR the following to get the counts
+		set @successCount = (select count(*) from @D4Interactions where isException = 0);
+		set @exceptionCount = (select count(*) from @D4Interactions where isException = 1);
+		
+--		print @successCount 
+--		print @exceptionCount 
 		
 		commit transaction d4CampaignTransaction
 		
@@ -658,7 +547,6 @@ begin
 
 
 end
-
 
 		]]>
 	</CreateProcedureSQL>
