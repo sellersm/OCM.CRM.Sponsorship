@@ -18,6 +18,9 @@
 	28-Aug-2015		CMayeda			Changed raiserror syntax to work with SQL Server 2012 (CRM 4.0)
 	24-May-2016		Memphis			Revisions as per new requirements, now creates 2 Interactions:
 									Phone and Mail (if allowed), and now checks payment methods for Phone
+	09-Jun-2016		Memphis			Fixed bug in checking for Phone type interactions, need to also check
+									the DoNotCall bit on the Primary phone record.
+									Also changed way of dealing with payer (financial sponsor), similar to D2.
 	-->
 
 	<CreateProcedureSQL>
@@ -368,7 +371,8 @@ begin
 		insert into @D3ResultsTable
 		select childId
 			   , revenueSplitId
-			   , sponsorId
+			   --, sponsorId   Memphis 6-9-16 commented, added payer column below:
+			   , sponsor.ID
 			   , sponsorshipId
 			   , case when REVENUESCHEDULE.NEXTTRANSACTIONDATE > REVENUESCHEDULE.ENDDATE then null else REVENUESCHEDULE.NEXTTRANSACTIONDATE end as 'NTD'
 			   , payMethod
@@ -385,6 +389,8 @@ begin
 	    join	dbo.REVENUESPLIT revsplit on revenueSplitId = revsplit.ID
 	    join	dbo.REVENUE rev on revsplit.REVENUEID = rev.ID
 	    join	dbo.REVENUESCHEDULE on REVENUESCHEDULE.ID = rev.ID --REVENUE.ID		
+        -- Memphis 6-9-16 added to make sure we only have the financial (payer) sponsor:
+        join	dbo.CONSTITUENT sponsor on rev.CONSTITUENTID = sponsor.ID
 
 		where 
 	-- Removed for D3	(
@@ -456,6 +462,8 @@ begin
 		-- for each Sponsorship we have: 
 		while (@@FETCH_STATUS = 0) 
 			begin			
+				-- Memphis 6-9-16: commented out the following as we should only have the financial payer as the @sponsorId value:
+				/*		
 				 --make sure this sponsor is NOT the corresponding sponsor for this sponsorship!
 				select @giftFinancialSponsorId = dbo.UFN_SPONSORSHIP_GIFTFINANCIALSPONSORID(@sponsorshipId);
 								
@@ -465,7 +473,8 @@ begin
 						-- we don't want to process this because this is the corresponding sponsor for this sponsorship
 						GOTO SKIP_THIS_RECORD;
 					end
-
+				*/
+				
 				if @isNewSponsor = 1 
 					begin					
 						set @createMailInteraction = 1;
@@ -569,8 +578,21 @@ begin
 									-- check for at least 1 valid primary sponsor phone:
 									if dbo.UFN_PHONE_PRIMARYCOUNT(@sponsorId) >= 1
 										begin
-											set @createPhoneInteraction = 1;
-			                                set @writeToExceptionLog = 0;			                                
+											-- check for do not call bit on the primary phone record for sponsor:
+											if exists (SELECT * FROM dbo.PHONE WHERE (CONSTITUENTID = @sponsorId
+														AND (ISPRIMARY = 1
+														and DONOTCALL = 1))
+														)
+												begin
+													-- sponsor doesn't want any phone calls, so don't create phone interaction
+													set @createPhoneInteraction = 0;
+													set @noInteractionCreatedMessage = 'Do Not Call on primary phone';
+												end
+											else
+												begin
+													set @createPhoneInteraction = 1;
+													set @writeToExceptionLog = 0;
+												end
 										end
 									else
 										begin
@@ -656,7 +678,7 @@ begin
 											set @interactionSummary = case when @isAllCash = 1 then 'D3 Campaign Cash'
 																			when @isActiveEFT = 1 then 'D3 Campaign Active EFT'
 																			when @isDeclinedEFT = 1 then 'D3 Campaign Declined EFT' 
-																		else 'D3 Campaign' 
+																		else 'D3 Campaign Cash' 
 																		end;
 											
 											
