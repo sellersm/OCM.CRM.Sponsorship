@@ -38,6 +38,8 @@
 	28-Aug-2015		CMayeda			Changed raiserror syntax to work with SQL Server 2012 (CRM 4.0)
 	16-May-2016		Memphis			Revised per new workflow and biz requirements. Creates BOTH Email and Mail Interaction types.
 	19-May-2016		Memphis			Fixed 3 defects from Pamela: Summary text, not handling Do Not Email, Do Not Mail codes correctly.
+	09-Jun-2016		Memphis			Fixing bugs from Pamela: not managing the financial sponsor (payer) correctly, not excluding some
+										sponsors based on solicit codes.
 	-->
 
 
@@ -373,7 +375,8 @@ declare @D2ChildrenList table (
 		insert into @d2ResultsTable
 		select childId
 			   , revenueSplitId
-			   , sponsorId
+			   --, sponsorId   Memphis 6-9-16 commented, added payer column below:
+			   , sponsor.ID
 			   , sponsorshipId
 			   , case when REVENUESCHEDULE.NEXTTRANSACTIONDATE > REVENUESCHEDULE.ENDDATE then null else REVENUESCHEDULE.NEXTTRANSACTIONDATE end as 'NTD'
 			   , payMethod
@@ -383,39 +386,51 @@ declare @D2ChildrenList table (
 		from @D2ChildrenList
         join	dbo.REVENUESPLIT revsplit on revenueSplitId = revsplit.ID
         join	dbo.REVENUE rev on revsplit.REVENUEID = rev.ID
-        join	dbo.REVENUESCHEDULE on REVENUESCHEDULE.ID = rev.ID --REVENUE.ID		
+        join	dbo.REVENUESCHEDULE on REVENUESCHEDULE.ID = rev.ID --REVENUE.ID	
+        -- Memphis 6-9-16 added to make sure we only have the financial (payer) sponsor:
+        join	dbo.CONSTITUENT sponsor on rev.CONSTITUENTID = sponsor.ID
+        	
 		where ((case when REVENUESCHEDULE.NEXTTRANSACTIONDATE > REVENUESCHEDULE.ENDDATE then null else REVENUESCHEDULE.NEXTTRANSACTIONDATE end) 
 			between @secondDaySixMonthsAgo and @firstDayPreviousMonth
 		)
 		order by NTD;
 
-		--11/12/14 Memphis added:
-		-- before we delete, copy the records we won't process:
---		IF (EXISTS (SELECT * 
---						 FROM INFORMATION_SCHEMA.TABLES 
---						 WHERE TABLE_SCHEMA = 'dbo' 
---						 AND  TABLE_NAME = 'USR_D2_RECORDS_NOT_PROCESSED'))
---			BEGIN
---				--print 'The table already exists!';
---				--Do insert here instead of select into
---				insert into dbo.USR_D2_RECORDS_NOT_PROCESSED
---				select *
---				from @d2ResultsTable
---				where (NUMBEROFMONTHSPASTDUE < 2 or numberOfMonthsPastDue >= 3);				
---			END
---		else
---			begin
---				--print 'The table does NOT already exist!';
---				select *
---				into dbo.USR_D2_RECORDS_NOT_PROCESSED
---				from @d2ResultsTable
---				where (NUMBEROFMONTHSPASTDUE < 2 or numberOfMonthsPastDue >= 3);
---			end
-
+/*
 		-- 11/7/14 Memphis added:
 		-- remove the rows that aren't between 2 & 3 months past due:
 		delete from @d2ResultsTable
 		where (NUMBEROFMONTHSPASTDUE < 2 or numberOfMonthsPastDue >= 3);
+		
+		-- test to see why corr sponsor is included:
+		;with cteD2Results (GiftSponsorId,SponsorId,RevId,ChildId,SponsorshipId)
+		as (
+			select	dbo.UFN_SPONSORSHIP_GIFTFINANCIALSPONSORID(SPONSORSHIPID) as GiftSponsorID,
+					SPONSORID,
+					SPONSORSHIPREVENUEID,
+					CHILDID,
+					SPONSORSHIPID
+			from @d2ResultsTable 
+			--where SPONSORID in (select ID from dbo.constituent where LOOKUPID in ('520553','212383','113597'))
+		)
+		select	spon.LOOKUPID as SponId,
+				payer.LOOKUPID as PayerId,
+				sc.LOOKUPID as ScId,
+				so.LOOKUPID as ChildLookupId,
+				r.LOOKUPID as RevLookupId,
+				cte.*
+		from cteD2Results cte
+		left outer join dbo.constituent spon on spon.ID = cte.SponsorId
+		left outer join dbo.constituent payer on payer.id = cte.GiftSponsorId
+		left outer join dbo.sponsorship s on s.id = cte.SponsorshipId
+		left outer join dbo.sponsorshipcommitment sc on sc.ID = s.sponsorshipcommitmentid
+		left outer join dbo.revenue r on r.id = cte.RevId
+		left join dbo.sponsorshipopportunity so on so.id = cte.ChildId
+		--where cte.GiftSponsorId is not null
+		order by spon.LOOKUPID;
+
+-------------------------------------------------
+*/
+		
 
 		-- put the results into a cursor so we can create the necessary interactions, one-by-one and do all the various pieces of work required
 		declare d2resultsCursor cursor local fast_forward for
@@ -436,6 +451,8 @@ declare @D2ChildrenList table (
 		-- for each Sponsorship we have: 
 		while (@@FETCH_STATUS = 0) 
 			begin			
+				-- Memphis 6-9-16: commented out the following as we should only have the financial payer as the @sponsorId value:
+				/*
 				 --make sure this sponsor is NOT the corresponding sponsor for this sponsorship!
 				select @giftFinancialSponsorId = dbo.UFN_SPONSORSHIP_GIFTFINANCIALSPONSORID(@sponsorshipId);
 								
@@ -445,7 +462,8 @@ declare @D2ChildrenList table (
 						-- we don't want to process this because this is the corresponding sponsor for this sponsorship
 						GOTO SKIP_THIS_RECORD;
 					end
-
+				*/
+				
 				-- *** CHANGE TO DO NOT MAIL INSTEAD OF EMAIL ***
 				-- Memphis 5-5-16 refactor to look for solicit code of Do Not Mail instead of email
 				if @isNewSponsor = 1 
@@ -463,21 +481,21 @@ declare @D2ChildrenList table (
 						select * from dbo.USR_UFN_GET_CONSTITUENT_SOLICITCODES_LIST(@sponsorId)
 						
 						-- 1.1 and 1.2 check for 'Do not contact' and 'Blackout Communication' which eliminates Sponsor from campaign:
-						if exists(select 1 from @solicitCodeList where lower(CODEDESCRIPTION) in ('blackout all communication', 'do not contact'))
+						if exists(select 1 from @solicitCodeList where lower(CODEDESCRIPTION) in ('blackout all communication','no system letters','do not contact'))
 							begin
 								set @isDoNotContact = 1;
 								set @childrenExistForSponsor = 0;
 								set @writeToExceptionLog = 1;
-								set @noInteractionCreatedMessage = 'Blackout/Do Not Contact Solicit Code';
+								set @noInteractionCreatedMessage = 'Blackout/No Sys Letters/Do Not Contact Solicit Code';
 							end
 						else
 							begin
 								-- Memphis 5-13-16: campaign now adds both Mail and Email interactions, so check separately for each solicit code:
 								-- check for do not mail solicit codes:
-								if exists(select 1 from @solicitCodeList where lower(CODEDESCRIPTION) in ('do not mail', 'no system letters', 'email only - no direct mail'))
+								if exists(select 1 from @solicitCodeList where lower(CODEDESCRIPTION) in ('do not mail', 'email only - no direct mail'))
 		                            begin
 		    							set @isNoMailOrLetters = 1;  -- true
-		                                set @noInteractionCreatedMessage = 'Do Not Mail/No System Letters/Email only Solicit Code';
+		                                set @noInteractionCreatedMessage = 'Do Not Mail/Email only Solicit Code';
 		                            end
 								else 
 		                            begin
