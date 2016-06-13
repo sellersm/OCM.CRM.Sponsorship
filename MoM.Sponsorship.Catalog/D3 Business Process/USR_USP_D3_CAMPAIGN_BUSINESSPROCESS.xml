@@ -21,6 +21,7 @@
 	09-Jun-2016		Memphis			Fixed bug in checking for Phone type interactions, need to also check
 									the DoNotCall bit on the Primary phone record.
 									Also changed way of dealing with payer (financial sponsor), similar to D2.
+	13-Jun-2016		Memphis			Updated the subcategory value for postcard (mail) interactions to D3 Postcard.
 	-->
 
 	<CreateProcedureSQL>
@@ -91,8 +92,10 @@ begin
 	declare @interactionCategoryId uniqueidentifier;
 	select @interactionCategoryId = ID from dbo.INTERACTIONCATEGORY where LOWER(NAME) = LOWER('Sponsorship Delinquency')
 
-	declare @categoryName nvarchar(100) = 'Sponsorship Delinquency'
-	declare @cashSubcategoryName nvarchar(100) = 'Delinquent 3 Month';
+	declare @categoryName nvarchar(100) = 'Sponsorship Delinquency';
+	
+	-- Memphis 6-13-16: changed per Pamela new requirement
+	declare @cashSubcategoryName nvarchar(100) = 'D3 Postcard' -- 'Delinquent 3 Month';
 	/* 
 	Removed for D3
 	declare @heldEFTCreditCardSubcategoryName nvarchar(100) = 'Delinquent 2 Month - Credit Card';
@@ -714,7 +717,7 @@ begin
 															@expectedDate = @expectedDate,
 															@owner = @interactionOwner,
 															@contactMethodDesc = @contactMethodDesc,
-															@comment = 'D3 - Added through business process.',                                                                      
+															@comment = 'D3 - Added through business process (phone).',
 															@letterTypeDesc = '',
 															@fulfillmentStatusDesc = '',
 															@eftBrochureCode = 0,
@@ -794,7 +797,7 @@ begin
 																@expectedDate = @expectedDate,
 																@owner = @interactionOwner,
 																@contactMethodDesc = @contactMethodDesc,
-																@comment = 'D3 - Added through business process. Included in phone campaign as well.',                                                                      
+																@comment = 'D3 - Added through business process (postcard).',
 																@letterTypeDesc = '',
 																@fulfillmentStatusDesc = '',
 																@eftBrochureCode = 0,
