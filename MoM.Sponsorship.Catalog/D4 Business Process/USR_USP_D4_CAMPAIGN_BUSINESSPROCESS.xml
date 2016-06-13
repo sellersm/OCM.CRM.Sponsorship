@@ -22,6 +22,7 @@
 	07-Jan-2014		CMayeda			Deleted records that were less than 4 months delinquent after inserting into @d4ResultsTable
 	28-Aug-2015		CMayeda			Changed raiserror syntax to work with SQL Server 2012 (CRM 4.0)
 	26-May-2016		Memphis			Refactored for new requirements: create both Email and Mail interactions, no checking solicit codes for Mail type.
+	13-Jun-2016		Memphis			Changed subcategory value to D4 Cancellation Letter
 	-->
 
 	<CreateProcedureSQL>
@@ -57,7 +58,11 @@ begin
 
 
 	declare @categoryName nvarchar(100) = 'Sponsorship Delinquency'
-	declare @subcategoryName nvarchar(100) = 'Delinquent 4 Month - Cancellation Letter'
+	
+	-- Memphis 6-13-16 change subcategory value per Pamela:
+	--declare @subcategoryName nvarchar(100) = 'Delinquent 4 Month - Cancellation Letter'
+	declare @subcategoryName nvarchar(100) = 'D4 Cancellation Letter'
+	
 	/* declare @subcategoryName_Phone nvarchar(100) = 'Delinquency Reminder'   -- ** This is temporary, since the "normal" process will not need a phone call interaction */
 	
 	declare @raiseErrorIfNotFound_True bit = 1
