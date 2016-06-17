@@ -31,7 +31,7 @@
 									1.     If unable to create mail interaction AND email interaction, then create ONLY mail interaction.
 									2.     If unable to create mail interaction BUT able to create email, then create ONLY email interaction.
 									3.     If able to create mail interaction BUT unable to create email, then create ONLY mail interaction.
-	
+	17-Jun-2016		Memphis			Need to add check for Blackout All Communication and Email only - no direct mail solicit codes.
 	-->
 
 	<CreateProcedureSQL>
@@ -45,6 +45,7 @@ create procedure dbo.USR_USP_D4_CAMPAIGN_BUSINESSPROCESS (
 )
 as
 begin
+
 	if @changeAgentID is null
 		exec dbo.USP_CHANGEAGENT_GETORCREATECHANGEAGENT @changeAgentID output;
 
@@ -94,6 +95,8 @@ begin
 
 	declare @doNotMailSolicitCodeId uniqueidentifier;
 	declare @noSystemLettersSolicitCodeId uniqueidentifier;
+	declare @blackoutAllCommunicationCodeId uniqueidentifier;
+	declare @emailOnlySolicitCodeId uniqueidentifier;
 
 	declare @affiliateOfficeConstituencyId uniqueidentifier;
 	declare @preventAutoCancelConstituencyId uniqueidentifier;
@@ -119,11 +122,18 @@ begin
 	select @doNotMailSolicitCodeId = ID
 	  from dbo.SOLICITCODE
 	 where lower(DESCRIPTION) = lower('Do not mail')
+	 
+	select @emailOnlySolicitCodeId = ID
+	  from dbo.SOLICITCODE
+	 where lower(DESCRIPTION) = lower('Email only - no direct mail')
 
 	select @noSystemLettersSolicitCodeId = ID
 	  from dbo.SOLICITCODE
 	 where lower(DESCRIPTION) = lower('No system letters')
 
+	select @blackoutAllCommunicationCodeId = ID
+	  from dbo.SOLICITCODE
+	 where lower(DESCRIPTION) = lower('Blackout All Communication')
 
 	/*declare @jubileeWriteOffReasonCode nvarchar(63)
 	set @jubileeWriteOffReasonCode = N'6 - Jubilee'
@@ -152,9 +162,15 @@ begin
 
 		if @doNotMailSolicitCodeId is null
 			raiserror ('Unable to locate solicit code: Do not mmail! Unable to continue.', 16, 1)
+			
+		if @emailOnlySolicitCodeId is null
+			raiserror ('Unable to locate solicit code: Email only - no direct mail! Unable to continue.', 16, 1)
 
 		if @noSystemLettersSolicitCodeId is null
 			raiserror ('Unable to locate solicit code: No system letters! Unable to continue.', 16, 1)
+			
+		if @blackoutAllCommunicationCodeId is null
+			raiserror ('Unable to locate solicit code: Blackout All Communication! Unable to continue.', 16, 1)
 
 		if @affiliateOfficeConstituencyId is null
 			raiserror ('Unable to locate constituency code: Affiliate Office! Unable to continue.', 16, 1)
@@ -279,6 +295,7 @@ begin
 			doNotEmail bit,
 			doNotMail bit,
 			noSystemLetters bit,
+			blackoutCommunications bit,
 			numberOfChildren int,
 			--isException bit,
 			isAmountException bit,
@@ -314,7 +331,8 @@ begin
 				doNotMail = case				
 								when exists (select 1 from dbo.CONSTITUENTSOLICITCODE constit_sol
 								 	          where constit_sol.CONSTITUENTID = d4Int.financialSponsorID
-									            and constit_sol.SOLICITCODEID = @doNotMailSolicitCodeId 
+									            and (constit_sol.SOLICITCODEID = @doNotMailSolicitCodeId 
+													or constit_sol.SOLICITCODEID = @emailOnlySolicitCodeId)
 										        and (constit_sol.ENDDATE is null or constit_sol.ENDDATE > GETDATE())) then 1 
 								else 0 
 							end,
@@ -325,7 +343,15 @@ begin
 													and constit_sol.SOLICITCODEID = @noSystemLettersSolicitCodeId 
 													and (constit_sol.ENDDATE is null or constit_sol.ENDDATE > GETDATE())) then 1 
 									else 0 
-								  end,									
+								  end,
+				-- Memphis 6-17-16 added to check for blackout all comms code:
+				blackoutCommunications = case
+										when exists (select 1 from dbo.CONSTITUENTSOLICITCODE constit_sol
+						 							  where constit_sol.CONSTITUENTID = d4Int.financialSponsorID
+														and constit_sol.SOLICITCODEID = @blackoutAllCommunicationCodeId 
+														and (constit_sol.ENDDATE is null or constit_sol.ENDDATE > GETDATE())) then 1 
+										else 0 
+									end,
 									
 				numberOfChildren = (select count(d4Results.childID) from @d4ResultsTable d4Results where d4Int.financialSponsorID = d4Results.financialSponsorID group by d4Results.financialSponsorID),
 				
@@ -347,7 +373,7 @@ begin
 		   --set isException = case 
 		   -- only way we can create mail, at this point, is no solicit codes and has a valid address:
 		   set createMailInteraction = case 
-										when (noSystemLetters = 0 and hasValidPrimaryAddress = 1 and doNotMail = 0) then 1
+										when ((noSystemLetters = 0 and blackoutCommunications = 0) and hasValidPrimaryAddress = 1 and doNotMail = 0) then 1
 										else 0
 		--								when   (noSystemLetters = 1
 		--									or (hasValidPrimaryAddress = 0)
@@ -361,7 +387,7 @@ begin
 
 				-- only way we create email interaction is no solicit codes and has valid email address:
 		   		createEmailInteraction = case 
-											when (noSystemLetters = 0 and hasValidPrimaryEmail = 1 and doNotEmail = 0) then 1
+											when ((noSystemLetters = 0 and blackoutCommunications = 0) and hasValidPrimaryEmail = 1 and doNotEmail = 0) then 1
 										else 0
 --								when   (noSystemLetters = 1
 --									or (hasValidPrimaryEmail = 0)
