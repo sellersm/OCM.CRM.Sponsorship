@@ -40,6 +40,7 @@
 	19-May-2016		Memphis			Fixed 3 defects from Pamela: Summary text, not handling Do Not Email, Do Not Mail codes correctly.
 	09-Jun-2016		Memphis			Fixing bugs from Pamela: not managing the financial sponsor (payer) correctly, not excluding some
 										sponsors based on solicit codes.
+	16-Jun-2016		Memphis			Fixed bug - select children for interaction(s) created only for given campaign type.
 	-->
 
 
@@ -119,11 +120,13 @@ begin
 
 	declare @subcategoryName nvarchar(100);		-- will hold one of the category name values above based on campaign type
 
+	/*   this is now set in the cursor loop, based on payMethod value:
 	if @campaignType = 0 -- cash
 		set @subcategoryName = @cashSubcategoryName;
 
 	if @campaignType = 1 -- eft active
 		set @subcategoryName = @activeEFTSubcategoryName;
+	*/
 
 
 	-- Memphis 5-13-16: new changes this now creates BOTH email and Mail contact types of Interactions:
@@ -395,24 +398,27 @@ declare @D2ChildrenList table (
 		)
 		order by NTD;
 
-/*
+
 		-- 11/7/14 Memphis added:
 		-- remove the rows that aren't between 2 & 3 months past due:
 		delete from @d2ResultsTable
 		where (NUMBEROFMONTHSPASTDUE < 2 or numberOfMonthsPastDue >= 3);
-		
+
+/*	
 		-- test to see why corr sponsor is included:
-		;with cteD2Results (GiftSponsorId,SponsorId,RevId,ChildId,SponsorshipId)
+		;with cteD2Results (GiftSponsorId,SponsorId,RevId,ChildId,SponsorshipId,payMethod)
 		as (
 			select	dbo.UFN_SPONSORSHIP_GIFTFINANCIALSPONSORID(SPONSORSHIPID) as GiftSponsorID,
 					SPONSORID,
 					SPONSORSHIPREVENUEID,
 					CHILDID,
-					SPONSORSHIPID
+					SPONSORSHIPID,
+					payMethod
 			from @d2ResultsTable 
-			--where SPONSORID in (select ID from dbo.constituent where LOOKUPID in ('520553','212383','113597'))
+			where SPONSORID in (select ID from dbo.constituent where LOOKUPID in ('555731'))
 		)
-		select	spon.LOOKUPID as SponId,
+		select	payMethod,
+				spon.LOOKUPID as SponId,
 				payer.LOOKUPID as PayerId,
 				sc.LOOKUPID as ScId,
 				so.LOOKUPID as ChildLookupId,
@@ -426,16 +432,86 @@ declare @D2ChildrenList table (
 		left outer join dbo.revenue r on r.id = cte.RevId
 		left join dbo.sponsorshipopportunity so on so.id = cte.ChildId
 		--where cte.GiftSponsorId is not null
-		order by spon.LOOKUPID;
+		--where payer.LOOKUPID = '555731'
+		order by payer.LOOKUPID;
+		
+		--select CHILDID
+		--from @d2ResultsTable 
+		--where (SPONSORID = (select ID from dbo.constituent where LOOKUPID = '555731') -- @sponsorId
+		--and PAYMETHOD in (0,1,9))
+		
+		select	*
+		from @d2ResultsTable 
+		where SPONSORID = '59C1E18E-2003-4E00-A6BA-5F567A2BCC70'-- (select ID from dbo.constituent where LOOKUPID = '555731') -- @sponsorId
+		and 1 = case when @campaignType = 0 and PAYMETHOD in (0,1,9) then 1 
+			when @campaignType = 1 and PAYMETHOD in (2,3) and ISEFTDECLINED = 0 then 1 
+			when @campaignType = 2 and PAYMETHOD = 2 and ISEFTDECLINED = 1 then 1 
+			when @campaignType = 3 and PAYMETHOD = 3 and ISEFTDECLINED = 1 then 1 
+			else 0
+			end
 
--------------------------------------------------
+/*		
+		if @campaignType = 0  -- cash
+			begin
+				select	*
+				from @d2ResultsTable 
+				where SPONSORID = '59C1E18E-2003-4E00-A6BA-5F567A2BCC70'-- (select ID from dbo.constituent where LOOKUPID = '555731') -- @sponsorId
+				and PAYMETHOD in (0,1,9);
+			end
+
+		if @campaignType = 1  -- EFT Active
+			begin
+				select	*
+				from @d2ResultsTable 
+				where SPONSORID = '59C1E18E-2003-4E00-A6BA-5F567A2BCC70'-- (select ID from dbo.constituent where LOOKUPID = '555731') -- @sponsorId
+				and PAYMETHOD in (2,3)
+				and ISEFTDECLINED = 0;
+			end
+	
+		if @campaignType = 2  -- EFT Held Credit Card
+			begin
+				select	*
+				from @d2ResultsTable 
+				where SPONSORID = '59C1E18E-2003-4E00-A6BA-5F567A2BCC70'-- (select ID from dbo.constituent where LOOKUPID = '555731') -- @sponsorId
+				and PAYMETHOD = 2
+				and ISEFTDECLINED = 1;
+			end
+
+		if @campaignType = 3  -- EFT Held Direct Debit
+			begin
+				select	*
+				from @d2ResultsTable 
+				where SPONSORID = '59C1E18E-2003-4E00-A6BA-5F567A2BCC70'-- (select ID from dbo.constituent where LOOKUPID = '555731') -- @sponsorId
+				and PAYMETHOD = 3
+				and ISEFTDECLINED = 1;
+			end		
 */
+		--and PAYMETHOD in (2,3)
+		--and ISEFTDECLINED = 0
 		
 
+-------------------------------------------------
+
+*/		
+
 		-- put the results into a cursor so we can create the necessary interactions, one-by-one and do all the various pieces of work required
+		/*  commented out 6-15-16, see below
 		declare d2resultsCursor cursor local fast_forward for
 		select *
 		from @d2ResultsTable
+		order by SPONSORID;
+		*/
+		
+		-- Memphis 6-15-16: need to filter out records based on campaigntype that's being run:
+		declare d2resultsCursor cursor local fast_forward for
+		select	*
+		from @d2ResultsTable 
+		where 1 = case when @campaignType = 0 and PAYMETHOD in (0,1,9) then 1 
+					when @campaignType = 1 and PAYMETHOD in (2,3) and ISEFTDECLINED = 0 then 1 
+					when @campaignType = 2 and PAYMETHOD = 2 and ISEFTDECLINED = 1 then 1 
+					when @campaignType = 3 and PAYMETHOD = 3 and ISEFTDECLINED = 1 then 1 
+					else 0
+			end
 		order by SPONSORID;
 
 		open d2resultsCursor;
@@ -570,7 +646,28 @@ declare @D2ChildrenList table (
 		
 
 					if @childrenExistForSponsor = 1 
-						begin			
+						begin
+							/*
+							-- *** TESTING ONLY ***
+							-- Memphis 6-15-16:  can we find the kids for this test sponsor? what paymethods are here:
+							if @sponsorId = '59C1E18E-2003-4E00-A6BA-5F567A2BCC70'
+								begin
+									print 'this is for Sierra...';
+									print @childId;
+									print @revenueSplitId; 
+									print @sponsorId; 
+									print @sponsorshipId; 
+									print @NTD; 
+									print @payMethod; 
+									print @sponsorshipRevenueId; 
+									print @isEftDeclined; 
+									print @numberOfMonthsPastDue;
+									select *
+									from @childIDList;
+								end
+							-- *** END TESTING ONLY ***
+							*/
+							
 							-- depending on the contact type variables, need to check valid mail and email address:
 							if @isNoMailOrLetters = 0
 								begin
@@ -647,6 +744,10 @@ declare @D2ChildrenList table (
 
 							if (@createMailInteraction = 1 or @createEmailInteraction = 1)
 								begin
+									-- Memphis 6-14-16:
+									-- *** I THINK THIS IS WHERE THE PROBLEM IS ***:
+									--     Checking the payMethod for each row, but shouldn't care about it, I *THINK*
+									--     we only care about campaignType, not paymethod here:
 									set @interactionSummary = case when @payMethod in (0,1,9) then 'Cash – Delinquent 2 Months'
 										when @payMethod IN (2,3) and @isEftDeclined = 0 then 'EFT Active – Delinquent 2 Months'
 										when @payMethod IN (2,3) and @isEftDeclined = 1 then 'EFT Declined – Delinquent 2 Months' 
@@ -663,11 +764,18 @@ declare @D2ChildrenList table (
 											-- create the interactions here
 											-- set the subcategory name based on payment method if this is eft held:
 											-- (2) ='Credit card' (3) ='Direct debit' 
-											if @campaignType = 2 or @campaignType = 3
-												set @subcategoryName = case when @payMethod = 3 then @heldEFTDirectDebitSubcategoryName
-																			when @payMethod = 2 then @heldEFTCreditCardSubcategoryName
-																	   end;
-								
+											--if @campaignType = 2 or @campaignType = 3
+											--	set @subcategoryName = case when @payMethod = 3 then @heldEFTDirectDebitSubcategoryName
+											--								when @payMethod = 2 then @heldEFTCreditCardSubcategoryName
+											--						   end;
+
+											-- Memphis 6-14-16: need to set the subcategory based on paymethod, not campaign type:																	   
+											set @subcategoryName  = case when @payMethod in (0,1,9) then @cashSubcategoryName
+												when @payMethod in (2,3) and @isEftDeclined = 0 then @activeEFTSubcategoryName
+												when @payMethod = 2 and @isEftDeclined = 1 then @heldEFTCreditCardSubcategoryName 
+												when @payMethod = 3 and @isEftDeclined = 1 then @heldEFTDirectDebitSubcategoryName 
+												end;
+
 											exec dbo.USR_USP_INTERACTION_GETSUBCATEGORYID @subcategoryID output, @categoryName, @subcategoryName, @raiseErrorIfNotFound_True
 									  
 											-- Memphis 5-5-16: new changes it creates both Email & Mail type of Interactions:
@@ -894,8 +1002,7 @@ declare @D2ChildrenList table (
 	begin catch
 		exec dbo.USP_RAISE_ERROR
 		return 1;
-	end catch
-	
+	end catch	
 end
 
 		]]>

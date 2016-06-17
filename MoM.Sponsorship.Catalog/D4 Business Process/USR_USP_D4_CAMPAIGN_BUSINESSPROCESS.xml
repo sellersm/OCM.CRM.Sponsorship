@@ -23,6 +23,15 @@
 	28-Aug-2015		CMayeda			Changed raiserror syntax to work with SQL Server 2012 (CRM 4.0)
 	26-May-2016		Memphis			Refactored for new requirements: create both Email and Mail interactions, no checking solicit codes for Mail type.
 	13-Jun-2016		Memphis			Changed subcategory value to D4 Cancellation Letter
+	15-Jun-2016		Memphis			Need to create a Mail interaction, no matter what, *IF* unable to create an Email interaction!  Otherwise, follow normal rules...
+	16-Jun-2016		Memphis			New requirements from Pamela (see below):
+									Per Pamela, need to try to first create a Mail interaction and if not, then create an email
+									If unable to create an Email, then go ahead & create a Mail regardless of solicit codes!
+									The happy is to create one mail AND one email on the record. The “unable” means if the mail or email address is invalid or has solicit applied codes.
+									1.     If unable to create mail interaction AND email interaction, then create ONLY mail interaction.
+									2.     If unable to create mail interaction BUT able to create email, then create ONLY email interaction.
+									3.     If able to create mail interaction BUT unable to create email, then create ONLY mail interaction.
+	
 	-->
 
 	<CreateProcedureSQL>
@@ -83,8 +92,7 @@ begin
 	
 	declare @doNotEmailSolicitCodeId uniqueidentifier;
 
-	-- Memphis 5-26-16: no longer checking, Pamela does it in QA:
-	--declare @doNotMailSolicitCodeId uniqueidentifier;
+	declare @doNotMailSolicitCodeId uniqueidentifier;
 	declare @noSystemLettersSolicitCodeId uniqueidentifier;
 
 	declare @affiliateOfficeConstituencyId uniqueidentifier;
@@ -108,11 +116,10 @@ begin
 	  from dbo.SOLICITCODE
 	 where lower(DESCRIPTION) = lower('Do not email')
 
--- Memphis 5-26-16: don't check these, Pamela does it with a query during QA...
---	select @doNotMailSolicitCodeId = ID
---	  from dbo.SOLICITCODE
---	 where lower(DESCRIPTION) = lower('Do not mail')
---
+	select @doNotMailSolicitCodeId = ID
+	  from dbo.SOLICITCODE
+	 where lower(DESCRIPTION) = lower('Do not mail')
+
 	select @noSystemLettersSolicitCodeId = ID
 	  from dbo.SOLICITCODE
 	 where lower(DESCRIPTION) = lower('No system letters')
@@ -143,11 +150,11 @@ begin
 		if @doNotEmailSolicitCodeId is null
 			raiserror ('Unable to locate solicit code: Do not email! Unable to continue.', 16, 1)
 
---		if @doNotMailSolicitCodeId is null
---			raiserror ('Unable to locate solicit code: Do not mmail! Unable to continue.', 16, 1)
---
---		if @noSystemLettersSolicitCodeId is null
---			raiserror ('Unable to locate solicit code: No system letters! Unable to continue.', 16, 1)
+		if @doNotMailSolicitCodeId is null
+			raiserror ('Unable to locate solicit code: Do not mmail! Unable to continue.', 16, 1)
+
+		if @noSystemLettersSolicitCodeId is null
+			raiserror ('Unable to locate solicit code: No system letters! Unable to continue.', 16, 1)
 
 		if @affiliateOfficeConstituencyId is null
 			raiserror ('Unable to locate constituency code: Affiliate Office! Unable to continue.', 16, 1)
@@ -256,7 +263,6 @@ begin
 		                     where constit.CONSTITUENTID = sp.CONSTITUENTID 
 			                   and constit.CONSTITUENCYCODEID in (@affiliateOfficeConstituencyId, @preventAutoCancelConstituencyId)
 			                   and (constit.DATETO is null or constit.DATETO > GETDATE()))
-		
 
 		-- 1/7/15 csm added:
 		-- remove the rows that aren't between 4 months or more past due:
@@ -269,13 +275,17 @@ begin
 			financialSponsorLookupID nvarchar(100), 
 			interactionID uniqueidentifier,
 			hasValidPrimaryEmail bit,
+			hasValidPrimaryAddress bit,
 			doNotEmail bit,
 			doNotMail bit,
 			noSystemLetters bit,
 			numberOfChildren int,
-			isException bit,
+			--isException bit,
+			isAmountException bit,
 			exceptionMessage nvarchar(255),
-			isEFT bit
+			isEFT bit,
+			createMailInteraction bit,
+			createEmailInteraction bit			
 			)
 
 		insert @D4Interactions (financialSponsorID, financialSponsorLookupID)
@@ -287,7 +297,11 @@ begin
 											when exists (select 1 from dbo.EMAILADDRESS where DONOTEMAIL = 0 and ISPRIMARY = 1 and CONSTITUENTID = d4Int.financialSponsorID) then 1 
 											else 0 
 										end,
-				
+				hasValidPrimaryAddress = case
+											when exists (select 1 from dbo.ADDRESS where DONOTMAIL = 0 and ISPRIMARY = 1 and CONSTITUENTID = d4Int.financialSponsorID
+											              and (rtrim(ltrim(ADDRESSBLOCK)) <> '' or rtrim(ltrim(CITY)) <> '') and ENDDATE = '0000') then 1
+											else 0
+										end,
 				doNotEmail = case 
 								when exists (select 1 from dbo.CONSTITUENTSOLICITCODE constit_sol
 							 		          where constit_sol.CONSTITUENTID = d4Int.financialSponsorID
@@ -296,23 +310,22 @@ begin
 								else 0 
 							end,
 
-				-- Memphis 5-26-16: not checking for valid Mail solicitation, Pamela does in QA:
-				doNotMail = 0,
-				/*case
+				-- Memphis 6-16-16: now check for valid Mail solicitation, as we did before:
+				doNotMail = case				
 								when exists (select 1 from dbo.CONSTITUENTSOLICITCODE constit_sol
 								 	          where constit_sol.CONSTITUENTID = d4Int.financialSponsorID
 									            and constit_sol.SOLICITCODEID = @doNotMailSolicitCodeId 
 										        and (constit_sol.ENDDATE is null or constit_sol.ENDDATE > GETDATE())) then 1 
 								else 0 
 							end,
-				*/
+				
 				noSystemLetters = case 
-										when exists (select 1 from dbo.CONSTITUENTSOLICITCODE constit_sol
-							 						  where constit_sol.CONSTITUENTID = d4Int.financialSponsorID
-														and constit_sol.SOLICITCODEID = @noSystemLettersSolicitCodeId 
-														and (constit_sol.ENDDATE is null or constit_sol.ENDDATE > GETDATE())) then 1 
-										else 0 
-									end,									
+									when exists (select 1 from dbo.CONSTITUENTSOLICITCODE constit_sol
+						 						  where constit_sol.CONSTITUENTID = d4Int.financialSponsorID
+													and constit_sol.SOLICITCODEID = @noSystemLettersSolicitCodeId 
+													and (constit_sol.ENDDATE is null or constit_sol.ENDDATE > GETDATE())) then 1 
+									else 0 
+								  end,									
 									
 				numberOfChildren = (select count(d4Results.childID) from @d4ResultsTable d4Results where d4Int.financialSponsorID = d4Results.financialSponsorID group by d4Results.financialSponsorID),
 				
@@ -329,15 +342,43 @@ begin
 		-- The isException field will only be set based on the number of months past due: <4 or not.
 		-- The exceptionMessage is set the same as the isException field.
 		update	@D4Interactions
-		   set isException = case 
+		   -- add a column to identify if we'll create a Mail interaction based on doNotMail and doNotEmail, etc.			
+		   -- add a column to identify if we'll create an eMail interaction based on doNotMail and doNotEmail, etc.			
+		   --set isException = case 
+		   -- only way we can create mail, at this point, is no solicit codes and has a valid address:
+		   set createMailInteraction = case 
+										when (noSystemLetters = 0 and hasValidPrimaryAddress = 1 and doNotMail = 0) then 1
+										else 0
+		--								when   (noSystemLetters = 1
+		--									or (hasValidPrimaryAddress = 0)
+		--									or (doNotMail = 1)) then 0
+		--								when (noSystemLetters = 0
+		--									and (hasValidPrimaryAddress = 1 and doNotMail = 1)) then 0
+		--								when (noSystemLetters = 0
+		--									and (hasValidPrimaryAddress = 1 and doNotMail = 0)) then 1
+		--								else 1
+									 end,
+
+				-- only way we create email interaction is no solicit codes and has valid email address:
+		   		createEmailInteraction = case 
+											when (noSystemLetters = 0 and hasValidPrimaryEmail = 1 and doNotEmail = 0) then 1
+										else 0
 --								when   (noSystemLetters = 1
---									or (hasValidPrimaryEmail = 1 and doNotEmail = 1 and doNotMail = 1)
---									or (hasValidPrimaryEmail = 0 and doNotMail = 1)) then 1
-							    when exists (select 1 from @d4ResultsTable results where results.numberOfMonthsPastDue < 4 
-																					 and results.financialSponsorID = D4Int.financialSponsorID)  then 1
-								else 0
+--									or (hasValidPrimaryEmail = 0)
+--									or (doNotEmail = 1)) then 0								
+--								when   (noSystemLetters = 0
+--									and (hasValidPrimaryEmail = 1 and doNotEmail = 1)) then 0
+--								when   (noSystemLetters = 0
+--									and (hasValidPrimaryEmail = 1 and doNotEmail = 0)) then 1
+--								else 1
 							 end,
 							 
+				-- add a column for amountException that we can use just for the amount exception (see above):
+				isAmountException = case when exists (select 1 from @d4ResultsTable results where results.numberOfMonthsPastDue < 4 
+										and results.financialSponsorID = D4Int.financialSponsorID)  then 1
+									else 0
+								  end,
+
 				exceptionMessage =	case 
 --										when noSystemLetters = 1 then 'No system letter'
 --									    when hasValidPrimaryEmail = 1 and doNotEmail = 1 and doNotMail = 1 then 'Do not email and Do not Mail solicit codes'
@@ -348,7 +389,8 @@ begin
 										else ''
 									 end
 		  from	@D4Interactions D4Int
-							 					
+		  
+						 					
 		-- Perform the insert here for Mail Interactions first:
 		insert into dbo.INTERACTION (
 			ID,
@@ -385,7 +427,9 @@ begin
 			'' /* 'D4 - Group ' + CAST (d4Group as nvarchar(1)) */
 			
 		  from @D4Interactions
-		 where isException = 0
+		 where isAmountException = 0
+		 and (createMailInteraction = 1 
+		 	or (createEmailInteraction = 0 and createMailInteraction = 0));
 		 
 
 		-- Memphis 5-26-16: need to populate the EFTBROCHURECODE value: treat as a bit - 0 is No, 1 is Yes.
@@ -400,7 +444,9 @@ begin
 				-- NEED THE PAYMENT METHOD!
 				isEFT
 		  from @D4Interactions
-		 where isException = 0
+		 where isAmountException = 0
+		 and (createMailInteraction = 1 
+		 	or (createEmailInteraction = 0 and createMailInteraction = 0));
 		 
 
 		insert dbo.USR_INTERACTIONEXTENSIONCHILDREN
@@ -408,7 +454,9 @@ begin
 		select d4int.interactionID, d4Results.childID, @changeAgentID, @changeAgentID, @currentDate, @currentDate
 			  from @D4Interactions d4Int
 			  join @d4ResultsTable	d4Results on d4Int.financialSponsorID = d4Results.financialSponsorID
-		 where isException = 0
+		 where isAmountException = 0
+		 and (createMailInteraction = 1 
+		 	or (createEmailInteraction = 0 and createMailInteraction = 0));
 		
 		insert dbo.USR_D4_CAMPAIGN_BUSINESSPROCESS_RESULTS 
 			(SPONSORLOOKUPID
@@ -424,14 +472,16 @@ begin
 			financialSponsorLookupID,
 			@currentDate,
 			@campaignType,
-			'Not created - ' + exceptionMessage,			
+			'D4 Mail interaction not created - ' + exceptionMessage,			
 			@changeAgentID,
 			@currentDate,
 			@changeAgentID,
 			@currentDate
 			
 		  from @D4Interactions
-		  where isException = 1
+		  where isAmountException = 1
+		  and (createMailInteraction = 1 
+	 		or (createEmailInteraction = 0 and createMailInteraction = 0));
 		
 		-- perform insert for Email Interaction:
 		-- must reset/recreate the interactionID value so it's not reused from above:
@@ -473,9 +523,8 @@ begin
 			'' /* 'D4 - Group ' + CAST (d4Group as nvarchar(1)) */
 			
 		  from @D4Interactions
-		 where isException = 0
-		 and hasValidPrimaryEmail = 1 
-		 and doNotEmail = 0
+		 where isAmountException = 0
+		 and createEmailInteraction = 1;
 
 		insert dbo.USR_INTERACTIONEXTENSION (ID, ADDEDBYID, CHANGEDBYID, DATEADDED, DATECHANGED, CHILDCOUNTLETTERVERSIONCODEID)
 		select interactionID, @changeAgentID, @changeAgentID, @currentDate, @currentDate,
@@ -486,18 +535,16 @@ begin
 					else @childCountLetterVersion_MultipleChildrenLetter
 				end
 		  from @D4Interactions
-		 where isException = 0
-		 and hasValidPrimaryEmail = 1 
-		 and doNotEmail = 0
+		 where isAmountException = 0
+		 and createEmailInteraction = 1;
 
 		insert dbo.USR_INTERACTIONEXTENSIONCHILDREN
 				(INTERACTIONID, SPONSORSHIPOPPORTUNITYCHILDID, ADDEDBYID, CHANGEDBYID, DATEADDED, DATECHANGED)
 		select d4int.interactionID, d4Results.childID, @changeAgentID, @changeAgentID, @currentDate, @currentDate
 			  from @D4Interactions d4Int
 			  join @d4ResultsTable	d4Results on d4Int.financialSponsorID = d4Results.financialSponsorID
-		 where isException = 0
-		 and hasValidPrimaryEmail = 1 
-		 and doNotEmail = 0
+		 where isAmountException = 0
+		 and createEmailInteraction = 1;
 		
 		
 		insert dbo.USR_D4_CAMPAIGN_BUSINESSPROCESS_RESULTS 
@@ -514,7 +561,7 @@ begin
 			financialSponsorLookupID,
 			@currentDate,
 			@campaignType,
-			'Not created - ' + exceptionMessage,
+			'D4 Email not created - ' + exceptionMessage,
 						/*	case 
 								when isException = 1 then exceptionMessage
 								when hasValidPrimaryEmail = 0 then 'No Valid Email'
@@ -526,18 +573,19 @@ begin
 			@currentDate
 			
 		  from @D4Interactions
-		  where isException = 1
+		  where isAmountException = 1
+		  and createEmailInteraction = 1;
 		  --or hasValidPrimaryEmail = 0
 		  --or doNotEmail = 1	  
 		---- END OF EMAIL INTERACTION **********
 		
 		
 		-- Memphis 5-26-16: REFACTOR the following to get the counts
-		set @successCount = (select count(*) from @D4Interactions where isException = 0);
-		set @exceptionCount = (select count(*) from @D4Interactions where isException = 1);
+		set @successCount = (select count(*) from @D4Interactions where isAmountException = 0);
+		set @exceptionCount = (select count(*) from @D4Interactions where isAmountException = 1);
 		
---		print @successCount 
---		print @exceptionCount 
+		--print @successCount 
+		--print @exceptionCount 
 		
 		commit transaction d4CampaignTransaction
 		
@@ -549,7 +597,6 @@ begin
 		exec dbo.USP_RAISE_ERROR
 		return 1;
 	end catch
-
 
 end
 
