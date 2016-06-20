@@ -783,6 +783,8 @@
     </EmbeddedResource>
     <EmbeddedResource Include="DataLists\CommitmentLineHistory.RecurringGifts.DataList.xml" />
     <EmbeddedResource Include="DataLists\RecurringGiftLine.DataList.xml" />
+    <EmbeddedResource Include="D2 Business Process\D2Deployment.RecordOperation.xml" />
+    <EmbeddedResource Include="D2 Business Process\USR_USP_DEPLOY_D2_CHANGES.xml" />
     <Content Include="Global Changes\MergeSponsorshipCommitmentRecurringGifts.GlobalChange.xml" />
     <EmbeddedResource Include="View Forms\RecurringGiftLineDetail.View.xml" />
     <EmbeddedResource Include="Query Views\RGL.Query.xml" />
