@@ -1,0 +1,59 @@
+﻿<SQLStoredProcedureSpec
+	xmlns="bb_appfx_sqlstoredprocedure"
+	xmlns:common="bb_appfx_commontypes" 
+	ID="0f1793bb-1e5a-4880-bd84-671f05f5feb5"
+	Name="USR_USP_DEPLOY_D2_CHANGES"
+	Description="Makes deployment changes to D2 biz process table."
+	Author="Memphis Sellers"
+	SPName="USR_USP_DEPLOY_D2_CHANGES"
+	GrantServiceRolePermission="true"
+	>
+
+	<CreateProcedureSQL>
+		<![CDATA[
+create procedure dbo.USR_USP_DEPLOY_D2_CHANGES
+as
+begin
+	begin try
+		begin transaction updateD2TableTransaction
+			--Create SQL script to remove the Phone Campaign:
+			delete
+			from dbo.USR_D2_CAMPAIGN_BUSINESSPROCESS
+			where campaigntype = 4 
+
+			--Create SQL script to update remaining rows in D2 Biz Process table:
+			 update dbo.USR_D2_CAMPAIGN_BUSINESSPROCESS
+			set [NAME] = 'Cash only',
+				[DESCRIPTION] = 'Cash only campaign'
+			where campaigntype = 0;
+
+			update dbo.USR_D2_CAMPAIGN_BUSINESSPROCESS
+			set [NAME] = 'EFT Active',
+				[DESCRIPTION] = 'EFT Active campaign'
+			where campaigntype = 1;
+
+			update dbo.USR_D2_CAMPAIGN_BUSINESSPROCESS
+			set [NAME] = 'EFT Declined Credit Card',
+				[DESCRIPTION] = 'EFT Declined CC campaign'
+			where campaigntype = 2;
+
+			update dbo.USR_D2_CAMPAIGN_BUSINESSPROCESS
+			set [NAME] = 'EFT Declined Direct Debit',
+				[DESCRIPTION] = 'EFT Declined Direct Debit campaign'
+			where campaigntype = 3;
+		
+		commit transaction updateD2TableTransaction
+		
+	end try
+
+	begin catch
+		rollback transaction updateD2TableTransaction
+		exec dbo.USP_RAISE_ERROR
+		return 1;
+	end catch	
+end
+
+		]]>
+	</CreateProcedureSQL>
+
+</SQLStoredProcedureSpec>

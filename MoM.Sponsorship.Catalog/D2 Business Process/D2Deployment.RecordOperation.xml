@@ -1,0 +1,92 @@
+﻿<RecordOperationSpec 
+	xmlns="bb_appfx_recordoperation"
+	xmlns:common="bb_appfx_commontypes" 
+	ID="970bbf6c-76df-4a2d-9e0e-255df32e34bc" 
+	Name="Update D2 Biz Process Table for Deployment-TEMP" 
+	Description="Updates D2 Biz Process Table for Deployment-TEMP"
+	Author="Memphis Sellers"
+	OperationType="Update"
+	RecordType="D2 Business Process"
+	common:SecurityUIFolder="Sponsorship"
+	>
+
+	<!-- 
+	Remarks:    Used only as a temporary way to update the D2 biz process parameter tablez:
+				USR_D2_CAMPAIGN_BUSINESSPROCESS
+
+	History:
+	Date            Modified By     Comments
+	20-Jun-2016		Memphis			Initial Version.  
+	-->
+	
+
+	<SPRecord>
+		<SPOperationImplementation SPName="USR_USP_UPDATE_D2_BUSINESS_PROCESS_TABLE_FORDEPLOYMENT">
+			<common:CreateProcedureSQL>
+				<![CDATA[
+create procedure dbo.USR_USP_UPDATE_D2_BUSINESS_PROCESS_TABLE_FORDEPLOYMENT
+(
+	@ID uniqueidentifier,
+	@CHANGEAGENTID uniqueidentifier
+)
+as begin
+
+	set @ID = newid();
+	set @CHANGEAGENTID = null;
+	
+	exec dbo.USR_USP_DEPLOY_D2_CHANGES
+	
+	/*
+	begin try
+		begin transaction updateD2TableTransaction
+			--Create SQL script to remove the Phone Campaign:
+			delete
+			from dbo.USR_D2_CAMPAIGN_BUSINESSPROCESS
+			where campaigntype = 4 
+
+			--Create SQL script to update remaining rows in D2 Biz Process table:
+			 update dbo.USR_D2_CAMPAIGN_BUSINESSPROCESS
+			set [NAME] = 'Cash only',
+				[DESCRIPTION] = 'Cash only campaign'
+			where campaigntype = 0;
+
+			update dbo.USR_D2_CAMPAIGN_BUSINESSPROCESS
+			set [NAME] = 'EFT Active',
+				[DESCRIPTION] = 'EFT Active campaign'
+			where campaigntype = 1;
+
+			update dbo.USR_D2_CAMPAIGN_BUSINESSPROCESS
+			set [NAME] = 'EFT Declined Credit Card',
+				[DESCRIPTION] = 'EFT Declined CC campaign'
+			where campaigntype = 2;
+
+			update dbo.USR_D2_CAMPAIGN_BUSINESSPROCESS
+			set [NAME] = 'EFT Declined Direct Debit',
+				[DESCRIPTION] = 'EFT Declined Direct Debit campaign'
+			where campaigntype = 3;
+		
+		commit transaction updateD2TableTransaction
+		
+		return 0;
+	
+	end try
+
+	begin catch
+		rollback transaction updateD2TableTransaction
+		exec dbo.USP_RAISE_ERROR
+		return 1;
+	end catch	
+	*/
+	
+end
+				]]>
+			</common:CreateProcedureSQL>
+		</SPOperationImplementation>
+	</SPRecord>
+
+	<!-- optionally, offer a prompt before executing the record operation -->
+	<Prompt>
+		<StandardPrompt Text="Are you sure you want to continue?" />
+	</Prompt>
+
+</RecordOperationSpec>
