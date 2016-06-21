@@ -32,6 +32,7 @@
 									2.     If unable to create mail interaction BUT able to create email, then create ONLY email interaction.
 									3.     If able to create mail interaction BUT unable to create email, then create ONLY mail interaction.
 	17-Jun-2016		Memphis			Need to add check for Blackout All Communication and Email only - no direct mail solicit codes.
+	21-Jun-2016		Memphis			Remove the population of EFT Brochure per new requirement.
 	-->
 
 	<CreateProcedureSQL>
@@ -468,7 +469,9 @@ begin
 					else @childCountLetterVersion_MultipleChildrenLetter
 				end,
 				-- NEED THE PAYMENT METHOD!
-				isEFT
+				-- New requirement: no longer need EFT Brochure set:
+				--isEFT
+				0
 		  from @D4Interactions
 		 where isAmountException = 0
 		 and (createMailInteraction = 1 

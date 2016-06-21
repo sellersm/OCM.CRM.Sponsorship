@@ -41,6 +41,8 @@
 	09-Jun-2016		Memphis			Fixing bugs from Pamela: not managing the financial sponsor (payer) correctly, not excluding some
 										sponsors based on solicit codes.
 	16-Jun-2016		Memphis			Fixed bug - select children for interaction(s) created only for given campaign type.
+	21-Jun-2016		Memphis			New requirement: For MAIL type Interactions ONLY:
+										EFT Brochure field set to YES when paymethod is Cash.
 	-->
 
 
@@ -784,7 +786,13 @@ declare @D2ChildrenList table (
 													-- create the Mail type of Interaction:
 													set @contactMethodDesc = @contactMethodDesc_Mail;											
 													set @interactionOwner = null;                      
-										
+
+													-- Memphis 6-21-16 new requirement to set eftbrochure field if cash paymethod:
+													declare @includeEftBrochure int = (case when @payMethod in (0,1,9) then 1 
+																							else 0 
+																						end);
+
+
 													exec dbo.USR_USP_INTERACTION_SPONSOR_ADD_PENDING 
 															@id = @sponsorInteractionId output,
 															@constituentID = @sponsorId,
@@ -797,7 +805,7 @@ declare @D2ChildrenList table (
 															@comment = 'D2 Campaign',                                                                      
 															@letterTypeDesc = '',
 															@fulfillmentStatusDesc = '',
-															@eftBrochureCode = 0,   
+															@eftBrochureCode = @includeEftBrochure,   
 															@resendCode = 0,
 															@changeAgentID = @CHANGEAGENTID  
 										
