@@ -11,6 +11,15 @@
 	common:SecurityUIFolder="Sponsorship"
 	>
 
+	<!-- 
+	Remarks:    
+
+	History:
+	Date            Modified By     Comments
+	28-Jun-2016		Memphis			Remove the hard-coded subcategory value that changed with latest D4 changes.
+	-->	
+	
+	
 	<!-- define the view used to return data for the query -->
 	<ViewImplementation ViewName="USR_V_QUERY_D4SPONSORSHIPSTOCANCEL">
 		<ViewSQL>
@@ -43,7 +52,7 @@
 
 	 where	s.STATUSCODE = 1 -- Active
 	   and	lower (cat.NAME) = lower ('Sponsorship Delinquency')
-	   and  lower (subcat.NAME) = lower ('Delinquent 4 Month - Cancellation Letter')
+	   and  lower (subcat.NAME) = lower ('D4 Cancellation Letter')
  	   and	not exists (select 1 
 		                  from dbo.CONSTITUENCY constit 
 		                  join dbo.CONSTITUENCYCODE ccode on constit.CONSTITUENCYCODEID = ccode.ID
