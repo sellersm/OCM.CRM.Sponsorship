@@ -50,13 +50,13 @@
     <OptionInfer>On</OptionInfer>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Blackbaud.AppFx.Server">
-      <HintPath>..\..\..\References\Third Party\Blackbaud.AppFx.Server.dll</HintPath>
-      <Private>False</Private>
+    <Reference Include="Blackbaud.AppFx.Server, Version=4.0.5.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\References\Third Party\4.0.5\Blackbaud.AppFx.Server.dll</HintPath>
     </Reference>
-    <Reference Include="Blackbaud.AppFx.XmlTypes">
-      <HintPath>..\..\..\References\Third Party\Blackbaud.AppFx.XmlTypes.dll</HintPath>
-      <Private>False</Private>
+    <Reference Include="Blackbaud.AppFx.XmlTypes, Version=4.0.5.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\References\Third Party\4.0.5\Blackbaud.AppFx.XmlTypes.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
