@@ -16,6 +16,9 @@
 	16-Mar-2016		Memphis			Initial version
 	17-Mar-2016		Memphis			Added the Action for Go to recurring gift in the RGL Data list section.
 	06-Apr-2016		Memphis			Added AddAction sections to get the Tasks under the Admin section of taskbar on left.
+	25-Jul-2016		Memphis			Changed PageID and Tab ID so it loads on the Constituent Page: new for v3.0-4.0
+									Constituent Page ID = 88159265-2b7e-4c7b-82a2-119d01ecd40f
+									Sponsorships Tab ID = 416dc73b-1209-4a0b-a939-c367f54b4f1d
 	-->
 
 	<!-- Note:  A page can optionally have a view form associated with it as the "Expression form".  While implemented as a view data form,
@@ -28,7 +31,7 @@
 	
 	<AlterExistingPages>		
 		<AlterPages>
-			<AlterPage PageID="35740996-3dbb-4414-903f-c992d7504afb" >				
+			<AlterPage PageID="88159265-2b7e-4c7b-82a2-119d01ecd40f" >				
 				<AlterTabs>
 					<!-- Sponsorships Tab -->
 					<AlterTab TabID="416dc73b-1209-4a0b-a939-c367f54b4f1d">						
@@ -36,9 +39,9 @@
 							<!-- add the RGL data list section to Sponsorship tab -->
 							<AddSection Sequence="99">
 								<Section ID="f974923c-e772-4e60-922b-82ef6527fb53" Caption="RGL-Recurring Gift Line" >
-									<DataList ID="749a0a07-a782-4729-8538-4b714b36c527" AutoDisplayFilters="true">
+									<DataList ID="749a0a07-a782-4729-8538-4b714b36c527" AutoDisplayFilters="true" AutoLoadList="false">
 										<RenderStyle>
-											<RelationalView IDField="ID" ParentField="PARENTID" SequenceField="COMMITMENTSEQUENCE">
+											<RelationalView IDField="ID" ParentField="PARENTID" SequenceField="COMMITMENTSEQUENCE" ExpandFirstLevelNodes="false" ExpandAllOnLoad="false" HideCollapseAll="true" HideExpandAll="true" >
 												<DetailViewForm ViewDataFormID="afa8948d-6ef5-419b-abe1-462237f63b8b" />
 											</RelationalView>
 										</RenderStyle>
@@ -53,6 +56,16 @@
 													<SectionField>RECURRINGGIFTID</SectionField>
 												</ActionContext>
 											</ShowPage>
+										</Action>
+										<Action ID="980dc510-7e0f-43d1-9877-1ee4eaf16dab" Caption="Refresh RGL" ImageKey="RES:RecordOperationSpec">
+											<ExecuteRecordOperation RecordOperationID="af9999fc-a36a-448f-a086-7b4a10f1f301" xmlns="bb_appfx_commontypes">
+												<ActionContext>
+													<PageContextID />
+												</ActionContext>
+												<PostActionEvent>
+													<RefreshPage />
+												</PostActionEvent>
+											</ExecuteRecordOperation>
 										</Action>
 									</Actions>
 								</Section>
