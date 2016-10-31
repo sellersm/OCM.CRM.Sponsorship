@@ -21,6 +21,15 @@
 									the user can actually use the credit card from a different constituent/payer/donor. This will be called
 									from a new Action Task called "Apply different Credit Card"
 	28-Aug-2015		CMayeda			Changed raiserror syntax to work with SQL Server 2012 (CRM 4.0)
+	24-Oct-2016		Memphis			Insert this change into the new RG Amendment table so this change displays in the built-in
+									RG Activity Datalist:  new for 4.0
+									need to get these values: Previous and Current to insert into RG Amendment table:
+									CARDHOLDERNAME	
+									CREDITTYPECODEID						
+									CREDITCARDPARTIALNUMBER	
+									EXPIRESON
+									CREDITTYPECODEID
+									PREVIOUSCREDITTYPECODEID
 	-->
 	
 	<CreateProcedureSQL>
@@ -43,7 +52,24 @@ begin
 		declare @CREDITCARDID uniqueidentifier;
 		declare @origSponsorId uniqueidentifier;
 		declare @ccIsValid bit = 0;
-		declare @paymentMethodCode int
+		declare @paymentMethodCode int;
+		declare @CHANGEDATE date = getdate();
+		declare @CHANGEAGENTID uniqueidentifier = null;
+		
+		if @CHANGEAGENTID is null
+			exec dbo.USP_CHANGEAGENT_GETORCREATECHANGEAGENT @CHANGEAGENTID output;
+
+		-- added for the insert into RG Amendment table:
+		declare @CARDHOLDERNAME nvarchar(255);
+		declare @CREDITTYPECODEID uniqueidentifier;
+		declare @CREDITCARDPARTIALNUMBER nvarchar(4);
+		declare @EXPIRESON dbo.UDT_FUZZYDATE;
+		declare @CARDHOLDERNAME_PREVIOUS nvarchar(255);
+		declare @CREDITTYPECODEID_PREVIOUS uniqueidentifier;
+		declare @CREDITCARDPARTIALNUMBER_PREVIOUS nvarchar(4);
+		declare @EXPIRESON_PREVIOUS dbo.UDT_FUZZYDATE;
+		declare @CURRENTPAYMENTMETHODCODE tinyint; -- must be 2
+		declare @PREVIOUSPAYMENTMETHODCODE tinyint;
 		
 		-- if the override flag isn't set, then check that the cc belongs to the same person
 		if @overrideConstituentCheck = 0
@@ -93,8 +119,14 @@ begin
 			begin
 				-- validate the credit card for the given revenue lookupid
 				-- get the cc info
+				-- Memphis 10-24: need to get the additional values for the RG Amendment insert below
+				--		These will be used as the current/existing column values as these are the 
+				--		existing values before the Update change below...
 				select  @CREDITCARDID = CREDITCARDID, 
-						@ccExpiresOn = cc.EXPIRESON
+						@ccExpiresOn = cc.EXPIRESON,
+						@CARDHOLDERNAME = cc.CARDHOLDERNAME,
+						@CREDITTYPECODEID = cc.CREDITTYPECODEID,
+						@CREDITCARDPARTIALNUMBER = cc.CREDITCARDPARTIALNUMBER
 				from dbo.REVENUE r
 				join dbo.REVENUESCHEDULE rs on rs.ID = r.ID
 				left join dbo.CREDITCARD cc on rs.CREDITCARDID = cc.ID
@@ -122,7 +154,10 @@ begin
 						-- ensure that the payment method is 2 (Credit Card)
 						select @paymentMethodCode = PAYMENTMETHODCODE
 						from dbo.REVENUEPAYMENTMETHOD
-						where REVENUEID = @revenueId
+						where REVENUEID = @revenueId;
+						
+						-- Memphis 10-24: need to capture the existing/current value for the RG Amendment insert later below
+						set @PREVIOUSPAYMENTMETHODCODE = @paymentMethodCode;
 				
 						if @paymentMethodCode <> 2
 							begin
@@ -133,12 +168,59 @@ begin
 								where REVENUEID = @revenueId
 							end
 				
+						-- Memphis 10-24: need to get the additional values for the RG Amendment insert below
+						--		These will be used as the Previous column values as these are the 
+						--		existing values before the Update change below...
+						select  @CARDHOLDERNAME_PREVIOUS = cc.CARDHOLDERNAME,
+								@CREDITTYPECODEID_PREVIOUS = cc.CREDITTYPECODEID,
+								@CREDITCARDPARTIALNUMBER_PREVIOUS = cc.CREDITCARDPARTIALNUMBER,
+								@EXPIRESON_PREVIOUS = cc.EXPIRESON
+						from dbo.REVENUESCHEDULE rs
+						left join dbo.CREDITCARD cc on rs.CREDITCARDID = cc.ID
+						where rs.ID = @revenueId
+
 						-- do the copy here
 						--print 'copying the Credit Card info to the user-entered Recurring Gift!';
 						update dbo.REVENUESCHEDULE
 						set CREDITCARDID = @CREDITCARDID
 						where ID = @revenueId
-						--print 'CC updated!';
+						
+						-- new for 4.0 need to update the RGAmendment table:
+						-- get the existing and previous values for the insert:
+						-- PAYMENTMETHODCODE must be 2
+						-- PREVIOUSPAYMENTMETHODCODE
+						insert into dbo.RECURRINGGIFTAMENDMENT(ID,
+							FINANCIALTRANSACTIONID,
+							AMENDMENTTYPECODE,
+							CREDITCARDPARTIALNUMBER,
+							PREVIOUSCREDITCARDPARTIALNUMBER,
+							EXPIRESON,
+							PREVIOUSEXPIRESON,
+							CREDITTYPECODEID,
+							PREVIOUSCREDITTYPECODEID,
+							PAYMENTMETHODCODE,
+							PREVIOUSPAYMENTMETHODCODE,
+							DATE,
+							ADDEDBYID,
+							CHANGEDBYID,
+							DATEADDED,
+							DATECHANGED)
+                        values (newid(),
+							@revenueId,
+							3,
+							@CREDITCARDPARTIALNUMBER,
+							@CREDITCARDPARTIALNUMBER_PREVIOUS,
+							@ccExpiresOn,
+							@EXPIRESON_PREVIOUS,
+							@CREDITTYPECODEID,
+							@CREDITTYPECODEID_PREVIOUS,
+							2,
+							@PREVIOUSPAYMENTMETHODCODE,
+							@CHANGEDATE,
+							@CHANGEAGENTID,
+							@CHANGEAGENTID,
+							@CHANGEDATE,
+							@CHANGEDATE);
 					end
 				else
 					--print 'CC Invalid, cannot continue...'
