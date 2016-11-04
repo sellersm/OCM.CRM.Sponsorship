@@ -35,6 +35,18 @@
 						<AlterSections>
 							<AlterDataFormSection DataFormID="bafca6f5-4cdb-4173-aece-113713d38bfb" SectionID="e88ccbda-5f94-4f31-a58a-b46036cec17b" >
 								<AlterActions>
+                  <AddAction>
+                    <Action ID="8432d14d-33ba-4a4d-bd6e-e674cc762796" Caption="Delete pay schedule" ImageKey="res:delete">
+                      <ExecuteRecordOperation RecordOperationID="f02e2841-fb37-403b-a3aa-50206b4c0bb0" xmlns="bb_appfx_commontypes">
+                        <ActionContext>
+                          <PageExpressionField>REVENUEID</PageExpressionField>
+                        </ActionContext>
+                        <PostActionEvent>
+                          <RefreshSection />
+                        </PostActionEvent>
+                      </ExecuteRecordOperation>
+                    </Action>
+                  </AddAction>
 									<AddAction>
 										<Action ID="51deac10-f6dd-49d4-8ece-1247bae470ac" Caption="Change EFT decline" ImageKey="CATALOG:Blackbaud.AppFx.Marketing.Catalog,Blackbaud.AppFx.Marketing.Catalog.addremove.png">
 											<ExecuteRecordOperation RecordOperationID="56e2b7ec-6669-480d-8fa0-5551e7bfec08" xmlns="bb_appfx_commontypes">
