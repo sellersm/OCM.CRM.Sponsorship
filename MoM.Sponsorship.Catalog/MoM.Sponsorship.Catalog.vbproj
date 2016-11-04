@@ -608,7 +608,9 @@
     <EmbeddedResource Include="EFT Decline Batch Process\DeclinedEFTTab.RecordOperation.xml" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="RecordOperations\SwitchRecurringGift.EFTDeclinedFieldValue.RecordOperation.xml" />
+    <EmbeddedResource Include="RecordOperations\SwitchRecurringGift.EFTDeclinedFieldValue.RecordOperation.xml">
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="DataLists\CommitmentLineHistory.Commitments.DataList.xml">
