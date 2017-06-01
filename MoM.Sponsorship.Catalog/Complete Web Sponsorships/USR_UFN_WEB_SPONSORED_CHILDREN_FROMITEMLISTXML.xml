@@ -1,0 +1,33 @@
+﻿<SQLFunctionSpec
+	xmlns="bb_appfx_sqlfunction"
+	xmlns:common="bb_appfx_commontypes" 
+	ID="961ca026-1692-4c40-ad09-3409961bced8"
+	Name="USR_UFN_WEB_SPONSORED_CHILDREN_FROMITEMLISTXML"
+	Description="Gets sponsored children for sponsor from add customizations to web sponsorships form."
+	Author="Mark Sellers"
+	DBFunctionName="USR_UFN_WEB_SPONSORED_CHILDREN_FROMITEMLISTXML"
+	>
+
+	<CreateFunctionSQL>
+		<![CDATA[
+create function dbo.USR_UFN_WEB_SPONSORED_CHILDREN_FROMITEMLISTXML
+(
+   @ITEMLISTXML    XML
+)
+returns 
+table
+as 
+return (
+	-- do work here and return a value
+	SELECT T.c.value ('(ID)[1]', 'uniqueidentifier') AS 'ID',
+		   T.c.value ('(NAME)[1]', 'nvarchar(50)') AS 'ChildName',
+		   T.c.value ('(LOOKUPID)[1]', 'nvarchar(7)') as 'LookupId',
+		   T.c.value ('(SPONSORSHIPDATE)[1]', 'date') as 'StartDate',
+		   T.c.value ('(SPONSORSHIPID)[1]', 'uniqueidentifier') as 'SponsorshipId'
+	FROM @ITEMLISTXML.nodes ('/CHILDREN/ITEM') T (c)
+)
+
+		]]>
+	</CreateFunctionSQL>
+
+</SQLFunctionSpec>

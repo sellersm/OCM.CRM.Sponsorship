@@ -6,6 +6,7 @@
 	Description="Ends the sponsorship type constituency codes for a given sponsorship"
 	Author="Memphis Sellers"
 	SPName="USR_USP_SPONSORSHIP_CANCEL_SPONSORSHIP_CONSTITUENCYCODES"
+	GrantServiceRolePermission="true"
 	>
 
 	<!-- 

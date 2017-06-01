@@ -15,6 +15,13 @@
 	Date            Modified By     Comments
 	12-Dec-2012		Memphis			Initial Version.
 	08-Jan-2013		Memphis			Fogbugz Case 956: only pull the Active sponsorships (Children) for the sponsor.
+	27-Dec-2016		Memphis			New changes for 2016 Onboarding process. Bunch of changes per Pamela's workflow doc...
+	23-Jan-2017		Memphis			Added new parameter, @isConversion = 1 to the call to USR_USP_CREATE_SPONSORSHIP_ONBOARDING_INTERACTIONS
+										so it won't create the Box 1 interactions for a Conversion.
+	24-Jan-2017		Memphis			Lots of refactoring to fix issue with creating OnBoarding when shouldn't.  Better variable names
+										and logic for identifying the Sponsor(s) and who should get the onboard interactions.
+	10-Feb-2017		MSellers		Defect:Task TK-03622   
+									using the wrong sponsor on the Child Interaction, must use Correspondent if exists.
 	-->
 
 
@@ -75,329 +82,713 @@ begin
 	declare @sponsorshipStartDate date
 	declare @childWelcomeLetterExpectedDate date = Cast(DATEADD(s,-1,DATEADD(mm, DATEDIFF(m,0,GETDATE())+3,0)) as date);  --last_day_of_month_2_months_from_now
 	declare @sponsorInteractionId uniqueidentifier = null
+	
+	-- Memphis: 12/27/2016 new for onboarding:
+	declare @prospectSponsorConstituencyCodeID uniqueidentifier = null;
+	set @prospectSponsorConstituencyCodeID = dbo.USR_UFN_CONSTITUENT_GETID_FORCODE('Prospect Sponsor');
 
 	set @currentStatusId = dbo.USR_UFN_CURRENTOPPORTUNITYSPONSORSHIPSTATUSCODE_GETID_FORDESCRIPTION('Sponsored')
 	set @prospectSponsorCurrentStatusID = dbo.USR_UFN_CURRENTOPPORTUNITYSPONSORSHIPSTATUSCODE_GETID_FORDESCRIPTION('Prospect Sponsored')
 	set @CONSTITUENCYCODEID = dbo.USR_UFN_CONSTITUENT_GETID_FORCODE('Sponsor')
 
+	-- Memphis: new 2016 Onboarding requirements: need to check if sponsor has existing Interactions with subcategory of 'Our Website':
+	declare @ourWebsiteSubCategoryID uniqueidentifier=null;
+	declare @interactionSubcategoryDesc_OurWebsite nvarchar(100) = 'Our Website';	
+	exec dbo.USR_USP_INTERACTION_GETSUBCATEGORYID @ourWebsiteSubCategoryID output, @interactionCategoryDesc_SponsorWelcome, @interactionSubcategoryDesc_OurWebsite, 1;
+
 	if @CHANGEAGENTID is null
 			exec dbo.USP_CHANGEAGENT_GETORCREATECHANGEAGENT @CHANGEAGENTID output;
 
-
-	select @welcomeSubCategoryId = ID
-	from dbo.INTERACTIONSUBCATEGORY
-	where lower(NAME) = LOWER('Welcome Greeting')
-
-	select @phoneInteractionTypeCodeId = ID
-	from dbo.INTERACTIONTYPECODE
-	where lower([DESCRIPTION]) = LOWER('phone')
-
-	print @prospectSponsorCurrentStatusID;
-	print @currentStatusId;
-	print @CONSTITUENCYCODEID;
+	-- Memphis: these are used to check the smartfield to determine if we create onboarding interactions
+	-- Memphis: new 2016 Onboarding Interactions only created if sponsor isn't already in the workflow:
+	declare @doCreateFinancialOnboardingInteractions bit = 0;		-- set to 1 if we're doing onboarding for the financial sponsor
+	declare @doCreateSponsorOnboardingInteractions bit = 0;			-- set to 1 if we're doing onboarding for the Sole sponsor
+	declare @doCreateCorrespondingOnboardingInteractions bit = 0;	-- set to 1 if we're doing onboarding for the Corresponding sponsor
+	declare @essdID uniqueidentifier = null;
+	declare @essdDate datetime = null;
+	declare @earliestStartDate datetime = null;
 
 	declare @conversionTbl table
 	(
-	OpportunityChildID uniqueidentifier,
-	SponsorshipID uniqueidentifier
+		OpportunityChildID uniqueidentifier,
+		SponsorshipID uniqueidentifier,
+		FinSponsorID uniqueidentifier,
+		SponsorID uniqueidentifier
 	);
 
-	--set @sponsorId = 'C139932C-5ECA-4F97-A684-5D252ED6E79A' --'E0409323-2114-4730-9D71-5AC58D3244C2'
-
+	declare @isGiftedSponsorship bit = 0;
+	declare @isSoleSponsorship bit = 0;
+	declare @financialSponsorID uniqueidentifier = null;
+	declare @correspondingSponsorID uniqueidentifier = null;
+	declare @soleSponsorID uniqueidentifier = null;
 
 	begin try
  
-	;with childrenForSponsor_CTE (OpportunityChildID, SponsorshipID)
-	as
-	(
-		select sc.ID, s.ID
-		from dbo.SPONSORSHIP s
-		join dbo.SPONSORSHIPOPPORTUNITY so on s.SPONSORSHIPOPPORTUNITYID = so.ID
-		join dbo.SPONSORSHIPOPPORTUNITYCHILD sc on sc.ID = so.ID
-		where s.CONSTITUENTID = @sponsorId
-		and s.STATUSCODE = 1    -- Active
-	)  
-	insert into @conversionTbl(OpportunityChildID, SponsorshipID)
-	select OpportunityChildID, SponsorshipID
-	from childrenForSponsor_CTE;
-
-	begin tran prospectSponsorConversion
-
-	/* Sponsor Step 4: Change Constituent Codes on the Sponsor
-	 - Add the Constituent Code of 'Sponsor' to Sponsor with StartDate = Today
-	*/
-	-- first check if the Sponsor already has the Sponsor code:
-	select @hasSponsorConstituency = dbo.USR_UFN_CONSTITUENT_HAS_CONSTITUENCYCODE(@sponsorId, @CONSTITUENCYCODEID)
-
-	if @hasSponsorConstituency = 0
-		begin		
-			exec dbo.USR_USP_ADD_CONSTITUENT_CONSTITUENCYCODE
-				@CONSTITUENTID = @sponsorId,
-				@CONSTITUENCYCODEID = @CONSTITUENCYCODEID,
-				@DATEFROM = @dateFrom
-		end	
-			
-	-- Update the EndDate to Today on the existing Constituent Code 'Prospect Sponsor' record for this Sponsor:
-	exec dbo.USR_USP_CONSTITUENT_END_CONSTITUENCYCODE 
-		@CONSTITUENTID = @sponsorId,
-		@CONSTITUENCYCODE = 'Prospect Sponsor'
-	
-	/*
-	-- Sponsor Step 6: Test for a "Prospect Reminder Greeting" interaction on the Sponsor and if it's not Complete, then
-	--          Change the Interaction's Category & Subcategory
-	--          Category = 'Sponsor Welcome'
-	--          Subcategory = 'Welcome Greeting'
-	--          Summary = 'Sponsorship converted'
-	--   look for records with the subcategoryid value of the ID where Name = 'Prospect Reminder Greeting'
-
-	-- Sponsor Step 6b. ** NEW FROM PAMELA **:  if this interaction does NOT exist at all, then create a new Interaction with the
-	--                         above data!!!
-	-- Also, for step 6b, need to receive the InteractionID if it was created, and store it for each child of the same
-		Sponsor, then reset it when moving to a new Sponsor! 
-		1st Child, call the create, 
-		subsequent children for same sponsor, call the Add Child to Interaction & pass in the Interaction ID value.					    
-	*/
-
-	select @prospectReminderGreetingCount = COUNT(*)
-	from dbo.INTERACTION
-	where INTERACTIONSUBCATEGORYID IN (select ID
-		from dbo.INTERACTIONSUBCATEGORY
-		where lower(NAME) = lower(@prospectReminderGreetingText))
-	and CONSTITUENTID = @sponsorId  -- sponsor constituent id
-	and STATUSCODE = 1 -- pending
-
-	if @prospectReminderGreetingCount > 0
-		begin
-			--do the update:
+		;with childrenForSponsor_CTE (OpportunityChildID, SponsorshipID, FinSponsorID, SponsorID)
+		as
+		(
+			select	sc.ID, 
+					s.ID, 
+					REVENUE.CONSTITUENTID,
+					s.CONSTITUENTID
+			from dbo.SPONSORSHIP s
+			join dbo.SPONSORSHIPOPPORTUNITY so on s.SPONSORSHIPOPPORTUNITYID = so.ID
+			join dbo.SPONSORSHIPOPPORTUNITYCHILD sc on sc.ID = so.ID
+			left join	dbo.REVENUESPLIT on REVENUESPLIT.ID = s.REVENUESPLITID
+			left join	dbo.REVENUE on REVENUE.ID = REVENUESPLIT.REVENUEID	
+			--where s.CONSTITUENTID = @sponsorId
+			where REVENUE.CONSTITUENTID = @sponsorId
+			and s.STATUSCODE = 1    -- Active
+		)  
+		insert into @conversionTbl(OpportunityChildID, SponsorshipID, FinSponsorID, SponsorID)
+		select OpportunityChildID, SponsorshipID, FinSponsorID, SponsorID
+		from childrenForSponsor_CTE;
 		
-			update dbo.INTERACTION
-			set INTERACTIONTYPECODEID = @phoneInteractionTypeCodeId,
-				INTERACTIONSUBCATEGORYID = @welcomeSubCategoryId,
-				COMMENT = 'Sponsorship converted'
-			where INTERACTIONSUBCATEGORYID IN (select ID
-				from dbo.INTERACTIONSUBCATEGORY
-				where lower(NAME) = lower(@prospectReminderGreetingText))
-			and CONSTITUENTID = @sponsorId  -- sponsor constituent id
-			and STATUSCODE = 1 -- pending
-		
-		end
-	else
-		begin
-			--did NOT find any prospect reminder greetings! Need to check for completed ones.'
-		
-			select @prospectReminderGreetingCount = COUNT(*)
-				from dbo.INTERACTION
-				where INTERACTIONSUBCATEGORYID IN (select ID
-					from dbo.INTERACTIONSUBCATEGORY
-					where lower(NAME) = lower(@prospectReminderGreetingText))
-				and CONSTITUENTID = @sponsorId  -- sponsor constituent id
-				--and STATUSCODE = 2 -- completed
-			
-			if @prospectReminderGreetingCount = 0
-				begin
-					--If prospect sponsorship start date is less than 20 days ago, use [prospect sponsorship start date] + 20 days, otherwise use today
-					set @createWelcomeGreetingInteraction = 1
-				
-					If DATEDIFF(dd, @sponsorshipStartDate, GETDATE()) <= 20
-						begin
-							set @expectedDate = Cast(DATEADD(d,20,@sponsorshipStartDate) as DATE)
-						end
-					else
-						begin
-							set @expectedDate = CAST(GETDATE() as DATE)
-						end
+		-- Memphis: 1/9/17 - new Onboarding
+		--		determine if this is a Financial Sponsor or regular/corresponding sponsor
+		-- Memphis: 1-19-17 there are 2 types of sponsors:  financial Sponsor, sole Sponsor
+		if exists(select 1 from @conversionTbl where FinSponsorID <> SponsorID)
+			begin
+				-- this is a Financial Sponsor, so set the bit flag and the Financial Sponsor ID value
+				--	there should also be a corresponding sponsor that will be the SponsorID value:
+				set @financialSponsorID = (select top 1 FinSponsorID from @conversionTbl where FinSponsorID <> SponsorID);
+				set @correspondingSponsorID = (select top 1 SponsorID from @conversionTbl where FinSponsorID <> SponsorID);
+				set @isGiftedSponsorship = 1;
+				set @isSoleSponsorship = 0;
+			end
+		else
+			begin
+				-- this is a Regular/Corresponding Sponsor
+				set @soleSponsorID = (select top 1 SponsorID from @conversionTbl where FinSponsorID = SponsorID);
+				set @isSoleSponsorship = 1;
+				set @isGiftedSponsorship = 0;
+			end
 
-					exec dbo.USR_USP_INTERACTION_SPONSOR_ADD_PENDING 
-									@id = @sponsorInteractionId output,
-									@constituentID = @sponsorId,
-									@summary = 'Sponsorship converted',
-									@categoryName = @interactionCategoryDesc_SponsorWelcome,
-									@subcategoryName = @interactionSubcategoryDesc_WelcomeGreeting,
-									@expectedDate = @expectedDate,
-									@owner = @callCenterManagerConstituentID,                                                                                 
-									@contactMethodDesc = @contactMethodDesc_Phone,
-									@comment = '',                                                                                                
-									@letterTypeDesc = '',
-									@fulfillmentStatusDesc = '',
-									@eftBrochureCode = 0,
-									@resendCode = 0,
-									@changeAgentID = @CHANGEAGENTID                                                    
+		begin tran prospectSponsorConversion
 
-					if @sponsorInteractionId  is not null
-					begin
-						-- NOTE: the child will be added in the children cursor loop below, based on the createWelcomeGreetingInteraction bit flag!
+		-- Memphis: 1-9-17 new Onboarding, need to add the Constituency Code to Corresponding/Regular Sponsor 
+		--		AND the Financial Sponsor!
+		/* Sponsor Step 4: Change Constituent Codes on the Sponsor
+		 - Add the Constituent Code of 'Sponsor' to Sponsor with StartDate = Today
+		*/
+		if @isGiftedSponsorship = 1
+			begin
+				-- if this is a Financial Sponsor, then there must be a corresponding Sponsor ID as well
+				--	so update the Consituency for both SponsorID values:
+
+				-- do this for the Financial Sponsor first:
+				-- first check if the Sponsor already has the Sponsor code:
+				select @hasSponsorConstituency = dbo.USR_UFN_CONSTITUENT_HAS_CONSTITUENCYCODE(@financialSponsorID, @CONSTITUENCYCODEID)
+
+				if @hasSponsorConstituency = 0
+					begin		
+						exec dbo.USR_USP_ADD_CONSTITUENT_CONSTITUENCYCODE
+							@CONSTITUENTID = @financialSponsorID,
+							@CONSTITUENCYCODEID = @CONSTITUENCYCODEID,
+							@DATEFROM = @dateFrom
+					end	
 						
-						exec dbo.USR_USP_INTERACTION_ADDRESPONSE 
-										@interactionId = @sponsorInteractionId,
-										@responseCategoryName = @interactionResponseCategory_DonorContact,
-										@response = @interactionResponse_No,
-										@responseDate = null,                  
-										@changeAgentID = @changeAgentID
+				-- Memphis: 2016 Onboarding changes: now delete the Prospect Sponsor Constituency code instead of just ending it:
+				if @prospectSponsorConstituencyCodeID is not null
+					begin
+						delete 
+						from dbo.CONSTITUENCY
+						where CONSTITUENTID = @financialSponsorID
+						and CONSTITUENCYCODEID = @prospectSponsorConstituencyCodeID;
+					end
+			
+				-- Memphis: 12/28/16 for new Onboarding, cancel all Pending (Category of) 'Prospect Welcome' Interactions:
+				--	do this for the Financial and Corresponding Sponsors:
+				update dbo.INTERACTION	
+				set STATUSCODE = @statusCode_Cancelled,
+					COMMENT = 'Cancelled due to Prospect Conversion',
+					CHANGEDBYID = @changeAgentID,
+					DATECHANGED = getdate()
+				where INTERACTIONSUBCATEGORYID IN (select ID
+					from dbo.INTERACTIONSUBCATEGORY where INTERACTIONCATEGORYID in (select ID
+							from dbo.INTERACTIONCATEGORY
+							where lower(NAME) = lower('prospect welcome'))  --@prospectReminderGreetingText))
+					)
+				and CONSTITUENTID = @financialSponsorID
+				and STATUSCODE = 1 -- pending
+				
+				-- Then do this for the Corresponding Sponsor:
+				--	check if the Corresponding Sponsor already has the Sponsor code:
+				set @hasSponsorConstituency = 0;
+			
+				-- first check if the Sponsor already has the Sponsor code:
+				select @hasSponsorConstituency = dbo.USR_UFN_CONSTITUENT_HAS_CONSTITUENCYCODE(@correspondingSponsorID, @CONSTITUENCYCODEID)
 
-						exec dbo.USR_USP_INTERACTION_ADDRESPONSE 
-										@interactionId = @sponsorInteractionId,
-										@responseCategoryName = @interactionResponseCategory_EFTReceived,
-										@response = @interactionResponse_No,
-										@responseDate = null,                  
-										@changeAgentID = @changeAgentID
+				if @hasSponsorConstituency = 0
+					begin		
+						exec dbo.USR_USP_ADD_CONSTITUENT_CONSTITUENCYCODE
+							@CONSTITUENTID = @correspondingSponsorID,
+							@CONSTITUENCYCODEID = @CONSTITUENCYCODEID,
+							@DATEFROM = @dateFrom
+					end	
+						
+				-- Memphis: 2016 Onboarding changes: now delete the Prospect Sponsor Constituency code instead of just ending it:
+				if @prospectSponsorConstituencyCodeID is not null
+					begin
+						delete 
+						from dbo.CONSTITUENCY
+						where CONSTITUENTID = @correspondingSponsorID
+						and CONSTITUENCYCODEID = @prospectSponsorConstituencyCodeID;
+					end
+					
+				-- Memphis: 12/28/16 for new Onboarding, cancel all Pending (Category of) 'Prospect Welcome' Interactions:
+				--	do this for the Regular/Corresponding Sponsors:
+				update dbo.INTERACTION	
+				set STATUSCODE = @statusCode_Cancelled,
+					COMMENT = 'Cancelled due to Prospect Conversion',
+					CHANGEDBYID = @changeAgentID,
+					DATECHANGED = getdate()
+				where INTERACTIONSUBCATEGORYID IN (select ID
+					from dbo.INTERACTIONSUBCATEGORY where INTERACTIONCATEGORYID in (select ID
+							from dbo.INTERACTIONCATEGORY
+							where lower(NAME) = lower('prospect welcome'))  --@prospectReminderGreetingText))
+					)
+				and CONSTITUENTID = @correspondingSponsorID
+				and STATUSCODE = 1 -- pending				
+			end
+		
 
-						exec dbo.USR_USP_INTERACTION_ADDRESPONSE 
-										@interactionId = @sponsorInteractionId,
-										@responseCategoryName = @interactionResponseCategory_LeftMessage,
-										@response = @interactionResponse_No,
-										@responseDate = null,                  
-										@changeAgentID = @changeAgentID
+		-- now do the Constituency codes for the regular/correspondent-only Sponsor:
+		if @isSoleSponsorship = 1
+			begin
+				-- Then do this for the Sole Sponsor:
+				set @hasSponsorConstituency = 0;
+			
+				-- first check if the Sponsor already has the Sponsor code:
+				select @hasSponsorConstituency = dbo.USR_UFN_CONSTITUENT_HAS_CONSTITUENCYCODE(@soleSponsorID, @CONSTITUENCYCODEID)
 
-						exec dbo.USR_USP_INTERACTION_ADDRESPONSE 
-										@interactionId = @sponsorInteractionId,
-										@responseCategoryName = @interactionResponseCategory_MessageType,
-										@response = @interactionResponse_None,
-										@responseDate = null,                  
-										@changeAgentID = @changeAgentID
-                    
-						exec dbo.USR_USP_INTERACTION_ADDRESPONSE 
-										@interactionId = @sponsorInteractionId,
-										@responseCategoryName = @interactionResponseCategory_PacketReceived,
-										@response = @interactionResponse_Unknown,
-										@responseDate = null,                  
-										@changeAgentID = @changeAgentID
+				if @hasSponsorConstituency = 0
+					begin		
+						exec dbo.USR_USP_ADD_CONSTITUENT_CONSTITUENCYCODE
+							@CONSTITUENTID = @soleSponsorID,
+							@CONSTITUENCYCODEID = @CONSTITUENCYCODEID,
+							@DATEFROM = @dateFrom
+					end	
+						
+				-- Memphis: 2016 Onboarding changes: now delete the Prospect Sponsor Constituency code instead of just ending it:
+				if @prospectSponsorConstituencyCodeID is not null
+					begin
+						delete 
+						from dbo.CONSTITUENCY
+						where CONSTITUENTID = @soleSponsorID
+						and CONSTITUENCYCODEID = @prospectSponsorConstituencyCodeID;
+					end
+					
+				-- Memphis: 12/28/16 for new Onboarding, cancel all Pending (Category of) 'Prospect Welcome' Interactions:
+				--	do this for the Regular/Corresponding Sponsors:
+				update dbo.INTERACTION	
+				set STATUSCODE = @statusCode_Cancelled,
+					COMMENT = 'Cancelled due to Prospect Conversion',
+					CHANGEDBYID = @changeAgentID,
+					DATECHANGED = getdate()
+				where INTERACTIONSUBCATEGORYID IN (select ID
+					from dbo.INTERACTIONSUBCATEGORY where INTERACTIONCATEGORYID in (select ID
+							from dbo.INTERACTIONCATEGORY
+							where lower(NAME) = lower('prospect welcome'))  --@prospectReminderGreetingText))
+					)
+				and CONSTITUENTID = @soleSponsorID
+				and STATUSCODE = 1 -- pending
+			end
 
+		-- Memphis: 2016 new onboarding, need a bit flag to identify
+		--  if same address or not between Financial Sponsor and Corresponding Sponsor:
+		declare @isSameAddress bit = 1;
+
+		--declare @financialSponsorInteractionOnly bit = 1
+
+		declare @financialSponsorAddress nvarchar (150) = ''
+		declare @correspondentAddress nvarchar (150) = ''
+		declare @financialSponsorStateID uniqueidentifier = null
+		declare @correspondentStateID uniqueidentifier = null
+
+		-- Determine who should get the interaction (Child Correspondent or Financial Sponsor)
+		-- Memphis 1-24-17: we tell if this is a sole sponsorship using:
+		-- @isSoleSponsorship = 1  and 
+		-- @isGiftedSponsorship = 0
+		-- the bit variable @financialSponsorInteractionOnly is used from here down to identify if there's only 1 sponsor or not:
+		if (@isGiftedSponsorship = 1)
+			begin
+				-- If there is a Child Correspondent, determine if they live at the same address as the Financial Sponsor			
+				-- Comparison is of the Address Block and State
+				-- Blackbaud's OOB UFN_ADDRESS_ADDRESSBLOCK_NORMALIZE_LOWERCASE is used to make the comparison more accuate
+				-- It standardizes the addresses by applying standard abbreviations, removing white space, and converting to lower case
+				declare @SUBSTITUTIONS dbo.UDT_STRINGPAIR_100 -- This is required by the user defined function, but we do not have any additional standardizations to apply
+			
+				select	@financialSponsorAddress = ADDRESSBLOCK,
+						@financialSponsorStateID = STATEID
+				  from	dbo.ADDRESS
+				 where	CONSTITUENTID = @financialSponsorID
+			 
+				select	@correspondentAddress = ADDRESSBLOCK,
+						@correspondentStateID = STATEID
+				  from	dbo.ADDRESS
+				 where	CONSTITUENTID = @correspondingSponsorID
+
+				if (dbo.UFN_ADDRESS_ADDRESSBLOCK_NORMALIZE_LOWERCASE(@financialSponsorAddress, @SUBSTITUTIONS)= dbo.UFN_ADDRESS_ADDRESSBLOCK_NORMALIZE_LOWERCASE(@correspondentAddress, @SUBSTITUTIONS))
+					and ((@financialSponsorStateID is null and @correspondentStateID is null) or (@financialSponsorStateID = @correspondentStateID))
+					begin
+						--set @financialSponsorInteractionOnly = 1;
+						set @isSameAddress = 1;
+					end
+				else
+					begin
+						--set @financialSponsorInteractionOnly = 0;
+						set @isSameAddress = 0;
+					end
+			end
+	
+		-- Memphis: 12/28/16 for new Onboarding, do the check of the ESSD smartfield as well as for existing Interactions
+		--	to determine if we should create Onboarding Interactions or not:
+		-- NEED to do this for *BOTH* the Financial and Correspondent(regular) Sponsor!
+
+		--   if there is a Sole Sponsor (@soleSponsorID):
+		if (@isSoleSponsorship = 1 and @isGiftedSponsorship = 0)
+			begin	
+				-- now check the ESSD value for the Sole Sponsor:
+				--	Earliest child sponsorship or Correspondent date smart field less than earliest active sponsorship start date?
+				--  this smartfield is the Earliest Child Sponsorship or Correspondent Date:
+				-- ***for LOCAL Testing ONLY***  use this table dbo.smartfieldB9F74972318C4183AF99229463CB2E29
+				
+				/*
+				select 	@essdID = ID,
+						@essdDate = [VALUE]
+				from dbo.smartfieldB9F74972318C4183AF99229463CB2E29 
+				where id = @soleSponsorID -- @sponsorId 
+				*/
+
+				--select	min(essd.[VALUE]) as MinESSDate
+				--from childrenForSponsor_CTE
+				--left join dbo.smartfieldB9F74972318C4183AF99229463CB2E29 essd on essd.ID = SponsorID;
+
+				--/*
+				-- ******** THIS IS FOR DEV and PROD DEPLOYMENT   CHANGE BEFORE DEPLOYING!!! **********************
+				select @essdID = ID,
+						 @essdDate = [VALUE]
+				from dbo.smartfieldBB91D38CB66F44A3A65E37E7F4D99941 
+				where id = @soleSponsorID	--@sponsorId 
+				--*/
+
+				--select	min(essd.[VALUE]) as MinESSDate
+				--from childrenForSponsor_CTE
+				--left join dbo.smartfieldBB91D38CB66F44A3A65E37E7F4D99941  essd on essd.ID = SponsorID;
+				
+				-- now get the earliest active Sponsorship start date:
+				select 
+					@earliestStartDate = MIN(s.STARTDATE)
+				from dbo.SPONSORSHIP s 
+				left join dbo.SPONSORSHIPOPPORTUNITYCHILD soc on s.SPONSORSHIPOPPORTUNITYID = soc.ID
+				left join	dbo.REVENUESPLIT on REVENUESPLIT.ID = s.REVENUESPLITID
+				left join	dbo.REVENUE on REVENUE.ID = REVENUESPLIT.REVENUEID	
+				where REVENUE.CONSTITUENTID = @soleSponsorID   -- @sponsorId
+				--where s.CONSTITUENTID = @sponsorId
+				and s.STATUSCODE = 1
+				and soc.ID is not null
+				
+				--	Earliest child sponsorship or Correspondent date smart field less than earliest active sponsorship start date?
+				--if (@essdDate is null or (@essdDate is not null and cast(@essdDate as date) = cast(getdate() as date)))
+				
+				if (@essdDate is not null and (cast(@essdDate as date) < cast(@earliestStartDate as date)))
+					begin
+						set @doCreateSponsorOnboardingInteractions = 0;
+					end
+				else
+					begin
+						-- either the essDate is null or the essdate is => the earliest date, so go on with the next test
+						--  for determining if we should create onboarding interactions or not:
+						-- workflow says to check for an existing interaction with subcategory of Our Website:
+						if exists(select 1 from dbo.INTERACTION where INTERACTIONSUBCATEGORYID = @ourWebsiteSubCategoryID and CONSTITUENTID = @soleSponsorID)
+							begin
+								-- sponsor should already be in the New Onboarding workflow, so don't create any of the
+								--  new onboarding interactions further down:
+								set @doCreateSponsorOnboardingInteractions = 0;
+							end
+						else
+							begin
+								-- no existing interaction, so we can create the onboarding interactions on the financial sponsor:
+								--set @doCreateOnboardingInteractions = 1;
+								set @doCreateSponsorOnboardingInteractions = 1;
+							end
+					end
+			end
+		
+		else
+			begin
+				-- next test is to find if these are different financial and corresponding sponsors:
+				if @isGiftedSponsorship = 1
+					begin
+						-- now check the ESSD value for *BOTH* the Financial and Corresponding Sponsors:
+						--	Earliest child sponsorship or Correspondent date smart field less than earliest active sponsorship start date?
+						--  this smartfield is the Earliest Child Sponsorship or Correspondent Date:
+						
+						-- Check the Corresponding Sponsor first:
+						if @correspondingSponsorID is not null
+							begin
+								/*
+								-- ***for LOCAL Testing ONLY***  use this table dbo.smartfieldB9F74972318C4183AF99229463CB2E29				
+								select 	@essdID = ID,
+										@essdDate = [VALUE]
+								from dbo.smartfieldB9F74972318C4183AF99229463CB2E29 
+								where id = @correspondingSponsorID -- @sponsorId 
+								*/
+
+
+								--select	min(essd.[VALUE]) as MinESSDate
+								--from childrenForSponsor_CTE
+								--left join dbo.smartfieldB9F74972318C4183AF99229463CB2E29 essd on essd.ID = SponsorID;
+
+								--/*
+								-- ******** THIS IS FOR DEV and PROD DEPLOYMENT   CHANGE BEFORE DEPLOYING!!! **********************
+								select @essdID = ID,
+										 @essdDate = [VALUE]
+								from dbo.smartfieldBB91D38CB66F44A3A65E37E7F4D99941 
+								where id = @correspondingSponsorID	--@sponsorId 
+								--*/
+
+
+								-- now get the earliest active Sponsorship start date:
+								select 
+									@earliestStartDate = MIN(s.STARTDATE)
+								from dbo.SPONSORSHIP s 
+								left join dbo.SPONSORSHIPOPPORTUNITYCHILD soc on s.SPONSORSHIPOPPORTUNITYID = soc.ID
+								left join	dbo.REVENUESPLIT on REVENUESPLIT.ID = s.REVENUESPLITID
+								left join	dbo.REVENUE on REVENUE.ID = REVENUESPLIT.REVENUEID	
+								where REVENUE.CONSTITUENTID = @correspondingSponsorID   -- @sponsorId
+								--where s.CONSTITUENTID = @sponsorId
+								and s.STATUSCODE = 1
+								and soc.ID is not null
+								
+								--	Earliest child sponsorship or Correspondent date smart field less than earliest active sponsorship start date?
+								--if (@essdDate is null or (@essdDate is not null and cast(@essdDate as date) = cast(getdate() as date)))
+								
+								if (@essdDate is not null and (cast(@essdDate as date) < cast(@earliestStartDate as date)))
+									begin
+										set @doCreateCorrespondingOnboardingInteractions = 0;
+									end
+								else
+									begin
+										-- either the essDate is null or the essdate is => the earliest date, so go on with the next test
+										--  for determining if we should create onboarding interactions or not:
+										-- workflow says to check for an existing interaction with subcategory of Our Website:
+										if exists(select 1 from dbo.INTERACTION where INTERACTIONSUBCATEGORYID = @ourWebsiteSubCategoryID and CONSTITUENTID = @correspondingSponsorID)
+											begin
+												-- sponsor should already be in the New Onboarding workflow, so don't create any of the
+												--  new onboarding interactions further down:
+												set @doCreateCorrespondingOnboardingInteractions = 0;
+											end
+										else
+											begin
+												-- no existing interaction, so we can create the onboarding interactions on the financial sponsor:
+												--set @doCreateOnboardingInteractions = 1;
+												set @doCreateCorrespondingOnboardingInteractions = 1;
+											end
+									end			
+							
+							end
+
+						-- Check the Financial Sponsor next:
+						if @financialSponsorID is not null
+							begin
+								/*
+								-- ***for LOCAL Testing ONLY***  use this table dbo.smartfieldB9F74972318C4183AF99229463CB2E29				
+								select 	@essdID = ID,
+										@essdDate = [VALUE]
+								from dbo.smartfieldB9F74972318C4183AF99229463CB2E29 
+								where id = @financialSponsorID -- @sponsorId 
+								*/
+
+								--select	min(essd.[VALUE]) as MinESSDate
+								--from childrenForSponsor_CTE
+								--left join dbo.smartfieldB9F74972318C4183AF99229463CB2E29 essd on essd.ID = SponsorID;
+
+								--/*
+								-- ******** THIS IS FOR DEV and PROD DEPLOYMENT   CHANGE BEFORE DEPLOYING!!! **********************
+								select @essdID = ID,
+										 @essdDate = [VALUE]
+								from dbo.smartfieldBB91D38CB66F44A3A65E37E7F4D99941 
+								where id = @financialSponsorID	--@sponsorId 
+								--*/
+								
+								-- now get the earliest active Sponsorship start date:
+								select 
+									@earliestStartDate = MIN(s.STARTDATE)
+								from dbo.SPONSORSHIP s 
+								left join dbo.SPONSORSHIPOPPORTUNITYCHILD soc on s.SPONSORSHIPOPPORTUNITYID = soc.ID
+								left join	dbo.REVENUESPLIT on REVENUESPLIT.ID = s.REVENUESPLITID
+								left join	dbo.REVENUE on REVENUE.ID = REVENUESPLIT.REVENUEID	
+								where REVENUE.CONSTITUENTID = @financialSponsorID   -- @sponsorId
+								--where s.CONSTITUENTID = @sponsorId
+								and s.STATUSCODE = 1
+								and soc.ID is not null
+								
+								--	Earliest child sponsorship or Correspondent date smart field less than earliest active sponsorship start date?
+								--if (@essdDate is null or (@essdDate is not null and cast(@essdDate as date) = cast(getdate() as date)))
+								
+								if (@essdDate is not null and (cast(@essdDate as date) < cast(@earliestStartDate as date)))
+									begin
+										set @doCreateFinancialOnboardingInteractions = 0;
+									end
+								else
+									begin
+										-- either the essDate is null or the essdate is => the earliest date, so go on with the next test
+										--  for determining if we should create onboarding interactions or not:
+										-- workflow says to check for an existing interaction with subcategory of Our Website:
+										if exists(select 1 from dbo.INTERACTION where INTERACTIONSUBCATEGORYID = @ourWebsiteSubCategoryID and CONSTITUENTID = @financialSponsorID)
+											begin
+												-- sponsor should already be in the New Onboarding workflow, so don't create any of the
+												--  new onboarding interactions further down:
+												set @doCreateFinancialOnboardingInteractions = 0;
+											end
+										else
+											begin
+												-- no existing interaction, so we can create the onboarding interactions on the financial sponsor:
+												--set @doCreateOnboardingInteractions = 1;
+												set @doCreateFinancialOnboardingInteractions = 1;
+											end
+									end			
+							end
+					end
+				end
+		
+		-- create the new 2016 Onboarding Interactions:
+		-- populate the child list with the childid values in the temptable
+		declare @childIDList dbo.USR_UDT_CHILDIDLIST;
+		declare @interactionExpectedDate date = getdate();
+
+		insert @childIDList 
+		select OpportunityChildID
+		from @conversionTbl;
+
+		-- do the onboarding for sole sponsor (@financialSponsorID) and/or corresponding sponsor:
+		if @isSoleSponsorship = 1 and @doCreateSponsorOnboardingInteractions = 1
+			begin
+				-- create OnBoarding interactions for the sole sponsor
+
+				-- 1-11-17: Updated info from Pamela
+				/*
+					FS and CS same address and meet criteria on page 2
+						FS will receive interactions in Box 2 – 9 on page 3 (same as sponsor)
+
+					FS and CS different addresses and meet criteria on page 2
+						FS will receive interaction in Box 2, 4, 6, 8, 9
+						CS will receive interactions in Box 2-9 (same as sponsor)
+					NOTE: per Pamela, 1-16-17
+					"Sponsor" means the single sponsor (S/C same), *OR* when the C/F have the SAME address
+				*/
+
+				-- call the new Stored Procedure to create New Sponsorship Onboarding Interactions
+				exec dbo.USR_USP_CREATE_SPONSORSHIP_ONBOARDING_INTERACTIONS
+							@sponsorID = @soleSponsorID,
+							@setEFTBrochureCode = 0,
+							@changeAgentID = @changeAgentID,
+							@childIDList = @childIDList,								
+							@correspondentID = @correspondingSponsorID,
+							@isConversion = 1		-- tell the SPROC that the conversion called it
+			end		
+
+
+		-- do the onboarding for Financial/Corresponding sponsor, if passed the rules/tests above:
+		if (@isGiftedSponsorship = 1 and (@doCreateCorrespondingOnboardingInteractions = 1 or @doCreateFinancialOnboardingInteractions = 1))
+			begin
+				-- create OnBoarding interactions for the Financial/Corresponding sponsor(s):
+
+				-- 1-11-17: Updated info from Pamela
+				/*
+					FS and CS same address and meet criteria on page 2
+						FS will receive interactions in Box 2 – 9 on page 3 (same as sponsor)
+
+					FS and CS different addresses and meet criteria on page 2
+						FS will receive interaction in Box 2, 4, 6, 8, 9
+						CS will receive interactions in Box 2-9 (same as sponsor)
+					NOTE: per Pamela, 1-16-17
+					"Sponsor" means the single sponsor (S/C same), *OR* when the C/F have the SAME address
+				*/
+
+				-- need to check their addresses, if the same, then just create OnBoarding Interactions 
+				--  on the Financial Sponsor, per the rules just above:
+				if (@isSameAddress = 1)
+					begin
+						if @doCreateFinancialOnboardingInteractions = 1
+							begin
+								-- if correspond and financial sponsors have SAME address, then
+								--  treat it the same as having a sole sponsor, which will put the onboarding interactions
+								--		on the Financial sponsor, same as if it were the sole sponsor:
+								-- call the new Stored Procedure to create New Sponsorship Onboarding Interactions
+								exec dbo.USR_USP_CREATE_SPONSORSHIP_ONBOARDING_INTERACTIONS
+											@sponsorID = @financialSponsorID,
+											@setEFTBrochureCode = 0,
+											@changeAgentID = @changeAgentID,
+											@childIDList = @childIDList,								
+											@correspondentID = @financialSponsorID,
+											@isConversion = 1		-- tell the SPROC that the conversion called it
+							end
+					end
+				else
+					begin
+						-- they have 2 different addresses, so create OnBoarding Interactions on EACH financial and Corresponding sponsor:
+						if @doCreateFinancialOnboardingInteractions = 1
+							begin
+								-- if correspond and financial sponsors have SAME address, then
+								--  treat it the same as having a sole sponsor, which will put the onboarding interactions
+								--		on the Financial sponsor, same as if it were the sole sponsor:
+								-- call the new Stored Procedure to create New Sponsorship Onboarding Interactions
+								exec dbo.USR_USP_CREATE_SPONSORSHIP_ONBOARDING_INTERACTIONS
+											@sponsorID = @financialSponsorID,
+											@setEFTBrochureCode = 0,
+											@changeAgentID = @changeAgentID,
+											@childIDList = @childIDList,								
+											@correspondentID = @correspondingSponsorID,
+											@isConversion = 1		-- tell the SPROC that the conversion called it
+							end
+						
+						if @doCreateCorrespondingOnboardingInteractions = 1
+							begin
+								-- if we can't create OnBoarding for the Financial, check the Corresponding:
+								-- if correspond and financial sponsors have SAME address, then
+								--  treat it the same as having a sole sponsor, which will put the onboarding interactions
+								--		on the Financial sponsor, same as if it were the sole sponsor:
+								-- call the new Stored Procedure to create New Sponsorship Onboarding Interactions
+								exec dbo.USR_USP_CREATE_SPONSORSHIP_ONBOARDING_INTERACTIONS
+											@sponsorID = @correspondingSponsorID,
+											@setEFTBrochureCode = 0,
+											@changeAgentID = @changeAgentID,
+											@childIDList = @childIDList,								
+											@correspondentID = @correspondingSponsorID,
+											@isConversion = 1		-- tell the SPROC that the conversion called it										
+
+							end					
+					end
+					
+					
+			end		
+
+		
+		-- Iterate through the children for this Sponsor & process:
+		declare conversionCursor cursor fast_forward for 
+		select	OpportunityChildID, 
+				SponsorshipID  
+		from @conversionTbl
+		Open conversionCursor
+
+		fetch next from conversionCursor into @opportunityChildId, @sponsorshipId
+
+		while @@FETCH_STATUS = 0
+			begin
+
+				update dbo.USR_SPONSORSHIPEXTENSION
+				set CURRENTOPPORTUNITYSPONSORSHIPSTATUSCODEID = @currentStatusId, -- 'A171526B-4F78-48C8-BD17-918DF69C0943',
+					CHANGEDBYID = @CHANGEAGENTID,
+					DATECHANGED = GETDATE(),
+					CONVERSIONDATE = GETDATE(),
+					DAYSTOCONVERT = DATEDIFF(dd, DATEADDED, GETDATE())
+				where SPONSORSHIPOPPORTUNITYID = @opportunityChildId -- this will be the cursor value for the child id
+				and ISCURRENT = 1  -- only update the most recent, current record since that's what's displayed in the child page
+			
+				-- set the CONVERSIONDATE in the USR_SPONSORSHIPEXTENSION table when updating (use GETDATE() for today's date), AND
+				-- calculate the DAYSTOCONVERT & store it in the USR_SPONSORSHIPEXTENSION table when updating:  GETDATE()-DATEADDED in days is the formula value					
+				/*
+				step 2:  change the most recent reservation key status to 'Sponsored'
+				- USR_CHILDRESERVATION table: 
+				  - update it, set the statuscode = 2, where max(startdate) and statuscode=3 for the sponsorshipopportunitychildid
+				  StatusCode values:
+				  case [STATUSCODE] 
+				  when (0) then N'Closed' 
+				  when (1) then N'Open' 
+				  when (2) then N'Sponsored' 
+				  when (3) then N'Prospect sponsored' 
+				  when (4) then N'Unpaid transfer'  
+				*/
+			
+				update dbo.USR_CHILDRESERVATION
+				set STATUSCODE = 2  -- Sponsored
+				where STARTDATE = (select MAX(STARTDATE) from dbo.USR_CHILDRESERVATION where STATUSCODE = 3 and SPONSORSHIPOPPORTUNITYCHILDID = @opportunityChildId)
+				and STATUSCODE = 3  -- Prospect Sponsored
+				and SPONSORSHIPOPPORTUNITYCHILDID = @opportunityChildId -- this will be the cursor value for the child id
+			
+			
+				-- Step 3: Create the Welcome Letter interaction:  **get this code from Cary**
+				-- 2017 MSellers: if this is a gifted sponsorship, must set the @sponsorID value to the correspondent:
+				declare @childInteractionSponsor uniqueidentifier;
+				if @isGiftedSponsorship = 1 
+					set @childInteractionSponsor = @correspondingSponsorID;
+				else
+					set @childInteractionSponsor = @soleSponsorID;
+
+				exec dbo.USR_USP_INTERACTION_CHILDLETTER_ADD_PENDING
+								@id = @interactionId output,                                                                    
+								@sponsorhipOpportunityChildID = @opportunityChildId,
+								@summary = 'Sponsorship conversion',
+								@categoryName = @interactionCategoryDesc_ChildLetter,
+								@subcategoryName = @interactionSubcategoryDesc_ChildWelcomeLetter,
+								@expectedDate = @childWelcomeLetterExpectedDate, --@currentDate,
+								@owner = null,
+								@contactMethodDesc = @contactMethodDesc_Mail,
+								@comment = '',                                                                
+								--@sponsorID = @sponsorId,  --@childLetterRecipient,
+								@sponsorID = @childInteractionSponsor,
+								@changeAgentID = @CHANGEAGENTID
+	                        
+	                        			
+				-- Move step 5 to here...
+				-- Step 5: Create an attribute on the Recurring Gift record, named "Prospect NTD Reviewed" with a value of "No".
+				--    insert into the dbo.ATTRIBUTE3CD4670556A44714A5A9F6DFDCD5B08E table
+				--     ID of the attribute is the revenueID of the recurring gift, set booleancode to 0, addedbyid, etc., startdate of today...
+				--   use this UFN to get the revenueID to pass into the attribute insert:  USR_UFN_GETFINANCIALTRANSACTIONID_FORSPONSORSHIP (sponsorshipId)
+				--insert into dbo.ATTRIBUTE3CD4670556A44714A5A9F6DFDCD5B08E 
+			
+				select @revenueId = dbo.USR_UFN_GETFINANCIALTRANSACTIONID_FORSPONSORSHIP(@sponsorshipId)
+				INSERT INTO dbo.ATTRIBUTE3CD4670556A44714A5A9F6DFDCD5B08E
+				   ([ID]
+				   ,[REVENUEID]
+				   ,[BOOLEANCODE]
+				   ,[COMMENT]
+				   ,[STARTDATE]
+				   ,[ENDDATE]
+				   ,[ADDEDBYID]
+				   ,[CHANGEDBYID]
+				   ,[DATEADDED]
+				   ,[DATECHANGED])
+				VALUES
+				   (NEWID()
+				   ,@revenueId
+				   ,0
+				   ,'Prospect conversion'
+				   ,GETDATE()
+				   ,NULL
+				   ,@CHANGEAGENTID
+				   ,@CHANGEAGENTID
+				   ,GETDATE()
+				   ,GETDATE()
+				   )
+			
+				-- Step 6b check here, do this to add each child to the interaction if it was created above
+				if @createWelcomeGreetingInteraction = 1
+					begin
+						if @sponsorInteractionId is not null
+							-- this is the code to call for each subsequent child for the same interaction
+							exec dbo.USR_USP_INTERACTION_SPONSOR_ADDCHILD
+											@interactionId = @sponsorInteractionId,
+											@sponsorshipOpportunityChildID = @opportunityChildId,
+											@changeAgentID = @ChangeAgentID				
 					end
 
-				end  --if @prospectReminderGreetingCount = 0
+			
+				fetch next from conversionCursor into @opportunityChildId, @sponsorshipId
 		
-		end  -- else of if @prospectReminderGreetingCount > 0
-				
-	/* 
-	  Sponsor Step 7: cancel all pending interactions for this Sponsor where Category = 'Prospect Welcome'
-		(case [STATUSCODE] when (0) then N'Planned' when (1) then N'Pending' when (2) then N'Completed' when (3) then N'Unsuccessful' when (4) then N'Cancelled' when (5) then N'Declined'  end)
-	*/
-	update  dbo.INTERACTION 
-			set   STATUSCODE = @statusCode_Cancelled,
-				  COMMENT = 'Cancelled due to Prospect Conversion',
-				  CHANGEDBYID = @changeAgentID,
-				  DATECHANGED = getdate()            
-		   from dbo.INTERACTION 
-		  where CONSTITUENTID = @sponsorId  -- constituentid of the sponsor
-			and STATUSCODE = @statusCode_Pending
-			and INTERACTIONSUBCATEGORYID IN (select subcat.ID
-				from dbo.INTERACTIONCATEGORY cat
-				join dbo.INTERACTIONSUBCATEGORY subcat on subcat.INTERACTIONCATEGORYID = cat.ID
-				where lower(cat.NAME) = 'prospect welcome')
+			end  -- while loop of cursor
 
-	-- Iterate through the children for this Sponsor & process:
+		close conversionCursor
+		deallocate conversionCursor
 
-	declare conversionCursor cursor fast_forward for 
-	select * from @conversionTbl
-	Open conversionCursor
+		commit transaction prospectSponsorConversion
 
-	fetch next from conversionCursor into @opportunityChildId, @sponsorshipId
-
-	while @@FETCH_STATUS = 0
-	begin
-
-			update dbo.USR_SPONSORSHIPEXTENSION
-			set CURRENTOPPORTUNITYSPONSORSHIPSTATUSCODEID = @currentStatusId, -- 'A171526B-4F78-48C8-BD17-918DF69C0943',
-				CHANGEDBYID = @CHANGEAGENTID,
-				DATECHANGED = GETDATE(),
-				CONVERSIONDATE = GETDATE(),
-				DAYSTOCONVERT = DATEDIFF(dd, DATEADDED, GETDATE())
-			where SPONSORSHIPOPPORTUNITYID = @opportunityChildId -- this will be the cursor value for the child id
-			and ISCURRENT = 1  -- only update the most recent, current record since that's what's displayed in the child page
-		
-			-- set the CONVERSIONDATE in the USR_SPONSORSHIPEXTENSION table when updating (use GETDATE() for today's date), AND
-			-- calculate the DAYSTOCONVERT & store it in the USR_SPONSORSHIPEXTENSION table when updating:  GETDATE()-DATEADDED in days is the formula value					
-			/*
-			step 2:  change the most recent reservation key status to 'Sponsored'
-			- USR_CHILDRESERVATION table: 
-			  - update it, set the statuscode = 2, where max(startdate) and statuscode=3 for the sponsorshipopportunitychildid
-			  StatusCode values:
-			  case [STATUSCODE] 
-			  when (0) then N'Closed' 
-			  when (1) then N'Open' 
-			  when (2) then N'Sponsored' 
-			  when (3) then N'Prospect sponsored' 
-			  when (4) then N'Unpaid transfer'  
-			*/
-		
-			update dbo.USR_CHILDRESERVATION
-			set STATUSCODE = 2  -- Sponsored
-			where STARTDATE = (select MAX(STARTDATE) from dbo.USR_CHILDRESERVATION where STATUSCODE = 3 and SPONSORSHIPOPPORTUNITYCHILDID = @opportunityChildId)
-			and STATUSCODE = 3  -- Prospect Sponsored
-			and SPONSORSHIPOPPORTUNITYCHILDID = @opportunityChildId -- this will be the cursor value for the child id
-		
-		
-			-- Step 3: Create the Welcome Letter interaction:  **get this code from Cary**
-			exec dbo.USR_USP_INTERACTION_CHILDLETTER_ADD_PENDING
-							@id = @interactionId output,                                                                    
-							@sponsorhipOpportunityChildID = @opportunityChildId,
-							@summary = 'Sponsorship conversion',
-							@categoryName = @interactionCategoryDesc_ChildLetter,
-							@subcategoryName = @interactionSubcategoryDesc_ChildWelcomeLetter,
-							@expectedDate = @childWelcomeLetterExpectedDate, --@currentDate,
-							@owner = null,
-							@contactMethodDesc = @contactMethodDesc_Mail,
-							@comment = '',                                                                
-							@sponsorID = @sponsorId,  --@childLetterRecipient,
-							@changeAgentID = @CHANGEAGENTID
-                        
-                        			
-			-- Move step 5 to here...
-			-- Step 5: Create an attribute on the Recurring Gift record, named "Prospect NTD Reviewed" with a value of "No".
-			--    insert into the dbo.ATTRIBUTE3CD4670556A44714A5A9F6DFDCD5B08E table
-			--     ID of the attribute is the revenueID of the recurring gift, set booleancode to 0, addedbyid, etc., startdate of today...
-			--   use this UFN to get the revenueID to pass into the attribute insert:  USR_UFN_GETFINANCIALTRANSACTIONID_FORSPONSORSHIP (sponsorshipId)
-			--insert into dbo.ATTRIBUTE3CD4670556A44714A5A9F6DFDCD5B08E 
-		
-			select @revenueId = dbo.USR_UFN_GETFINANCIALTRANSACTIONID_FORSPONSORSHIP(@sponsorshipId)
-			INSERT INTO dbo.ATTRIBUTE3CD4670556A44714A5A9F6DFDCD5B08E
-			   ([ID]
-			   ,[REVENUEID]
-			   ,[BOOLEANCODE]
-			   ,[COMMENT]
-			   ,[STARTDATE]
-			   ,[ENDDATE]
-			   ,[ADDEDBYID]
-			   ,[CHANGEDBYID]
-			   ,[DATEADDED]
-			   ,[DATECHANGED])
-			VALUES
-			   (NEWID()
-			   ,@revenueId
-			   ,0
-			   ,'Prospect conversion'
-			   ,GETDATE()
-			   ,NULL
-			   ,@CHANGEAGENTID
-			   ,@CHANGEAGENTID
-			   ,GETDATE()
-			   ,GETDATE()
-			   )
-		
-			-- Step 6b check here, do this to add each child to the interaction if it was created above
-			if @createWelcomeGreetingInteraction = 1
-				begin
-					if @sponsorInteractionId is not null
-						-- this is the code to call for each subsequent child for the same interaction
-						exec dbo.USR_USP_INTERACTION_SPONSOR_ADDCHILD
-										@interactionId = @sponsorInteractionId,
-										@sponsorshipOpportunityChildID = @opportunityChildId,
-										@changeAgentID = @ChangeAgentID				
-				end
-
-		
-		fetch next from conversionCursor into @opportunityChildId, @sponsorshipId
-	
-	end  -- while loop of cursor
-
-	close conversionCursor
-	deallocate conversionCursor
-
-	commit transaction prospectSponsorConversion
-
-	return 0;
-	
+		return 0;
 	end try
+	
 	begin catch
 		rollback
 		exec dbo.USP_RAISE_ERROR;
@@ -405,6 +796,9 @@ begin
 	end catch
 
 end
+
+
+
 
 		]]>
 	</CreateProcedureSQL>

@@ -5,7 +5,10 @@
 	Name="USR_UFN_SPONSORSHIP_GETACTIVECHILDSPONSORSHIPSFORSPONSOR"
 	Description="Find the number of active child sponsorships for a constituent. Prospect sponsorships are not included."
 	Author="Cary Mayeda"
-	DBFunctionName="USR_UFN_SPONSORSHIP_GETACTIVECHILDSPONSORSHIPSFORSPONSOR" >
+	DBFunctionName="USR_UFN_SPONSORSHIP_GETACTIVECHILDSPONSORSHIPSFORSPONSOR" 
+	GrantServiceRolePermission="true"
+	>
+	
 	<!-- 
 	Remarks:    Copied UFN_SPONSORSHIP_GETACTIVESPONSORSHIPSFORSPONSOR and added check for only children.
 

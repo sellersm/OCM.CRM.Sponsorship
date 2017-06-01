@@ -1,0 +1,159 @@
+﻿<AddDataFormTemplateSpec 
+	xmlns="bb_appfx_adddataformtemplate"
+	xmlns:common="bb_appfx_commontypes" 
+	ID="1705e867-738b-413d-96af-7e74a0328eb1" 
+	Name="Add OnBoarding Interactions Add Data Form"
+	Description="Adds onboarding interactions for given Sponsor." 
+	Author="Mark Sellers"
+	DataFormInstanceID="9750acd7-94ca-4a74-96cb-bc2803caafb8" 
+	RecordType="Constituent"
+	common:SecurityUIFolder="Constituent"
+	FormHeader="Create OnBoarding Interactions"
+	>
+
+	<!-- 
+	Remarks:    This is basically a copy of the Record Op, which keeps timing out, so put it in an Add Form.
+				Creates the full set (9) of new OnBoarding Interactions on the given Sponsor.
+				 - Will create 8 interactions no matter what/who they are: but *NOT* the Thank You interaction!
+				 - Will add all the Children for their Active Sponsorships
+				 - Still need to check the Valid Email for Box 1a/b
+				Let me give two examples:
+				1.Sitting on (sole/regular) Sponsor Joe Schmoe, click the Task and I create all 9 Interactions for Joe? 
+					- Yes
+				2.Sitting on (financial) Sponsor Sally Smith, click the Task and:
+					a.       Do I create Interactions for *ONLY* Sally?, or 
+					 - YES: Only Sally gets the Interactions
+					b.      Do I create interactions for *BOTH* Sally and the Correspondent Sponsor (Sponsorship recipient) (whoever that may be)? 
+					 - NO: only the record you are on.
+				
+	History:
+	Date            Modified By     Comments
+	20-Mar-2017		MSellers		Creates the OnBoarding Interactions for the given Sponsor user is sitting on.
+	-->
+
+	<SPDataForm>
+		<!-- describe the preload SP (if applicable), which should be used to fetch field default values from the database.  If no
+		preload is needed, then this section can be removed -->
+		<LoadImplementation SPName="USR_USP_DATAFORMTEMPLATE_ADD_ONBOARDING_INTERACTIONS_TOSPONSOR_PRELOAD">
+			<common:CreateProcedureSQL>
+				<![CDATA[
+create procedure dbo.USR_USP_DATAFORMTEMPLATE_ADD_ONBOARDING_INTERACTIONS_TOSPONSOR_PRELOAD
+(
+	@CONTEXTID uniqueidentifier,
+	@SPONSORNAME nvarchar(200) = null output
+)
+as
+	set nocount on;
+		
+	-- populate the fields that have default values that should be fetched from the database
+	select @SPONSORNAME = NAME
+	from dbo.CONSTITUENT
+	where ID = @CONTEXTID
+	
+	return 0;				
+				]]>
+			</common:CreateProcedureSQL>
+		</LoadImplementation>
+
+		<!-- describe the save SP -->
+		<SaveImplementation SPName="USR_USP_DATAFORMTEMPLATE_ADD_ONBOARDING_INTERACTIONS_TOSPONSOR">
+			<common:CreateProcedureSQL>
+				<![CDATA[
+create procedure dbo.USR_USP_DATAFORMTEMPLATE_ADD_ONBOARDING_INTERACTIONS_TOSPONSOR
+(
+    @ID uniqueidentifier = null output,
+	@CONTEXTID uniqueidentifier,
+	@SPONSORNAME nvarchar(200) = null,
+    @CHANGEAGENTID uniqueidentifier = null
+)
+as
+
+set nocount on;
+
+if @ID is null
+    set @ID = newid()
+
+if @CHANGEAGENTID is null  
+    exec dbo.USP_CHANGEAGENT_GETORCREATECHANGEAGENT @CHANGEAGENTID output
+
+declare @sponsorshipsTable table
+	(
+		OpportunityChildID uniqueidentifier primary key
+		--SponsorshipID uniqueidentifier,
+		--FinSponsorID uniqueidentifier,
+		--SponsorID uniqueidentifier
+	);
+
+declare @isGiftedSponsorship bit = 0;
+declare @isSoleSponsorship bit = 0;
+declare @financialSponsorID uniqueidentifier = null;
+declare @correspondingSponsorID uniqueidentifier = null;
+declare @soleSponsorID uniqueidentifier = null;
+
+begin try
+
+	-- populate the child list with the childid values in the temptable
+	declare @childIDList dbo.USR_UDT_CHILDIDLIST;
+	declare @interactionExpectedDate date = getdate();
+
+	-- get the regular sponsors: 
+	insert @sponsorshipsTable
+	select	distinct(sc.ID) 
+	from dbo.SPONSORSHIP s
+	join dbo.SPONSORSHIPOPPORTUNITY so on s.SPONSORSHIPOPPORTUNITYID = so.ID
+	join dbo.SPONSORSHIPOPPORTUNITYCHILD sc on sc.ID = so.ID
+	where s.CONSTITUENTID = @CONTEXTID
+	and s.STATUSCODE = 1    -- Active
+
+	-- get the financial sponsors:
+	insert @sponsorshipsTable
+	select	distinct(sc.ID) 
+	from dbo.SPONSORSHIP s
+	join dbo.SPONSORSHIPOPPORTUNITY so on s.SPONSORSHIPOPPORTUNITYID = so.ID
+	join dbo.SPONSORSHIPOPPORTUNITYCHILD sc on sc.ID = so.ID
+	left join	dbo.REVENUESPLIT on REVENUESPLIT.ID = s.REVENUESPLITID
+	left join	dbo.REVENUE on REVENUE.ID = REVENUESPLIT.REVENUEID and REVENUE.CONSTITUENTID = @CONTEXTID
+	where REVENUE.CONSTITUENTID = @CONTEXTID
+	and s.STATUSCODE = 1    -- Active
+	and sc.ID not in (select OpportunityChildID from @sponsorshipsTable)
+
+	-- populate the child list for creating the interactions below
+	insert @childIDList
+	select *
+	from @sponsorshipsTable;
+
+	-- call the new Stored Procedure to create New Sponsorship Onboarding Interactions
+	exec dbo.USR_USP_CREATE_SPONSORSHIP_ONBOARDING_INTERACTIONS
+				@sponsorID = @CONTEXTID,
+				@setEFTBrochureCode = 0,
+				@changeAgentID = @changeAgentID,
+				@childIDList = @childIDList,								
+				@correspondentID = NULL,
+				@isConversion = 1		-- tells the SPROC to whether or not create the 1st Thank You Interaction! 1 means DO NOT, 0 means DO
+
+end try
+
+begin catch
+	exec dbo.USP_RAISE_ERROR;
+	return 1;
+end catch
+
+return 0;				
+				]]>
+			</common:CreateProcedureSQL>
+		</SaveImplementation>
+	</SPDataForm>
+
+	<!-- describe the context ID for this form (if applicable), which corresponds to a parameter in the SP. -->
+	<Context ContextRecordType="CONSTITUENT" RecordIDParameter="CONTEXTID"/>
+
+	<!-- describe fields on the form, which correspond to parameters on the SP.  Note that system parameters 
+	like the context @ID, @CONTEXTID, and @CURRENTAPPUSERID need not be listed. -->
+	<common:FormMetaData FixedDialog="true">
+		<common:FormFields>
+			<common:FormField FieldID="SPONSORNAME" Caption="Sponsor" DataType="String" MaxLength="200" />
+		</common:FormFields>
+
+	</common:FormMetaData>
+
+</AddDataFormTemplateSpec>

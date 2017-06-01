@@ -1,0 +1,101 @@
+﻿<SQLFunctionSpec
+	xmlns="bb_appfx_sqlfunction"
+	xmlns:common="bb_appfx_commontypes" 
+	ID="d9f60c99-f0cd-41f9-ace7-e0906cd857d0"
+	Name="USR_UFN_CHECK_OK_TO_ADD_SPONSORSHIP"
+	Description="Check if ok for this Constituent to add new Sponsorship or not."
+	Author="Memphis Sellers"
+	DBFunctionName="USR_UFN_CHECK_OK_TO_ADD_SPONSORSHIP"
+	GrantServiceRolePermission="true "
+	>
+
+	<!-- 
+	Remarks:  This returns a 0 (false) or 1 (true) if this Consituent can add a new Sponsorship or not. 
+				Used in the Constituent Page Expression to display/hide the 'Add Sponsorship' Task.
+
+	History:
+	Date            Modified By     Comments
+	17-Jan-2017		Memphis			Initial Version:  per Pamela's criteria:
+									If a child sponsorship Status is active, or active (transfer pending), or active (reassigned) 
+									and has the currently active Constituency Code of "Prospect Sponsored" then hide the task
+									which will return a 0.
+	21-Mar-2017		MSellers		Fix bug in the temp table, status column is too small. Can be huge when trasnfer/reassign
+									from one Org/Church to another!
+	-->
+
+	<CreateFunctionSQL>
+		<![CDATA[
+create function dbo.USR_UFN_CHECK_OK_TO_ADD_SPONSORSHIP(
+	@CONSTITUENTID uniqueidentifier
+)
+returns bit
+with execute as caller
+as begin
+	-- set this to True by default, if constituent meets criteria will be set to false below:
+	declare @isOK bit = 1;
+	
+	declare @activeSponsorshipsTbl table (
+		sponsorshipID uniqueidentifier, 
+		sponsorshipStatus nvarchar(max)
+	)
+
+	;with cte_SponsorshipList (sponsorshipID, sponsorshipStatus)
+	as 
+		(select
+		  SPONSORSHIP.ID ID,
+		  case SPONSORSHIP.STATUSCODE 
+			when 1 then
+			  case LASTTRANSACTION.ACTIONCODE
+				when 6 then 'Active (Transfer pending)'
+				when 5 then 'Active (Reassigned from ' + REASSIGNEDCONSTITUENTNAME_NF.NAME + ')'
+				else 'Active' end
+			when 2 then
+			  case LASTTRANSACTION.ACTIONCODE
+				when 1 then 'Transferred'
+				when 2 then
+				  case SPONSORSHIP.ID
+					when LASTTRANSACTION.CONTEXTSPONSORSHIPID then
+					  case SPONSORSHIPREASON.REASONTYPECODE when 11 then 'Expired' else 'Cancelled' end
+					when LASTTRANSACTION.DECLINEDSPONSORSHIPID then 'Declined' end
+				when 3 then 'Terminated'
+				when 5 then 'Reassigned to ' + REASSIGNEDCONSTITUENTNAME_NF.NAME
+				when 7 then 
+				  case SPONSORSHIP.ID
+					when LASTTRANSACTION.CONTEXTSPONSORSHIPID then 'Transferred'
+					when LASTTRANSACTION.DECLINEDSPONSORSHIPID then 'Declined' end
+				when 8 then 'Transferred' end
+			else SPONSORSHIP.STATUS end [STATUS]
+	  from dbo.SPONSORSHIP
+		inner join dbo.SPONSORSHIPCOMMITMENT on SPONSORSHIPCOMMITMENT.ID = SPONSORSHIP.SPONSORSHIPCOMMITMENTID
+		inner join dbo.SPONSORSHIPOPPORTUNITY on SPONSORSHIPOPPORTUNITY.ID = SPONSORSHIP.SPONSORSHIPOPPORTUNITYID
+		inner join dbo.SPONSORSHIPPROGRAM on SPONSORSHIPPROGRAM.ID = SPONSORSHIP.SPONSORSHIPPROGRAMID
+		inner join dbo.SPONSORSHIPTRANSACTION CREATETRANSACTION on CREATETRANSACTION.SPONSORSHIPCOMMITMENTID = SPONSORSHIP.SPONSORSHIPCOMMITMENTID and CREATETRANSACTION.TRANSACTIONSEQUENCE = (select min(TRANSACTIONSEQUENCE) from dbo.SPONSORSHIPTRANSACTION MINSEQUENCE where MINSEQUENCE.SPONSORSHIPCOMMITMENTID = SPONSORSHIP.SPONSORSHIPCOMMITMENTID and MINSEQUENCE.TARGETSPONSORSHIPID = SPONSORSHIP.ID)
+		inner join dbo.SPONSORSHIPTRANSACTION LASTTRANSACTION on LASTTRANSACTION.SPONSORSHIPCOMMITMENTID = SPONSORSHIP.SPONSORSHIPCOMMITMENTID and LASTTRANSACTION.TRANSACTIONSEQUENCE = (select max(TRANSACTIONSEQUENCE) from dbo.SPONSORSHIPTRANSACTION MAXSEQUENCE where MAXSEQUENCE.SPONSORSHIPCOMMITMENTID = SPONSORSHIP.SPONSORSHIPCOMMITMENTID and SPONSORSHIP.ID in(MAXSEQUENCE.CONTEXTSPONSORSHIPID,MAXSEQUENCE.TARGETSPONSORSHIPID,MAXSEQUENCE.DECLINEDSPONSORSHIPID) and MAXSEQUENCE.ACTIONCODE <> 9)
+		left outer join dbo.SPONSORSHIP REASSIGNED on REASSIGNED.ID = case SPONSORSHIP.STATUSCODE when 1 then LASTTRANSACTION.CONTEXTSPONSORSHIPID when 2 then LASTTRANSACTION.TARGETSPONSORSHIPID end and LASTTRANSACTION.ACTIONCODE = 5
+		left outer join dbo.SPONSORSHIPREASON on SPONSORSHIPREASON.ID = LASTTRANSACTION.SPONSORSHIPREASONID
+		left outer join dbo.REVENUESPLIT on REVENUESPLIT.ID = SPONSORSHIP.REVENUESPLITID
+		left outer join dbo.REVENUE on REVENUE.ID = REVENUESPLIT.REVENUEID
+		outer apply dbo.UFN_CONSTITUENT_DISPLAYNAME(REASSIGNED.CONSTITUENTID) REASSIGNEDCONSTITUENTNAME_NF
+		outer apply dbo.UFN_CONSTITUENT_DISPLAYNAME(dbo.UFN_SPONSORSHIP_GIFTFINANCIALSPONSORID(SPONSORSHIP.ID)) PAIDFORBY_NF
+		where SPONSORSHIPCOMMITMENT.CONSTITUENTID = @CONSTITUENTID
+	)
+	insert into @activeSponsorshipsTbl
+	select	cte_SponsorshipList.sponsorshipID, 
+			cte_SponsorshipList.sponsorshipStatus
+	from cte_SponsorshipList
+
+	-- return a 0 if meets the criteria above to tell the caller that it's NOT OK to add new prospect sponsorship:
+	if exists(select 1 from @activeSponsorshipsTbl	where sponsorshipStatus like '%Active%')
+		begin
+			if (dbo.USR_UFN_CONSTITUENT_HAS_CONSTITUENCYCODE(@CONSTITUENTID, dbo.USR_UFN_CONSTITUENT_GETID_FORCODE('Prospect Sponsor')) = 1)
+				begin
+					set @isOK = 0;
+				end
+		end
+
+	return @isOK;
+end
+		]]>
+	</CreateFunctionSQL>
+
+</SQLFunctionSpec>

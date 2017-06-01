@@ -15,6 +15,7 @@
 	History:
 	Date            Modified By     Comments
 	28-Aug-2015		CMayeda			Changed raiserror syntax to work with SQL Server 2012 (CRM 4.0)
+	28-Feb-2017		MSellers		Fixed Interaction bugs
 	-->
 
 	<c:ImpliedSecurityList>
@@ -207,6 +208,17 @@ set nocount on;
 begin try
 	-- Handle any custom "before-save" logic here
 	
+	/* *** TESTING ONLY ***************
+	-- at this point, BOTH of these parameters are NULL! 
+	declare @testErrorMessage nvarchar(100) = '';
+	if @SPONSORSHIPOPPORTUNITYIDCHILD is null
+		set @testErrorMessage = '@SPONSORSHIPOPPORTUNITYIDCHILD is null!';
+	if @SPONSORSHIPOPPORTUNITYIDPROJECT is null
+		set @testErrorMessage = @testErrorMessage + '; ' + '@SPONSORSHIPOPPORTUNITYIDPROJECT is null!';
+	raiserror (@testErrorMessage, 16, 1);
+	---------- END TESTING -----------
+	*/
+	
 	-- first, create the relationship if necessary:
 
 	declare @CONSTITUENCYCODEID uniqueidentifier
@@ -240,6 +252,18 @@ begin try
 
   while @@FETCH_STATUS = 0
   begin
+
+	/* *** TESTING ONLY ***************
+	-- at this point, BOTH of these parameters are NULL! 
+	declare @testErrorMessage nvarchar(100) = '';
+	if @SPONSORSHIPOPPORTUNITYIDCHILD is null
+		set @testErrorMessage = '@SPONSORSHIPOPPORTUNITYIDCHILD is null!';
+	else
+		set @testErrorMessage = cast(@SPONSORSHIPOPPORTUNITYIDCHILD as nvarchar(100));
+	raiserror (@testErrorMessage, 16, 1);
+	---------- END TESTING -----------
+	*/
+
 	-- do the work of adding the sponsorship here:
 	  set @ID = newid()
 	  exec @r = dbo.USP_DATAFORMTEMPLATE_ADD_SPONSORSHIP 
@@ -313,6 +337,17 @@ begin try
 					@CHANGEAGENTID = @CHANGEAGENTID
 		end
 
+		--	MSellers 2/28/17 moved this here, it used to be below, read comment below as to why:
+		--		 THE SPONSOREDPROJECTID FIELD IN THE INTERACTIONEXTENSION TABLE IS 1:1 WITH INTERACTION
+		--		 SO IT NEEDS TO HAVE 1 INTERACTION PER PROJECT SPONSORSHIP!
+		--		 create the necessary interaction for this new sponsorship	
+		exec dbo.USR_USP_SPONSORSHIP_CREATENEWPROJECTSPONSORSHIPINTERACTIONS 
+			 @sponsorshipID = @ID,											-- The sponsorship that the interactions will pertain to.  
+			 @sponsorshipOpportunityID = @SPONSORSHIPOPPORTUNITYIDCHILD,	-- The sponsorship opportunity Project that was sponsored
+			 @interactionTypeCodeID = @INTERACTIONTYPECODEID,				-- The ID of the Interaction Type that the user selected (Project Sponsorship Thank You Letter, Project Sponsorship Thank You Letter & Profile, ...)
+			 @isProspect = @ISPROSPECT,										-- Is this a prospect sponsorship.  0=Not Prospect, 1=Prospect
+			 @changeAgentID = @CHANGEAGENTID								-- Used to specify change agent for CHANGEDBYID and ADDEDBYID fields.  USP_CHANGEAGENT_GETORCREATECHANGEAGENT is called if it's null
+
 
 	if @@error = 0 and @r = 0
 	begin
@@ -335,6 +370,9 @@ begin try
   close childCursor 
   deallocate childCursor 
   
+	/*  **** MOVED THIS CODE UP ABOVE IN THE CURSOR LOOP TO CREATE 1 INTERACTION FOR EACH SPONSORSHIP *****
+	--		 THE SPONSOREDPROJECTID FIELD IN THE INTERACTIONEXTENSION TABLE IS 1:1 WITH INTERACTION
+	--		 SO IT NEEDS TO HAVE 1 INTERACTION PER PROJECT SPONSORSHIP!
 	-- create the necessary interactions for this new sponsorship, based on whether it's a Prospect or non-prospect sponsorship:	
 	
 	exec dbo.USR_USP_SPONSORSHIP_CREATENEWPROJECTSPONSORSHIPINTERACTIONS 
@@ -343,7 +381,7 @@ begin try
          @interactionTypeCodeID = @INTERACTIONTYPECODEID,              -- The ID of the Interaction Type that the user selected (Project Sponsorship Thank You Letter, Project Sponsorship Thank You Letter & Profile, ...)
          @isProspect = @ISPROSPECT,                                    -- Is this a prospect sponsorship.  0=Not Prospect, 1=Prospect
          @changeAgentID = @CHANGEAGENTID                               -- Used to specify change agent for CHANGEDBYID and ADDEDBYID fields.  USP_CHANGEAGENT_GETORCREATECHANGEAGENT is called if it's null
-
+	*/
 	
 	-- do the constituency code inserts here, based on whether or not this is a Prospect Sponsor or not:	
 	declare @constituencyCheckCode tinyint = 0;	

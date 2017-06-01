@@ -19,6 +19,7 @@
 	Date            Modified By     Comments
 	29-Feb-2016		Memphis			Initial Version on leap year day!
 	15-Mar-2016		Memphis			Added Number of months sponsorship per Pamela
+	10-Nov-2016		Memphis			Added ISMOSTRECENTFORCOMMITMENT column for Jeff
 	-->
 
 	<!-- define the view used to return data for the query -->
@@ -57,6 +58,7 @@ SELECT
        dbo.SPONSORSHIPCOMMITMENT.LOOKUPID as COMMITMENTID,
 	   coalesce((select sum(RECURRINGGIFTACTIVITY.AMOUNT) from dbo.RECURRINGGIFTACTIVITY where SOURCEREVENUEID = RECURRINGGIFTID and TYPECODE = 0), 0) as RGLTOTALAMOUNT,
 	   RECURRINGGIFTID,
+	   SPONSORSHIP.ISMOSTRECENTFORCOMMITMENT,
 	   SPONSORSHIP.ID as SPONSORSHIPID
   FROM dbo.USR_COMMITMENTLINE_RECURRINGGIFT rgl
 	join dbo.CONSTITUENT sponsor on sponsor.ID = SPONSORID
@@ -105,6 +107,7 @@ SELECT
 			<OutputField Name="COMMITMENTID" Caption="Commitment ID" DataType="String" />
 			<OutputField Name="RGLTOTALAMOUNT" Caption="Total Paid" DataType="Money" />
 			<OutputField Name="RECURRINGGIFTID" Caption="RG ID" DataType="Guid" IsHidden="true" />
+			<OutputField Name="ISMOSTRECENTFORCOMMITMENT" Caption="Is Most Recent?" DataType="Boolean" />
 			<OutputField Name="SPONSORSHIPID" Caption="SPONSORSHIPID" DataType="Guid" IsHidden="true" />
 		</OutputFields>
 	</Output>

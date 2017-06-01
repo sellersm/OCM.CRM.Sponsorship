@@ -1,0 +1,92 @@
+﻿<SQLFunctionSpec
+	xmlns="bb_appfx_sqlfunction"
+	xmlns:common="bb_appfx_commontypes" 
+	ID="ab25d767-790c-491c-b44c-6ac4a50f2afd"
+	Name="USR_UFN_SPONSORSHIP_GETACTIVELYSPONSOREDCHILDREN_FOR_WEBSPONSOR"
+	Description="Gets actively sponsored children for the given web sponsor."
+	Author="Mark Sellers"
+	DBFunctionName="USR_UFN_SPONSORSHIP_GETACTIVELYSPONSOREDCHILDREN_FOR_WEBSPONSOR"
+	GrantServiceRolePermission="true"
+	>
+
+	<!-- 
+	Remarks:    Gets actively sponsored children for given sponsor, since the given startdate parameter.
+				Called from the form to create the sponsorship onboarding interactions for new web sponsorships,
+				because the web process doesn't create any of our custom items.
+				Task to launch this form is on the Sponsor/Constituent page.
+
+	History:
+	Date            Modified By     Comments
+	23-May-2017		MSellers		Initial Version.
+	24-May-2017		MSellers		Added code to support parameter of Child LookupId,
+									to just lookup a child, no startdate parameter is required.
+	30-May-2017		MSellers		Added output column of sponsorshipId as it's needed by the caller.
+	-->
+
+
+	<CreateFunctionSQL>
+		<![CDATA[
+create function dbo.USR_UFN_SPONSORSHIP_GETACTIVELYSPONSOREDCHILDREN_FOR_WEBSPONSOR 
+(
+	-- Add the parameters for the function here
+	@sponsorId uniqueidentifier,
+	@startDate date = null,
+	@lookupId nvarchar(10) = null
+)
+returns 
+@SponsoredChildrenTable TABLE 
+(
+	-- Add the column definitions for the TABLE variable here
+	childId uniqueidentifier,
+	childName nvarchar(250),
+	childLookupId nvarchar(10),
+	startDate date,
+	sponsorshipId uniqueidentifier
+)
+with execute as caller
+as
+begin
+	-- if user passed in a lookupid, then the startdate isn't used, 
+	--    so just get that child's data:
+	if @lookupId is not null and (@startDate is null or @startDate = '1/1/1900')
+		begin
+			-- Fill the table variable with the rows for your result set
+			insert @SponsoredChildrenTable
+			select	soc.id,
+					soc.NAME,
+					so.LOOKUPID,
+					s.STARTDATE,
+					s.ID
+			from dbo.SPONSORSHIP s 
+			left join dbo.SPONSORSHIPOPPORTUNITYCHILD soc on s.SPONSORSHIPOPPORTUNITYID = soc.ID
+			left join dbo.SPONSORSHIPOPPORTUNITY so on soc.ID = so.ID
+			where s.CONSTITUENTID = @sponsorId
+			and s.STATUSCODE = 1
+			--and cast(s.STARTDATE as date) >= @startDate
+			and soc.ID is not null
+			and so.LOOKUPID = @lookupid;
+		end
+	else
+		begin
+			-- no lookupid, so get all the children that match the other criteria:
+			-- Fill the table variable with the rows for your result set
+			insert @SponsoredChildrenTable
+			select	soc.id,
+					soc.NAME,
+					so.LOOKUPID,
+					s.STARTDATE,
+					s.ID
+			from dbo.SPONSORSHIP s 
+			left join dbo.SPONSORSHIPOPPORTUNITYCHILD soc on s.SPONSORSHIPOPPORTUNITYID = soc.ID
+			left join dbo.SPONSORSHIPOPPORTUNITY so on soc.ID = so.ID
+			where s.CONSTITUENTID = @sponsorId
+			and s.STATUSCODE = 1
+			and cast(s.STARTDATE as date) >= @startDate
+			and soc.ID is not null;
+		end
+
+	return 
+end		]]>
+	</CreateFunctionSQL>
+
+</SQLFunctionSpec>

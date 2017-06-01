@@ -20,6 +20,11 @@ Public NotInheritable Class AddSponsorshipHelper
 	Private Const errorTextCouldNotFindDirectDebitSchedule As String = "Could not find direct debit schedule code table value for - "
 
 	Private Const defaultStartingOnDayOfMonth As Integer = 1				'The day of the month to default the Starting On date to
+
+	' 12-15-16 Memphis:  new 2016 Onboarding changes want Quarterly & Annually to start on 15th of month:
+	Private Const defaultQuarterlyStartsOnDayOfMonth As Integer = 15			'The day of the month to default the Starting On date for Quarterly
+	Private Const defaultAnnualStartsOnDayOfMonth As Integer = 15				'The day of the month to default the Starting On date for Annual
+
 	Private Const defaultMonthlyChildSponsorshipAmount As Integer = 39		'This should be pulled from the program, but for now just setting to $39 April 2014 Rate Increase pushed rate to $39.
 
 	Private Const frequencyAnnually As Integer = 0
@@ -67,15 +72,16 @@ Public NotInheritable Class AddSponsorshipHelper
 	Property directDebitScheduleMonthly20th As String = ""
 	Property directDebitScheduleMonthly10th As String = ""
 
-	Property directDebitScheduleQuarterlyMonth1_1st As String = ""
-	Property directDebitScheduleQuarterlyMonth1_10th As String = ""
-	Property directDebitScheduleQuarterlyMonth1_20th As String = ""
-	Property directDebitScheduleQuarterlyMonth2_1st As String = ""
-	Property directDebitScheduleQuarterlyMonth2_10th As String = ""
-	Property directDebitScheduleQuarterlyMonth2_20th As String = ""
-	Property directDebitScheduleQuarterlyMonth3_1st As String = ""
-	Property directDebitScheduleQuarterlyMonth3_10th As String = ""
-	Property directDebitScheduleQuarterlyMonth3_20th As String = ""
+	' Memphis: 12-19-2016 these are no longer valid for direct debit schedule options:
+	'Property directDebitScheduleQuarterlyMonth1_1st As String = ""
+	'Property directDebitScheduleQuarterlyMonth1_10th As String = ""
+	'Property directDebitScheduleQuarterlyMonth1_20th As String = ""
+	'Property directDebitScheduleQuarterlyMonth2_1st As String = ""
+	'Property directDebitScheduleQuarterlyMonth2_10th As String = ""
+	'Property directDebitScheduleQuarterlyMonth2_20th As String = ""
+	'Property directDebitScheduleQuarterlyMonth3_1st As String = ""
+	'Property directDebitScheduleQuarterlyMonth3_10th As String = ""
+	'Property directDebitScheduleQuarterlyMonth3_20th As String = ""
 
 
 	Public Sub New(ByVal uiModel As UIModeling.Core.RootUIModel, ByVal mode As AddSponsorshipFormMode)
@@ -123,15 +129,15 @@ Public NotInheritable Class AddSponsorshipHelper
 			directDebitScheduleMonthly10th = CRMHelper.GetCodeTableItemID(crmSQLConnection, CodeTableFields.DIRECTDEBITSCHEDULE_MONTHLY10TH, True, errorTextCouldNotFindDirectDebitSchedule & CodeTableFields.DIRECTDEBITSCHEDULE_MONTHLY10TH)
 			directDebitScheduleMonthly20th = CRMHelper.GetCodeTableItemID(crmSQLConnection, CodeTableFields.DIRECTDEBITSCHEDULE_MONTHLY20TH, True, errorTextCouldNotFindDirectDebitSchedule & CodeTableFields.DIRECTDEBITSCHEDULE_MONTHLY20TH)
 
-			directDebitScheduleQuarterlyMonth1_1st = CRMHelper.GetCodeTableItemID(crmSQLConnection, CodeTableFields.DIRECTDEBITSCHEDULE_QUARTERLYMONTH1JANAPRJULOCT1ST, True, errorTextCouldNotFindDirectDebitSchedule & CodeTableFields.DIRECTDEBITSCHEDULE_QUARTERLYMONTH1JANAPRJULOCT1ST)
-			directDebitScheduleQuarterlyMonth1_10th = CRMHelper.GetCodeTableItemID(crmSQLConnection, CodeTableFields.DIRECTDEBITSCHEDULE_QUARTERLYMONTH1JANAPRJULOCT10TH, True, errorTextCouldNotFindDirectDebitSchedule & CodeTableFields.DIRECTDEBITSCHEDULE_QUARTERLYMONTH1JANAPRJULOCT10TH)
-			directDebitScheduleQuarterlyMonth1_20th = CRMHelper.GetCodeTableItemID(crmSQLConnection, CodeTableFields.DIRECTDEBITSCHEDULE_QUARTERLYMONTH1JANAPRJULOCT20TH, True, errorTextCouldNotFindDirectDebitSchedule & CodeTableFields.DIRECTDEBITSCHEDULE_QUARTERLYMONTH1JANAPRJULOCT20TH)
-			directDebitScheduleQuarterlyMonth2_1st = CRMHelper.GetCodeTableItemID(crmSQLConnection, CodeTableFields.DIRECTDEBITSCHEDULE_QUARTERLYMONTH2FEBMAYAUGNOV1ST, True, errorTextCouldNotFindDirectDebitSchedule & CodeTableFields.DIRECTDEBITSCHEDULE_QUARTERLYMONTH2FEBMAYAUGNOV1ST)
-			directDebitScheduleQuarterlyMonth2_10th = CRMHelper.GetCodeTableItemID(crmSQLConnection, CodeTableFields.DIRECTDEBITSCHEDULE_QUARTERLYMONTH2FEBMAYAUGNOV10TH, True, errorTextCouldNotFindDirectDebitSchedule & CodeTableFields.DIRECTDEBITSCHEDULE_QUARTERLYMONTH2FEBMAYAUGNOV10TH)
-			directDebitScheduleQuarterlyMonth2_20th = CRMHelper.GetCodeTableItemID(crmSQLConnection, CodeTableFields.DIRECTDEBITSCHEDULE_QUARTERLYMONTH2FEBMAYAUGNOV20TH, True, errorTextCouldNotFindDirectDebitSchedule & CodeTableFields.DIRECTDEBITSCHEDULE_QUARTERLYMONTH2FEBMAYAUGNOV20TH)
-			directDebitScheduleQuarterlyMonth3_1st = CRMHelper.GetCodeTableItemID(crmSQLConnection, CodeTableFields.DIRECTDEBITSCHEDULE_QUARTERLYMONTH3MARJUNSEPDEC1ST, True, errorTextCouldNotFindDirectDebitSchedule & CodeTableFields.DIRECTDEBITSCHEDULE_QUARTERLYMONTH3MARJUNSEPDEC1ST)
-			directDebitScheduleQuarterlyMonth3_10th = CRMHelper.GetCodeTableItemID(crmSQLConnection, CodeTableFields.DIRECTDEBITSCHEDULE_QUARTERLYMONTH3MARJUNSEPDEC10TH, True, errorTextCouldNotFindDirectDebitSchedule & CodeTableFields.DIRECTDEBITSCHEDULE_QUARTERLYMONTH3MARJUNSEPDEC10TH)
-			directDebitScheduleQuarterlyMonth3_20th = CRMHelper.GetCodeTableItemID(crmSQLConnection, CodeTableFields.DIRECTDEBITSCHEDULE_QUARTERLYMONTH3MARJUNSEPDEC20TH, True, errorTextCouldNotFindDirectDebitSchedule & CodeTableFields.DIRECTDEBITSCHEDULE_QUARTERLYMONTH3MARJUNSEPDEC20TH)
+			'directDebitScheduleQuarterlyMonth1_1st = CRMHelper.GetCodeTableItemID(crmSQLConnection, CodeTableFields.DIRECTDEBITSCHEDULE_QUARTERLYMONTH1JANAPRJULOCT1ST, True, errorTextCouldNotFindDirectDebitSchedule & CodeTableFields.DIRECTDEBITSCHEDULE_QUARTERLYMONTH1JANAPRJULOCT1ST)
+			'directDebitScheduleQuarterlyMonth1_10th = CRMHelper.GetCodeTableItemID(crmSQLConnection, CodeTableFields.DIRECTDEBITSCHEDULE_QUARTERLYMONTH1JANAPRJULOCT10TH, True, errorTextCouldNotFindDirectDebitSchedule & CodeTableFields.DIRECTDEBITSCHEDULE_QUARTERLYMONTH1JANAPRJULOCT10TH)
+			'directDebitScheduleQuarterlyMonth1_20th = CRMHelper.GetCodeTableItemID(crmSQLConnection, CodeTableFields.DIRECTDEBITSCHEDULE_QUARTERLYMONTH1JANAPRJULOCT20TH, True, errorTextCouldNotFindDirectDebitSchedule & CodeTableFields.DIRECTDEBITSCHEDULE_QUARTERLYMONTH1JANAPRJULOCT20TH)
+			'directDebitScheduleQuarterlyMonth2_1st = CRMHelper.GetCodeTableItemID(crmSQLConnection, CodeTableFields.DIRECTDEBITSCHEDULE_QUARTERLYMONTH2FEBMAYAUGNOV1ST, True, errorTextCouldNotFindDirectDebitSchedule & CodeTableFields.DIRECTDEBITSCHEDULE_QUARTERLYMONTH2FEBMAYAUGNOV1ST)
+			'directDebitScheduleQuarterlyMonth2_10th = CRMHelper.GetCodeTableItemID(crmSQLConnection, CodeTableFields.DIRECTDEBITSCHEDULE_QUARTERLYMONTH2FEBMAYAUGNOV10TH, True, errorTextCouldNotFindDirectDebitSchedule & CodeTableFields.DIRECTDEBITSCHEDULE_QUARTERLYMONTH2FEBMAYAUGNOV10TH)
+			'directDebitScheduleQuarterlyMonth2_20th = CRMHelper.GetCodeTableItemID(crmSQLConnection, CodeTableFields.DIRECTDEBITSCHEDULE_QUARTERLYMONTH2FEBMAYAUGNOV20TH, True, errorTextCouldNotFindDirectDebitSchedule & CodeTableFields.DIRECTDEBITSCHEDULE_QUARTERLYMONTH2FEBMAYAUGNOV20TH)
+			'directDebitScheduleQuarterlyMonth3_1st = CRMHelper.GetCodeTableItemID(crmSQLConnection, CodeTableFields.DIRECTDEBITSCHEDULE_QUARTERLYMONTH3MARJUNSEPDEC1ST, True, errorTextCouldNotFindDirectDebitSchedule & CodeTableFields.DIRECTDEBITSCHEDULE_QUARTERLYMONTH3MARJUNSEPDEC1ST)
+			'directDebitScheduleQuarterlyMonth3_10th = CRMHelper.GetCodeTableItemID(crmSQLConnection, CodeTableFields.DIRECTDEBITSCHEDULE_QUARTERLYMONTH3MARJUNSEPDEC10TH, True, errorTextCouldNotFindDirectDebitSchedule & CodeTableFields.DIRECTDEBITSCHEDULE_QUARTERLYMONTH3MARJUNSEPDEC10TH)
+			'directDebitScheduleQuarterlyMonth3_20th = CRMHelper.GetCodeTableItemID(crmSQLConnection, CodeTableFields.DIRECTDEBITSCHEDULE_QUARTERLYMONTH3MARJUNSEPDEC20TH, True, errorTextCouldNotFindDirectDebitSchedule & CodeTableFields.DIRECTDEBITSCHEDULE_QUARTERLYMONTH3MARJUNSEPDEC20TH)
 
 		End Using
 	End Sub
@@ -266,7 +272,7 @@ Public NotInheritable Class AddSponsorshipHelper
 				model.Fields(AddSponsorshipFields.FREQUENCYCODE).ValueObject = frequencyMonthly
 
 			Case creditCardScheduleQuarterlyMonth1, creditCardScheduleQuarterlyMonth2, creditCardScheduleQuarterlyMonth3
-				model.Fields(AddSponsorshipFields.REVENUESCHEDULESTARTDATE).ValueObject = GetStartingOnDateByDay(defaultStartingOnDayOfMonth)
+				model.Fields(AddSponsorshipFields.REVENUESCHEDULESTARTDATE).ValueObject = GetStartingOnDateByDay(defaultQuarterlyStartsOnDayOfMonth)
 				model.Fields(AddSponsorshipFields.FREQUENCYCODE).ValueObject = frequencyQuarterly
 
 			Case creditCardScheduleAnnuallyJanuary, creditCardScheduleAnnuallyFebruary, creditCardScheduleAnnuallyMarch,
@@ -274,7 +280,7 @@ Public NotInheritable Class AddSponsorshipHelper
 			  creditCardScheduleAnnuallyJuly, creditCardScheduleAnnuallyAugust, creditCardScheduleAnnuallySeptember,
 			  creditCardScheduleAnnuallyOctober, creditCardScheduleAnnuallyNovember, creditCardScheduleAnnuallyDecember
 
-				model.Fields(AddSponsorshipFields.REVENUESCHEDULESTARTDATE).ValueObject = GetStartingOnDateByDay(defaultStartingOnDayOfMonth)
+				model.Fields(AddSponsorshipFields.REVENUESCHEDULESTARTDATE).ValueObject = GetStartingOnDateByDay(defaultAnnualStartsOnDayOfMonth)
 				model.Fields(AddSponsorshipFields.FREQUENCYCODE).ValueObject = frequencyAnnually
 
 		End Select
@@ -284,14 +290,22 @@ Public NotInheritable Class AddSponsorshipHelper
 	' Set Frequcney and Starting On Date based on Direct Debit schedule selected
 	Private Sub DirectDebitScheduleCodeID_ValueChanged(ByVal sender As Object, ByVal e As Blackbaud.AppFx.UIModeling.Core.ValueChangedEventArgs)
 		Select Case model.Fields(AddSponsorshipFields.DIRECTDEBITSCHEDULECODEID).ValueObject.ToString
-			Case directDebitScheduleMonthly1st, directDebitScheduleQuarterlyMonth1_1st, directDebitScheduleQuarterlyMonth2_1st, directDebitScheduleQuarterlyMonth3_1st
+			Case directDebitScheduleMonthly1st
 				model.Fields(AddSponsorshipFields.REVENUESCHEDULESTARTDATE).ValueObject = GetStartingOnDateByDay(1)
 
-			Case directDebitScheduleMonthly10th, directDebitScheduleQuarterlyMonth1_10th, directDebitScheduleQuarterlyMonth2_10th, directDebitScheduleQuarterlyMonth3_10th
+			Case directDebitScheduleMonthly10th
 				model.Fields(AddSponsorshipFields.REVENUESCHEDULESTARTDATE).ValueObject = GetStartingOnDateByDay(10)
 
-			Case directDebitScheduleMonthly20th, directDebitScheduleQuarterlyMonth1_20th, directDebitScheduleQuarterlyMonth2_20th, directDebitScheduleQuarterlyMonth3_20th
+			Case directDebitScheduleMonthly20th
 				model.Fields(AddSponsorshipFields.REVENUESCHEDULESTARTDATE).ValueObject = GetStartingOnDateByDay(20)
+				'Case directDebitScheduleMonthly1st, directDebitScheduleQuarterlyMonth1_1st, directDebitScheduleQuarterlyMonth2_1st, directDebitScheduleQuarterlyMonth3_1st
+				'	model.Fields(AddSponsorshipFields.REVENUESCHEDULESTARTDATE).ValueObject = GetStartingOnDateByDay(1)
+
+				'Case directDebitScheduleMonthly10th, directDebitScheduleQuarterlyMonth1_10th, directDebitScheduleQuarterlyMonth2_10th, directDebitScheduleQuarterlyMonth3_10th
+				'	model.Fields(AddSponsorshipFields.REVENUESCHEDULESTARTDATE).ValueObject = GetStartingOnDateByDay(10)
+
+				'Case directDebitScheduleMonthly20th, directDebitScheduleQuarterlyMonth1_20th, directDebitScheduleQuarterlyMonth2_20th, directDebitScheduleQuarterlyMonth3_20th
+				'	model.Fields(AddSponsorshipFields.REVENUESCHEDULESTARTDATE).ValueObject = GetStartingOnDateByDay(20)
 		End Select
 
 		Select Case model.Fields(AddSponsorshipFields.DIRECTDEBITSCHEDULECODEID).ValueObject.ToString
@@ -299,10 +313,10 @@ Public NotInheritable Class AddSponsorshipHelper
 			Case directDebitScheduleMonthly1st, directDebitScheduleMonthly10th, directDebitScheduleMonthly20th
 				model.Fields(AddSponsorshipFields.FREQUENCYCODE).ValueObject = frequencyMonthly
 
-			Case directDebitScheduleQuarterlyMonth1_1st, directDebitScheduleQuarterlyMonth1_10th, directDebitScheduleQuarterlyMonth1_20th, _
-			 directDebitScheduleQuarterlyMonth2_1st, directDebitScheduleQuarterlyMonth2_10th, directDebitScheduleQuarterlyMonth2_20th, _
-			 directDebitScheduleQuarterlyMonth3_1st, directDebitScheduleQuarterlyMonth3_10th, directDebitScheduleQuarterlyMonth3_20th
-				model.Fields(AddSponsorshipFields.FREQUENCYCODE).ValueObject = frequencyQuarterly
+				'Case directDebitScheduleQuarterlyMonth1_1st, directDebitScheduleQuarterlyMonth1_10th, directDebitScheduleQuarterlyMonth1_20th, _
+				' directDebitScheduleQuarterlyMonth2_1st, directDebitScheduleQuarterlyMonth2_10th, directDebitScheduleQuarterlyMonth2_20th, _
+				' directDebitScheduleQuarterlyMonth3_1st, directDebitScheduleQuarterlyMonth3_10th, directDebitScheduleQuarterlyMonth3_20th
+				'	model.Fields(AddSponsorshipFields.FREQUENCYCODE).ValueObject = frequencyQuarterly
 		End Select
 	End Sub
 
@@ -348,9 +362,9 @@ Public NotInheritable Class AddSponsorshipHelper
 							End If
 
 						Case creditCardScheduleQuarterlyMonth1, creditCardScheduleQuarterlyMonth2, creditCardScheduleQuarterlyMonth3
-							If (startingOnDateDay <> defaultStartingOnDayOfMonth) Then
+							If (startingOnDateDay <> defaultQuarterlyStartsOnDayOfMonth) Then
 								e.InvalidFieldName = AddSponsorshipFields.REVENUESCHEDULESTARTDATE
-								e.InvalidReason = "The starting on date for quarterly credit card payments has to be on day " + defaultStartingOnDayOfMonth.ToString
+								e.InvalidReason = "The starting on date for quarterly credit card payments has to be on day " + defaultQuarterlyStartsOnDayOfMonth.ToString
 								e.Valid = False
 							ElseIf CInt(model.Fields(AddSponsorshipFields.FREQUENCYCODE).ValueObject) <> frequencyQuarterly Then
 								e.InvalidFieldName = AddSponsorshipFields.FREQUENCYCODE
@@ -362,9 +376,9 @@ Public NotInheritable Class AddSponsorshipHelper
 						  creditCardScheduleAnnuallyApril, creditCardScheduleAnnuallyMay, creditCardScheduleAnnuallyJune,
 						  creditCardScheduleAnnuallyJuly, creditCardScheduleAnnuallyAugust, creditCardScheduleAnnuallySeptember,
 						  creditCardScheduleAnnuallyOctober, creditCardScheduleAnnuallyNovember, creditCardScheduleAnnuallyDecember
-							If (startingOnDateDay <> defaultStartingOnDayOfMonth) Then
+							If (startingOnDateDay <> defaultAnnualStartsOnDayOfMonth) Then
 								e.InvalidFieldName = AddSponsorshipFields.REVENUESCHEDULESTARTDATE
-								e.InvalidReason = "The starting on date for annually credit card payments has to be on day " + defaultStartingOnDayOfMonth.ToString
+								e.InvalidReason = "The starting on date for annually credit card payments has to be on day " + defaultAnnualStartsOnDayOfMonth.ToString
 								e.Valid = False
 							ElseIf CInt(model.Fields(AddSponsorshipFields.FREQUENCYCODE).ValueObject) <> frequencyAnnually Then
 								e.InvalidFieldName = AddSponsorshipFields.FREQUENCYCODE
@@ -391,14 +405,14 @@ Public NotInheritable Class AddSponsorshipHelper
 									e.InvalidReason = "You have selected a monthly direct debit schedule. However, the Frequency is not Monthly."
 									e.Valid = False
 								End If
-							Case directDebitScheduleQuarterlyMonth1_1st, directDebitScheduleQuarterlyMonth1_10th, directDebitScheduleQuarterlyMonth1_20th, _
-							 directDebitScheduleQuarterlyMonth2_1st, directDebitScheduleQuarterlyMonth2_10th, directDebitScheduleQuarterlyMonth2_20th, _
-							 directDebitScheduleQuarterlyMonth3_1st, directDebitScheduleQuarterlyMonth3_10th, directDebitScheduleQuarterlyMonth3_20th
-								If CInt(model.Fields(AddSponsorshipFields.FREQUENCYCODE).ValueObject) <> frequencyQuarterly Then
-									e.InvalidFieldName = AddSponsorshipFields.FREQUENCYCODE
-									e.InvalidReason = "You have selected a quarterly direct debit schedule. However, the Frequency is not Quarterly."
-									e.Valid = False
-								End If
+								'Case directDebitScheduleQuarterlyMonth1_1st, directDebitScheduleQuarterlyMonth1_10th, directDebitScheduleQuarterlyMonth1_20th, _
+								' directDebitScheduleQuarterlyMonth2_1st, directDebitScheduleQuarterlyMonth2_10th, directDebitScheduleQuarterlyMonth2_20th, _
+								' directDebitScheduleQuarterlyMonth3_1st, directDebitScheduleQuarterlyMonth3_10th, directDebitScheduleQuarterlyMonth3_20th
+								'	If CInt(model.Fields(AddSponsorshipFields.FREQUENCYCODE).ValueObject) <> frequencyQuarterly Then
+								'		e.InvalidFieldName = AddSponsorshipFields.FREQUENCYCODE
+								'		e.InvalidReason = "You have selected a quarterly direct debit schedule. However, the Frequency is not Quarterly."
+								'		e.Valid = False
+								'	End If
 						End Select
 					End If
 

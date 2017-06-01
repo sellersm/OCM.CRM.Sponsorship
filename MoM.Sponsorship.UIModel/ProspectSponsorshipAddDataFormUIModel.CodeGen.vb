@@ -459,7 +459,9 @@ Partial Public Class [ProspectSponsorshipAddDataFormUIModel]
         '
         _startdate.Name = "STARTDATE"
         _startdate.Caption = "Start date"
-        _startdate.Required = True
+		_startdate.Required = True
+		'do not let user change the StartDate, value is set in the form load method
+		_startdate.Enabled = False
         Me.Fields.Add(_startdate)
         '
         '_amount
@@ -771,11 +773,11 @@ Partial Public Class [ProspectSponsorshipAddDataFormUIModel]
         '_pfmid
         '
         _pfmid.Name = "PFMID"
-		_pfmid.Caption = "Partnership for mercy"
+		_pfmid.Caption = "Partner"
 		_pfmid.Required = False
         _pfmid.SearchListID = New Guid("a00235ec-b143-4f50-ad74-4c653d605cdf")
 		_pfmid.EnableQuickFind = True
-		_pfmid.SearchFieldOverrides.Add(New Global.Blackbaud.AppFx.UIModeling.Core.FieldOverride() With {.FieldId = "FORMHEADER", .DefaultValueText = "Partnership For Mercy Partner Record Search"})
+		_pfmid.SearchFieldOverrides.Add(New Global.Blackbaud.AppFx.UIModeling.Core.FieldOverride() With {.FieldId = "FORMHEADER", .DefaultValueText = "Partner Record Search"})
         Me.Fields.Add(_pfmid)
         '
         '_interactiontypecodeid
@@ -1649,9 +1651,9 @@ Partial Public Class [ProspectSponsorshipAddDataFormUIModel]
     ''' <summary>
     ''' PFM
     ''' </summary>
-	<System.ComponentModel.Description("Partnership for mercy")> _
-	<System.CodeDom.Compiler.GeneratedCodeAttribute("BBUIModelLibrary", "2.93.2034.0")> _
-	Public ReadOnly Property [PFMID]() As Global.Blackbaud.AppFx.UIModeling.Core.SearchListField(Of Guid)
+	<System.ComponentModel.Description("Partner")> _
+ <System.CodeDom.Compiler.GeneratedCodeAttribute("BBUIModelLibrary", "2.93.2034.0")> _
+ Public ReadOnly Property [PFMID]() As Global.Blackbaud.AppFx.UIModeling.Core.SearchListField(Of Guid)
 		Get
 			Return _pfmid
 		End Get

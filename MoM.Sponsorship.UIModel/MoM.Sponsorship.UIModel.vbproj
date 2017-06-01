@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="4.0">
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="12.0">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
@@ -10,10 +10,11 @@
     <RootNamespace>MoM.Sponsorship.UIModel</RootNamespace>
     <AssemblyName>MoM.Sponsorship.UIModel</AssemblyName>
     <MyType>Windows</MyType>
-    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <OptionInfer>On</OptionInfer>
     <OptionStrict>Off</OptionStrict>
     <OldToolsVersion>2.0</OldToolsVersion>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -30,6 +31,7 @@
     <CodeAnalysisRuleSet>SecurityRules.ruleset</CodeAnalysisRuleSet>
     <WarningsAsErrors>
     </WarningsAsErrors>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -46,6 +48,7 @@
     <CodeAnalysisRuleSet>UIModel.ruleset</CodeAnalysisRuleSet>
     <WarningsAsErrors>
     </WarningsAsErrors>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup>
     <OptionExplicit>On</OptionExplicit>
@@ -129,6 +132,9 @@
       <DependentUpon>UnavailableSponsorship.AddIn.vb</DependentUpon>
     </Compile>
     <Compile Include="AddIns\UnavailableSponsorship.AddIn.vb" />
+    <Compile Include="Complete Web Sponsorships\AddOCMCustomizationsToWebSponsorships.vb" />
+    <Compile Include="Complete Web Sponsorships\AddWebSponsorshipOnBoardingInteractionsCHILDRENUIModel.CodeGen.vb" />
+    <Compile Include="Complete Web Sponsorships\AddWebSponsorshipOnBoardingInteractionsUIModel.CodeGen.vb" />
     <Compile Include="Departure Transfer Complete Override\CompleteOrOverridePendingTransferFormINSTALLMENTSUIModel.CodeGen.vb">
       <DependentUpon>CompleteOrOverridePendingTransferFormUIModel.vb</DependentUpon>
     </Compile>
@@ -207,6 +213,8 @@
     <None Include="..\MoM.Sponsorship.Catalog\Edit Forms\RateIncreaseResponses.Edit.xml">
       <Link>LinkedSpecs\RateIncreaseResponses.Edit.xml</Link>
     </None>
+    <Content Include="Complete Web Sponsorships\AddWebSponsorshipOnBoardingInteractionsUIModel.xml" />
+    <Content Include="htmlforms\AddCustomizationsToWebSponsorships.html" />
     <Content Include="htmlforms\RateIncreaseResponsesEditDataForm.html" />
     <Content Include="htmlforms\ViewSponsorshipDetailsViewForm.html" />
     <Content Include="RateIncreaseResponsesEditDataFormUIModel.xml">

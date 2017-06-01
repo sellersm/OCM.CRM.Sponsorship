@@ -1,0 +1,74 @@
+﻿<DataListSpec 
+	xmlns="bb_appfx_datalist"
+	xmlns:common="bb_appfx_commontypes" 
+	ID="9f737052-f951-4ad9-a2df-b7c0c079afce" 
+	Name="Get Active Web Sponsored Children"
+	Description="Gets list of actively sponsored children based on startdate parameter." 
+	Author="Mark Sellers"
+	common:SecurityUIFolder="Interaction">
+
+	<!-- 
+	Remarks:    Gets actively sponsored children for given sponsor, since the given startdate parameter.
+				Called from the form to complete the sponsorship customizations for new web sponsorships,
+				because the web process doesn't create any of our custom items.
+				Task to launch this form is on the Sponsor/Constituent page.
+
+	History:
+	Date            Modified By     Comments
+	23-May-2017		MSellers		Initial Version.
+	24-May-2017		MSellers		Added code to support parameter of Child LookupId,
+									to just lookup a child, no startdate parameter is required.
+	30-May-2017		MSellers		Added SponsorshipID column to datalist output.
+	-->
+
+
+
+	<!-- define the SP that returns the data for the datalist -->
+	<SPDataList SPName="USR_USP_DATALIST_GET_ACTIVELY_SPONSORED_CHILDREN_BY_STARTDATE">
+		<common:CreateProcedureSQL>
+			<![CDATA[
+create procedure dbo.USR_USP_DATALIST_GET_ACTIVELY_SPONSORED_CHILDREN_BY_STARTDATE(
+	@SPONSORID uniqueidentifier,
+	@STARTDATE date = null,
+	@LOOKUPID nvarchar(10) = null
+)
+as
+	set nocount on;
+
+	select 	CHILDID,
+			CHILDNAME,
+			CHILDLOOKUPID,
+			STARTDATE,
+			SPONSORSHIPID
+	from dbo.USR_UFN_SPONSORSHIP_GETACTIVELYSPONSOREDCHILDREN_FOR_WEBSPONSOR(@SPONSORID, @STARTDATE, @LOOKUPID)
+			]]>
+		</common:CreateProcedureSQL>
+	</SPDataList>
+
+	<!-- describe the context ID parameter for the SP (if applicable)-->
+	<!--<Context ContextRecordType="CONSTITUENT" RecordIDParameter="@SPONSORID"/>-->
+
+	<!-- describe any parameters (other than the context ID) defined on the SP -->
+	<Parameters>
+		<common:FormMetaData>
+			<common:FormFields>
+				<common:FormField FieldID="SPONSORID" Caption="Sponsor ID" DataType="Guid"/>
+				<common:FormField FieldID="STARTDATE" Caption="Start Date" DataType="Date"/>
+				<common:FormField FieldID="LOOKUPID" Caption="Child Id" DataType="String" />
+			</common:FormFields>
+		</common:FormMetaData>
+	</Parameters>
+
+	<!-- define the output fields in the list -->
+	<Output>
+		<OutputFields>
+			<!--<OutputField FieldID="ID" Caption="ID" DataType="Guid" IsHidden="true" />-->
+			<OutputField FieldID="CHILDID" Caption="Child Id" DataType="Guid" IsHidden="true"/>
+			<OutputField FieldID="CHILDNAME" Caption="Child Name" DataType="String" />
+			<OutputField FieldID="CHILDLOOKUPID" Caption="Lookup ID" DataType="String" />
+			<OutputField FieldID="STARTDATE" Caption="Start Date" DataType="Date" />
+			<OutputField FieldID="SPONSORSHIPID" Caption="Sponsorship Id" DataType="Guid" IsHidden="true"/>
+		</OutputFields>
+	</Output>
+
+</DataListSpec>
