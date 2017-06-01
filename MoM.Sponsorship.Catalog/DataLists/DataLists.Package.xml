@@ -1,0 +1,82 @@
+<PackageSpec 
+    xmlns="bb_appfx_package"
+    xmlns:c="bb_appfx_commontypes"
+    ID="016baef5-e47d-4bfa-b6e9-0b8c667b1cd6"
+    Name="Data Lists Package"
+    Description="Loads sponsorship solution datalists."
+    Author="MSellers"
+    >
+
+	<!-- Note:  the order of the items listed here is important.  For example, you won't be able to load a data form that references 
+	a table that hasn't been loaded, etc.  In general, the following order is recommended:
+	
+		(functions and procedures first)
+		SQLFunctionSpec
+		SQLStoredProcedureSpec
+		TranslationFunctionSpec
+
+		(tables next)
+		CodeTableSpec
+		TableSpec
+		SQLViewSpec
+
+		(features next)
+		SimpleDataListSpec		
+		SearchListSpec
+		RecordOperationSpec
+		DataListSpec
+		
+		(forms next)
+		AddDataFormTemplateSpec
+		EditDataFormTemplateSpec
+		ViewDataFormTemplateSpec		
+
+		(more feature types)
+		BatchTypeSpec
+		BusinessProcessSpec
+		CalendarSpec
+		FlashDashSpec
+		GlobalChangeSpec
+		IDMapperSpec
+		KpiSpec
+		MapEntitySpec
+		MergeConfiguration
+		MergeTaskSpec
+		QueryViewSpec
+		ReportSpec
+		RelationshipMapSpec
+		SmartFieldSpec
+		SmartQuerySpec
+		WorkflowInboxSpec
+		WorkflowSpec
+		
+		(functional areas, pages, and tasks last)
+		PageDefinitionSpec
+		FunctionalAreaSpec
+		TaskSpec	
+	-->
+	
+	<c:DependencyList>
+        <c:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.DataLists.ChildrenToSponsor.SimpleList.xml" />
+        <c:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.DataLists.ProjectsAvailableForSponsorship.SimpleList.xml" />
+        <c:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.DataLists.Sponsorship.Reasons.DataList.xml" />
+        <c:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.DataLists.TransferChildrenToSponsor.SimpleList.xml" />
+        <c:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.DataLists.CommitmentLineHistory.Commitments.DataList.xml" />
+        <c:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.DataLists.CommitmentLineHistory.RecurringGifts.DataList.xml" />
+        <c:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.DataLists.DoesSponsorHaveConstituencyCode.DataList.xml" />
+        <c:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.DataLists.GetConstituencyCodeId.DataList.xml" />
+        <c:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.DataLists.GetFundraiserForAppealId.DataList.xml" />
+        <c:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.DataLists.RateIncreaseResponses.DataList.xml" />
+        <c:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.DataLists.RecurringGiftLine.DataList.xml" />
+        <c:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.DataLists.Sponsorship.ActiveOnlyWithGiftInfo.DataList.xml" />
+        <c:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.DataLists.Sponsorship.PackageVersion.DataList.xml" />
+        <c:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.DataLists.Sponsorship.SmartFields.DataList.xml" />
+        <c:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.DataLists.Sponsorship.WithLookupID.DataList.xml" />
+        <c:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.DataLists.SponsorshipDataListCustomized.DataList.xml" />
+        <c:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.DataLists.SponsorshipExtensionConversion.DataList.xml" />
+        <c:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.DataLists.SponsorshipOpportunityMatchCustom.DataList.xml" />
+        <c:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.DataLists.SponsorshipProjectOpportunityMatchCustom.DataList.xml" />
+        <c:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.DataLists.Website.SponsorshipCheckoutSource.DataList.xml" />
+    </c:DependencyList>
+
+</PackageSpec>

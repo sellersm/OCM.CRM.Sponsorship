@@ -1,0 +1,103 @@
+<PackageSpec 
+    xmlns="bb_appfx_package"
+    xmlns:c="bb_appfx_commontypes"
+    ID="25f82e6b-c262-4889-a51f-5c8a2dd4faa9"
+    Name="Query Views Package"
+    Description="Loads all query view specs."
+    Author="MSellers"
+    >
+
+	<!-- Note:  the order of the items listed here is important.  For example, you won't be able to load a data form that references 
+	a table that hasn't been loaded, etc.  In general, the following order is recommended:
+	
+		(functions and procedures first)
+		SQLFunctionSpec
+		SQLStoredProcedureSpec
+		TranslationFunctionSpec
+
+		(tables next)
+		CodeTableSpec
+		TableSpec
+		SQLViewSpec
+
+		(features next)
+		SimpleDataListSpec		
+		SearchListSpec
+		RecordOperationSpec
+		DataListSpec
+		
+		(forms next)
+		AddDataFormTemplateSpec
+		EditDataFormTemplateSpec
+		ViewDataFormTemplateSpec		
+
+		(more feature types)
+		BatchTypeSpec
+		BusinessProcessSpec
+		CalendarSpec
+		FlashDashSpec
+		GlobalChangeSpec
+		IDMapperSpec
+		KpiSpec
+		MapEntitySpec
+		MergeConfiguration
+		MergeTaskSpec
+		QueryViewSpec
+		ReportSpec
+		RelationshipMapSpec
+		SmartFieldSpec
+		SmartQuerySpec
+		WorkflowInboxSpec
+		WorkflowSpec
+		
+		(functional areas, pages, and tasks last)
+		PageDefinitionSpec
+		FunctionalAreaSpec
+		TaskSpec	
+	-->
+	
+	<c:DependencyList>
+        <c:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.Query Views.CorrespondentSponsorsChildrenWithDCFix.Query.xml" />
+        <c:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.Query Views.D2BizProcessRecordsNotProcessed.Query.xml" />
+        <c:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.Query Views.D2DelinquencyCampaign.Sponsorships.Query.xml" />
+        <c:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.Query Views.D2DelinquencyCampaignAsOfToday.Sponsorships.Query.xml" />
+        <c:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.Query Views.D3DelinquencyCampaign.Sponsorships.Query.xml" />
+        <c:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.Query Views.D3DelinquencyCampaignAsOfToday.Sponsorships.Query.xml" />
+        <c:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.Query Views.D4DelinquencyCampaign.Sponsorships.Query.xml" />
+        <c:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.Query Views.D4DelinquencyCampaignAsOfToday.Sponsorships.Query.xml" />
+        <c:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.Query Views.D4SponsorshipsToCancel.Query.xml" />
+        <c:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.Query Views.DelinquencyCampaignsSponsorshipsInfo.Query.xml" />
+        <c:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.Query Views.DelinquencyCampaignsSponsorshipsInfoAsOfToday.Query.xml" />
+        <c:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.Query Views.HT018Closure.FindAllSponsorships.Query.xml" />
+        <c:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.Query Views.HT018Closure.NewNTD.Query.xml" />
+        <c:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.Query Views.HT018Closure.NewNTDDetails.Query.xml" />
+        <c:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.Query Views.HT018Closure.Report.Query.xml" />
+        <c:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.Query Views.IdentifyDupChildMergeRGTargetIsAppealNotAssignments.Query.xml" />
+        <c:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.Query Views.LockedChildren.Query.xml" />
+        <c:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.Query Views.OrphanRecurringGifts.Query.xml" />
+        <c:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.Query Views.Revenue.SystemDateTimes.Query.xml" />
+        <c:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.Query Views.RevenueExtension.Query.xml" />
+        <c:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.Query Views.RevenueSchedule.Query.xml" />
+        <c:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.Query Views.RGL.Query.xml" />
+        <c:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.Query Views.RGL.RecurringGiftActivityBackup.Query.xml" />
+        <c:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.Query Views.RGL.RevenueExtBackup.Query.xml" />
+        <c:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.Query Views.RGLDataOnly.Query.xml" />
+        <c:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.Query Views.RGLPopulateExceptions.Query.xml" />
+        <c:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.Query Views.SameChildMultipleCommitmentsAndRG.Query.xml" />
+        <c:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.Query Views.Sponsorship.ActiveSponsorshipsWithInactiveRG.Query.xml" />
+        <c:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.Query Views.Sponsorship.ActiveSponsorshipsWithNoPayments.Query.xml" />
+        <c:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.Query Views.Sponsorship.Delinquency.Query.xml" />
+        <c:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.Query Views.Sponsorship.IsMostRecentForCommitment.Active.Query.xml" />
+        <c:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.Query Views.Sponsorship.MultipleCommitmentsForSponsorChild.Query.xml" />
+        <c:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.Query Views.Sponsorship.ProspectsToConversion.Query.xml" />
+        <c:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.Query Views.Sponsorship.SystemDatetimes.Query.xml" />
+        <c:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.Query Views.SponsorshipCommitmentsWithMultipleRG.AllRankings.Query.xml" />
+        <c:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.Query Views.SponsorshipCommitmentsWithMultipleRG.Query.xml" />
+        <c:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.Query Views.SponsorshipExtension.Query.xml" />
+        <c:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.Query Views.SponsorshipExtension.Sub.Query.xml" />
+        <c:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.Query Views.SponsorshipExtensionInsertLog.Query.xml" />
+        <c:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.Query Views.SponsorshipExtensionUpdateLog.Query.xml" />
+        <c:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.Query Views.SponsorshipNTDChange.Query.xml" />
+    </c:DependencyList>
+
+</PackageSpec>

@@ -1,0 +1,106 @@
+<PackageSpec 
+    xmlns="bb_appfx_package"
+    xmlns:c="bb_appfx_commontypes"
+    ID="4c33b31f-cbf5-4cec-a9d1-43fa898e530c"
+    Name="SQL UFN Package"
+    Description="Loads all SQL UFN specs."
+    Author="MSellers"
+    >
+
+	<!-- Note:  the order of the items listed here is important.  For example, you won't be able to load a data form that references 
+	a table that hasn't been loaded, etc.  In general, the following order is recommended:
+	
+		(functions and procedures first)
+		SQLFunctionSpec
+		SQLStoredProcedureSpec
+		TranslationFunctionSpec
+
+		(tables next)
+		CodeTableSpec
+		TableSpec
+		SQLViewSpec
+
+		(features next)
+		SimpleDataListSpec		
+		SearchListSpec
+		RecordOperationSpec
+		DataListSpec
+		
+		(forms next)
+		AddDataFormTemplateSpec
+		EditDataFormTemplateSpec
+		ViewDataFormTemplateSpec		
+
+		(more feature types)
+		BatchTypeSpec
+		BusinessProcessSpec
+		CalendarSpec
+		FlashDashSpec
+		GlobalChangeSpec
+		IDMapperSpec
+		KpiSpec
+		MapEntitySpec
+		MergeConfiguration
+		MergeTaskSpec
+		QueryViewSpec
+		ReportSpec
+		RelationshipMapSpec
+		SmartFieldSpec
+		SmartQuerySpec
+		WorkflowInboxSpec
+		WorkflowSpec
+		
+		(functional areas, pages, and tasks last)
+		PageDefinitionSpec
+		FunctionalAreaSpec
+		TaskSpec	
+	-->
+	
+	<c:DependencyList>
+        <c:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.SQL.User Functions.UFN_SPONSORSHIP_PROGRAMANDOPPORTUNITYCONSISTENT.xml" />
+        <c:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.SQL.User Functions.USR_UFN_CALCULATE_NTD_DELINQUENCY.xml" />
+        <c:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.SQL.User Functions.USR_UFN_CHECK_OK_TO_ADD_PROSPECTSPONSORSHIP.xml" />
+        <c:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.SQL.User Functions.USR_UFN_CHECK_OK_TO_ADD_SPONSORSHIP.xml" />
+        <c:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.SQL.User Functions.USR_UFN_CHECK_RECURRINGGIFT_ISEFTDECLINED.xml" />
+        <c:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.SQL.User Functions.USR_UFN_CHECK_RECURRINGGIFT_ISHELD.xml" />
+        <c:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.SQL.User Functions.USR_UFN_CHILDREN_FOR_SPONSORSHIP_FROMITEMLISTXML.xml" />
+        <c:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.SQL.User Functions.USR_UFN_CURRENTOPPORTUNITYSPONSORSHIPSTATUSCODE_GETID_FORDESCRIPTION.xml" />
+        <c:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.SQL.User Functions.USR_UFN_GET_D2_DELINQUENCY_SPONSORSHIPS.xml" />
+        <c:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.SQL.User Functions.USR_UFN_GET_D3_DELINQUENCY_SPONSORSHIPS.xml" />
+        <c:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.SQL.User Functions.USR_UFN_GET_D4_DELINQUENCY_SPONSORSHIPS.xml" />
+        <c:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.SQL.User Functions.USR_UFN_GET_DELINQUENCY_SPONSORSHIPS.xml" />
+        <c:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.SQL.User Functions.USR_UFN_GET_PAYMENTMETHODCODE_BY_REVENUESPLITID.xml" />
+        <c:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.SQL.User Functions.USR_UFN_GET_PREDEPARTUREGIFTSTATUS.xml" />
+        <c:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.SQL.User Functions.USR_UFN_GET_SPONSORSHIPEXTENSION_CLH_INFO.xml" />
+        <c:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.SQL.User Functions.USR_UFN_GET_UNPAIDSPONSORED_FINANCIALCOMMITMENTS_BYSPONSOR.xml" />
+        <c:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.SQL.User Functions.USR_UFN_GETACTIVE_FINANCIALCOMMITMENTS_BYSPONSOR.xml" />
+        <c:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.SQL.User Functions.USR_UFN_GETCOUNT_ACTIVEPROJECTSPONSORSHIPS_FORSPONSOR.xml" />
+        <c:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.SQL.User Functions.USR_UFN_GETFINANCIALTRANSACTIONID_FORSPONSORSHIP.xml" />
+        <c:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.SQL.User Functions.USR_UFN_GETSPONSORSHIPREASON_FOROPPORTUNITY.xml" />
+        <c:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.SQL.User Functions.USR_UFN_INITIALOPPORTUNITYSPONSORSHIPSTATUSCODE_GETID_FORDESCRIPTION.xml" />
+        <c:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.SQL.User Functions.USR_UFN_IS_SELECTED_CHILD_LOCKED_FOR_SPONSORSHIP_SELECTION.xml" />
+        <c:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.SQL.User Functions.USR_UFN_ISSPONSORSHIP_PAIDAHEAD.xml" />
+        <c:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.SQL.User Functions.USR_UFN_MERGEDUPCHILD_RG_ASSIGNMENTSAPPEALCATEGORY.xml" />
+        <c:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.SQL.User Functions.USR_UFN_RECURRINGGIFT_GETNUMBEROFMONTHSPASTDUE.xml" />
+        <c:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.SQL.User Functions.USR_UFN_SAMECHILD_MULTICOMMITMENTS_RG.xml" />
+        <c:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.SQL.User Functions.USR_UFN_SPONSORSHIP_GET_NEXT_TRANSACTIONDATE_BY_SPONSORSHIPID.xml" />
+        <c:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.SQL.User Functions.USR_UFN_SPONSORSHIP_GET_SPONSORSHIPREASON_BY_REASONID.xml" />
+        <c:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.SQL.User Functions.USR_UFN_SPONSORSHIP_GETACTIVECHILDSPONSORSHIPSFORSPONSOR.xml" />
+        <c:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.SQL.User Functions.USR_UFN_SPONSORSHIP_GETACTIVELYSPONSOREDCHILDREN_FORSPONSOR.xml" />
+        <c:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.SQL.User Functions.USR_UFN_SPONSORSHIP_GETCORRESPONDENT.xml" />
+        <c:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.SQL.User Functions.USR_UFN_SPONSORSHIP_GETCURRENTOPPORTUNITYSTATUSCODEID.xml" />
+        <c:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.SQL.User Functions.USR_UFN_SPONSORSHIP_GETFINANCIALSPONSOR.xml" />
+        <c:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.SQL.User Functions.USR_UFN_SPONSORSHIP_GETFINANCIALSPONSOR_BYSPONSORSHIPOPP.xml" />
+        <c:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.SQL.User Functions.USR_UFN_SPONSORSHIP_GETSPONSORSHIPID.xml" />
+        <c:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.SQL.User Functions.USR_UFN_SPONSORSHIP_GETUNPAID_SPONSOREDCHILDREN_FORSPONSOR.xml" />
+        <c:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.SQL.User Functions.USR_UFN_SPONSORSHIP_HASPAYMENT.xml" />
+        <c:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.SQL.User Functions.USR_UFN_SPONSORSHIP_ISEFT.xml" />
+        <c:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.SQL.User Functions.USR_UFN_SPONSORSHIP_MATCHEDOPPORTUNITY_CHILDSPONSORSHIP.xml" />
+        <c:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.SQL.User Functions.USR_UFN_SPONSORSHIP_MATCHEDOPPORTUNITY_PROJECTSPONSORSHIP.xml" />
+        <c:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.SQL.User Functions.USR_UFN_SPONSORSHIPOPPORTUNTITY_GETID_BYLOOKUPID.xml" />
+        <c:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.SQL.User Functions.USR_UFN_UNAVAILABLECHILDREN_FOR_TRANSFERSPONSORSHIP_FROMITEMLISTXML.xml" />
+        <c:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.SQL.User Functions.USR_UFN_VALIDATE_SPONSORSHIP_CANCELLATION_INTERACTIONTYPECODE.xml" />
+        <c:Dependency CatalogAssembly="MoM.Sponsorship.Catalog.dll" CatalogItem="MoM.Sponsorship.Catalog.SQL.User Functions.USR_UFN_VALIDATE_SPONSORSHIP_CANCELLATION_REASON.xml" />
+    </c:DependencyList>
+
+</PackageSpec>
