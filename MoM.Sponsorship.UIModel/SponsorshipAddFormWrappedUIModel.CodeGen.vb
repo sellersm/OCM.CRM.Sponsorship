@@ -316,7 +316,7 @@ Partial Public Class [SponsorshipAddFormWrappedUIModel]
 		'_pfmid
 		'
 		_pfmid.Name = "PFMID"
-		_pfmid.Caption = "Partnership for mercy"
+		_pfmid.Caption = "Partner"
 		_pfmid.Required = False
 		_pfmid.SearchListId = New Guid("a00235ec-b143-4f50-ad74-4c653d605cdf")
 		_pfmid.EnableQuickFind = True
@@ -325,7 +325,7 @@ Partial Public Class [SponsorshipAddFormWrappedUIModel]
 		'_pfmid.SearchListAddForms.Add(New Global.Blackbaud.AppFx.UIModeling.Core.SearchListAddForm(New Guid("f0f6426a-fccd-48bb-846b-eb3d1a4a0ed4"), "Group"))
 		'_pfmid.SearchListAddForms.Add(New Global.Blackbaud.AppFx.UIModeling.Core.SearchListAddForm(New Guid("0706d187-af1a-4bd6-8365-8fb7419e5600"), "Organization"))
 		'_pfmid.SearchFieldOverrides.Add(New Global.Blackbaud.AppFx.UIModeling.Core.FieldOverride() With {.FieldId = "INCLUDENONCONSTITUENTRECORDS", .Hidden = True, .DefaultValueText = "true"})
-		_pfmid.SearchFieldOverrides.Add(New Global.Blackbaud.AppFx.UIModeling.Core.FieldOverride() With {.FieldId = "FORMHEADER", .DefaultValueText = "Partnership For Mercy Record Search"})
+		_pfmid.SearchFieldOverrides.Add(New Global.Blackbaud.AppFx.UIModeling.Core.FieldOverride() With {.FieldId = "FORMHEADER", .DefaultValueText = "Partner Record Search"})
 		Me.Fields.Add(_pfmid)
 		'
 		'_fundraiserid
@@ -500,7 +500,9 @@ Partial Public Class [SponsorshipAddFormWrappedUIModel]
         '_startdate
         '
         _startdate.Name = "STARTDATE"
-        _startdate.Caption = "Start date"
+		_startdate.Caption = "Start date"
+		'do not let user change the StartDate, value is set in the form load method
+		_startdate.Enabled = False
         _startdate.Required = True
         Me.Fields.Add(_startdate)
         '

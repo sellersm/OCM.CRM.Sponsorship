@@ -1,0 +1,110 @@
+﻿<RecordOperationSpec 
+	xmlns="bb_appfx_recordoperation"
+	xmlns:common="bb_appfx_commontypes" 
+	ID="3027a189-a1c7-4762-8ef0-6fe5f576a6ad" 
+	Name="Create Onboarding Interactions for Sponsor" 
+	Description="Creates full set of Onboarding Interactions for a given Sponsor."
+	Author="Memphis Sellers"
+	OperationType="Update"
+	RecordType="Constituent"
+	common:SecurityUIFolder="Constituent"
+	>
+
+	<!-- 
+	Remarks:    Creates the full set (9) of new OnBoarding Interactions on the given Sponsor.
+				Called from a Task on the Sponsor's Page.
+				New Onboarding Interactions Task:
+				 - Record Op on the Sponsor Page Tasks (Actions)
+				 - Will create all 9 interactions no matter what/who they are,
+				 - Will add all the Children for their Active Sponsorships
+				 - Still need to check the Valid Email for Box 1a/b
+				Let me give two examples:
+				1.Sitting on (sole/regular) Sponsor Joe Schmoe, click the Task and I create all 9 Interactions for Joe? 
+					- Yes
+				2.Sitting on (financial) Sponsor Sally Smith, click the Task and:
+					a.       Do I create Interactions for *ONLY* Sally?, or 
+					 - YES: Only Sally gets the Interactions
+					b.      Do I create interactions for *BOTH* Sally and the Correspondent Sponsor (Sponsorship recipient) (whoever that may be)? 
+					 - NO: only the record you are on.
+				
+	History:
+	Date            Modified By     Comments
+	31-Jan-2017		Memphis			Initial Version
+	15-Feb-2017		MSellers		Refactored to improve performance and avoid timeout errors in DEV.
+	-->
+
+
+	<SPRecord>
+		<SPOperationImplementation SPName="USR_USP_CREATE_SPONSOR_ONBOARDING_INTERACTIONS_RECORDOP">
+			<common:CreateProcedureSQL>
+				<![CDATA[
+create procedure dbo.USR_USP_CREATE_SPONSOR_ONBOARDING_INTERACTIONS_RECORDOP
+(
+	@ID uniqueidentifier,				-- SponsorID of the Sponsor the user is viewing, only create interactions for this Sponsor!
+	@CHANGEAGENTID uniqueidentifier
+)
+as begin
+	if @CHANGEAGENTID is null
+			exec dbo.USP_CHANGEAGENT_GETORCREATECHANGEAGENT @CHANGEAGENTID output;
+
+	declare @sponsorshipsTable table
+	(
+		OpportunityChildID uniqueidentifier,
+		SponsorshipID uniqueidentifier,
+		FinSponsorID uniqueidentifier,
+		SponsorID uniqueidentifier
+	);
+
+	declare @isGiftedSponsorship bit = 0;
+	declare @isSoleSponsorship bit = 0;
+	declare @financialSponsorID uniqueidentifier = null;
+	declare @correspondingSponsorID uniqueidentifier = null;
+	declare @soleSponsorID uniqueidentifier = null;
+
+	begin try
+		-- populate the child list with the childid values in the temptable
+		declare @childIDList dbo.USR_UDT_CHILDIDLIST;
+		declare @interactionExpectedDate date = getdate();
+ 
+		insert @childIDList 
+		select	distinct(sc.ID) 
+		from dbo.SPONSORSHIP s
+		join dbo.SPONSORSHIPOPPORTUNITY so on s.SPONSORSHIPOPPORTUNITYID = so.ID
+		join dbo.SPONSORSHIPOPPORTUNITYCHILD sc on sc.ID = so.ID
+		left join	dbo.REVENUESPLIT on REVENUESPLIT.ID = s.REVENUESPLITID
+		left join	dbo.REVENUE on REVENUE.ID = REVENUESPLIT.REVENUEID	
+		where (s.CONSTITUENTID = @ID
+			or REVENUE.CONSTITUENTID = @ID)
+		and s.STATUSCODE = 1    -- Active
+			
+		-- call the new Stored Procedure to create New Sponsorship Onboarding Interactions
+		exec dbo.USR_USP_CREATE_SPONSORSHIP_ONBOARDING_INTERACTIONS
+					@sponsorID = @ID,
+					@setEFTBrochureCode = 0,
+					@changeAgentID = @changeAgentID,
+					@childIDList = @childIDList,								
+					@correspondentID = NULL,
+					@isConversion = 0		-- tells the SPROC to whether or not create the 1st Thank You Interaction! 1 means DO NOT, 0 means DO
+	
+	end try
+
+	begin catch
+		exec dbo.USP_RAISE_ERROR;
+		return 1;
+	end catch
+
+
+	return 0;
+	
+end
+				]]>
+			</common:CreateProcedureSQL>
+		</SPOperationImplementation>
+	</SPRecord>
+
+	<!-- optionally, offer a prompt before executing the record operation -->
+	<Prompt>
+		<StandardPrompt Text="Are you sure you want to create all Onboarding Interactions?" />
+	</Prompt>
+
+</RecordOperationSpec>

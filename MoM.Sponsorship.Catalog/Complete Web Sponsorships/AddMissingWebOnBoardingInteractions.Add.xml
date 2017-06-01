@@ -1,0 +1,408 @@
+﻿<AddDataFormTemplateSpec 
+    xmlns="bb_appfx_adddataformtemplate"
+    xmlns:common="bb_appfx_commontypes"
+    ID="7fee7603-28c1-4eb0-b033-70607018198c"
+    Name="Complete Web Sponsorships"
+    Description="Adds our customizations to web sponsorships."
+    Author="Mark Sellers"
+    DataFormInstanceID="ed807a08-e800-41c2-9e05-a6da01eb4493"
+    RecordType="Interaction"
+    common:SecurityUIFolder="Interaction"
+    FormHeader="Complete Web Sponsorships"
+    >
+
+	<!-- 
+	Remarks:    Form to create our sponsorship customizations for new web sponsorships,
+				because the web process doesn't create any of our custom items.
+				Task to launch this form is on the Sponsor/Constituent page.
+
+	History:
+	Date            Modified By     Comments
+	22-May-2017		MSellers		Initial Version.
+	30-May-2017		MSellers		Updated form header value.
+	-->
+
+
+	<SPDataForm>
+		<!-- describe the preload SP (if applicable), which should be used to fetch field default values from the database.  If no
+		preload is needed, then this section can be removed -->
+		<LoadImplementation SPName="USR_USP_DATAFORMTEMPLATE_ADD_WEB_ONBOARDING_INTERACTIONS_PRELOAD">
+			<common:CreateProcedureSQL>
+				<![CDATA[
+create procedure dbo.USR_USP_DATAFORMTEMPLATE_ADD_WEB_ONBOARDING_INTERACTIONS_PRELOAD
+(
+	@SPONSORID uniqueidentifier,
+	@SPONSORNAME nvarchar(100) = null output,
+	@SPONSORSHIPCONSTITUENTID uniqueidentifier = null output
+)
+as
+	set nocount on;
+		
+	-- populate the fields that have default values that should be fetched from the database
+	select	@SPONSORNAME = [NAME],
+			@SPONSORSHIPCONSTITUENTID = ID
+	from dbo.CONSTITUENT
+	where ID = @SPONSORID
+	
+	return 0;				
+				]]>
+			</common:CreateProcedureSQL>
+		</LoadImplementation>
+
+		<!-- describe the save SP -->
+		<SaveImplementation SPName="USR_USP_DATAFORMTEMPLATE_ADD_WEB_ONBOARDING_INTERACTIONS">
+			<common:CreateProcedureSQL>
+				<![CDATA[
+create procedure dbo.USR_USP_DATAFORMTEMPLATE_ADD_WEB_ONBOARDING_INTERACTIONS
+(
+    @ID uniqueidentifier = null output,
+	@SPONSORID uniqueidentifier,
+	--@SPONSORSHIPCONSTITUENTID uniqueidentifier = null,
+    @CHANGEAGENTID uniqueidentifier = null,
+	@ISPROSPECT bit = 0,
+	@FILTERDATE date = null,
+	@CHILDREN xml = null,
+	@SPONSORSHIPOPPORTUNITYIDCHILD uniqueidentifier = null,
+	@INTERACTIONTYPECODEID uniqueidentifier = null,
+	@PFMID uniqueidentifier = null
+)
+as
+
+set nocount on;
+
+if @ID is null
+    set @ID = newid()
+
+if @CHANGEAGENTID is null  
+    exec dbo.USP_CHANGEAGENT_GETORCREATECHANGEAGENT @CHANGEAGENTID output
+
+begin try
+declare @CURRENTDATE datetime
+set @CURRENTDATE = getdate()
+	declare @CONSTITUENCYCODEID uniqueidentifier;
+	declare @DATEFROM datetime = getdate();
+	declare @DATETO datetime;
+	declare  @CONSTITUENTID uniqueidentifier;
+	declare @sponsorshipID uniqueidentifier = null;
+	
+	-- cursor variables:
+	declare @CHILDID uniqueidentifier; 
+	declare @CHILDNAME nvarchar(max); 
+	declare @LOOKUPID nvarchar(7); 
+	declare @STARTDATE date; 
+	declare @WEBSPONSORSHIPID uniqueidentifier;
+	declare @childIDList dbo.USR_UDT_CHILDIDLIST;
+	
+	-- sponsorship extension variables:
+	declare @statusText nvarchar(20) = null;
+
+	set @CONSTITUENTID = @SPONSORID -- this is the sponsor passed in from the form
+
+	--  *** NOT SURE NEED THIS? ***
+	declare @reservationStatusCode_Sponsored tinyint = 2	--***  CMayeda - Used to set the status of the reservation key if it exists in USR_CHILDRESERVATION
+	declare @reservationStatusCode_Open tinyint = 1			--***  CMayeda - Used to find reservations in USR_CHILDRESERVATION that are open
+	------------------------------------------------
+
+	-- Memphis: new for 2016 onboarding, set the PartnerID field in Interaction Extension if this is a Partner Co-Branding sponsorship
+	--  this value is set below if there's a PartnerID set in the Add Prospect Sponsorship form:
+	declare @doSetPartnerIDField bit = 0;
+
+	-- do the Partnership for Mercy setup if the user picked one:
+	if @PFMID is not null
+	begin				
+		-- call the sproc to manage the partnership stuff:
+		exec dbo.USR_USP_HANDLE_SPONSORSHIP_ADD_PARTNERSHIP 
+			@PFMID = @PFMID,
+			@CONSTITUENTID = @CONSTITUENTID,
+			@CHANGEAGENTID = @CHANGEAGENTID
+			
+		-- check for the Co-Branding Fulfillment attribute of 'Yes - Partner':
+		declare @coBrandYesFulfillmentCodeID uniqueidentifier = null;
+		select @coBrandYesFulfillmentCodeID = ID
+		from dbo.COBRANDINGFULFILLMENTCODE
+		where lower([description]) = lower('Yes - Partner');
+		
+		if @coBrandYesFulfillmentCodeID is null
+			RAISERROR ('Unable to find the [Yes - Partner] Co-Branding Fulfillment Code!', 16, 1);
+		
+		-- This is the Attribute table for ***DEV ONLY***:  ATTRIBUTE797dbb124a23488b96284dc66e203908
+		-- PROD tablename is: attributedcf97954c27e4c8e916be0deb920ed05
+		--select * --ID,COBRANDINGFULFILLMENTCODEID,COMMENT 
+		--from dbo.ATTRIBUTE797dbb124a23488b96284dc66e203908
+		--for Local CRM Instance testing, use this Table: ATTRIBUTE1EB07079E1ED42A9A56FEFF6F839CE28
+
+		--look for the value of 'Yes - Partner' for the given Constituent
+		-- this is for DEV:
+		--if exists (select 1 from dbo.ATTRIBUTE797dbb124a23488b96284dc66e203908 where ID = @PFMID and COBRANDINGFULFILLMENTCODEID = @coBrandYesFulfillmentCodeID)
+		
+		-- this is for LOCAL:
+		if exists (select 1 from dbo.ATTRIBUTE1EB07079E1ED42A9A56FEFF6F839CE28 where ID = @PFMID and COBRANDINGFULFILLMENTCODEID = @coBrandYesFulfillmentCodeID)
+		
+		-- *** UNCOMMENT BELOW FOR PROD DEPLOYMENT  **** \/\/\/\/\/\/\/\/\/\/
+		-- this is for PROD:
+		--if exists (select 1 from dbo.attributedcf97954c27e4c8e916be0deb920ed05 where ID = @PFMID and COBRANDINGFULFILLMENTCODEID = @coBrandYesFulfillmentCodeID)
+			begin
+				set @doSetPartnerIDField = 1;
+			end
+			
+	end  -- @PFMID is not null
+	
+	
+	-- 5/30/2017 MSellers added new UFN to use to get the appropriate values from the children XML collection:
+	--	USR_UFN_WEB_SPONSORED_CHILDREN_FROMITEMLISTXML
+	--  returns:
+	--  ID, ChildId, LookupId, StartDate, SponsorshipId	
+	declare @TempTbl table (
+		[ID] uniqueidentifier,
+		[CHILDNAME] nvarchar(max),
+		[LOOKUPID] nvarchar(7),
+		[STARTDATE] date,
+		[WEBSPONSORSHIPID] uniqueidentifier		
+		)
+
+	insert into @TempTbl 
+	select 
+		[ID],
+		[CHILDNAME],
+		[LOOKUPID],
+		[STARTDATE],
+		[SPONSORSHIPID]
+	from dbo.USR_UFN_WEB_SPONSORED_CHILDREN_FROMITEMLISTXML(@CHILDREN)
+
+  declare childCursor cursor fast_forward for 
+  select ID,
+		CHILDNAME,
+		LOOKUPID,
+		STARTDATE,
+		WEBSPONSORSHIPID
+  from @TempTbl 
+
+  open childCursor 
+
+  fetch next from childCursor into @CHILDID, @CHILDNAME, @LOOKUPID, @STARTDATE, @WEBSPONSORSHIPID
+
+  while @@FETCH_STATUS = 0
+	begin
+		--***  New reservation code to account for Closed web sponsorships:
+		-- EndDate should match the child's sponsorship start date
+		-- search on child id
+		update	cr --dbo.USR_CHILDRESERVATION 
+		set	cr.STATUSCODE = @reservationStatusCode_Sponsored
+			--cr.ENDDATE = getdate() 
+		from dbo.USR_CHILDRESERVATION cr
+		join dbo.SPONSORSHIPOPPORTUNITYRESERVEPROCESS srp on srp.ID = cr.SPONSORSHIPOPPORTUNITYRESERVEPROCESSID and NAME like '%website%'
+		where cr.ENDDATE = @STARTDATE
+		and cr.SPONSORSHIPOPPORTUNITYCHILDID = @CHILDID
+		--***  END New reservation code  
+
+		if @ISPROSPECT = 1
+			set @statusText = 'Sponsored'
+		else
+			set @statusText = 'Prospect Sponsored'
+			
+		-- insert into the sponsorship extension table:
+		-- this is for Sponsored:
+		exec dbo.USR_USP_INSERTNEWSPONSORSHIP_SPONSORSHIPEXTENSION
+			@SPONSORSHIPID = @WEBSPONSORSHIPID,
+			@initialStatusText = @statusText, --'Sponsored',			
+			@currentStatusText = @statusText, --'Sponsored',			
+			@CHANGEAGENTID = @CHANGEAGENTID,			
+			@SPONSORSHIPOPPORTUNITYID = @CHILDID
+						 
+		fetch next from childCursor into @CHILDID, @CHILDNAME, @LOOKUPID, @STARTDATE, @WEBSPONSORSHIPID
+	end
+
+	close childCursor 
+	deallocate childCursor 
+  
+	-- populate the child list with the current childid value before calling the sproc to create interactions:
+	insert @childIDList 
+	select ID
+	from @TempTbl;
+
+	-- 5/31/17: MSellers the interaction sproc is different if this is a Sponsor vs Prospect Sponsor:
+	-- ** 5/31/17: MSellers NEED to figure out how to create the interactions for the given Sponsor
+	--    ??? Can I call the sproc below and make it work, or do I need a new one, or a new parameter?  
+	
+	-- I *THINK* I can just get the 1st web sponsorship ID value and pass it into the sprocs below,
+	--   the only thing that parameter's used for is to determine the financial/corresponding/sole sponsor!
+	--   since all the web sponsorshipId values are for the same sponsor, and they should be web sponsorships,
+	--   and all web sponsorships are Sole Sponsors, then it should work?
+	select top 1 @WEBSPONSORSHIPID = WEBSPONSORSHIPID
+	from @TempTbl;
+	
+	if @ISPROSPECT = 1
+		begin
+			-- call sproc to create the requested interaction type
+			exec dbo.USR_USP_SPONSORSHIP_CREATENEWPROSPECTSPONSORSHIPINTERACTIONS 
+				 @sponsorshipID = @WEBSPONSORSHIPID,				
+				 @childIDList = @childIDList,		
+				 @interactionTypeCodeID = @INTERACTIONTYPECODEID,		
+				 @changeAgentID = @CHANGEAGENTID,	
+				 @doSetPartnerIDField = @doSetPartnerIDField,
+				 @partnerID = @PFMID				 		
+		end
+	else
+		begin
+			exec dbo.USR_USP_SPONSORSHIP_CREATENEWSPONSORSHIPINTERACTIONS 
+				 @sponsorshipID = @WEBSPONSORSHIPID,				
+				 @childIDList = @childIDList,		
+				 @interactionTypeCodeID = @INTERACTIONTYPECODEID,		
+				 @changeAgentID = @CHANGEAGENTID,	
+				 @doSetPartnerIDField = @doSetPartnerIDField,
+				 @partnerID = @PFMID
+		end
+  
+  
+	-- add the 'Sponsor' constituency code if not already there:
+	-- get the constituencycodeid of 'Sponsor' or 'Prospect Sponsor'
+	
+	if @ISPROSPECT = 1
+		begin
+			select @CONSTITUENCYCODEID = ID
+			from dbo.CONSTITUENCYCODE
+			where lower([DESCRIPTION]) = lower('Prospect Sponsor');
+		end
+	else
+		begin
+			select @CONSTITUENCYCODEID = ID
+			from dbo.CONSTITUENCYCODE
+			where lower([DESCRIPTION]) = lower('Sponsor');
+		end
+
+	if @CONSTITUENCYCODEID is null
+		RAISERROR ('Could not find the "Sponsor" or "Prospect Sponsor" constituency code!', 16, 1);
+
+	-- check now for the given constituency code for the given constituent
+	/*
+	* 9/25/12 Memphis call the new function and check the return codes
+	* 0 means con doesn't have this code: 
+	* 1 means con has this code and it ends in the future:  
+	* 2 means con has this code and it ends today!
+	*/
+	declare @constituencyCheckCode tinyint = 0;	
+	select @constituencyCheckCode = dbo.USR_UFN_CONSTITUENT_HAS_CONSTITUENCYCODE_CHECKENDDATE (@CONSTITUENTID, @CONSTITUENCYCODEID)
+
+	-- 0 means they don't have the code, so add it:
+	if @constituencyCheckCode = 0
+		exec dbo.USR_USP_ADD_CONSTITUENT_CONSTITUENCYCODE
+						--@ID OUTPUT
+						null
+						,@CHANGEAGENTID
+						,@CONSTITUENTID
+						,@CONSTITUENCYCODEID
+						,@DATEFROM
+						,@DATETO
+	
+
+end try
+
+begin catch
+	exec dbo.USP_RAISE_ERROR;
+	return 1;
+end catch
+
+begin try
+--***  New reservation code to account for Closed web sponsorships:
+	-- EndDate should match the child's sponsorship start date
+	-- search on child id
+	update	cr --dbo.USR_CHILDRESERVATION 
+	set	cr.STATUSCODE = @reservationStatusCode_Sponsored
+		--cr.ENDDATE = getdate() 
+	from dbo.USR_CHILDRESERVATION cr
+	join dbo.SPONSORSHIPOPPORTUNITYRESERVEPROCESS srp on srp.ID = cr.SPONSORSHIPOPPORTUNITYRESERVEPROCESSID and NAME like '%website%'
+	where cr.ENDDATE = @startDate
+	and cr.SPONSORSHIPOPPORTUNITYCHILDID = @childId
+--***  END New reservation code   	 
+end try
+
+begin catch
+	exec dbo.USP_RAISE_ERROR;
+	return 1;
+end catch
+
+return 0				
+				]]>
+			</common:CreateProcedureSQL>
+		</SaveImplementation>
+	</SPDataForm>
+
+	<!-- describe the context ID for this form (if applicable), which corresponds to a parameter in the SP. -->
+	<Context ContextRecordType="CONSTITUENT" RecordIDParameter="SPONSORID" />
+
+	<!-- describe fields on the form, which correspond to parameters on the SP.  Note that system parameters 
+	like the context @ID, @CONTEXTID, and @CURRENTAPPUSERID need not be listed. -->
+	<common:FormMetaData FixedDialog="false">
+		<common:FormFields>
+			<!--<common:FormField FieldID="FORMTITLE" ReadOnly="true" MaxLength="100" />-->
+			<common:FormField FieldID="SPONSORSHIPCONSTITUENTID" DataType="Guid" Caption="Sponsor ID" Hidden="true"  ReadOnly="true "/>
+			<common:FormField FieldID="ISPROSPECT" DataType="Boolean" Caption="Is Prospect" Required="true" />
+			
+			<common:FormField FieldID="SPONSORNAME" Caption="Sponsor" DataType="String" MaxLength="100" ReadOnly="true" />
+			
+			<common:FormField FieldID="INTERACTIONTYPECODEID" DataType="Guid" Caption="Interaction" Required="true">
+				<common:CodeTable CodeTableName="USR_NEWSPONSORSHIPINTERACTIONTYPECODE" />
+			</common:FormField>
+
+			<common:FormField FieldID="PFMID" DataType="Guid" Required="false" Caption="Partner">
+				<common:SearchList SearchListID="a00235ec-b143-4f50-ad74-4c653d605cdf" EnableQuickFind="true">
+				</common:SearchList>
+			</common:FormField>
+
+			<common:FormField FieldID="FILTERDATE" Caption="Sponsorship Date" DataType="Date" />			
+
+			<common:FormField FieldID="CHILDREN" Caption="Children">
+				<common:Collection>
+					<common:Fields>
+						<common:FormField FieldID="ID" DataType="Guid" Hidden="true" />
+						<common:FormField FieldID="NAME" Caption="Child Name" DataType="String" Required="true" CaptionResourceKey="$$site" />
+						<common:FormField FieldID="LOOKUPID" Caption="Lookup ID" DataType="String" />
+						<common:FormField FieldID="SPONSORSHIPDATE" Caption="Start Date" DataType="Date" />
+						<common:FormField FieldID="SPONSORSHIPID" DataType="Guid" Hidden="true" />
+					</common:Fields>
+				</common:Collection>
+			</common:FormField>
+
+			<common:FormField FieldID="SPONSORSHIPOPPORTUNITYIDCHILD" DataType="String" Caption="Child Lookup ID" />
+
+			<!--<common:FormField FieldID="SPONSORSHIPOPPORTUNITYIDCHILD" DataType="Guid" Caption="Child" CaptionResourceKey="$$child">
+				<common:SearchList SearchListID="f9183b88-9f54-40de-848e-c8fbacf92e79" EnableQuickFind="false">
+					<common:FormFieldOverrides>
+						<common:FormFieldOverride FieldID="SPONSORSHIPPROGRAMID" ReadOnly="false" DefaultValueText="Fields!SPONSORSHIPPROGRAMID" />
+						<common:FormFieldOverride FieldID="ELIGIBILITYCODE" ReadOnly="false" DefaultValueText="1" />
+						<common:FormFieldOverride FieldID="AVAILABILITYCODE" ReadOnly="false" DefaultValueText="1" />
+						<common:FormFieldOverride FieldID="RESTRICTFORSOLESPONSORSHIP" Caption="Only include unsponsored" DefaultValueText="False" />
+						<common:FormFieldOverride FieldID="SPONSORSHIPOPPORTUNITYGROUPID" ReadOnly="false" />
+						<common:FormFieldOverride FieldID="RESERVATIONKEYID" ReadOnly="false" />
+						--><!--<common:FormFieldOverride FieldID="CORRESPONDINGSPONSORID" Hidden="true" DefaultValueText="Fields!SPONSORSHIPCONSTITUENTID" />--><!--
+						--><!--<common:FormFieldOverride FieldID="FINANCIALSPONSORID" Hidden="true" DefaultValueText="Fields!REVENUECONSTITUENTID" />--><!--
+					</common:FormFieldOverrides>
+				</common:SearchList>
+			</common:FormField>-->
+
+
+		</common:FormFields>
+
+        <common:WebUIComponent>
+            <common:UIModel AssemblyName="MoM.Sponsorship.UIModel.dll" ClassName="MoM.Sponsorship.UIModel.AddWebSponsorshipOnBoardingInteractionsUIModel" />
+            <common:WebUI>
+                <common:ExternalResource Url="browser/htmlforms/custom/AddCustomizationsToWebSponsorships.html" />
+            </common:WebUI>
+        </common:WebUIComponent>
+
+		<common:UIActions>
+			<common:UIAction ActionID="FINDCHILDREN" Caption="Find Children" CaptionResourceKey="$$find" />
+			<common:UIAction ActionID="ADDSELECTEDCHILD" Caption="Add Child" />			
+			<common:UIAction ActionID="REMOVESELECTEDCHILD" Caption="Remove Child" />
+		</common:UIActions>
+
+		<!--<common:WebUIComponent>
+			<common:UIModel AssemblyName="MoM.Sponsorship.UIModel.dll" ClassName="MoM.Sponsorship.UIModel.SponsorshipAddFormWrappedUIModel" />
+			<common:WebUI>
+				<common:ExternalResource Url="browser/htmlforms/custom/SponsorshipAddFormWrapped.html" />
+			</common:WebUI>
+		</common:WebUIComponent>-->
+
+	</common:FormMetaData>
+
+</AddDataFormTemplateSpec>

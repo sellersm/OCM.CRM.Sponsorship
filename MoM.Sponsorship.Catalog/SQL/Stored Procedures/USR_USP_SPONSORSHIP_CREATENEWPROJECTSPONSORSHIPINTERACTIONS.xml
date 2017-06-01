@@ -33,6 +33,17 @@ begin
 	if @changeAgentID is null  
 		exec dbo.USP_CHANGEAGENT_GETORCREATECHANGEAGENT @changeAgentID output
 	
+	/*
+	-- TESTING ONLY!!!!!!!!!!  ---
+	if @sponsorshipOpportunityID is not null
+		begin
+			declare @projectIDTesting nvarchar(64) = cast(@sponsorshipOpportunityID as nvarchar(64));
+			raiserror (@projectIDTesting, 16, 1);
+		end
+	else
+		raiserror ('Project ID parameter is null!', 16, 1);
+	*/
+	------------------------------
 	
 	-- Constants
 	

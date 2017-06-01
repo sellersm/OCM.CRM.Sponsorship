@@ -6,16 +6,27 @@
 	Description="Validates the sponsorship cancellation reasons when cancelling a child sponsorship"
 	Author="Memphis Sellers"
 	DBFunctionName="USR_UFN_VALIDATE_SPONSORSHIP_CANCELLATION_REASON "
+	GrantServiceRolePermission="true"
 	>
 
 	<!-- 
-	Remarks:  This peforms the validation of sponsorshipreason, cancellation reason and cancellation interaction type codes.
+	Remarks:  This peforms the validation of cancellation reason and cancellation interaction type codes.
 
 	History:
 	Date            Modified By     Comments
 	21-Sep-2012		Memphis			Initial Version
 	29-Oct-2012		Memphis			FogBugz Case 934. Allow codes that begin with 'Cancellation' when reason code begins with 'Sponsor Request'.
 	06-Nov-2012		Memphis			Fix the validation when the code contains the word 'Cancellation' and reason code begins with 'Sponsor Request'.
+	16-Feb-2017		MSellers		Changes for the 2017 Onboarding process.  See comments in code for changes...
+									refactored to return some error codes, not just a bit 1/0 value
+									Codes returned, so the caller can display meaningful error messages to user:
+									0 = invalid, display standard error message
+									1 = valid
+									2 = invalid: display "Due to the Cancellation Reason selected, the Interaction must be blank."
+									3 = invalid: display "The Cancellation Reason is no longer valid, select another one."
+									4 = invalid: display "Prospect Sponsor so the Interaction must be blank."
+									5 = invalid: display "The combination of Interaction Type & Opportunity Type is not valid."
+									6 = invalid: display "The combination of Cancellation Reason & Opportunity Type is not valid."
 	-->	
 	
 	<CreateFunctionSQL>
@@ -25,38 +36,64 @@ create function dbo.USR_UFN_VALIDATE_SPONSORSHIP_CANCELLATION_REASON (
 	@REASONID uniqueidentifier,					-- cancellation reasonid from the form
 	@INTERACTIONTYPECODEID uniqueidentifier		-- interaction type code id from the form
 )
-returns bit
+--returns bit
+returns tinyint
 with execute as caller
 as begin
-	/*
-	a.       Child Sponsorship reason is “Blank” and staff select any cancellation reason that begins with “Sponsor Request – (reason)”.
-																i.      Sponsorship Cancellation/Cancellation Letter
-	b.      Child Sponsorship Reason is “Departure” and the staff select cancellation reason of “Departure – No Transfer”.
-																i.      Sponsorship Cancellation/Departure Cancellation Letter
-	c.       Child Sponsorship reason is “Departure – Program Completion” and the staff select cancellation reason of “Departure – No Transfer”.
-																i.      Sponsorship Cancellation/Program Completion Cancellation Letter
-	d.      Child Sponsorship reason is “Death of Child” and the staff select cancellation of “Death of Child”.
-																i.      Sponsorship Cancellation/Child Condolence Letter
-	e.      Child Sponsorship reason is Blank and the staff select cancellation of “Administrative” or “Account Correct”.
-																i.      No Interactions created. 
-	- RULES for interaction type selections: required unless administrative, if account correction it must be null
-	- Yes, validation to leave interaction blank for account correction reason code.  
-	No, validation to leave interaction blank for administrative reason code (just in case they need to create an interaction)
-	*/
-	
-	declare @ISVALID bit = 1;		-- default to valid unless proven otherwise
+
+	-- NOTE: we set the bit to True here, and set it to False ONLY if there is a broken rule!!	
+	declare @ISVALID tinyint = 1;		-- default to valid unless proven otherwise
 	declare @doneChecking bit = 0;  -- tells when we're done checking the respective rule
 	
 	-- get the interaction type code description for the given id value:
 	declare @INTERACTIONTEXT nvarchar(100) = null;
-	select @INTERACTIONTEXT = lower([DESCRIPTION])
-		from dbo.USR_SPONSORSHIPCANCELLATIONINTERACTIONTYPECODE
-		where ID = @INTERACTIONTYPECODEID
+	
+	if @INTERACTIONTYPECODEID is not null
+		begin
+			select @INTERACTIONTEXT = lower([DESCRIPTION])
+				from dbo.USR_SPONSORSHIPCANCELLATIONINTERACTIONTYPECODE
+				where ID = @INTERACTIONTYPECODEID
+		end
 
+	-- get the cancellation reason text based on the cancellation reason id
+	declare @CANCELREASONTEXT nvarchar(100) = null;
+	select @CANCELREASONTEXT = dbo.USR_UFN_SPONSORSHIP_GET_SPONSORSHIPREASON_BY_REASONID(@REASONID);
+
+	-- MSellers 2017 Onboarding changes:  get the Opportunity Type: Project or Child
+	declare @sponsorshipType tinyint = null;
+	declare @childSponsorshipType tinyint = 1;
+	declare @projectSponsorshipType tinyint = 2;
+	
+	select @sponsorshipType = sg.SPONSORSHIPOPPORTUNITYTYPECODE
+		from dbo.SPONSORSHIPOPPORTUNITYGROUP sg
+		join dbo.SPONSORSHIPOPPORTUNITY so on so.SPONSORSHIPOPPORTUNITYGROUPID = sg.ID
+		join dbo.SPONSORSHIP s on s.SPONSORSHIPOPPORTUNITYID = so.ID
+		where s.ID = @SPONSORSHIPID;	
+
+	-- MSellers 2017 changes:  **TODO**
+	-- 1. Get the Sponsor ID
+	-- 2. Determine if a Prospect or Paid Sponsor:
+	declare @isProspect bit = 0;
+	declare @CONSTITUENTID uniqueidentifier = null;
+	
+	select @CONSTITUENTID = CONSTITUENTID
+	from dbo.SPONSORSHIP
+	where ID = @SPONSORSHIPID;
+	
+	select @isProspect = 1
+	from dbo.CONSTITUENCY c
+		join dbo.CONSTITUENCYCODE cc on c.CONSTITUENCYCODEID = cc.ID
+	where CONSTITUENTID = @CONSTITUENTID
+		and LOWER([DESCRIPTION]) like '%prospect%'
+		and (DATETO is null
+		or (DATETO is not null and DATETO > cast(GETDATE() as date)));
+		
+
+	-- MSellers 2017 changes: no longer looking at child's Sponsorship Reason:
 	-- get the sponsorship reason for the child
+	/*
 	declare @SPONSORSHIPOPPORTUNITYID uniqueidentifier = null;
 	declare @SPONSORSHIPREASON nvarchar(100) = null;
-	declare @CANCELREASONTEXT nvarchar(100) = null;
 	declare @SPONSOR_REQUEST_CANCELREASON nvarchar(50) = lower('Sponsor Request');
 	declare @DEPARTURE_NOTRANSFER_CANCELREASON nvarchar(50) = lower('Departure – No Transfer');
 	declare @DEATH_CANCELREASON nvarchar(50) = lower('Death of Child');
@@ -73,136 +110,152 @@ as begin
 	from dbo.SPONSORSHIP
 	where ID = @SPONSORSHIPID
 
-	-- get the reason text based on the reason id
-	select @CANCELREASONTEXT = dbo.USR_UFN_SPONSORSHIP_GET_SPONSORSHIPREASON_BY_REASONID(@REASONID);
-
 	-- if we found one, then get the sponsorship reason, if any:
-	if @SPONSORSHIPOPPORTUNITYID is not null
-		select @SPONSORSHIPREASON = dbo.USR_UFN_GETSPONSORSHIPREASON_FOROPPORTUNITY(@SPONSORSHIPOPPORTUNITYID)
-	
-	-- validate now based on reason, interaction and cancellation reason:
-	if @SPONSORSHIPREASON is null
-	begin
-		-- reason is “Blank” and staff select any cancellation reason that begins with “Sponsor Request – (reason)” 
-		if LEFT(LOWER(@CANCELREASONTEXT), 15) =  @SPONSOR_REQUEST_CANCELREASON
+	--if @SPONSORSHIPOPPORTUNITYID is not null
+	--	select @SPONSORSHIPREASON = dbo.USR_UFN_GETSPONSORSHIPREASON_FOROPPORTUNITY(@SPONSORSHIPOPPORTUNITYID)
+	*/
+
+	-- 2017 MSellers: first check if this is a Prospect Sponsor
+	--Box I: If this is a Prospect Sponsor then Interaction Type MUST BE BLANK!
+	if @isProspect = 1
 		begin
-			-- check the interaction code, should be "Cancellation Letter"
-			-- 10/29/12 Memphis: changed to allow any code that starts with 'Cancellation'
-			--if LEFT(lower(@INTERACTIONTEXT), 12) <> lower('Cancellation')
-			-- 11/6/12 Memphis: need to validate if the code contains 'Cancellation', not just starts with it
-			if (CHARINDEX('cancellation', lower(@INTERACTIONTEXT)) = 0)
+			if @INTERACTIONTYPECODEID is not null
 				begin
-					set @ISVALID = 0;  -- this is an invalid combination
+					set @ISVALID = 4;
+					set @doneChecking = 1;
 				end
-			else
+			else				
 				begin
-					-- the interaction contains 'cancellation', but
-					-- it cannot contain 'Delinquent' or 'Departure' or 'Program Completion'
-					if (CHARINDEX('delinquent', lower(@INTERACTIONTEXT)) <> 0) Or (CHARINDEX('departure', lower(@INTERACTIONTEXT)) <> 0) Or (CHARINDEX('completion', lower(@INTERACTIONTEXT)) <> 0)
-						begin
-							set @ISVALID = 0;  -- this is an invalid combination
-						end
-					else
-						begin
-							set @ISVALID = 1;  -- this is a valid combination
-							set @doneChecking = 1;  -- done checking
-						end
+					-- Prospects do not get Interactions, so there must NOT be one.
+					set @ISVALID = 1;	-- valid condition, no need to check further
+					set @doneChecking = 1;					
 				end
 		end
-		
-		if @doneChecking = 0  
+
+
+	-- 2017 MSellers: since we share this code with Project Sponsorship cancellations, determine which Type we have:	
+	-- check the Child Sponsorship cancellation rules:
+	if @sponsorshipType = @childSponsorshipType and @doneChecking = 0
 		begin
-			-- check for account correction reason code:
-			if LEFT(LOWER(@CANCELREASONTEXT), 15) = @ACCOUNTCORRECT_CANCELREASON
+			-- Box A: cancellation reason of “Departure – No Transfer” must have Interaction Type of: Departure Cancellation Letter
+			if LOWER(@CANCELREASONTEXT) = LOWER('Departure - No Transfer')
 				begin
-					set @ISVALID = 1;  -- this is a valid combination
-					set @doneChecking = 1;  -- done checking
-				end
-			else
-				begin
-					set @ISVALID = 0;  -- invalid combination
-				end
-		end
-		
-		if @doneChecking = 0  
-		begin		
-			-- check for administrative reason code:
-			if LOWER(@CANCELREASONTEXT) = @ADMINISTRATIVE_CANCELREASON
-				begin
-					set @ISVALID = 1;  -- this is a valid combination
-					set @doneChecking = 1;  -- done checking
-				end
-			else
-				begin
-					set @ISVALID = 0;  -- invalid combination
-				end
-		end
-	end   --if @SPONSORSHIPREASON is null
-	else
-	begin
-		-- validate all cases where there is a sponsorship reason code:
-		-- check this case: Sponsorship Reason is “Departure”,  cancellation reason of “Departure – No Transfer”, interaction should be 'Departure Cancellation Letter'
-		if lower(@SPONSORSHIPREASON) = @SPONSORSHIPREASON_DEPARTURE
-		begin
-			if LEFT(LOWER(@CANCELREASONTEXT), 23) =  @DEPARTURE_NOTRANSFER_CANCELREASON
-			begin
-				if lower(@INTERACTIONTEXT) <> lower('Departure Cancellation Letter')
-					begin
-						set @ISVALID = 0;
-					end
-				else
-					begin
-						if lower(@INTERACTIONTEXT) = lower('Departure Cancellation Letter')
-							set @ISVALID = 1;		
-							set @doneChecking = 1;  -- done checking
-					end
-			end
-		end
-		
-		if @doneChecking = 0  
-		begin				
-			-- check this case: Sponsorship reason is “Departure – Program Completion”, cancellation reason of “Departure – No Transfer”, interaction should be 'Program Completion Cancellation Letter'
-			if lower(@SPONSORSHIPREASON) = @SPONSORSHIPREASON_PROGRAMCOMPLETION
-			begin
-				if LEFT(LOWER(@CANCELREASONTEXT), 23) =  @DEPARTURE_NOTRANSFER_CANCELREASON
-				begin
-					if lower(@INTERACTIONTEXT) <> lower('Program Completion Cancellation Letter')
-					begin
-						set @ISVALID = 0;
-					end
-					else
-					begin
-						if lower(@INTERACTIONTEXT) = lower('Program Completion Cancellation Letter')
-							set @ISVALID = 1;
-							set @doneChecking = 1;  -- done checking
-					end				
-				end
-			end
-		end		
-		
-		if @doneChecking = 0  
-		begin						
-			-- check this case: Sponsorship reason is “Death of Child” cancellation reason of “Death of Child”, interaction should be 'Child Condolence Letter'
-			if lower(@SPONSORSHIPREASON) = @SPONSORSHIPREASON_DEATH 
-			begin
-				if LEFT(LOWER(@CANCELREASONTEXT), 14) =  @DEATH_CANCELREASON
-				begin
-					if lower(@INTERACTIONTEXT) <> lower('Child Condolence Letter')
-					begin
-						set @ISVALID = 0;
-					end
-					else
+					if ((@INTERACTIONTYPECODEID is null) or (@INTERACTIONTYPECODEID is not null and lower(@INTERACTIONTEXT) <> lower('Departure Cancellation Letter')))
 						begin
-							if lower(@INTERACTIONTEXT) = lower('Child Condolence Letter')
-								set @ISVALID = 1;
-								set @doneChecking = 1;  -- done checking
+							set @ISVALID = 0;  -- invalid combination
+							set @doneChecking = 1;
 						end
 				end
-			end
-		end		
-	end
-	
-	-- 0 means not valid, 1 means is valid
+				
+			--Box B: cancellation reason of "Program Completion – No Transfer" must have Interaction Type of: Program Completion Cancellation Letter
+			if @doneChecking = 0
+				begin
+					if LOWER(@CANCELREASONTEXT) = LOWER('Program Completion - No Transfer')
+						begin
+							if ((@INTERACTIONTYPECODEID is null) or (@INTERACTIONTYPECODEID is not null and lower(@INTERACTIONTEXT) <> lower('Program Completion Cancellation Letter')))
+								begin
+									set @ISVALID = 0;  -- invalid combination
+									set @doneChecking = 1;
+								end							
+						end
+				end
+
+			--Box C: cancellation reason of "Sponsor Request - Declined Transfer Child" must have Interaction Type of: Transfer Child Cancellation Letter
+			if @doneChecking = 0
+				begin
+					if LOWER(@CANCELREASONTEXT) = LOWER('Sponsor Request - Declined Transfer Child')
+						begin
+							if ((@INTERACTIONTYPECODEID is null) or (@INTERACTIONTYPECODEID is not null and lower(@INTERACTIONTEXT) <> lower('Transfer Child Cancellation Letter')))
+								begin
+									set @ISVALID = 0;  -- invalid combination
+									set @doneChecking = 1;
+								end
+						end
+				end
+
+			--Box D: cancellation reason of "Death of Child - No Transfer" must have Interaction Type of: Child Condolence Letter
+			if @doneChecking = 0
+				begin
+					if LOWER(@CANCELREASONTEXT) = LOWER('Death of Child - No Transfer')
+						begin
+							if ((@INTERACTIONTYPECODEID is null) or (@INTERACTIONTYPECODEID is not null and lower(@INTERACTIONTEXT) <> lower('Child Condolence Letter')))
+								begin
+									set @ISVALID = 0;  -- invalid combination
+									set @doneChecking = 1;
+								end
+						end
+				end
+
+			--Box E: cancellation reason of "Sponsor Request - Deceased" or "Sponsor Request – Death in Family" must have Interaction Type of: Sympathy and Cancellation Letter
+			if @doneChecking = 0
+				begin
+					if (LOWER(@CANCELREASONTEXT) = LOWER('Sponsor Request - Deceased') or LOWER(@CANCELREASONTEXT) = LOWER('Sponsor Request - Death in Family'))
+						begin
+							if ((@INTERACTIONTYPECODEID is null) or (@INTERACTIONTYPECODEID is not null and lower(@INTERACTIONTEXT) <> lower('Sympathy and Cancellation Letter')))
+								begin
+									set @ISVALID = 0;  -- invalid combination
+									set @doneChecking = 1;
+								end
+						end
+				end
+
+			--Box F: cancellation reason of "Account Correction" Interaction Type MUST BE BLANK!! 
+			if @doneChecking = 0
+				begin
+					if LOWER(@CANCELREASONTEXT) = LOWER('Account Correction')
+						begin
+							--if (@INTERACTIONTEXT is not null or @INTERACTIONTEXT <> '')
+							if @INTERACTIONTYPECODEID is not null
+								begin
+									set @ISVALID = 2;  -- invalid combination
+									set @doneChecking = 1;
+								end
+						end
+				end
+
+			--Box G: cancellation reason of "Reassign Sponsor RE7" or contains "Tribal Orissa", DO NOT CONTINUE, THESE ARE INVALID REASONS!
+			if @doneChecking = 0
+				begin
+					if (LOWER(@CANCELREASONTEXT) = LOWER('Reassign Sponsor RE7') or @CANCELREASONTEXT like '%Tribal Orissa%')
+						begin
+							set @ISVALID = 3;  -- invalid combination
+							set @doneChecking = 1;
+						end
+				end
+
+		end
+
+
+	/*	-- check the Project Sponsorship cancellation rules:
+	-These cancellation reasons are INVALID for Project Sponsorships:
+		“Departure - No Transfer” 
+		"Program Completion - No Transfer" 
+		"Sponsor Request - Declined Transfer Child" 
+		"Death of Child – No Transfer" 
+		"sponsor request - deceased"
+		"sponsor request - death in family"
+	- Only valid Interaction Type is: Project Sponsorship Cancellation Letter
+	*/
+	if @sponsorshipType = @projectSponsorshipType and @doneChecking = 0
+		begin
+			if LOWER(@CANCELREASONTEXT) in ('departure - no transfer', 'program completion - no transfer','sponsor request - declined transfer child','death of child - no transfer','sponsor request - deceased','sponsor request - death in family')
+				begin
+					set @ISVALID = 6;  -- invalid combination
+					set @doneChecking = 1;
+				end
+				
+			-- still need to check the Interaction Type but only NON-Prospect Sponsors:
+			if @ISVALID = 1 and @isProspect = 0
+				begin
+					if @INTERACTIONTYPECODEID is not null and lower(@INTERACTIONTEXT) <> lower('Project Sponsorship Cancellation Letter')
+						begin
+							set @ISVALID = 5;  -- invalid combination
+							set @doneChecking = 1;							
+						end
+				end
+		end
+		
+
 	return @ISVALID;
 	
 end

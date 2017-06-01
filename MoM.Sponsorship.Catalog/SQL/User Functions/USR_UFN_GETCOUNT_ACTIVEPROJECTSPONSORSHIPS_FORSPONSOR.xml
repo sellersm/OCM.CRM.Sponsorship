@@ -1,0 +1,56 @@
+﻿<SQLFunctionSpec
+	xmlns="bb_appfx_sqlfunction"
+	xmlns:common="bb_appfx_commontypes" 
+	ID="f6670ec3-e10c-42a9-8043-461821187fda"
+	Name="USR_UFN_GETCOUNT_ACTIVEPROJECTSPONSORSHIPS_FORSPONSOR"
+	Description="Gets count of active project sponsorships for given sponsor."
+	Author="Mark Sellers"
+	DBFunctionName="USR_UFN_GETCOUNT_ACTIVEPROJECTSPONSORSHIPS_FORSPONSOR"
+	GrantServiceRolePermission="true"
+	>
+
+	<!-- 
+	Remarks:    Gets count of active project sponsorships for a sponsor.
+
+	History:
+	Date            Modified By     Comments
+	09-Feb-2017		MSellers		Initial Version
+	-->
+
+	<CreateFunctionSQL>
+		<![CDATA[
+create function dbo.USR_UFN_GETCOUNT_ACTIVEPROJECTSPONSORSHIPS_FORSPONSOR(
+	@sponsorID uniqueidentifier
+)
+returns int
+with execute as caller
+as begin
+	declare @totalCount int = 0;
+	declare @nonGiftedSponsorships int = 0;
+	declare @FinancialSponsorships int = 0;
+
+	select @nonGiftedSponsorships = count (*) 
+	from dbo.SPONSORSHIP 
+	where CONSTITUENTID=@SPONSORID 
+	and STATUSCODE=1  -- Active
+	and SPONSORSHIPOPPORTUNITYID not in (select ID from dbo.SPONSORSHIPOPPORTUNITYCHILD) -- Only children
+	and (dbo.UFN_SPONSORSHIP_GIFTFINANCIALSPONSORID (SPONSORSHIP.ID) is null  -- only sponsorships that weren't gifted
+		or dbo.USR_UFN_SPONSORSHIP_GETFINANCIALSPONSOR (SPONSORSHIP.ID) = CONSTITUENTID) -- Blackbaud's function doesn't seem to always be correct - see Godec
+
+	select @FinancialSponsorships = count(ACTIVESPONSORSHIP.ID)
+	from dbo.SPONSORSHIPTRANSACTION GIFTSTART
+	join dbo.SPONSORSHIPCOMMITMENT on SPONSORSHIPCOMMITMENT.ID = GIFTSTART.SPONSORSHIPCOMMITMENTID
+	left join dbo.SPONSORSHIPTRANSACTION GIFTEND on GIFTEND.SPONSORSHIPCOMMITMENTID = GIFTSTART.SPONSORSHIPCOMMITMENTID and GIFTEND.TRANSACTIONSEQUENCE = (select min(MINSEQ.TRANSACTIONSEQUENCE) from dbo.SPONSORSHIPTRANSACTION MINSEQ where MINSEQ.SPONSORSHIPCOMMITMENTID = GIFTSTART.SPONSORSHIPCOMMITMENTID and MINSEQ.TRANSACTIONSEQUENCE > GIFTSTART.TRANSACTIONSEQUENCE and MINSEQ.ACTIONCODE in(2,3,5,9))
+	left join dbo.SPONSORSHIP ACTIVESPONSORSHIP on ACTIVESPONSORSHIP.SPONSORSHIPCOMMITMENTID = GIFTSTART.SPONSORSHIPCOMMITMENTID and ACTIVESPONSORSHIP.STATUSCODE = 1
+	where GIFTSTART.GIFTFINANCIALSPONSORID = @SPONSORID 
+	and not exists (select ID from dbo.SPONSORSHIPOPPORTUNITYCHILD where ID = ACTIVESPONSORSHIP.SPONSORSHIPOPPORTUNITYID)  -- child sponsorship
+	and GIFTEND.ID is null  -- active gift
+
+	set @totalCount = @nonGiftedSponsorships + @FinancialSponsorships;
+
+	return @totalCount;
+end
+		]]>
+	</CreateFunctionSQL>
+
+</SQLFunctionSpec>

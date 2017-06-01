@@ -1,0 +1,12 @@
+﻿<CodeTableSpec
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+	xmlns="bb_appfx_codetable"
+	ID="58de723c-d99c-4218-8ddd-102b34a4f248"
+	Name="Co-Branding Fulfillment"
+	Description="Partner Co-Branding Fulfillment Codes."
+	Author="Blackbaud Product Development"
+	DBTablename="COBRANDINGFULFILLMENTCODE"
+	Category="Constituent"
+	DeferForeignKeyCreation="true"
+/>

@@ -1,0 +1,449 @@
+﻿<SQLStoredProcedureSpec
+	xmlns="bb_appfx_sqlstoredprocedure"
+	xmlns:common="bb_appfx_commontypes" 
+	ID="45f2f310-5142-4d50-90e8-f296c2682e69"
+	Name="USR_USP_CREATE_SPONSORSHIP_ONBOARDING_INTERACTIONS"
+	Description="Creates the new sponsorship onboarding Interactions"
+	Author="Memphis Sellers"
+	SPName="USR_USP_CREATE_SPONSORSHIP_ONBOARDING_INTERACTIONS"
+	GrantServiceRolePermission="true"
+	>
+
+	<!-- 
+	Remarks:    This sproc is used by the various Forms and Tasks that will create new Sponsorship(s).
+
+	History:
+	Date            Modified By     Comments
+	21-Dec-2016		Memphis			Initial version.  Used to encapsulate all work for creating onboarding Interactions for new Sponsorships.
+									NOTE: @sponsorID parameter can be either the Sponsor/Financial Sponsor, or the Correspondent
+	22-Dec-2016		Memphis			fixing defects: don't add Children to any Interaction that says Letter Type = BLANK,
+									don't create certain Interactions on Financial Sponsor.  Added new parameters to tell me if
+									@sponsorID is Correspondent, Financial sponsor, etc...
+	19-Jan-2017		Memphis			Updated box 9 Interaction to Mail contact type instead of email.
+	23-Jan-2017		Memphis			TK-03577 Defect: not supposed to create the Box 1 "Sponsor Thank You" Interaction
+	22-Feb-2017		MSellers		Defect task D-01159: 'Story of Impact' is now 2 subcategories:
+									Story of Impact 1
+									Story of Impact 2
+-->
+	
+	<CreateProcedureSQL>
+		<![CDATA[
+create procedure dbo.USR_USP_CREATE_SPONSORSHIP_ONBOARDING_INTERACTIONS (
+	@sponsorID uniqueidentifier,
+	@setEFTBrochureCode bit = 0,
+	@changeAgentID uniqueidentifier = null,
+	@childIDList dbo.USR_UDT_CHILDIDLIST readonly,
+	@correspondentID uniqueidentifier = null,	-- identifies the correspondent if there is one
+	@isConversion bit = 0	-- set to 1 when this is called from the Convert Prospect Sponsor sproc
+)
+as
+begin
+	-- do work
+	if @changeAgentID is null  
+		exec dbo.USP_CHANGEAGENT_GETORCREATECHANGEAGENT @changeAgentID output
+
+	-- Constants
+	declare @callCenterManagerConstituentID uniqueidentifier = 'B25168DC-4DD4-46ED-B4DD-C5A26A965667'	-- This constituent is hard coded via a script
+	
+	-- Memphis: new for 2016 onboarding, summary is now New Sponsor Onboarding:
+	declare @interactionSummary nvarchar(100) = 'New Sponsor Onboarding'	  -- 'New sponsorship complete'				-- Used for the Summary of all sponsor interactions
+	
+	-- Interaction Category / Subcategory Names used in creating the interactions
+	declare @interactionCategoryDesc_SponsorWelcome nvarchar(100) = 'Sponsor Welcome'	-- The category used for all sponsor interactions
+
+	-- Memphis: new for 2016 onboarding, New Sponsor Onboarding interaction subcategory values:
+	-- Welcome Kit
+	-- Additional Child Welcome Kit
+	declare @interactionSubcategoryDesc_SponsorThankYou nvarchar(100) = 'Sponsor Thank You'
+	declare @interactionSubcategoryDesc_OurWebsite nvarchar(100) = 'Our Website'
+	declare @interactionSubcategoryDesc_KnowYourName nvarchar(100) = 'I Know Your Name'
+	declare @interactionSubcategoryDesc_WhySponsorship nvarchar(100) = 'Why Sponsorship'
+	declare @interactionSubcategoryDesc_LetterWritingKit nvarchar(100) = 'Letter Writing Kit'
+	
+	-- MSellers 2-22-17: 2 new/changed subcategories
+	declare @interactionSubcategoryDesc_StoryOfImpact1 nvarchar(100) = 'Story of Impact 1'
+	declare @interactionSubcategoryDesc_StoryOfImpact2 nvarchar(100) = 'Story of Impact 2'
+
+	declare @interactionSubcategoryDesc_SendLettersPhotos nvarchar(100) = 'Send Letters/Photos'
+	declare @interactionSubcategoryDesc_BecauseOfYou nvarchar(100) = 'Because of You';
+	
+	-- Contact Method descriptions
+	declare @contactMethodDesc_Mail nvarchar (100) = 'Mail'
+	declare @contactMethodDesc_Email nvarchar (100) = 'Email'
+	declare @contactMethodDesc_Phone nvarchar (100) = 'Phone'
+
+	-- Response Category descriptions
+	declare @interactionResponseCategory_DonorContact nvarchar(100) = 'Donor Contact';
+	declare @interactionResponseCategory_LeftMessage nvarchar(100) = 'Left Message';
+	declare @interactionResponseCategory_MessageType nvarchar(100) = 'Message Type';
+	declare @interactionResponseCategory_PacketReceived nvarchar(100) = 'Packet Received';
+	declare @interactionResponseCategory_EFTReceived nvarchar(100) = 'EFT Received';
+
+	-- Response descriptions
+	declare @interactionResponse_No nvarchar(100) = 'No';
+	declare @interactionResponse_None nvarchar(100) = 'None';
+	declare @interactionResponse_Unknown nvarchar(100) = 'Unknown';	
+	
+	declare @sponsorContactMethodDesc nvarchar(100) = '';
+	declare @isValidEmail bit = 0;
+	declare @sponsorThankYouOwner uniqueidentifier = null;
+	declare @interactionExpectedDate date = getdate();
+	declare @interactionID uniqueidentifier = null;
+	declare @currentDate date = getdate();
+
+	if dbo.USR_UFN_CONSTITUENT_GETVALIDPRIMARYEMAILADDRESS(@sponsorID) <> ''
+		begin
+			set @sponsorContactMethodDesc = @contactMethodDesc_Email;
+			set @isValidEmail = 1;
+		end
+	else
+		begin
+			set @sponsorContactMethodDesc = @contactMethodDesc_Phone
+			set @sponsorThankYouOwner = @callCenterManagerConstituentID
+		end
+
+	-- Box 1a/b
+	-- Memphis 1-23-17:  this Interaction is *NOT* created when called from Conversion:
+	if @isConversion = 0
+		begin
+			exec dbo.USR_USP_INTERACTION_SPONSOR_ADD_PENDING 
+				@id = @interactionID output,
+				@constituentID = @sponsorID,
+				@summary = @interactionSummary,
+				@categoryName = @interactionCategoryDesc_SponsorWelcome,
+				@subcategoryName = @interactionSubcategoryDesc_SponsorThankYou,
+				@expectedDate = @currentDate,
+				@owner = @sponsorThankYouOwner,						
+				@contactMethodDesc = @sponsorContactMethodDesc,
+				@comment = '',						
+				@letterTypeDesc = '',
+				@fulfillmentStatusDesc = '',
+				@eftBrochureCode = @setEFTBrochureCode,
+				@resendCode = 0,
+				@changeAgentID = @changeAgentID				
+
+			if @interactionID is not null
+				begin
+					exec dbo.USR_USP_INTERACTION_SPONSOR_ADDCHILDREN 
+						@interactionID = @interactionID,
+						@childIDList = @childIDList,
+						@changeAgentID = null	
+
+					-- Only add the responses if it is a phone call
+					--if dbo.USR_UFN_CONSTITUENT_GETVALIDPRIMARYEMAILADDRESS(@sponsorID) = ''
+					if @isValidEmail = 0
+						begin
+							exec dbo.USR_USP_INTERACTION_ADDRESPONSE 
+								@interactionID = @interactionID,
+								@responseCategoryName = @interactionResponseCategory_DonorContact,
+								@response = @interactionResponse_No,
+								@responseDate = null,		
+								@changeAgentID = @changeAgentID
+
+							exec dbo.USR_USP_INTERACTION_ADDRESPONSE 
+								@interactionID = @interactionID,
+								@responseCategoryName = @interactionResponseCategory_EFTReceived,
+								@response = @interactionResponse_No,
+								@responseDate = null,		
+								@changeAgentID = @changeAgentID
+
+							exec dbo.USR_USP_INTERACTION_ADDRESPONSE 
+								@interactionID = @interactionID,
+								@responseCategoryName = @interactionResponseCategory_LeftMessage,
+								@response = @interactionResponse_No,
+								@responseDate = null,		
+								@changeAgentID = @changeAgentID
+
+							exec dbo.USR_USP_INTERACTION_ADDRESPONSE 
+								@interactionID = @interactionID,
+								@responseCategoryName = @interactionResponseCategory_MessageType,
+								@response = @interactionResponse_None,
+								@responseDate = null,		
+								@changeAgentID = @changeAgentID
+										
+							exec dbo.USR_USP_INTERACTION_ADDRESPONSE 
+								@interactionID = @interactionID,
+								@responseCategoryName = @interactionResponseCategory_PacketReceived,
+								@response = @interactionResponse_Unknown,
+								@responseDate = null,		
+								@changeAgentID = @changeAgentID
+
+						end
+				end
+		end  -- if @isConversion = 0
+						
+	/*
+	*1*. Box 2 = S,C,F
+		Summary = New Sponsor Onboarding
+		Category = Sponsor Welcome
+		Subcategory = Our Website
+		Status = Pending
+		Contact Method = Email
+		Expected Date = 28 days from today
+		Letter Type = **See diagram A – pg 5a
+	*/
+	set @interactionExpectedDate = DATEADD(dd, 28, GETDATE());
+	exec dbo.USR_USP_INTERACTION_SPONSOR_ADD_PENDING 
+		@id = @interactionID output,
+		@constituentID = @sponsorID,
+		@summary = @interactionSummary,
+		@categoryName = @interactionCategoryDesc_SponsorWelcome,
+		@subcategoryName = @interactionSubcategoryDesc_OurWebsite,
+		@expectedDate = @interactionExpectedDate, 
+		@owner = null,						
+		@contactMethodDesc = @contactMethodDesc_Email,
+		@comment = '',						
+		@letterTypeDesc = '',
+		@fulfillmentStatusDesc = '',
+		@eftBrochureCode = @setEFTBrochureCode,
+		@resendCode = 0,
+		@changeAgentID = @changeAgentID				
+
+	if @interactionID is not null
+		begin
+			exec dbo.USR_USP_INTERACTION_SPONSOR_ADDCHILDREN 
+				@interactionID = @interactionID,
+				@childIDList = @childIDList,
+				@changeAgentID = null	
+		end
+					
+					
+	/*  Next box:
+	*2*.Box 3 = S,C
+		Summary = New Sponsor Onboarding
+		Category = Sponsor Welcome
+		Subcategory = I Know Your Name
+		Status = Pending
+		Contact Method = Mail
+		Expected Date = 15th of next month
+		Letter Type = **See diagram A – pg 5a					
+	*/
+	-- do not create this Interaction on the Financial Sponsor, which means only do this if
+	--  the SponsorID is the Correspondent:
+	--		@sponsorID = @correspondentID
+	-- OR the @sponsorID is the sole sponsor/financialSponsor without a Correspondent:
+	--		@correspondentID is null
+	if (@sponsorID = @correspondentID) or (@correspondentID is null)
+		begin
+			set @interactionExpectedDate = DATEADD(m, DATEDIFF(m, -1, GETDATE()), 14);
+			exec dbo.USR_USP_INTERACTION_SPONSOR_ADD_PENDING 
+				@id = @interactionID output,
+				@constituentID = @sponsorID,
+				@summary = @interactionSummary,
+				@categoryName = @interactionCategoryDesc_SponsorWelcome,
+				@subcategoryName = @interactionSubcategoryDesc_KnowYourName,
+				@expectedDate = @interactionExpectedDate,
+				@owner = null,						
+				@contactMethodDesc = @contactMethodDesc_Mail,
+				@comment = '',						
+				@letterTypeDesc = '',
+				@fulfillmentStatusDesc = '',
+				@eftBrochureCode = @setEFTBrochureCode,
+				@resendCode = 0,
+				@changeAgentID = @changeAgentID				
+
+			if @interactionID is not null
+				begin
+					exec dbo.USR_USP_INTERACTION_SPONSOR_ADDCHILDREN 
+						@interactionID = @interactionID,
+						@childIDList = @childIDList,
+						@changeAgentID = null	
+				end
+		end
+					
+	/* *3*: 
+		Box 4 = S,C,F
+		Summary = New Sponsor Onboarding
+		Category = Sponsor Welcome
+		Subcategory = Why Sponsorship
+		Status = Pending
+		Contact Method = Email
+		Expected Date = 56 days from today
+		Letter Type = BLANK
+	*/
+	set @interactionExpectedDate = DATEADD(dd, 56, GETDATE());
+	exec dbo.USR_USP_INTERACTION_SPONSOR_ADD_PENDING 
+		@id = @interactionID output,
+		@constituentID = @sponsorID,
+		@summary = @interactionSummary,
+		@categoryName = @interactionCategoryDesc_SponsorWelcome,
+		@subcategoryName = @interactionSubcategoryDesc_WhySponsorship,
+		@expectedDate = @interactionExpectedDate, 
+		@owner = null,						
+		@contactMethodDesc = @contactMethodDesc_Email,
+		@comment = '',						
+		@letterTypeDesc = '',
+		@fulfillmentStatusDesc = '',
+		@eftBrochureCode = @setEFTBrochureCode,
+		@resendCode = 0,
+		@changeAgentID = @changeAgentID				
+
+	
+	/* *4*.
+		Box 5 = S,C
+		Summary = New Sponsor Onboarding
+		Category = Sponsor Welcome
+		Subcategory = Letter Writing Kit
+		Status = Pending
+		Contact Method = Mail
+		Expected Date = 70 days from today
+		Letter Type = **See diagram A – pg 5a
+	*/
+	-- do not create this Interaction on the Financial Sponsor, which means only do this if
+	--  the SponsorID is the Correspondent:
+	--		@sponsorID = @correspondentID
+	-- OR the @sponsorID is the sole sponsor/financialSponsor without a Correspondent:
+	--		@correspondentID is null
+	if (@sponsorID = @correspondentID) or (@correspondentID is null)
+		begin	
+			set @interactionExpectedDate = DATEADD(dd, 70, GETDATE());
+			exec dbo.USR_USP_INTERACTION_SPONSOR_ADD_PENDING 
+				@id = @interactionID output,
+				@constituentID = @sponsorID,
+				@summary = @interactionSummary,
+				@categoryName = @interactionCategoryDesc_SponsorWelcome,
+				@subcategoryName = @interactionSubcategoryDesc_LetterWritingKit,
+				@expectedDate = @interactionExpectedDate,
+				@owner = null,						
+				@contactMethodDesc = @contactMethodDesc_Mail,
+				@comment = '',						
+				@letterTypeDesc = '',
+				@fulfillmentStatusDesc = '',
+				@eftBrochureCode = @setEFTBrochureCode,
+				@resendCode = 0,
+				@changeAgentID = @changeAgentID				
+
+			if @interactionID is not null
+				begin
+					exec dbo.USR_USP_INTERACTION_SPONSOR_ADDCHILDREN 
+						@interactionID = @interactionID,
+						@childIDList = @childIDList,
+						@changeAgentID = null	
+				end
+		end		
+	/*
+	*5*.Box 6 = S,C,F
+		Summary = New Sponsor Onboarding
+		Category = Sponsor Welcome
+		Subcategory = Story of Impact 1
+		Status = Pending
+		Contact Method = Email
+		Expected Date = 84 days from today
+		Letter Type = BLANK
+	*/
+	set @interactionExpectedDate = DATEADD(dd, 84, GETDATE());
+	exec dbo.USR_USP_INTERACTION_SPONSOR_ADD_PENDING 
+		@id = @interactionID output,
+		@constituentID = @sponsorID,
+		@summary = @interactionSummary,
+		@categoryName = @interactionCategoryDesc_SponsorWelcome,
+		@subcategoryName = @interactionSubcategoryDesc_StoryOfImpact1, -- @interactionSubcategoryDesc_StoryOfImpact,
+		@expectedDate = @interactionExpectedDate, 
+		@owner = null,						
+		@contactMethodDesc = @contactMethodDesc_Email,
+		@comment = '',						
+		@letterTypeDesc = '',
+		@fulfillmentStatusDesc = '',
+		@eftBrochureCode = @setEFTBrochureCode,
+		@resendCode = 0,
+		@changeAgentID = @changeAgentID				
+
+					
+	/*
+	*6*.Box 7 = S,C
+		Summary = New Sponsor Onboarding
+		Category = Sponsor Welcome
+		Subcategory = Send Letters/Photos
+		Status = Pending
+		Contact Method = Email
+		Expected Date = 112 days from today
+		Letter Type = BLANK
+	*/
+	-- do not create this Interaction on the Financial Sponsor, which means only do this if
+	--  the SponsorID is the Correspondent:
+	--		@sponsorID = @correspondentID
+	-- OR the @sponsorID is the sole sponsor/financialSponsor without a Correspondent:
+	--		@correspondentID is null
+	if (@sponsorID = @correspondentID) or (@correspondentID is null)
+		begin	
+			set @interactionExpectedDate = DATEADD(dd, 112, GETDATE());
+			exec dbo.USR_USP_INTERACTION_SPONSOR_ADD_PENDING 
+				@id = @interactionID output,
+				@constituentID = @sponsorID,
+				@summary = @interactionSummary,
+				@categoryName = @interactionCategoryDesc_SponsorWelcome,
+				@subcategoryName = @interactionSubcategoryDesc_SendLettersPhotos,
+				@expectedDate = @interactionExpectedDate,
+				@owner = null,						
+				@contactMethodDesc = @contactMethodDesc_Email,
+				@comment = '',						
+				@letterTypeDesc = '',
+				@fulfillmentStatusDesc = '',
+				@eftBrochureCode = @setEFTBrochureCode,
+				@resendCode = 0,
+				@changeAgentID = @changeAgentID				
+		end
+
+	/*
+	*7*.Box 8 = S,C,F
+		Summary = New Sponsor Onboarding
+		Category = Sponsor Welcome
+		Subcategory = Story of Impact 2
+		Status = Pending
+		Contact Method = Email
+		Expected Date = 140 days from today
+		Letter Type = BLANK
+	*/
+	set @interactionExpectedDate =DATEADD(dd, 140, GETDATE());
+	exec dbo.USR_USP_INTERACTION_SPONSOR_ADD_PENDING 
+		@id = @interactionID output,
+		@constituentID = @sponsorID,
+		@summary = @interactionSummary,
+		@categoryName = @interactionCategoryDesc_SponsorWelcome,
+		@subcategoryName = @interactionSubcategoryDesc_StoryOfImpact2, -- @interactionSubcategoryDesc_StoryOfImpact,
+		@expectedDate = @interactionExpectedDate,
+		@owner = null,						
+		@contactMethodDesc = @contactMethodDesc_Email,
+		@comment = '',						
+		@letterTypeDesc = '',
+		@fulfillmentStatusDesc = '',
+		@eftBrochureCode = @setEFTBrochureCode,
+		@resendCode = 0,
+		@changeAgentID = @changeAgentID				
+
+					
+	/*
+	*8*.Box 9 = S,C,F
+		Summary = New Sponsor Onboarding
+		Category = Sponsor Welcome
+		Subcategory = Because of You
+		Status = Pending
+		Contact Method = Mail
+		Expected Date = 168 days from today
+		Letter Type = BLANK					
+	*/
+	set @interactionExpectedDate = DATEADD(dd, 168, GETDATE());
+	exec dbo.USR_USP_INTERACTION_SPONSOR_ADD_PENDING 
+		@id = @interactionID output,
+		@constituentID = @sponsorID,
+		@summary = @interactionSummary,
+		@categoryName = @interactionCategoryDesc_SponsorWelcome,
+		@subcategoryName = @interactionSubcategoryDesc_BecauseOfYou,
+		@expectedDate = @interactionExpectedDate,
+		@owner = null,						
+		@contactMethodDesc = @contactMethodDesc_Mail,
+		@comment = '',						
+		@letterTypeDesc = '',
+		@fulfillmentStatusDesc = '',
+		@eftBrochureCode = @setEFTBrochureCode,
+		@resendCode = 0,
+		@changeAgentID = @changeAgentID				
+
+	
+	return 0
+end
+
+		]]>
+	</CreateProcedureSQL>
+
+</SQLStoredProcedureSpec>
