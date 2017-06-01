@@ -765,6 +765,10 @@
     <EmbeddedResource Include="Query Views\OrphanRecurringGifts.Query.xml" />
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="View Forms\ViewForms.Package.xml" />
+    <EmbeddedResource Include="SQL\User Functions\SQL_UFN.Package.xml" />
+    <EmbeddedResource Include="SQL\Stored Procedures\SQL_Sprocs.Package.xml" />
+    <EmbeddedResource Include="RecordOperations\RecordOp.Package.xml" />
     <EmbeddedResource Include="Tables\Code Tables\CoBrandingFulfillmentCode.CodeTable.xml" />
     <EmbeddedResource Include="SQL\User Functions\USR_UFN_GETCOUNT_ACTIVEPROJECTSPONSORSHIPS_FORSPONSOR.xml" />
     <EmbeddedResource Include="SQL\User Functions\USR_UFN_CHECK_OK_TO_ADD_PROSPECTSPONSORSHIP.xml" />
@@ -803,6 +807,9 @@
     <EmbeddedResource Include="Complete Web Sponsorships\GetActiveWebSponsoredChildren.DataList.xml" />
     <EmbeddedResource Include="Complete Web Sponsorships\USR_UFN_SPONSORSHIP_GETACTIVELYSPONSOREDCHILDREN_FOR_WEBSPONSOR.xml" />
     <EmbeddedResource Include="Complete Web Sponsorships\USR_UFN_WEB_SPONSORED_CHILDREN_FROMITEMLISTXML.xml" />
+    <EmbeddedResource Include="Add Forms\AddForms.Package.xml" />
+    <EmbeddedResource Include="DataLists\DataLists.Package.xml" />
+    <EmbeddedResource Include="Edit Forms\EditForms.Package.xml" />
     <Content Include="Global Changes\MergeSponsorshipCommitmentRecurringGifts.GlobalChange.xml" />
     <EmbeddedResource Include="View Forms\RecurringGiftLineDetail.View.xml" />
     <EmbeddedResource Include="Query Views\RGL.Query.xml" />
@@ -829,6 +836,7 @@
     <EmbeddedResource Include="Query Views\Sponsorship.IsMostRecentForCommitment.Active.Query.xml" />
     <EmbeddedResource Include="Pages\AddRGLSectionToSponsor.Page.xml" />
     <EmbeddedResource Include="Query Views\RGLPopulateExceptions.Query.xml" />
+    <EmbeddedResource Include="Query Views\QueryViews.Package.xml" />
     <Content Include="Query Views\SponsorshipCommitment.Query.xml" />
     <EmbeddedResource Include="Tables\CLHRecurringGift.Table.xml">
       <SubType>Designer</SubType>
