@@ -765,6 +765,14 @@
     <EmbeddedResource Include="Query Views\OrphanRecurringGifts.Query.xml" />
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="Replace Batch Number\ReplaceBatchNumber.Package.xml" />
+    <EmbeddedResource Include="Reservation\Reservation.Package.xml" />
+    <EmbeddedResource Include="SearchForms\SearchForms.Package.xml" />
+    <EmbeddedResource Include="Smart Fields\SmartFields.Package.xml" />
+    <EmbeddedResource Include="SponsorshipExtension\SponsorshipExtension.Package.xml" />
+    <EmbeddedResource Include="SponsorshipLocation\SponsorshipLocation.Package.xml" />
+    <EmbeddedResource Include="Tables\Tables.Package.xml" />
+    <EmbeddedResource Include="Tasks\Tasks.Package.xml" />
     <EmbeddedResource Include="View Forms\ViewForms.Package.xml" />
     <EmbeddedResource Include="SQL\User Functions\SQL_UFN.Package.xml" />
     <EmbeddedResource Include="SQL\Stored Procedures\SQL_Sprocs.Package.xml" />
@@ -810,6 +818,8 @@
     <EmbeddedResource Include="Add Forms\AddForms.Package.xml" />
     <EmbeddedResource Include="DataLists\DataLists.Package.xml" />
     <EmbeddedResource Include="Edit Forms\EditForms.Package.xml" />
+    <EmbeddedResource Include="Copy Credit Card\CopyCreditCard.Package.xml" />
+    <EmbeddedResource Include="Global Changes\GlobalChanges.Package.xml" />
     <Content Include="Global Changes\MergeSponsorshipCommitmentRecurringGifts.GlobalChange.xml" />
     <EmbeddedResource Include="View Forms\RecurringGiftLineDetail.View.xml" />
     <EmbeddedResource Include="Query Views\RGL.Query.xml" />
@@ -837,6 +847,8 @@
     <EmbeddedResource Include="Pages\AddRGLSectionToSponsor.Page.xml" />
     <EmbeddedResource Include="Query Views\RGLPopulateExceptions.Query.xml" />
     <EmbeddedResource Include="Query Views\QueryViews.Package.xml" />
+    <EmbeddedResource Include="Pages\Pages.Package.xml" />
+    <EmbeddedResource Include="Page Expressions\PageExpressions.Package.xml" />
     <Content Include="Query Views\SponsorshipCommitment.Query.xml" />
     <EmbeddedResource Include="Tables\CLHRecurringGift.Table.xml">
       <SubType>Designer</SubType>
