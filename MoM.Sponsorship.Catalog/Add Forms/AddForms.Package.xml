@@ -2,7 +2,7 @@
     xmlns="bb_appfx_package"
     xmlns:c="bb_appfx_commontypes"
     ID="440611ab-db4a-483a-b4e9-1887f6573f09"
-    Name="Add Forms Package"
+    Name="Sponsorship Add Forms Package"
     Description="Loads sponsorship solution add forms."
     Author="Memphis Sellers"
     >

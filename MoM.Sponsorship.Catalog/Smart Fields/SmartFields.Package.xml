@@ -2,7 +2,7 @@
     xmlns="bb_appfx_package"
     xmlns:c="bb_appfx_commontypes"
     ID="78036c34-69fb-47b9-a420-de045e4ee696"
-    Name="Smart Fields Package"
+    Name="Sponsorship Smart Fields Package"
     Description="Loads specs for custom smart fields."
     Author="Memphis Sellers"
     >

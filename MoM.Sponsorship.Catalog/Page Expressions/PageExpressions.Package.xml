@@ -2,7 +2,7 @@
     xmlns="bb_appfx_package"
     xmlns:c="bb_appfx_commontypes"
     ID="ff1c69da-bf2a-4836-9025-f30722ab3126"
-    Name="Page Expressions Package"
+    Name="Sponsorship Page Expressions Package"
     Description="Loads specs for page expressions."
     Author="Memphis Sellers"
     >

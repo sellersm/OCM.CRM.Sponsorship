@@ -2,7 +2,7 @@
     xmlns="bb_appfx_package"
     xmlns:c="bb_appfx_commontypes"
     ID="25f82e6b-c262-4889-a51f-5c8a2dd4faa9"
-    Name="Query Views Package"
+    Name="Sponsorship Query Views Package"
     Description="Loads all query view specs."
     Author="MSellers"
     >

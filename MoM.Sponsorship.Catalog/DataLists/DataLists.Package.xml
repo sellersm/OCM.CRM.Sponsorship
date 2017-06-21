@@ -2,7 +2,7 @@
     xmlns="bb_appfx_package"
     xmlns:c="bb_appfx_commontypes"
     ID="016baef5-e47d-4bfa-b6e9-0b8c667b1cd6"
-    Name="Data Lists Package"
+    Name="Sponsorship Data Lists Package"
     Description="Loads sponsorship solution datalists."
     Author="MSellers"
     >

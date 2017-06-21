@@ -2,7 +2,7 @@
     xmlns="bb_appfx_package"
     xmlns:c="bb_appfx_commontypes"
     ID="3ea91952-4c41-42a6-9d45-d686d226dae3"
-    Name="View Forms Package"
+    Name="Sponsorship View Forms Package"
     Description="Loads view form specs."
     Author="MSellers"
     >

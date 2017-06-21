@@ -2,7 +2,7 @@
     xmlns="bb_appfx_package"
     xmlns:c="bb_appfx_commontypes"
     ID="5d4414f0-f6f4-4915-bfc0-5624e13af197"
-    Name="Pages Package"
+    Name="Sponsorship Pages Package"
     Description="Loads specs for custom pages."
     Author="Memphis Sellers"
     >

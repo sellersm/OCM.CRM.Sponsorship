@@ -2,7 +2,7 @@
     xmlns="bb_appfx_package"
     xmlns:c="bb_appfx_commontypes"
     ID="ae4602fc-cf32-463a-8aaf-b9a1e56b3c86"
-    Name="Tasks Package"
+    Name="Sponsorship Tasks Package"
     Description="Loads specs for all Sponsorship Tasks."
     Author="Memphis Sellers"
     >
