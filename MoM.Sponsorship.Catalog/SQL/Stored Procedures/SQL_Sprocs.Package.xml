@@ -2,7 +2,7 @@
     xmlns="bb_appfx_package"
     xmlns:c="bb_appfx_commontypes"
     ID="32f854c9-27e4-4fb8-8f6f-faa1490234c3"
-    Name="SQL Sprocs Package"
+    Name="Sponsorship SQL Sprocs Package"
     Description="Loads all SQL Sproc specs."
     Author="MSellers"
     >

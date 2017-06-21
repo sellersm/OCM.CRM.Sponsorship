@@ -2,7 +2,7 @@
     xmlns="bb_appfx_package"
     xmlns:c="bb_appfx_commontypes"
     ID="1285790d-752f-46ac-82f0-7f8c8f81eda1"
-    Name="Search Forms Package"
+    Name="Sponsorship Search Forms Package"
     Description="Loads specs for custom search forms."
     Author="Memphis Sellers"
     >

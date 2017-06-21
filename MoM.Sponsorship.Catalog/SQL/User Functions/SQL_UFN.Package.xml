@@ -2,7 +2,7 @@
     xmlns="bb_appfx_package"
     xmlns:c="bb_appfx_commontypes"
     ID="4c33b31f-cbf5-4cec-a9d1-43fa898e530c"
-    Name="SQL UFN Package"
+    Name="Sponsorship SQL UFN Package"
     Description="Loads all SQL UFN specs."
     Author="MSellers"
     >

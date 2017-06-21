@@ -2,7 +2,7 @@
     xmlns="bb_appfx_package"
     xmlns:c="bb_appfx_commontypes"
     ID="1d89d3f4-56ca-4585-88ab-f7dc78fff9ae"
-    Name="Edit Forms Package"
+    Name="Sponsorship Edit Forms Package"
     Description="Loads all edit forms specs."
     Author="MSellers"
     >

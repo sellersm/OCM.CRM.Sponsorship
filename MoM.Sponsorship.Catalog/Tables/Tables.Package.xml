@@ -2,7 +2,7 @@
     xmlns="bb_appfx_package"
     xmlns:c="bb_appfx_commontypes"
     ID="c66ad88d-bdbc-4e35-8cc2-c1456e7d72b8"
-    Name="Tables Package"
+    Name="Sponsorship Tables Package"
     Description="A package defining specs related to tables records"
     Author="Memphis Sellers"
     >

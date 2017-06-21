@@ -2,7 +2,7 @@
 	xmlns="bb_appfx_package"
 	xmlns:c="bb_appfx_commontypes" 
 	ID="8a43d932-2766-46ab-9918-fd5d1a66ce91" 
-	Name="Global Changes Package"
+	Name="Sponsorship Global Changes Package"
 	Description="Loads specs for custom global changes." 
 	Author="Memphis Sellers"
 	>

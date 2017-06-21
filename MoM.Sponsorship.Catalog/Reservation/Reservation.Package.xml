@@ -2,7 +2,7 @@
     xmlns="bb_appfx_package"
     xmlns:c="bb_appfx_commontypes"
     ID="a6794065-4475-48bb-a585-9f000a26b13b"
-    Name="Reservation Package"
+    Name="Sponsorship Reservation Package"
     Description="Loads specs for reservation customizations."
     Author="Memphis Sellers"
     >

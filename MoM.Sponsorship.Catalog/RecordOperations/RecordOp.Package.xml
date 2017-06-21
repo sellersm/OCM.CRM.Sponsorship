@@ -2,7 +2,7 @@
     xmlns="bb_appfx_package"
     xmlns:c="bb_appfx_commontypes"
     ID="44358399-07aa-44b6-813a-757d15b097d2"
-    Name="Record Op Package"
+    Name="Sponsorship Record Op Package"
     Description="Loads all record op specs."
     Author="MSellers"
     >
