@@ -136,11 +136,11 @@ set @CURRENTDATE = getdate()
 		--if exists (select 1 from dbo.ATTRIBUTE797dbb124a23488b96284dc66e203908 where ID = @PFMID and COBRANDINGFULFILLMENTCODEID = @coBrandYesFulfillmentCodeID)
 		
 		-- this is for LOCAL:
-		if exists (select 1 from dbo.ATTRIBUTE1EB07079E1ED42A9A56FEFF6F839CE28 where ID = @PFMID and COBRANDINGFULFILLMENTCODEID = @coBrandYesFulfillmentCodeID)
+		--if exists (select 1 from dbo.ATTRIBUTE1EB07079E1ED42A9A56FEFF6F839CE28 where ID = @PFMID and COBRANDINGFULFILLMENTCODEID = @coBrandYesFulfillmentCodeID)
 		
 		-- *** UNCOMMENT BELOW FOR PROD DEPLOYMENT  **** \/\/\/\/\/\/\/\/\/\/
 		-- this is for PROD:
-		--if exists (select 1 from dbo.attributedcf97954c27e4c8e916be0deb920ed05 where ID = @PFMID and COBRANDINGFULFILLMENTCODEID = @coBrandYesFulfillmentCodeID)
+		if exists (select 1 from dbo.attributedcf97954c27e4c8e916be0deb920ed05 where ID = @PFMID and COBRANDINGFULFILLMENTCODEID = @coBrandYesFulfillmentCodeID)
 			begin
 				set @doSetPartnerIDField = 1;
 			end
