@@ -1,4 +1,4 @@
-﻿<AddDataFormTemplateSpec 
+﻿<AddDataFormTemplateSpec
     xmlns="bb_appfx_adddataformtemplate"
     xmlns:common="bb_appfx_commontypes"
     ID="7fee7603-28c1-4eb0-b033-70607018198c"
@@ -11,7 +11,7 @@
     FormHeader="Complete Web Sponsorships"
     >
 
-	<!-- 
+  <!-- 
 	Remarks:    Form to create our sponsorship customizations for new web sponsorships,
 				because the web process doesn't create any of our custom items.
 				Task to launch this form is on the Sponsor/Constituent page.
@@ -20,15 +20,17 @@
 	Date            Modified By     Comments
 	22-May-2017		MSellers		Initial Version.
 	30-May-2017		MSellers		Updated form header value.
+  27-Jul-2017   MSellers    Added code to get the oldest sponsorship start date from the list of child sponsorships so
+                            the sproc that creates interactions can use it.
 	-->
 
 
-	<SPDataForm>
-		<!-- describe the preload SP (if applicable), which should be used to fetch field default values from the database.  If no
+  <SPDataForm>
+    <!-- describe the preload SP (if applicable), which should be used to fetch field default values from the database.  If no
 		preload is needed, then this section can be removed -->
-		<LoadImplementation SPName="USR_USP_DATAFORMTEMPLATE_ADD_WEB_ONBOARDING_INTERACTIONS_PRELOAD">
-			<common:CreateProcedureSQL>
-				<![CDATA[
+    <LoadImplementation SPName="USR_USP_DATAFORMTEMPLATE_ADD_WEB_ONBOARDING_INTERACTIONS_PRELOAD">
+      <common:CreateProcedureSQL>
+        <![CDATA[
 create procedure dbo.USR_USP_DATAFORMTEMPLATE_ADD_WEB_ONBOARDING_INTERACTIONS_PRELOAD
 (
 	@SPONSORID uniqueidentifier,
@@ -46,13 +48,13 @@ as
 	
 	return 0;				
 				]]>
-			</common:CreateProcedureSQL>
-		</LoadImplementation>
+      </common:CreateProcedureSQL>
+    </LoadImplementation>
 
-		<!-- describe the save SP -->
-		<SaveImplementation SPName="USR_USP_DATAFORMTEMPLATE_ADD_WEB_ONBOARDING_INTERACTIONS">
-			<common:CreateProcedureSQL>
-				<![CDATA[
+    <!-- describe the save SP -->
+    <SaveImplementation SPName="USR_USP_DATAFORMTEMPLATE_ADD_WEB_ONBOARDING_INTERACTIONS">
+      <common:CreateProcedureSQL>
+        <![CDATA[
 create procedure dbo.USR_USP_DATAFORMTEMPLATE_ADD_WEB_ONBOARDING_INTERACTIONS
 (
     @ID uniqueidentifier = null output,
@@ -196,9 +198,9 @@ set @CURRENTDATE = getdate()
 		--***  END New reservation code  
 
 		if @ISPROSPECT = 1
-			set @statusText = 'Sponsored'
+			set @statusText = 'Prospect Sponsored';
 		else
-			set @statusText = 'Prospect Sponsored'
+			set @statusText = 'Sponsored';
 			
 		-- insert into the sponsorship extension table:
 		-- this is for Sponsored:
@@ -209,6 +211,18 @@ set @CURRENTDATE = getdate()
 			@CHANGEAGENTID = @CHANGEAGENTID,			
 			@SPONSORSHIPOPPORTUNITYID = @CHILDID
 						 
+		--***  New reservation code to account for Closed web sponsorships:
+		-- EndDate should match the child's sponsorship start date
+		-- search on child id
+		update	cr --dbo.USR_CHILDRESERVATION 
+		set	cr.STATUSCODE = @reservationStatusCode_Sponsored
+			--cr.ENDDATE = getdate() 
+		from dbo.USR_CHILDRESERVATION cr
+		join dbo.SPONSORSHIPOPPORTUNITYRESERVEPROCESS srp on srp.ID = cr.SPONSORSHIPOPPORTUNITYRESERVEPROCESSID and NAME like '%website%'
+		where cr.ENDDATE = @startDate
+		and cr.SPONSORSHIPOPPORTUNITYCHILDID = @CHILDID
+		--***  END New reservation code   
+
 		fetch next from childCursor into @CHILDID, @CHILDNAME, @LOOKUPID, @STARTDATE, @WEBSPONSORSHIPID
 	end
 
@@ -231,6 +245,12 @@ set @CURRENTDATE = getdate()
 	select top 1 @WEBSPONSORSHIPID = WEBSPONSORSHIPID
 	from @TempTbl;
 	
+	-- 7-13-17 MSellers: get the minimum (oldest) Sponsorship start date to pass into the 
+	--		sproc below so it can compare it with the ESSD value.
+	declare @oldestStartDate date = null;
+	select @oldestStartDate = min(STARTDATE)
+	from @TempTbl;
+	
 	if @ISPROSPECT = 1
 		begin
 			-- call sproc to create the requested interaction type
@@ -250,7 +270,8 @@ set @CURRENTDATE = getdate()
 				 @interactionTypeCodeID = @INTERACTIONTYPECODEID,		
 				 @changeAgentID = @CHANGEAGENTID,	
 				 @doSetPartnerIDField = @doSetPartnerIDField,
-				 @partnerID = @PFMID
+				 @partnerID = @PFMID,
+				 @sponsorshipStartDate = @oldestStartDate
 		end
   
   
@@ -294,7 +315,6 @@ set @CURRENTDATE = getdate()
 						,@DATEFROM
 						,@DATETO
 	
-
 end try
 
 begin catch
@@ -302,70 +322,52 @@ begin catch
 	return 1;
 end catch
 
-begin try
---***  New reservation code to account for Closed web sponsorships:
-	-- EndDate should match the child's sponsorship start date
-	-- search on child id
-	update	cr --dbo.USR_CHILDRESERVATION 
-	set	cr.STATUSCODE = @reservationStatusCode_Sponsored
-		--cr.ENDDATE = getdate() 
-	from dbo.USR_CHILDRESERVATION cr
-	join dbo.SPONSORSHIPOPPORTUNITYRESERVEPROCESS srp on srp.ID = cr.SPONSORSHIPOPPORTUNITYRESERVEPROCESSID and NAME like '%website%'
-	where cr.ENDDATE = @startDate
-	and cr.SPONSORSHIPOPPORTUNITYCHILDID = @childId
---***  END New reservation code   	 
-end try
-
-begin catch
-	exec dbo.USP_RAISE_ERROR;
-	return 1;
-end catch
 
 return 0				
 				]]>
-			</common:CreateProcedureSQL>
-		</SaveImplementation>
-	</SPDataForm>
+      </common:CreateProcedureSQL>
+    </SaveImplementation>
+  </SPDataForm>
 
-	<!-- describe the context ID for this form (if applicable), which corresponds to a parameter in the SP. -->
-	<Context ContextRecordType="CONSTITUENT" RecordIDParameter="SPONSORID" />
+  <!-- describe the context ID for this form (if applicable), which corresponds to a parameter in the SP. -->
+  <Context ContextRecordType="CONSTITUENT" RecordIDParameter="SPONSORID" />
 
-	<!-- describe fields on the form, which correspond to parameters on the SP.  Note that system parameters 
+  <!-- describe fields on the form, which correspond to parameters on the SP.  Note that system parameters 
 	like the context @ID, @CONTEXTID, and @CURRENTAPPUSERID need not be listed. -->
-	<common:FormMetaData FixedDialog="false">
-		<common:FormFields>
-			<!--<common:FormField FieldID="FORMTITLE" ReadOnly="true" MaxLength="100" />-->
-			<common:FormField FieldID="SPONSORSHIPCONSTITUENTID" DataType="Guid" Caption="Sponsor ID" Hidden="true"  ReadOnly="true "/>
-			<common:FormField FieldID="ISPROSPECT" DataType="Boolean" Caption="Is Prospect" Required="true" />
-			
-			<common:FormField FieldID="SPONSORNAME" Caption="Sponsor" DataType="String" MaxLength="100" ReadOnly="true" />
-			
-			<common:FormField FieldID="INTERACTIONTYPECODEID" DataType="Guid" Caption="Interaction" Required="true">
-				<common:CodeTable CodeTableName="USR_NEWSPONSORSHIPINTERACTIONTYPECODE" />
-			</common:FormField>
+  <common:FormMetaData FixedDialog="false">
+    <common:FormFields>
+      <!--<common:FormField FieldID="FORMTITLE" ReadOnly="true" MaxLength="100" />-->
+      <common:FormField FieldID="SPONSORSHIPCONSTITUENTID" DataType="Guid" Caption="Sponsor ID" Hidden="true"  ReadOnly="true "/>
+      <common:FormField FieldID="ISPROSPECT" DataType="Boolean" Caption="Is Prospect" Required="true" />
 
-			<common:FormField FieldID="PFMID" DataType="Guid" Required="false" Caption="Partner">
-				<common:SearchList SearchListID="a00235ec-b143-4f50-ad74-4c653d605cdf" EnableQuickFind="true">
-				</common:SearchList>
-			</common:FormField>
+      <common:FormField FieldID="SPONSORNAME" Caption="Sponsor" DataType="String" MaxLength="100" ReadOnly="true" />
 
-			<common:FormField FieldID="FILTERDATE" Caption="Sponsorship Date" DataType="Date" />			
+      <common:FormField FieldID="INTERACTIONTYPECODEID" DataType="Guid" Caption="Interaction" Required="true">
+        <common:CodeTable CodeTableName="USR_NEWSPONSORSHIPINTERACTIONTYPECODE" />
+      </common:FormField>
 
-			<common:FormField FieldID="CHILDREN" Caption="Children">
-				<common:Collection>
-					<common:Fields>
-						<common:FormField FieldID="ID" DataType="Guid" Hidden="true" />
-						<common:FormField FieldID="NAME" Caption="Child Name" DataType="String" Required="true" CaptionResourceKey="$$site" />
-						<common:FormField FieldID="LOOKUPID" Caption="Lookup ID" DataType="String" />
-						<common:FormField FieldID="SPONSORSHIPDATE" Caption="Start Date" DataType="Date" />
-						<common:FormField FieldID="SPONSORSHIPID" DataType="Guid" Hidden="true" />
-					</common:Fields>
-				</common:Collection>
-			</common:FormField>
+      <common:FormField FieldID="PFMID" DataType="Guid" Required="false" Caption="Partner">
+        <common:SearchList SearchListID="a00235ec-b143-4f50-ad74-4c653d605cdf" EnableQuickFind="true">
+        </common:SearchList>
+      </common:FormField>
 
-			<common:FormField FieldID="SPONSORSHIPOPPORTUNITYIDCHILD" DataType="String" Caption="Child Lookup ID" />
+      <common:FormField FieldID="FILTERDATE" Caption="Sponsorship Date" DataType="Date" />
 
-			<!--<common:FormField FieldID="SPONSORSHIPOPPORTUNITYIDCHILD" DataType="Guid" Caption="Child" CaptionResourceKey="$$child">
+      <common:FormField FieldID="CHILDREN" Caption="Children">
+        <common:Collection>
+          <common:Fields>
+            <common:FormField FieldID="ID" DataType="Guid" Hidden="true" />
+            <common:FormField FieldID="NAME" Caption="Child Name" DataType="String" Required="true" CaptionResourceKey="$$site" />
+            <common:FormField FieldID="LOOKUPID" Caption="Lookup ID" DataType="String" />
+            <common:FormField FieldID="SPONSORSHIPDATE" Caption="Start Date" DataType="Date" />
+            <common:FormField FieldID="SPONSORSHIPID" DataType="Guid" Hidden="true" />
+          </common:Fields>
+        </common:Collection>
+      </common:FormField>
+
+      <common:FormField FieldID="SPONSORSHIPOPPORTUNITYIDCHILD" DataType="String" Caption="Child Lookup ID" />
+
+      <!--<common:FormField FieldID="SPONSORSHIPOPPORTUNITYIDCHILD" DataType="Guid" Caption="Child" CaptionResourceKey="$$child">
 				<common:SearchList SearchListID="f9183b88-9f54-40de-848e-c8fbacf92e79" EnableQuickFind="false">
 					<common:FormFieldOverrides>
 						<common:FormFieldOverride FieldID="SPONSORSHIPPROGRAMID" ReadOnly="false" DefaultValueText="Fields!SPONSORSHIPPROGRAMID" />
@@ -374,35 +376,39 @@ return 0
 						<common:FormFieldOverride FieldID="RESTRICTFORSOLESPONSORSHIP" Caption="Only include unsponsored" DefaultValueText="False" />
 						<common:FormFieldOverride FieldID="SPONSORSHIPOPPORTUNITYGROUPID" ReadOnly="false" />
 						<common:FormFieldOverride FieldID="RESERVATIONKEYID" ReadOnly="false" />
-						--><!--<common:FormFieldOverride FieldID="CORRESPONDINGSPONSORID" Hidden="true" DefaultValueText="Fields!SPONSORSHIPCONSTITUENTID" />--><!--
-						--><!--<common:FormFieldOverride FieldID="FINANCIALSPONSORID" Hidden="true" DefaultValueText="Fields!REVENUECONSTITUENTID" />--><!--
+						-->
+      <!--<common:FormFieldOverride FieldID="CORRESPONDINGSPONSORID" Hidden="true" DefaultValueText="Fields!SPONSORSHIPCONSTITUENTID" />-->
+      <!--
+						-->
+      <!--<common:FormFieldOverride FieldID="FINANCIALSPONSORID" Hidden="true" DefaultValueText="Fields!REVENUECONSTITUENTID" />-->
+      <!--
 					</common:FormFieldOverrides>
 				</common:SearchList>
 			</common:FormField>-->
 
 
-		</common:FormFields>
+    </common:FormFields>
 
-        <common:WebUIComponent>
-            <common:UIModel AssemblyName="MoM.Sponsorship.UIModel.dll" ClassName="MoM.Sponsorship.UIModel.AddWebSponsorshipOnBoardingInteractionsUIModel" />
-            <common:WebUI>
-                <common:ExternalResource Url="browser/htmlforms/custom/AddCustomizationsToWebSponsorships.html" />
-            </common:WebUI>
-        </common:WebUIComponent>
+    <common:WebUIComponent>
+      <common:UIModel AssemblyName="MoM.Sponsorship.UIModel.dll" ClassName="MoM.Sponsorship.UIModel.AddWebSponsorshipOnBoardingInteractionsUIModel" />
+      <common:WebUI>
+        <common:ExternalResource Url="browser/htmlforms/custom/AddCustomizationsToWebSponsorships.html" />
+      </common:WebUI>
+    </common:WebUIComponent>
 
-		<common:UIActions>
-			<common:UIAction ActionID="FINDCHILDREN" Caption="Find Children" CaptionResourceKey="$$find" />
-			<common:UIAction ActionID="ADDSELECTEDCHILD" Caption="Add Child" />			
-			<common:UIAction ActionID="REMOVESELECTEDCHILD" Caption="Remove Child" />
-		</common:UIActions>
+    <common:UIActions>
+      <common:UIAction ActionID="FINDCHILDREN" Caption="Find Children" CaptionResourceKey="$$find" />
+      <common:UIAction ActionID="ADDSELECTEDCHILD" Caption="Add Child" />
+      <common:UIAction ActionID="REMOVESELECTEDCHILD" Caption="Remove Child" />
+    </common:UIActions>
 
-		<!--<common:WebUIComponent>
+    <!--<common:WebUIComponent>
 			<common:UIModel AssemblyName="MoM.Sponsorship.UIModel.dll" ClassName="MoM.Sponsorship.UIModel.SponsorshipAddFormWrappedUIModel" />
 			<common:WebUI>
 				<common:ExternalResource Url="browser/htmlforms/custom/SponsorshipAddFormWrapped.html" />
 			</common:WebUI>
 		</common:WebUIComponent>-->
 
-	</common:FormMetaData>
+  </common:FormMetaData>
 
 </AddDataFormTemplateSpec>
