@@ -1,13 +1,13 @@
 ﻿<SQLStoredProcedureSpec
 	xmlns="bb_appfx_sqlstoredprocedure"
-	xmlns:common="bb_appfx_commontypes" 
+	xmlns:common="bb_appfx_commontypes"
 	ID="8bf74ea1-32a2-4cb7-b377-bf6b9bea08d6"
 	Name="USR_USP_SPONSORSHIP_CREATENEWSPONSORSHIPINTERACTIONS"
 	Description="Creates the interactions pertaining to a new sponsorship"
 	Author="Cary Mayeda"
 	SPName="USR_USP_SPONSORSHIP_CREATENEWSPONSORSHIPINTERACTIONS" >
 
-	<!-- 
+  <!-- 
 	Remarks:    This sproc is used by the Add a sponsorship-ocm form to create the appropriate interactions on the financial and corresponding sponsors.
 
 	History:
@@ -28,10 +28,12 @@
 	28-Aug-2015		CMayeda			Changed raiserror syntax to work with SQL Server 2012 (CRM 4.0)	
 	15-Dec-2016		Memphis			Added new items for 2016 onboarding changes per Workflow req'ts doc from Pamela...Too many changes to list here.
 	19-Jan-2017		Memphis			Changes per Pamela
+	12-Jul-2017		MSellers		Added default parameter to account for new 'complete web sponsorships form' - if this is called from that Add Form, then the ESSD date check is different
+									as it compares the ESSD Date value to the Sponsorship Start Date passed into this sproc as a parameter, instead of Today's Date (getdate()).
 	-->
 
-	<CreateProcedureSQL>
-		<![CDATA[
+  <CreateProcedureSQL>
+    <![CDATA[
 create procedure dbo.USR_USP_SPONSORSHIP_CREATENEWSPONSORSHIPINTERACTIONS (
 	@sponsorshipID uniqueidentifier = null,				-- The sponsorship that the interactions will pertain to.  
 														-- This is used to pull the financial sponsor and correspondent, and to determine if the recurring gift is on EFT
@@ -40,12 +42,17 @@ create procedure dbo.USR_USP_SPONSORSHIP_CREATENEWSPONSORSHIPINTERACTIONS (
 	@interactionTypeCodeID uniqueidentifier = null,		-- The ID of the Interaction Type that the user selected (Welcome Packet, Welcome Packet & Profile, ...)
 	@changeAgentID uniqueidentifier = null,				-- Used to specify change agent for CHANGEDBYID and ADDEDBYID fields.  USP_CHANGEAGENT_GETORCREATECHANGEAGENT is called if it's null
 	@doSetPartnerIDField bit = 0,						-- If value of 1 then set the InteractionExtension.PARTNERID field to value in the @partnerID parameter
-	@partnerID uniqueidentifier = null
+	@partnerID uniqueidentifier = null,
+	@sponsorshipStartDate date = null					-- If called from Complete Web Sponsorship Form, this will be the minimum sponsorship start date, otherwise default to NULL
 )
 as
 begin
 	if @changeAgentID is null  
 		exec dbo.USP_CHANGEAGENT_GETORCREATECHANGEAGENT @changeAgentID output
+
+	-- 7-13-17 MSellers if caller didn't fill in this parameter, use today's date:
+	if @sponsorshipStartDate is null
+		set @sponsorshipStartDate = cast(getdate() as date);
 
 	-- Constants
 	declare @callCenterManagerConstituentID uniqueidentifier = 'B25168DC-4DD4-46ED-B4DD-C5A26A965667'	-- This constituent is hard coded via a script
@@ -304,8 +311,7 @@ begin
 				begin
 					-- now check for ESSD value is blank or equal to today?
 					--  this smartfield is the Earliest Child Sponsorship or Correspondent Date:
-					-- ***for LOCAL Testing ONLY***  use this table dbo.smartfieldB9F74972318C4183AF99229463CB2E29
-					
+					-- ***for LOCAL Testing ONLY***  use this table dbo.smartfieldB9F74972318C4183AF99229463CB2E29					
 					/*
 					select 	@essdID = ID,
 							@essdDate = [VALUE]
@@ -320,9 +326,10 @@ begin
 					from dbo.smartfieldBB91D38CB66F44A3A65E37E7F4D99941 
 					where id = @financialSponsorID 
 					--*/
-					
-					
-					if (@essdDate is null or (@essdDate is not null and cast(@essdDate as date) = cast(getdate() as date)))
+										
+					-- MSellers: 7-12-17 if called from complete web sponsorship form, ESSD is compared against sponsorship start date, not today:
+					-- if called from somewhere else, it will be NULL so it is set to today at the beginning of this SPROC code
+					if (@essdDate is null or (@essdDate is not null and cast(@essdDate as date) = @sponsorshipStartDate))
 						begin
 							-- workflow says to check for an existing interaction with subcategory of Our Website:
 							if exists(select 1 from dbo.INTERACTION where INTERACTIONSUBCATEGORYID = @ourWebsiteSubCategoryID and CONSTITUENTID = @financialSponsorID)
@@ -419,7 +426,9 @@ begin
 					where id = @correspondentID 
 					--*/
 					
-					if (@essdDate is null or (@essdDate is not null and cast(@essdDate as date) = cast(getdate() as date)))
+					-- MSellers: 7-12-17 if called from complete web sponsorship form, ESSD is compared against sponsorship start date, not today:
+					-- if called from somewhere else, it will be NULL so it is set to today at the beginning of this SPROC code
+					if (@essdDate is null or (@essdDate is not null and cast(@essdDate as date) = @sponsorshipStartDate))
 						begin
 							-- workflow says to check for an existing interaction with subcategory of Our Website:
 							if exists(select 1 from dbo.INTERACTION where INTERACTIONSUBCATEGORYID = @ourWebsiteSubCategoryID and CONSTITUENTID = @correspondentID)
@@ -499,7 +508,9 @@ begin
 					where id = @financialSponsorID 
 					--*/
 					
-					if (@essdDate is null or (@essdDate is not null and cast(@essdDate as date) = cast(getdate() as date)))
+					-- MSellers: 7-12-17 if called from complete web sponsorship form, ESSD is compared against sponsorship start date, not today:
+					-- if called from somewhere else, it will be NULL so it is set to today at the beginning of this SPROC code
+					if (@essdDate is null or (@essdDate is not null and cast(@essdDate as date) = @sponsorshipStartDate))
 						begin
 							-- workflow says to check for an existing interaction with subcategory of Our Website:
 							if exists(select 1 from dbo.INTERACTION where INTERACTIONSUBCATEGORYID = @ourWebsiteSubCategoryID and CONSTITUENTID = @financialSponsorID)
@@ -749,6 +760,6 @@ end
 
 
 		]]>
-	</CreateProcedureSQL>
+  </CreateProcedureSQL>
 
 </SQLStoredProcedureSpec>
