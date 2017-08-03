@@ -56,6 +56,7 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\References\Third Party\4.0.5\Blackbaud.AppFx.Server.dll</HintPath>
     </Reference>
+    <Reference Include="Blackbaud.AppFx.UIModeling.Core, Version=4.0.170.0, Culture=neutral, processorArchitecture=MSIL" />
     <Reference Include="Blackbaud.AppFx.XmlTypes, Version=4.0.5.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\References\Third Party\4.0.5\Blackbaud.AppFx.XmlTypes.dll</HintPath>
@@ -820,6 +821,8 @@
     <EmbeddedResource Include="Edit Forms\EditForms.Package.xml" />
     <EmbeddedResource Include="Copy Credit Card\CopyCreditCard.Package.xml" />
     <EmbeddedResource Include="Global Changes\GlobalChanges.Package.xml" />
+    <EmbeddedResource Include="EFT Decline Batch Process\EFTDeclineBatchProcessParameters.Add.xml" />
+    <EmbeddedResource Include="EFT Decline Batch Process\EFTDeclineBatchProcessParameters.DataList.xml" />
     <Content Include="Global Changes\MergeSponsorshipCommitmentRecurringGifts.GlobalChange.xml" />
     <EmbeddedResource Include="View Forms\RecurringGiftLineDetail.View.xml" />
     <EmbeddedResource Include="Query Views\RGL.Query.xml" />

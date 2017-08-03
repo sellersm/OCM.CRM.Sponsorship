@@ -20,9 +20,8 @@ create procedure dbo.USR_USP_DATAFORMTEMPLATE_EDITLOAD_EFTDECLINEBATCH_PREPROCES
     @ID uniqueidentifier,
     @DATALOADED bit = 0 output,
     @TSLONG bigint = 0 output,
-	@FIELD1 nvarchar(10) = null output,
-	@FIELD2 nvarchar(20) = null output,
-	@FIELD3 nvarchar(max) = null output
+	@BATCHNUMBER nvarchar(50) = null output,
+	@BATCHTYPE tinyint = null output
 )
 as
 
@@ -39,10 +38,9 @@ as
 	select
 		@DATALOADED = 1,
 		@TSLONG = TSLONG,
-		@FIELD1 = FIELD1,
-		@FIELD2 = FIELD2,
-		@FIELD3 = FIELD3		
-	from dbo.TABLE1
+		@BATCHNUMBER = BATCHNUMBER,
+		@BATCHTYPE = BATCHTYPE
+	from dbo.USR_EFTDECLINEBATCH_BUSINESSPROCESS
 	where ID = @ID
 
 	return 0;
@@ -50,15 +48,14 @@ as
 			</common:CreateProcedureSQL>
 		</LoadImplementation>
 
-		<SaveImplementation SPName="USP_DATAFORMTEMPLATE_EDIT_xxx">
+		<SaveImplementation SPName="USR_USP_DATAFORMTEMPLATE_EDIT_EFTDECLINEBATCH_PREPROCESS">
 			<common:CreateProcedureSQL>
 				<![CDATA[
-create procedure dbo.USP_DATAFORMTEMPLATE_EDIT_xxx (
+create procedure dbo.USR_USP_DATAFORMTEMPLATE_EDIT_EFTDECLINEBATCH_PREPROCESS (
 	@ID uniqueidentifier,
 	@CHANGEAGENTID uniqueidentifier = null,
-	@FIELD1 nvarchar(10),
-	@FIELD2 nvarchar(20),
-	@FIELD3 nvarchar(max)
+	@BATCHNUMBER nvarchar(50),
+	@BATCHTYPE tinyint
 )
 as
 
@@ -72,14 +69,14 @@ as
 
 	begin try
 		-- handle updating the data
-		update dbo.TABLE1 set
-			FIELD1 = @FIELD1,
-			FIELD2 = @FIELD2,
-			FIELD2 = @FIELD3,
+		update dbo.USR_EFTDECLINEBATCH_BUSINESSPROCESS set
+			BATCHNUMBER = @BATCHNUMBER,
+			BATCHTYPE = @BATCHTYPE,
 			CHANGEDBYID = @CHANGEAGENTID,
 			DATECHANGED = @CURRENTDATE
 		where ID = @ID
 	end try
+  
 	begin catch
 		exec dbo.USP_RAISE_ERROR
 		return 1
@@ -94,17 +91,29 @@ return 0;
 
 	<!-- describe fields on the form, which correspond to parameters on the SP.  Note that system paramters 
 	like the record ID, DATALOADED, TSLONG, and CURRENTAPPUSERID need not be listed. -->
-	<common:FormMetaData FixedDialog="true">
+	<common:FormMetaData FixedDialog="true">    
 		<common:FormFields>
-			<common:FormField FieldID="FIELD1" Caption="Field 1" DataType="String" MaxLength="10" />
-			<common:FormField FieldID="FIELD2" Caption="Field 2" DataType="String" MaxLength="20" />
-			<common:FormField FieldID="FIELD3" Caption="Field 3" DataType="String" />
+			<common:FormField FieldID="BATCHNUMBER" Caption="Batch Number" DataType="String" MaxLength="50" />
+      <common:FormField FieldID="BATCHTYPE" Caption="Batch Type" DataType="Integer" >
+        <common:ValueList>
+          <common:Items>
+            <common:Item>
+              <common:Value>0</common:Value>
+              <common:Label>Direct Debit</common:Label>
+            </common:Item>
+            <common:Item>
+              <common:Value>1</common:Value>
+              <common:Label>Credit Card</common:Label>
+            </common:Item>
+          </common:Items>
+        </common:ValueList>
+      </common:FormField>
 		</common:FormFields>
 
 		<!-- indicate the client-side component for the user interface -->
-		<common:FormUIComponent FormUIComponentType="CustomComponent">
+		<!--<common:FormUIComponent FormUIComponentType="CustomComponent">
 			<common:CustomComponentID AssemblyName="REPLACE_WITH_ASSEMBLYNAME" ClassName="REPLACE_WITH_FULLCLASSNAME" />
-		</common:FormUIComponent>
+		</common:FormUIComponent>-->
 	</common:FormMetaData>
 
 </EditDataFormTemplateSpec>

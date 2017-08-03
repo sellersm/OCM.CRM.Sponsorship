@@ -21,9 +21,9 @@
 		</common:GrantSelectList>
 	</ProcessorComponent>
 	
+  <!--
 	<common:FormMetaData>
-		<common:FormFields>
-			<!--<common:FormField Caption="Batch Date" DataType="Date" Description="Batch Date" FieldID="BATCHDATE" Required="true" />-->
+		<common:FormFields>			
 			<common:FormField Caption="Batch Number" DataType="String" Description="Batch Number" FieldID="BATCHNUMBER" Required="true" />
 			<common:FormField Caption="Batch Type" DataType="Integer" Description="Batch Type" FieldID="BATCHTYPE" Required="true" >
 				<common:ValueList UseRadioButtons="true">
@@ -41,5 +41,6 @@
 			</common:FormField>
 		</common:FormFields>
 	</common:FormMetaData>
-	
+  -->
+  
 </BusinessProcessSpec>

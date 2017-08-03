@@ -16,7 +16,8 @@ create procedure dbo.USR_USP_EFTDECLINEBATCH_PROCESS_GETPARAMETERS(
 )
 as
 begin
-	select BATCHNUMBER
+	select BATCHNUMBER,
+         BATCHTYPE
 	from dbo.USR_EFTDECLINEBATCH_BUSINESSPROCESS
 	where ID = @ID;
 end

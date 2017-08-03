@@ -42,6 +42,32 @@
 				</Section>
 			</Sections>
 		</Tab>
+    <Tab Caption="Parameter Sets" ID="876a9614-7d98-4cad-9134-87ddc88017fc">
+      <Sections>
+        <Section ID="3aeda050-87b0-451c-92c9-77dd4849f9fe" Caption="Parameters">
+          <DataList ID="aa1951d8-47a1-4ddf-84e6-0aff8a6c1d5c">
+            <RenderStyle>
+              <StandardView />
+            </RenderStyle>
+          </DataList>
+          <SectionContext>
+            <PageContextID xmlns="bb_appfx_commontypes" />
+          </SectionContext>
+          <Actions>
+            <Action ID="1a06ccf7-1a25-4147-a944-f346efb7d990" Caption="Add">
+              <ShowAddDataForm DataFormID="91196d38-b615-43eb-876c-7a5ee3530576" xmlns="bb_appfx_commontypes" />
+            </Action>
+            <Action ID="58e1d2ae-5704-45f3-9468-0c12e8b6b37a" Caption="Start Process">
+              <StartBusinessProcess BusinessProcessID="3cb4a9f8-ede0-4497-acff-c351057f8a87" StatusPageID="6992dbfe-35f0-414f-af77-59195d4f70ab" StatusTabID="00000000-0000-0000-0000-000000000000" PreprocessEditFormID="a7a5b9f8-db96-4dec-896d-251543a7f382" xmlns="bb_appfx_commontypes">
+                <ActionContext>
+                  <SectionField>ID</SectionField>
+                </ActionContext>
+              </StartBusinessProcess>
+            </Action>
+          </Actions>
+        </Section>
+      </Sections>
+    </Tab>    
 	</Tabs>
 	<PageActionGroups>
 		<PageActionGroup ID="1a6dcc7e-7b6a-45a2-81f0-fc4fb0c7f414" Caption="Process">
