@@ -10,7 +10,7 @@
 
 	<!-- define fields on the table -->
 	<Fields>
-		<TextField Name="NAME" Length="100" Required="true" IsUnique="true" Description="The name of the parameter set"/>
+		<TextField Name="NAME" Length="100" Required="false" IsUnique="false" Description="The name of the parameter set"/>
 		<TextField Name="DESCRIPTION" Length="255" Description="Details describing this parameter set"/>
 		<TextField Name="BATCHNUMBER" Length="150" Description="The batch number of the exception batch"/>
 		<NumberField Name="BATCHTYPE" Description="Batch type" Type="int" />
