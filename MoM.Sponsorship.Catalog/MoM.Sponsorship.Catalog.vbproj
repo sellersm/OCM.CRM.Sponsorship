@@ -823,6 +823,7 @@
     <EmbeddedResource Include="Global Changes\GlobalChanges.Package.xml" />
     <EmbeddedResource Include="EFT Decline Batch Process\EFTDeclineBatchProcessParameters.Add.xml" />
     <EmbeddedResource Include="EFT Decline Batch Process\EFTDeclineBatchProcessParameters.DataList.xml" />
+    <EmbeddedResource Include="EFT Decline Batch Process\EFTDeclineBatchProcessParameters.Delete.RecordOperation.xml" />
     <Content Include="Global Changes\MergeSponsorshipCommitmentRecurringGifts.GlobalChange.xml" />
     <EmbeddedResource Include="View Forms\RecurringGiftLineDetail.View.xml" />
     <EmbeddedResource Include="Query Views\RGL.Query.xml" />
