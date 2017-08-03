@@ -69,7 +69,7 @@
       </Sections>
     </Tab>    
 	</Tabs>
-	<PageActionGroups>
+	<!--<PageActionGroups>
 		<PageActionGroup ID="1a6dcc7e-7b6a-45a2-81f0-fc4fb0c7f414" Caption="Process">
 			<Actions>
 				<Action ID="f692055c-a7d8-4603-abf6-db8574bb295e" Caption="Run Process" ImageKey="RES:businessprocessspec">
@@ -84,5 +84,5 @@
 				</Action>
 			</Actions>
 		</PageActionGroup>
-	</PageActionGroups>
+	</PageActionGroups>-->
 </PageDefinitionSpec>
