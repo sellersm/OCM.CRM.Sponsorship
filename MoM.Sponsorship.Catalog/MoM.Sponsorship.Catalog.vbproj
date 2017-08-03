@@ -597,7 +597,9 @@
     <EmbeddedResource Include="EFT Decline Batch Process\EFTDeclineBatchProcessParameters.Table.xml" />
     <EmbeddedResource Include="EFT Decline Batch Process\EFTDeclineBatchProcessResults.DataList.xml" />
     <EmbeddedResource Include="EFT Decline Batch Process\EFTDeclineBatchProcessResults.Table.xml" />
-    <EmbeddedResource Include="EFT Decline Batch Process\EFTDeclineBusinessProcess.Package.xml" />
+    <EmbeddedResource Include="EFT Decline Batch Process\EFTDeclineBusinessProcess.Package.xml">
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
     <EmbeddedResource Include="EFT Decline Batch Process\EFTDeclineBusinessProcess.Page.xml" />
     <EmbeddedResource Include="EFT Decline Batch Process\EFTDeclined.Table.xml" />
     <EmbeddedResource Include="EFT Decline Batch Process\EFTDeclineProcessExceptionLog.Query.xml" />
@@ -823,7 +825,9 @@
     <EmbeddedResource Include="Global Changes\GlobalChanges.Package.xml" />
     <EmbeddedResource Include="EFT Decline Batch Process\EFTDeclineBatchProcessParameters.Add.xml" />
     <EmbeddedResource Include="EFT Decline Batch Process\EFTDeclineBatchProcessParameters.DataList.xml" />
-    <EmbeddedResource Include="EFT Decline Batch Process\EFTDeclineBatchProcessParameters.Delete.RecordOperation.xml" />
+    <EmbeddedResource Include="EFT Decline Batch Process\EFTDeclineBatchProcessParameters.Delete.RecordOperation.xml">
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
     <Content Include="Global Changes\MergeSponsorshipCommitmentRecurringGifts.GlobalChange.xml" />
     <EmbeddedResource Include="View Forms\RecurringGiftLineDetail.View.xml" />
     <EmbeddedResource Include="Query Views\RGL.Query.xml" />
