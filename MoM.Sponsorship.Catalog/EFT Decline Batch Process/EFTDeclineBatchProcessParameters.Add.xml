@@ -1,0 +1,86 @@
+﻿<AddDataFormTemplateSpec 
+	xmlns="bb_appfx_adddataformtemplate"
+	xmlns:c="bb_appfx_commontypes" 
+	ID="1e734b53-d115-461b-8acf-b929a331f0de" 
+	Name="EFT Decline Batch Process Parameters Add Data Form"
+	Description="A data form for adding eft decline batch process parameters records" 
+	Author="Mark Sellers"
+	DataFormInstanceID="91196d38-b615-43eb-876c-7a5ee3530576" 
+	RecordType="EFT Decline Batch Process Parameters"
+	c:SecurityUIFolder="EFT Decline Batch Process Parameters"
+	FormHeader="Add an eft decline batch process parameters"
+	>
+
+	<SPDataForm>
+		<!-- describe the save SP -->
+		<SaveImplementation SPName="USR_USP_DATAFORMTEMPLATE_ADD_EFTDECLINEBATCHPROCESSPARAMETERS">
+			<c:CreateProcedureSQL>
+				<![CDATA[
+create procedure dbo.USR_USP_DATAFORMTEMPLATE_ADD_EFTDECLINEBATCHPROCESSPARAMETERS
+(
+    @ID uniqueidentifier = null output,
+	--@CONTEXTID uniqueidentifier,
+    @CHANGEAGENTID uniqueidentifier = null,
+	@BATCHNUMBER nvarchar(50) = '',
+	@BATCHTYPE tinyint = ''
+)
+as
+
+set nocount on;
+
+if @ID is null
+    set @ID = newid()
+
+if @CHANGEAGENTID is null  
+    exec dbo.USP_CHANGEAGENT_GETORCREATECHANGEAGENT @CHANGEAGENTID output
+
+declare @CURRENTDATE datetime
+set @CURRENTDATE = getdate()
+
+begin try
+	-- handle inserting the data
+	insert into dbo.USR_EFTDECLINEBATCH_BUSINESSPROCESS
+		(ID, NAME, BATCHNUMBER, BATCHTYPE, ADDEDBYID, CHANGEDBYID, DATEADDED, DATECHANGED)
+    values
+		(@ID, 'EFT DECLINE BATCH', @BATCHNUMBER, @BATCHTYPE, @CHANGEAGENTID, @CHANGEAGENTID, @CURRENTDATE, @CURRENTDATE)
+	
+end try
+
+begin catch
+    exec dbo.USP_RAISE_ERROR
+    return 1
+end catch
+
+return 0				
+				]]>
+			</c:CreateProcedureSQL>
+		</SaveImplementation>
+	</SPDataForm>
+
+	<!-- describe the context ID for this form (if applicable), which corresponds to a parameter in the SP. -->
+	<!--<Context ContextRecordType="REPLACE_WITH_RECORDTYPE" RecordIDParameter="CONTEXTID"/>-->
+
+	<!-- describe fields on the form, which correspond to parameters on the SP.  Note that system parameters 
+	like the context @ID, @CONTEXTID, and @CURRENTAPPUSERID need not be listed. -->
+	<FormMetaData xmlns="bb_appfx_commontypes">
+		<FormFields>
+			<FormField FieldID="BATCHNUMBER" Caption="Batch Number" DataType="String" MaxLength="50" />
+			<FormField FieldID="BATCHTYPE" Caption="Batch Type" DataType="Integer"  >
+        <ValueList UseRadioButtons="true">
+          <Items>
+            <Item>
+              <Value>0</Value>
+              <Label>Direct Debit</Label>
+            </Item>
+            <Item>
+              <Value>1</Value>
+              <Label>Credit Card</Label>
+            </Item>
+          </Items>
+        </ValueList>
+        </FormField>
+
+      </FormFields>
+	</FormMetaData>
+
+</AddDataFormTemplateSpec>

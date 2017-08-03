@@ -1,41 +1,71 @@
 Imports Blackbaud.AppFx.Server
 Imports Blackbaud.AppFx
-Imports Blackbaud.AppFx.UIModeling.Core
+'Imports Blackbaud.AppFx.UIModeling.Core
 Imports System.Data.SqlClient
 
 Public NotInheritable Class EFTDeclineBatchBusinessProcess
 	Inherits AppCatalog.AppBusinessProcess
 
-	Private _campaignType As Integer = Nothing
+    Private _campaignType As Integer = Nothing
+    Private _parameters As BizParameters = Nothing
 
-	Private Const outputTablePrefix As String = "USR_EFTDECLINEBATCH_BUSINESSPROCESS"
+    Private Const outputTablePrefix As String = "USR_EFTDECLINEBATCH_BUSINESSPROCESS"
 
-	Public Overrides Function StartBusinessProcess() As Blackbaud.AppFx.Server.AppCatalog.AppBusinessProcessResult
+    Private Class BizParameters
+        Public ReadOnly BATCHNUMBER As String = String.Empty
+        Public ReadOnly BATCHTYPE As Integer = Nothing
+
+        Public Sub New(ByVal parameterSetID As Guid, ByRef requestContext As RequestContext)
+            Using con As SqlConnection = New SqlConnection(requestContext.AppDBConnectionString)
+                Using command As SqlCommand = con.CreateCommand()
+                    Try
+                        command.CommandText = "USR_USP_EFTDECLINEBATCH_PROCESS_GETPARAMETERS"
+
+                        command.CommandType = CommandType.StoredProcedure
+                        command.Parameters.AddWithValue("@ID", parameterSetID)
+                        con.Open()
+                        Using reader As SqlDataReader = command.ExecuteReader()
+                            reader.Read()
+                            Me.BATCHNUMBER = reader.GetString(reader.GetOrdinal("BATCHNUMBER"))
+                            Me.BATCHTYPE = reader.GetInt32(reader.GetOrdinal("BATCHTYPE"))
+                            reader.Close()
+                        End Using
+                        con.Close()
+                    Catch
+                        Throw New Exception("Unable to get parameter set found for the given Id")
+                    End Try
+                End Using
+            End Using
+        End Sub
+
+    End Class
+
+    Public Overrides Function StartBusinessProcess() As Blackbaud.AppFx.Server.AppCatalog.AppBusinessProcessResult
 		'This is the trick to get the parameter values the user selected when starting the biz process:
 		Dim batchNumberDfv As XmlTypes.DataForms.DataFormFieldValue = Nothing
 		Dim batchNumber As String = String.Empty
 		Dim batchTypeDfv As XmlTypes.DataForms.DataFormFieldValue = Nothing
 		Dim batchType As String = String.Empty
-		'Dim batchDateDfv As XmlTypes.DataForms.DataFormFieldValue = Nothing
-		'Dim batchDate As String = String.Empty
+        'Dim batchDateDfv As XmlTypes.DataForms.DataFormFieldValue = Nothing
+        'Dim batchDate As String = String.Empty
 
-		'If Me.RequestArgs.DataItem.TryGetValue("BATCHDATE", batchDateDfv) Then
-		'	batchDate = CStr(batchDateDfv.Value)
-		'End If
+        'If Me.RequestArgs.DataItem.TryGetValue("BATCHDATE", batchDateDfv) Then
+        '	batchDate = CStr(batchDateDfv.Value)
+        'End If
 
-		If Me.RequestArgs.DataItem.TryGetValue("BATCHNUMBER", batchNumberDfv) Then
-			batchNumber = CStr(batchNumberDfv.Value)
-		End If
+        'If Me.RequestArgs.DataItem.TryGetValue("BATCHNUMBER", batchNumberDfv) Then
+        '    batchNumber = CStr(batchNumberDfv.Value)
+        'End If
 
-		If Me.RequestArgs.DataItem.TryGetValue("BATCHTYPE", batchTypeDfv) Then
-			batchType = CStr(batchTypeDfv.Value)
-		End If
+        'If Me.RequestArgs.DataItem.TryGetValue("BATCHTYPE", batchTypeDfv) Then
+        '    batchType = CStr(batchTypeDfv.Value)
+        'End If
 
-		Me.UpdateProcessStatus(String.Format("Processing EFT Decline Batch #{0} for Batch Type of {1}", batchNumber, batchType))
+        Me.UpdateProcessStatus(String.Format("Processing EFT Decline Batch #{0} for Batch Type of {1}", _parameters.BATCHNUMBER, _parameters.BATCHTYPE))
 
-		Dim ProcessResults As New Blackbaud.AppFx.Server.AppCatalog.AppBusinessProcessResult
+        Dim ProcessResults As New Blackbaud.AppFx.Server.AppCatalog.AppBusinessProcessResult
 
-		Dim Transaction As Data.SqlClient.SqlTransaction = Nothing
+        Dim Transaction As Data.SqlClient.SqlTransaction = Nothing
 
 		'Dim campaignType As Integer = RequestArgs.DataItem.Values.Item("CAMPAIGNTYPE").Value
 
@@ -57,12 +87,11 @@ Public NotInheritable Class EFTDeclineBatchBusinessProcess
 						.CommandType = CommandType.StoredProcedure
 						.CommandText = "dbo.USR_USP_EFTDECLINEBATCH_BUSINESSPROCESS"
 						.CommandTimeout = Me.ProcessCommandTimeout
-						'.Parameters.AddWithValue("@BATCHDATE", batchDate)
-						.Parameters.AddWithValue("@BATCHNUMBER", batchNumber)				' The sproc will get the Change Agent ID if we pass in null
-						.Parameters.AddWithValue("@BATCHTYPE", batchType)		' The table to insert the results of conversion process
-						'.Parameters.AddWithValue("exceptionTableName", exceptionTableName)	' The table to insert exceptions and kids put on the waiting list
+                        .Parameters.AddWithValue("@BATCHNUMBER", _parameters.BATCHNUMBER)               ' The sproc will get the Change Agent ID if we pass in null
+                        .Parameters.AddWithValue("@BATCHTYPE", _parameters.BATCHTYPE)       ' The table to insert the results of conversion process
+                        '.Parameters.AddWithValue("exceptionTableName", exceptionTableName)	' The table to insert exceptions and kids put on the waiting list
 
-						successParam = New SqlParameter("successCount", SqlDbType.Int)		' The number of kids registered
+                        successParam = New SqlParameter("successCount", SqlDbType.Int)		' The number of kids registered
 						successParam.Direction = ParameterDirection.Output
 						.Parameters.Add(successParam)
 
@@ -121,23 +150,32 @@ Public NotInheritable Class EFTDeclineBatchBusinessProcess
 
 	End Function
 
-	'Public Overrides Sub Validate()
-	'	MyBase.Validate()
-	'End Sub
+    Public Overrides Sub Validate()
+        MyBase.Validate()
+        Me.UpdateProcessStatus("inside of Validate() method")
 
-	'Private Sub DisplayPrompt(ByVal message As String)
-	'	Me.Prompts.Add(New UIPrompt() With { _
-	'	  .Text = message, _
-	'	  .ButtonStyle = UIPromptButtonStyle.Ok})
-	'End Sub
+        'get the parameters for this run:
+        _parameters = New BizParameters(RequestArgs.ParameterSetID, Me.RequestContext)
+        If _parameters Is Nothing Then
+            Throw New Exception("No parameters found with the given parameter!")
+        End If
 
-	'optional overrides
-	'Public Overrides Sub CheckForSimultaneousRuns()
-	'    MyBase.CheckForSimultaneousRuns()
-	'End Sub
+    End Sub
 
-	'Public Overrides Function GetAppLockNameForParameterSet() As String
-	'    Return MyBase.GetAppLockNameForParameterSet()
-	'End Function
+    'Private Sub DisplayPrompt(ByVal message As String)
+    '    Me.DisplayPrompt(message)
+    '    'Me.Prompts.Add(New UIPrompt() With {
+    '    '  .Text = message,
+    '    '  .ButtonStyle = UIPromptButtonStyle.Ok})
+    'End Sub
+
+    'optional overrides
+    'Public Overrides Sub CheckForSimultaneousRuns()
+    '    MyBase.CheckForSimultaneousRuns()
+    'End Sub
+
+    'Public Overrides Function GetAppLockNameForParameterSet() As String
+    '    Return MyBase.GetAppLockNameForParameterSet()
+    'End Function
 
 End Class
