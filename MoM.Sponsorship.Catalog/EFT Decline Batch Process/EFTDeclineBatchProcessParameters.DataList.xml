@@ -1,0 +1,65 @@
+﻿<DataListSpec 
+	xmlns="bb_appfx_datalist"
+	xmlns:c="bb_appfx_commontypes" 
+	ID="aa1951d8-47a1-4ddf-84e6-0aff8a6c1d5c" 
+	Name="EFT Decline Batch Process Parameters Data List"
+	Description="A data list showing eft decline batch process parameters records." 
+	Author="Mark Sellers"
+	c:SecurityUIFolder="EFT Decline Batch Process Parameters"
+	>
+
+	<!-- define the SP that returns the data for the datalist -->
+	<SPDataList SPName="USR_USP_DATALIST_EFTDECLINEBATCHPROCESSPARAMETERS">
+		<c:CreateProcedureSQL>
+			<![CDATA[
+create procedure dbo.USR_USP_DATALIST_EFTDECLINEBATCHPROCESSPARAMETERS
+(
+	@CONTEXTID uniqueidentifier
+)
+as
+	set nocount on;
+
+	select ID,
+		   BATCHNUMBER,
+		   BATCHTYPE
+	from dbo.USR_EFTDECLINEBATCH_BUSINESSPROCESS
+	--where ID = @CONTEXTID
+			]]>
+		</c:CreateProcedureSQL>
+	</SPDataList>
+
+	<!-- describe the context ID parameter for the SP (if applicable)-->
+	<Context ContextRecordType="EFTBatch" RecordIDParameter="CONTEXTID"/>
+
+	<!-- describe any parameters (other than the context ID) defined on the SP
+	<Parameters>
+		<FormMetaData xmlns="bb_appfx_commontypes">
+			<FormFields>
+				<FormField FieldID="PARAMETER1" Caption="Paramter1" DataType="REPLACE_WITH_DATATYPE"/>
+			</FormFields>
+		</FormMetaData>
+	</Parameters>-->
+
+	<!-- define the output fields in the list -->
+	<Output>
+		<OutputFields>
+			<OutputField FieldID="ID" Caption="ID" DataType="Guid" IsHidden="true" />
+			<OutputField FieldID="BATCHNUMBER" Caption="Batch Number" DataType="String" />
+      <OutputField FieldID="BATCHTYPE" Caption="Batch Type" DataType="Integer" >
+        <ValueList UseRadioButtons="true">
+          <c:Items>
+            <c:Item>
+              <c:Value>0</c:Value>
+              <c:Label>Direct Debit</c:Label>
+            </c:Item>
+            <c:Item>
+              <c:Value>1</c:Value>
+              <c:Label>Credit Card</c:Label>
+            </c:Item>          
+        </c:Items>
+        </ValueList>
+      </OutputField>
+		</OutputFields>
+	</Output>
+
+</DataListSpec>
