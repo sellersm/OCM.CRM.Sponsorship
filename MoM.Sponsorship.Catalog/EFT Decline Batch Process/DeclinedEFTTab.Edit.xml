@@ -25,6 +25,7 @@
 								4.	If the Account info has a value, then the card number and/or card expiration fields need to be null.
 								    Keep the BatchType hidden to use it for validation when saving.
 	28-Aug-2015		CMayeda			Changed raiserror syntax to work with SQL Server 2012 (CRM 4.0)
+  19-Dec-2017   MSellers    Changed the CardExpiration so it will work with the FuzzyDate in 4.0
 	-->
 
 
@@ -69,7 +70,10 @@ as
 			@BATCHDATE = BATCHDATE, 
 			@DECLINEREASON = DECLINEREASON, 
 			@CARDNUMBER = CARDNUMBER,
-			@CARDEXPIRATION = CARDEXPIRATION,
+			--@CARDEXPIRATION = CARDEXPIRATION,
+      @CARDEXPIRATION = case when CARDEXPIRATION = '        ' then '00000000' 
+                        else CARDEXPIRATION
+                        end,
 			@ACCOUNTINFO = ACCOUNTINFO,
 			@BATCHNUMBER = USR_EFTDECLINE_BATCH_SPONSORS.BATCHNUMBER, 
 			@CHILDINFO = CHILDINFO, 
