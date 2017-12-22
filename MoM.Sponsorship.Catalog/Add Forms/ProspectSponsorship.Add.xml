@@ -31,6 +31,7 @@
 	20-Dec-2016		Memphis			Add PFM Relationship with Corresponding Sponsor if there is one.
 	17-Jan-2017		Memphis			Added code to check if this Sponsor is able to have a Prospect Sponsorship added or not.
 	15-Mar-2017		MSellers		Change attribute table name to match PROD value.
+  21-Dec-2017   MSellers    Changed the default paymentmethodcode value to 9 (None), which is the correct value for CRM 4.0, instead of Cash.
 	-->
 
 	<c:ImpliedSecurityList>
@@ -247,7 +248,7 @@ create procedure dbo.USR_USP_DATAFORMTEMPLATE_ADD_PROSPECTSPONSORSHIP
 		@ISSOLESPONSORSHIP bit = 0,
 		@STARTDATE date = null,
 		@AMOUNT money = 0,
-		@PAYMENTMETHODCODE tinyint = 0,   -- default to Cash
+		@PAYMENTMETHODCODE tinyint = 9,   -- default to None for 4.0
 		@REFERENCEDATE dbo.UDT_FUZZYDATE = '00000000',
 		@REFERENCENUMBER nvarchar(20) = '',
 		@CARDHOLDERNAME nvarchar(255) = '',
@@ -425,7 +426,7 @@ begin try
 		@ISSOLESPONSORSHIP = @ISSOLESPONSORSHIP, 
 		@STARTDATE = @STARTDATE, 
 		@AMOUNT = @AMOUNT, 
-		@PAYMENTMETHODCODE = 0,  -- set this to CASH, no matter what @PAYMENTMETHODCODE, 
+		@PAYMENTMETHODCODE = 9,  -- set this to None for 4.0 since Prospect has no payment when sponsorship is created
 		@REFERENCEDATE = @REFERENCEDATE, 
 		@REFERENCENUMBER = @REFERENCENUMBER, 
 		@CARDHOLDERNAME = @CARDHOLDERNAME, 
@@ -892,7 +893,7 @@ return @r;
 				<c:CurrencyField CurrencyFieldID="TRANSACTIONCURRENCYID" />
 			</c:FormField>
 			<c:FormField FieldID="AUTOPAY" DataType="Boolean" Caption="Pay installments automatically by:" DefaultValueText="0" CaptionResourceKey="$$pay_installments_automatically_by:" />
-			<c:FormField FieldID="PAYMENTMETHODCODE" DataType="TinyInt" Required="false" Caption="Payment method" DefaultValueText="0" CaptionResourceKey="$$payment_method">
+			<c:FormField FieldID="PAYMENTMETHODCODE" DataType="TinyInt" Required="false" Caption="Payment method" DefaultValueText="9" CaptionResourceKey="$$payment_method">
 				<c:ValueList>
 					<c:Items>
 						<c:Item>

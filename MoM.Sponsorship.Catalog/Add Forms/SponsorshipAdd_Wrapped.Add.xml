@@ -31,6 +31,7 @@
 	15-Dec-2016		Memphis			Changes for new OnBoarding/Welcome process for new Sponsors/ships...
 									PFM is now Partner.
 	15-Mar-2017		MSellers		Update attribute table name for PROD.
+  20-Dec-2017   MSellers    Something in 4.0 is different with default payment method, so set it to 0 for Cash, no autopay
 	-->
 
 	<c:ImpliedSecurityList>
@@ -293,6 +294,10 @@ set nocount on;
 begin try
 	-- Handle any custom "before-save" logic here
 	
+  -- MSellers 12-20-2017 need to set the paymentmethodcode to Cash if this isn't an autopay:
+  if @AUTOPAY = 0
+    set @PAYMENTMETHODCODE = 9;   -- NONE
+  
 	-- first, create the relationship if necessary:
 
 	declare @CONSTITUENCYCODEID uniqueidentifier;
@@ -923,7 +928,7 @@ return @r;
 														<c:Value>3</c:Value>
 														<c:Label>Direct debit</c:Label>
 												</c:Item>
-										</c:Items>
+                    </c:Items>
 								</c:ValueList>
 						</c:FormField>
 						<c:FormField FieldID="CONSTITUENTACCOUNTID" DataType="Guid" Caption="Account" CaptionResourceKey="$$account">

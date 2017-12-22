@@ -16,6 +16,7 @@
 	Date            Modified By     Comments
 	28-Aug-2015		CMayeda			Changed raiserror syntax to work with SQL Server 2012 (CRM 4.0)
 	28-Feb-2017		MSellers		Fixed Interaction bugs
+  22-Dec-2017   MSellers    Change default payment method to None for 4.0
 	-->
 
 	<c:ImpliedSecurityList>
@@ -207,6 +208,9 @@ set nocount on;
 
 begin try
 	-- Handle any custom "before-save" logic here
+  -- MSellers 12-22-2017 need to set the paymentmethodcode to Cash if this isn't an autopay:
+  if @AUTOPAY = 0
+    set @PAYMENTMETHODCODE = 9;   -- NONE  
 	
 	/* *** TESTING ONLY ***************
 	-- at this point, BOTH of these parameters are NULL! 
