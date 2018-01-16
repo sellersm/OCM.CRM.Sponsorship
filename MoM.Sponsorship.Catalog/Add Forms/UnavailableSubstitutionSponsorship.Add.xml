@@ -24,6 +24,7 @@
 	26-Sep-2012		Memphis			added code on behalf of Cary, to set reservation to Sponsored marked by "***  CMayeda - reservation code" - Fogbugz Case 842
 	28-Sep-2012		Memphis			added call to insert new row into sponsorship extension table.	
 	28-Aug-2015		CMayeda			Changed raiserror syntax to work with SQL Server 2012 (CRM 4.0)
+  10-Jan-2018   MSellers    Something in 4.0 is different with default payment method, so set it to 0 for Cash, no autopay  
 	-->
 
 
@@ -165,7 +166,7 @@ create procedure dbo.USR_USP_DATAFORMTEMPLATE_ADD_UNAVAILABLESPONSORSHIP
 		@ISSOLESPONSORSHIP bit = 0,
 		@STARTDATE date = null,
 		@AMOUNT money = 0,
-		@PAYMENTMETHODCODE tinyint = 0,   -- default to Cash
+		@PAYMENTMETHODCODE tinyint = 9,   -- default to None
 		@REFERENCEDATE dbo.UDT_FUZZYDATE = '00000000',
 		@REFERENCENUMBER nvarchar(20) = '',
 		@CARDHOLDERNAME nvarchar(255) = '',
@@ -216,6 +217,10 @@ set nocount on;
 
 
 begin try
+  -- MSellers 1-10-2018 need to set the paymentmethodcode to Cash if this isn't an autopay:
+  if @AUTOPAY = 0
+    set @PAYMENTMETHODCODE = 9;   -- NONE
+
 	declare @CONSTITUENCYCODEID uniqueidentifier
 	declare @DATEFROM datetime = getdate()
 	declare @DATETO datetime
@@ -925,7 +930,7 @@ return @r;
 				<c:CurrencyField CurrencyFieldID="TRANSACTIONCURRENCYID" />
 			</c:FormField>
 			<c:FormField FieldID="AUTOPAY" DataType="Boolean" Caption="Pay installments automatically by:" DefaultValueText="0" CaptionResourceKey="$$pay_installments_automatically_by:" />
-			<c:FormField FieldID="PAYMENTMETHODCODE" DataType="TinyInt" Required="false" Caption="Payment method" DefaultValueText="0" CaptionResourceKey="$$payment_method">
+			<c:FormField FieldID="PAYMENTMETHODCODE" DataType="TinyInt" Required="false" Caption="Payment method" DefaultValueText="9" CaptionResourceKey="$$payment_method">
 				<c:ValueList>
 					<c:Items>
 						<c:Item>
