@@ -30,6 +30,21 @@
 									EXPIRESON
 									CREDITTYPECODEID
 									PREVIOUSCREDITTYPECODEID
+  13-Feb-2018   MSellers    Change the previous column values when the user is 'Adding' a new payment method, there will be no previous cards, paymethods, etc.
+                            So the PreviousPaymentMethodCode value must be set to 9 - 'None'.
+                            need to turn the NULL CREDITCARDPARTIALNUMBER into an empty string to pass the NOT NULL 
+                            constraint on the PREVIOUSCREDITCARDPARTIALNUMBER column in the insert into RGAmendment table
+                            and the EXPIRESON value from NULL to '00000000' which is an empty fuzzydate value
+                            (case [PREVIOUSPAYMENTMETHODCODE] when 
+                             (0) then N'Cash' when
+                             (1) then N'Check' when 
+                             (2) then N'Credit card - automatic' when
+                             (3) then N'Direct debit - automatic' when 
+                             (9) then N'None' when
+                             (10) then N'Other' when 
+                             (11) then N'Standing order' when 
+                             (98) then N'Credit card - last 4 digits' when
+                             (99) then N'Not applicable'  end)
 	-->
 	
 	<CreateProcedureSQL>
@@ -171,10 +186,13 @@ begin
 						-- Memphis 10-24: need to get the additional values for the RG Amendment insert below
 						--		These will be used as the Previous column values as these are the 
 						--		existing values before the Update change below...
+            -- MSellers 2-13-2018: need to turn the NULL CREDITCARDPARTIALNUMBER into an empty string to pass the NOT NULL 
+            --    constraint on the PREVIOUSCREDITCARDPARTIALNUMBER column in the insert into RGAmendment table below:
+            --   and the EXPIRESON value from NULL to '00000000' which is an empty fuzzydate value,
 						select  @CARDHOLDERNAME_PREVIOUS = cc.CARDHOLDERNAME,
 								@CREDITTYPECODEID_PREVIOUS = cc.CREDITTYPECODEID,
-								@CREDITCARDPARTIALNUMBER_PREVIOUS = cc.CREDITCARDPARTIALNUMBER,
-								@EXPIRESON_PREVIOUS = cc.EXPIRESON
+								@CREDITCARDPARTIALNUMBER_PREVIOUS = coalesce(cc.CREDITCARDPARTIALNUMBER, ''),
+								@EXPIRESON_PREVIOUS = coalesce(cc.EXPIRESON, '00000000')
 						from dbo.REVENUESCHEDULE rs
 						left join dbo.CREDITCARD cc on rs.CREDITCARDID = cc.ID
 						where rs.ID = @revenueId
