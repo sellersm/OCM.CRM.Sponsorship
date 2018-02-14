@@ -24,6 +24,7 @@
 									Other changes as well to capture non-sponsorship recurring gifts, etc.
 	28-May-2014		Memphis			Fixed multiple issues from Pamela's testing...
 	29-May-2014		Memphis			Added Order By to main select to help solve the 'two interactions being created' problem.
+  13-Feb-2018   MSellers    Changed how REJECTIONMESSAGE is retrieved to prevent check constraint violation with insert statement.
 	-->
 
 	<CreateProcedureSQL>
@@ -67,7 +68,7 @@ begin
 	declare @contactMethodDesc_Email nvarchar (100) = 'Email';
 	declare @contactMethodDesc_Mail nvarchar (100) = 'Mail';
 	declare @contactMethodDesc nvarchar(100);   -- this will get populated by either of the above values before creating the interaction
-	declare @batchExceptionMessage nvarchar(150) = '';
+	declare @batchExceptionMessage nvarchar(500) = 'N/A';
 	declare @childIDList dbo.USR_UDT_CHILDIDLIST;
 	declare @solicitCodeList table (CODEDESCRIPTION nvarchar(100));  -- used to hold the solicit codes, if any, for the given sponsor
 	declare @allowEmail bit = 0;
@@ -135,7 +136,7 @@ begin
 			--ChildInfo nvarchar(100),
 			RevenueSplitId uniqueidentifier,
 			REVENUEID uniqueidentifier,
-			RejectionMessage nvarchar(100),
+			RejectionMessage nvarchar(500),
 			DirectdebitIsRejected bit,
 			DirectDebitResultCode nvarchar(10),
 			CreditCardNumber nvarchar(4),
@@ -156,7 +157,7 @@ begin
 	declare @ChildInfo nvarchar(100);
 	declare @RevenueSplitId uniqueidentifier;
 	declare @REVENUEID uniqueidentifier;
-	declare @RejectionMessage nvarchar(100);
+	declare @RejectionMessage nvarchar(500);
 	declare @DirectdebitIsRejected bit;
 	declare @DirectDebitResultCode nvarchar(10);
 	declare @CreditCardNumber nvarchar(4);
@@ -192,7 +193,8 @@ begin
 	      --REJECTIONMESSAGE,
 	      rs.ID as RevenueSplitId,
 	      r.ID as REVENUEID,
-	      case when charindex('.', REJECTIONMESSAGE) > 0 then PARSENAME(REJECTIONMESSAGE, 2) else REJECTIONMESSAGE end as REJECTIONMESSAGE,
+	      --case when charindex('.', REJECTIONMESSAGE) > 0 then PARSENAME(REJECTIONMESSAGE, 2) else REJECTIONMESSAGE end as REJECTIONMESSAGE,
+        case when charindex('.', REJECTIONMESSAGE) > 0 then coalesce(PARSENAME(REJECTIONMESSAGE, 2),REJECTIONMESSAGE) else REJECTIONMESSAGE end as REJECTIONMESSAGE,
 	      DIRECTDEBITISREJECTED,
 	      DIRECTDEBITRESULTCODE,
 	      cc.CREDITCARDPARTIALNUMBER,
@@ -297,12 +299,12 @@ begin
 			if @BATCHTYPE = 0  -- direct debit
 				begin
 					--direct debit uses the directdebit fields
-					set @batchExceptionMessage = coalesce(@DirectDebitResultCode, '');
+					set @batchExceptionMessage = coalesce(@DirectDebitResultCode, 'N/A');
 				end
 			else
 				begin
 					-- credit card uses rejection message value
-					set @batchExceptionMessage = coalesce(@RejectionMessage, '');
+					set @batchExceptionMessage = coalesce(@RejectionMessage, 'N/A');
 					-- credit card doesn't have account info
 					set @AccountInfo = '';
 				end		
@@ -364,7 +366,7 @@ begin
 			) VALUES (
 			   newid() 					-- ID - uniqueidentifier
 			  ,@BATCHDATE 				-- BATCHDATE - datetime
-			  ,@batchExceptionMessage 	-- DECLINEREASON - nvarchar(150)
+			  ,@batchExceptionMessage 	-- DECLINEREASON - nvarchar(500)
 			  ,coalesce(@CreditCardNumber,'') -- CARDNUMBER - nvarchar(4)
 			  ,@ExpiryDate 				-- CARDEXPIRATION - nvarchar(10)
 			  ,@BATCHNUMBER 			-- BATCHNUMBER - nvarchar(100)
