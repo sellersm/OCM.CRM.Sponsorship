@@ -1,0 +1,324 @@
+<EditDataFormTemplateSpec 
+    xmlns:c="bb_appfx_commontypes"
+    ID="09b9aeb2-2748-4124-9de4-73479b277be4"
+    Name="OCM Sponsorship Reactivation Form Wrapped"
+    Description="Reactivate a canceled sponsorship (Wrapped)"
+    Author="Mark Sellers"
+    RecordType="Sponsorship"
+    DataFormInstanceID="13adae32-0557-4b77-b5bd-c998b65eb9b5"
+    HelpKey="SPSponsorshipPageReactivateSponsorship.html"
+    OwnerIDMapperID="00000000-0000-0000-0000-000000000000"
+    FormHeader="OCM Sponsorship Reactivation"
+    FormHeaderResourceKey="$$reactivation_reason"
+    xmlns="bb_appfx_editdataformtemplate"
+    >
+
+  <!-- 
+	Remarks:    This is a COPY (wrapped) of the OOB Sponsorship Rectivation form with our customizations added.
+				
+	History:
+	Date          Modified By   Comments
+	19-Mar-2018		MSellers			Initial version.
+  22-Mar-2018   MSellers      Fixed a few bugs and changes per changing requirements.
+  -->  
+  
+  
+  <c:ImpliedSecurityList>
+        <c:ImpliedSecurity Type="RecordOperation" ID="649e9eb5-f5f2-42ef-84c8-daa5fa65b521" />
+        <c:ImpliedSecurity Type="RecordOperation" ID="8b382b28-764a-4443-9ebe-6f291dc55167" />
+        <c:ImpliedSecurity Type="RecordOperation" ID="0eee0709-2a41-45c5-bda2-4a22cd867606" />
+    </c:ImpliedSecurityList>
+    <c:InstalledProductList>
+        <c:InstalledProduct ID="3117d2c8-7f46-42f2-abeb-b654f2f63046" />
+    </c:InstalledProductList>
+    <ResourceFile AssemblyName="Blackbaud.AppFx.Sponsorship.Catalog.dll" ClassName="Blackbaud.AppFx.Sponsorship.Catalog.Sponsorship.Reactivate" />
+    <SPDataForm>
+        <LoadImplementation SPName="USR_USP_DATAFORMTEMPLATE_EDITLOAD_SPONSORSHIPREACTIVATE_WRAPPED">
+            <c:CreateProcedureSQL>
+<![CDATA[
+create procedure dbo.USR_USP_DATAFORMTEMPLATE_EDITLOAD_SPONSORSHIPREACTIVATE_WRAPPED 
+(
+    @ID uniqueidentifier,
+    @DATALOADED bit = 0 output,
+    @TSLONG bigint = 0 output,
+    @DONORNAME nvarchar(100) = null output,
+    @OPPORTUNITYNAME nvarchar(100) = null output,
+    @HEADER nvarchar(100) = null output,
+    @REASONID uniqueidentifier = null output,
+    @SPONSORSHIPOPPORTUNITYID uniqueidentifier = null output,
+    @ISSOLESPONSORSHIP bit = null output
+)
+
+
+as
+
+set nocount on;
+
+/* Handle any custom "pre-load" logic here */
+
+declare @r int
+exec @r = dbo.USP_DATAFORMTEMPLATE_EDITLOAD_SPONSORSHIPREACTIVATE 
+  @ID = @ID, 
+  @DATALOADED = @DATALOADED output, 
+  @TSLONG = @TSLONG output, 
+  @DONORNAME = @DONORNAME output, 
+  @OPPORTUNITYNAME = @OPPORTUNITYNAME output, 
+  @HEADER = @HEADER output, 
+  @REASONID = @REASONID output, 
+  @SPONSORSHIPOPPORTUNITYID = @SPONSORSHIPOPPORTUNITYID output, 
+  @ISSOLESPONSORSHIP = @ISSOLESPONSORSHIP output
+
+/* Handle any custom "after-load" logic here */
+
+if @@error <> 0 
+	begin
+		if @r <> 0 return @r
+		return 1;
+	end
+
+return @r;
+
+
+]]>
+</c:CreateProcedureSQL>
+        </LoadImplementation>
+        <SaveImplementation SPName="USR_USP_DATAFORMTEMPLATE_EDITSAVE_SPONSORSHIPREACTIVATE_WRAPPED">
+            <c:CreateProcedureSQL>
+<![CDATA[
+create procedure dbo.USR_USP_DATAFORMTEMPLATE_EDITSAVE_SPONSORSHIPREACTIVATE_WRAPPED 
+(
+    @ID uniqueidentifier,
+    @CHANGEAGENTID uniqueidentifier = null,
+    @REASONID uniqueidentifier
+)
+
+
+as
+
+set nocount on;
+
+/*
+begin try
+	-- Handle any custom "before-save" logic here 
+end try
+begin catch
+	exec dbo.USP_RAISE_ERROR;
+	return 1;
+end catch
+*/
+
+/* invoke the default implementation */
+declare @r int
+exec @r = dbo.USP_DATAFORMTEMPLATE_EDITSAVE_SPONSORSHIPREACTIVATE 
+  @ID = @ID, 
+  @CHANGEAGENTID = @CHANGEAGENTID, 
+  @REASONID = @REASONID
+
+if @@error <> 0 
+	begin
+		if @r <> 0 return @r
+		return 1;
+	end
+
+
+begin try
+	-- Handle any custom "after-save" logic here
+/*
+  From Pamela, these are the requirements when saving the Sponsorship Reactivation in the wrapped form:
+
+  1. Edit Sponsorship Extension Table (Current status)
+	  A. Is the existing Sponsorship Extension Status of the sponsorship being reactivated "Formerly Prospect Sponsored"?
+		  YES:
+			  CRM changes extension table current sponsorship status to Prospect Sponsored
+			  CRM removes the Date to of constituency code Prospect Sponsor
+		  NO:
+			  CRM does not change extension value
+	  B. Is the existing Sponsorship Extension Status of the sponsorship being reactivated "Formerly Sponsored"?
+		  YES:
+			  CRM changes extension table current sponsorship status to Sponsored
+			  CRM removes the Date to of constituency code Sponsor	
+		  NO:
+			  CRM does not change extension value
+  2. Reactivate child cancelled letter interactions
+	  A. Does Child have Child Letters category interaction with Status of Cancelled?
+		  YES:
+			  Interaction Expected date within 12 months?
+			  YES:
+				  Is the sponsor ID listed in the interaction the same as the current sponsor?
+				  YES:
+					  CRM changes child letter interaction status to Pending
+					  CRM replaces current comments with Sponsorship reactivation; status changed from cancelled to pending
+				  NO:
+					  CRM does not change interaction
+*/
+
+  --@ID is the sponsorshipId of the sponsorship the user is viewing/reactivating:
+  declare @sponsorshipId uniqueidentifier = @ID;
+
+  --compare the results of the above UFN to these variables:
+  declare @formerlySponsoredCurrentStatusId uniqueidentifier = null;
+  declare @formerlyProspecctSponsoredCurrentStatusId uniqueidentifier = null;
+  declare @currentSponsorshipStatusId uniqueidentifier = null;
+  declare @newReactivatedCurrentSponsorshipStatusId uniqueidentifier = null;
+  declare @constituencyCodeId uniqueidentifier = null;
+  declare @currentSponsorId uniqueidentifier = null;
+  declare @childId uniqueidentifier = null;
+  declare @DATECHANGED datetime = getdate();
+  
+  if @CHANGEAGENTID is null  
+		exec dbo.USP_CHANGEAGENT_GETORCREATECHANGEAGENT @CHANGEAGENTID output
+
+  set @formerlySponsoredCurrentStatusId = dbo.USR_UFN_CURRENTOPPORTUNITYSPONSORSHIPSTATUSCODE_GETID_FORDESCRIPTION('Formerly Sponsored')
+  set @formerlyProspecctSponsoredCurrentStatusId = dbo.USR_UFN_CURRENTOPPORTUNITYSPONSORSHIPSTATUSCODE_GETID_FORDESCRIPTION('Formerly Prospect Sponsored')
+
+  --make sure we found the codes we need to proceed:
+  if @formerlySponsoredCurrentStatusId is null
+	  RAISERROR ('Cannot locate the Current Opportunity Sponsorship Status Code of Formerly Sponsored', 16, 1);
+    
+  if @formerlyProspecctSponsoredCurrentStatusId is null
+	  RAISERROR ('Cannot locate the Current Opportunity Sponsorship Status Code of Formerly Prospect Sponsored', 16, 1);
+
+  --get the current sponsorship status from sponsorship extension table for the given sponsorship:
+  set @currentSponsorshipStatusId = dbo.USR_UFN_SPONSORSHIP_GETCURRENTOPPORTUNITYSTATUSCODEID(@sponsorshipId)
+  
+  --if we didn't get one, raise an error:
+  if @currentSponsorshipStatusId is null
+    RAISERROR ('Cannot locate the Current Sponsorship Extension Status!', 16, 1);  
+
+	-- get the current sponsor id:
+	select @currentSponsorId = CONSTITUENTID
+	from dbo.SPONSORSHIP
+	where ID = @sponsorshipId;
+
+  if @currentSponsorId is null
+    RAISERROR ('Cannot locate the Current Sponsor for this Sponsorship!', 16, 1);  
+
+  --Test the current sponex status value, and set the replacement value to the correct ID:
+  /*
+	A. Is the existing Sponsorship Extension Status of the sponsorship being reactivated "Formerly Prospect Sponsored"?
+		  YES:
+			  CRM changes extension table current sponsorship status to Prospect Sponsored
+			  CRM removes the Date to of constituency code Prospect Sponsor
+		  NO:
+			  CRM does not change extension value
+  */
+
+  if @currentSponsorshipStatusId = @formerlyProspecctSponsoredCurrentStatusId
+	begin
+	  set @newReactivatedCurrentSponsorshipStatusId = dbo.USR_UFN_CURRENTOPPORTUNITYSPONSORSHIPSTATUSCODE_GETID_FORDESCRIPTION('Prospect Sponsored');
+	  set @constituencyCodeId = dbo.USR_UFN_CONSTITUENT_GETID_FORCODE('Prospect Sponsor');
+	end
+
+  /*
+  B. Is the existing Sponsorship Extension Status of the sponsorship being reactivated "Formerly Sponsored"?
+		  YES:
+			  CRM changes extension table current sponsorship status to Sponsored
+			  CRM removes the Date to of constituency code Sponsor	
+		  NO:
+			  CRM does not change extension value
+  */
+  
+  if @currentSponsorshipStatusId = @formerlySponsoredCurrentStatusId 
+	begin
+	  set @newReactivatedCurrentSponsorshipStatusId = dbo.USR_UFN_CURRENTOPPORTUNITYSPONSORSHIPSTATUSCODE_GETID_FORDESCRIPTION('Sponsored');
+	  set @constituencyCodeId = dbo.USR_UFN_CONSTITUENT_GETID_FORCODE('Sponsor');
+	end
+
+  -- perform the update of sponsorship extension current status:
+  if @newReactivatedCurrentSponsorshipStatusId is not null
+	begin
+		update dbo.USR_SPONSORSHIPEXTENSION
+		set 
+			[CURRENTOPPORTUNITYSPONSORSHIPSTATUSCODEID] = @newReactivatedCurrentSponsorshipStatusId
+			,[CHANGEDBYID] = @CHANGEAGENTID
+			,[DATECHANGED] = @DATECHANGED
+		where ID = @sponsorshipId;
+
+		 --remove the DateTo value in Constituencycode table for the given Sponsor:
+		update dbo.CONSTITUENCY
+		set DATETO = null
+		where CONSTITUENTID = @currentSponsorId
+		and CONSTITUENCYCODEID = @constituencyCodeId;
+	end
+
+  --2. perform the logic of interaction changes:
+  --Does Child have Child Letters category interaction with Status of Cancelled?
+  -- and Interaction Expected date within 6 months?
+  --   check against the last day of the month 6 months in future:  
+  --   SELECT EOMONTH ( getdate(), 6 ) AS 'Next Month'; 
+  --  and Is the sponsor ID listed in the interaction the same as the current sponsor?
+
+  declare @interactionIds table (
+	  ID uniqueidentifier
+  )
+
+  insert into @interactionIds
+  select INTERACTION.ID
+  from dbo.INTERACTION
+  join dbo.USR_INTERACTIONEXTENSION ie on ie.ID = INTERACTION.ID
+  where INTERACTIONSUBCATEGORYID in (select isc.ID from dbo.INTERACTIONSUBCATEGORY isc join dbo.INTERACTIONCATEGORY ic on isc.INTERACTIONCATEGORYID = ic.ID and ic.[NAME] like '%child letters%')
+  and CONSTITUENTID = @childId
+  and STATUSCODE = 4   --cancelled statuscode
+  and cast(EXPECTEDDATE as date) between cast(getdate() as date) and cast(EOMONTH ( getdate(), 6 ) AS DATE)
+  and ie.SPONSORID = @currentSponsorId;
+
+  if exists (select 1 from @interactionIds)
+	  begin
+		  --CRM changes child letter interaction status to Pending
+		  --CRM replaces current comments with Sponsorship reactivation; status changed from cancelled to pending
+		  update dbo.INTERACTION
+		  set STATUSCODE = 1, --pending
+			  COMMENT = concat(COMMENT,': Sponsorship reactivation; status changed from cancelled to pending')
+		  where ID in (select ID from @interactionIds);
+	  end
+
+end try
+
+begin catch
+	exec dbo.USP_RAISE_ERROR;
+	return 1;
+end catch
+
+ 
+return @r;
+
+
+]]>
+</c:CreateProcedureSQL>
+            <c:ExpectedDBExceptions>
+                <c:CustomExceptions>
+                    <c:Exception Field="REASONID" SearchText="BBERR_CHILDOPPORTUNITYTOOYOUNG" CustomErrorMsgResourceKey="$$the_selected_child_is_too_young_for_sponsorship">
+                        <c:CustomErrorMsg>The selected child is too young for sponsorship.</c:CustomErrorMsg>
+                    </c:Exception>
+                    <c:Exception Field="REASONID" SearchText="BBERR_CHILDOPPORTUNITYTOOOLD" CustomErrorMsgResourceKey="$$the_selected_child_is_too_old_for_sponsorship">
+                        <c:CustomErrorMsg>The selected child is too old for sponsorship.</c:CustomErrorMsg>
+                    </c:Exception>
+                </c:CustomExceptions>
+            </c:ExpectedDBExceptions>
+        </SaveImplementation>
+    </SPDataForm>
+    <c:FormMetaData>
+        <c:FormFields>
+            <c:FormField FieldID="HEADER" ReadOnly="true" MaxLength="100" Caption="Reactivation reason" Description="Form header" CaptionResourceKey="$$reactivation_reason" DescriptionResourceKey="$$form_header" />
+            <c:FormField FieldID="DONORNAME" ReadOnly="true" MaxLength="100" Caption="Sponsor" Description="Name of donor" CaptionResourceKey="$$sponsor" DescriptionResourceKey="$$name_of_donor" />
+            <c:FormField FieldID="OPPORTUNITYNAME" ReadOnly="true" MaxLength="100" Caption="Opportunity" Description="Name of opportunity" CaptionResourceKey="$$opportunity" DescriptionResourceKey="$$name_of_opportunity" />
+            <c:FormField FieldID="REASONID" DataType="Guid" Required="true" Caption="Reason" Description="Reason for reactivating" CaptionResourceKey="$$reason" DescriptionResourceKey="$$reason_for_reactivating">
+                <c:SimpleDataList SimpleDataListID="c8d3128e-a2eb-4413-b0b4-1585ad5bf001">
+                    <c:Params>
+                        <c:Param ID="TYPE">
+                            <c:Value>8</c:Value>
+                        </c:Param>
+                    </c:Params>
+                </c:SimpleDataList>
+            </c:FormField>
+            <c:FormField FieldID="SPONSORSHIPOPPORTUNITYID" DataType="Guid" ReadOnly="true" Hidden="true" />
+            <c:FormField FieldID="ISSOLESPONSORSHIP" DataType="Boolean" ReadOnly="true" Hidden="true" />
+        </c:FormFields>
+        <c:WebUIComponent>
+            <c:UIModel AssemblyName="Blackbaud.AppFx.Sponsorship.UIModel.dll" ClassName="Blackbaud.AppFx.Sponsorship.UIModel.ReactivateSponsorshipEditFormUIModel" />
+            <c:WebUI>
+                <c:ExternalResource Url="browser/htmlforms/sponsorship/ReactivateSponsorshipEditForm.html" />
+            </c:WebUI>
+        </c:WebUIComponent>
+    </c:FormMetaData>
+</EditDataFormTemplateSpec>

@@ -110,6 +110,11 @@
     <Import Include="System.Linq" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AddIns\OCMSponsorshipTransferReassign.AddIn.CodeGen.vb">
+      <SubType>Code</SubType>
+      <DependentUpon>OCMSponsorshipTransferReassign.AddIn.vb</DependentUpon>
+    </Compile>
+    <Compile Include="AddIns\OCMSponsorshipTransferReassign.AddIn.vb" />
     <Compile Include="AddIns\ProjectSponsorship.AddIn.CodeGen.vb">
       <SubType>Code</SubType>
       <DependentUpon>ProjectSponsorship.AddIn.vb</DependentUpon>
@@ -213,8 +218,10 @@
     <None Include="..\MoM.Sponsorship.Catalog\Edit Forms\RateIncreaseResponses.Edit.xml">
       <Link>LinkedSpecs\RateIncreaseResponses.Edit.xml</Link>
     </None>
+    <EmbeddedResource Include="AddIns\OCMSponsorshipTransferReassign.AddIn.xml" />
     <Content Include="Complete Web Sponsorships\AddWebSponsorshipOnBoardingInteractionsUIModel.xml" />
     <Content Include="htmlforms\AddCustomizationsToWebSponsorships.html" />
+    <Content Include="htmlforms\OCMSponsorshipTransfersWrappedForm.html" />
     <Content Include="htmlforms\RateIncreaseResponsesEditDataForm.html" />
     <Content Include="htmlforms\ViewSponsorshipDetailsViewForm.html" />
     <Content Include="RateIncreaseResponsesEditDataFormUIModel.xml">

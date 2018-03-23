@@ -768,6 +768,11 @@
     <EmbeddedResource Include="Query Views\OrphanRecurringGifts.Query.xml" />
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="Sponsorship Transfers\OCMSponsorshipReassignForm.Edit.xml" />
+    <EmbeddedResource Include="Sponsorship Reactivation\OCMSponsorshipReactivationFormWrapped.Edit.xml" />
+    <EmbeddedResource Include="Sponsorship Transfers\OCMSponsorshipTransferForm.Edit.xml">
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
     <EmbeddedResource Include="Replace Batch Number\ReplaceBatchNumber.Package.xml" />
     <EmbeddedResource Include="Reservation\Reservation.Package.xml" />
     <EmbeddedResource Include="SearchForms\SearchForms.Package.xml" />
