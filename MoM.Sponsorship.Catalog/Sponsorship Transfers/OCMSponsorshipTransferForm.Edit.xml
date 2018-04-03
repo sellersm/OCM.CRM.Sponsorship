@@ -11,8 +11,17 @@
 	FormHeader="Sponsorship Transfer Children"
 	>
 
-	<SPDataForm>
+  <!-- 
+	Remarks:    This is our custom Extension to the OoB Sponsorship Transfer form with our customizations added.
+				
+	History:
+	Date          Modified By   Comments
+	22-Mar-2018		MSellers			Initial version.
+  02-Apr-2018   MSellers      Fixed a few bugs and changes per changing requirements.
+  -->
 
+
+  <SPDataForm>
 		<!-- define the edit load SP, which is used to load the data for the form -->
 		<LoadImplementation SPName="USR_USP_DATAFORMTEMPLATE_EDITLOAD_OCMSPONSORSHIPTRANSFERFORM">
 			<c:CreateProcedureSQL>
@@ -96,22 +105,39 @@ as
 		-- handle updating the data
 
     declare @commitmentId uniqueidentifier = null;
+    declare @currentSponsorId uniqueidentifier = null;
+    declare @newSponsorshipId uniqueidentifier = null;
+	  declare @TRANSFERCHILDIDENTIFIER uniqueidentifier = null;
 
-    --get the FromChild, the one in the existing Sponsorship that's being transferred:
+    --get the values needed for below, need commitmentId and current Sponsor:
     select 
-	      @commitmentId = s.SPONSORSHIPCOMMITMENTID
+	      @commitmentId = s.SPONSORSHIPCOMMITMENTID,
+        @currentSponsorId = CONSTITUENTID
     from dbo.SPONSORSHIP s
     where s.ID = @ID;
+    
+    if @currentSponsorId is null
+      RAISERROR ('Cannot locate the Current Sponsor for this Sponsorship!', 16, 1);
+
+    if @commitmentId is null
+      RAISERROR ('Cannot locate the CommitmentId for this Sponsorship!', 16, 1);
+    
+    -- get the newly created SponsorshipID of the Sponsorship created by the Transfer:
+    select @newSponsorshipId = ID
+    from dbo.sponsorship 
+    where SPONSORSHIPCOMMITMENTID = @commitmentId
+    and statuscode = 1;
 
     -- try to get the ToChild, the one the user picked from the Transfer Form when saved:
     declare @USERTOCHILDID nvarchar(10) = null;
     
-    select @USERTOCHILDID = soTo.LOOKUPID	   
+    select  @USERTOCHILDID = soTo.LOOKUPID,
+	          @TRANSFERCHILDIDENTIFIER = soTo.ID
     from dbo.SPONSORSHIPAUDIT sa
 	    join dbo.SPONSORSHIP s on s.SPONSORSHIPCOMMITMENTID = sa.SPONSORSHIPCOMMITMENTID
 	    join dbo.SPONSORSHIPOPPORTUNITY soTo on soTo.ID = s.SPONSORSHIPOPPORTUNITYID
     where s.SPONSORSHIPCOMMITMENTID = @commitmentId
-    and s.STATUSCODE = 1
+    and s.STATUSCODE = 1;
     
     --validate that the Child To value from the form matches what the user typed in:
     if (@USERTOCHILDID is not null) and (@USERTOCHILDID <> @TOCHILDID)
@@ -121,9 +147,199 @@ as
       end
     
     -- if we get here, do the work:    
-		insert into TESTINGONLY (FROMCHILD, TOCHILD)
-    values (@FROMCHILDID, @TOCHILDID)
-	end try
+    /*  OCM custom (extended) Sponsorship Transfer form requirements/logic:
+    From Pamela, these are the requirements when saving the Sponsorship Transfer in the extended form:
+
+    1. Edit Sponsorship Extension Table (Current status) FROMCHILD A (INACTIVE when form is saved)
+	    A. Is the existing Sponsorship Extension Status of the From Child sponsorship being transferred "Prospect Sponsored"?
+		    YES:
+			    CRM changes extension table current sponsorship status to Formerly Prospect Sponsored			
+		    NO:
+			    CRM does not change extension value
+	    B. Is the existing Sponsorship Extension Status of the sponsorship being transferred "Sponsored"?
+		    YES:
+			    CRM changes extension table current sponsorship status to Formeryly Sponsored			
+		    NO:
+			    CRM does not change extension value
+
+    2. Add Sponsorship Extension Table (Initial and Current status) on new Sponsorship for CHILD B (ACTIVE)
+	    A. If current status (from 1. above) is "Prospect Sponsored",
+		    YES:
+			    CRM adds initial sponsorship status of Prospect Sponsored
+			    CRM adds current sponsorship status of Prospect Sponsored
+			    CRM checks the Current record? checkbox
+		    NO:
+	    B. If current status (from 1. above) is "Sponsored"
+		    YES:
+			    CRM adds initial sponsorship status of Sponsored
+			    CRM adds current sponsorship status of Sponsored
+			    CRM checks the Current record? checkbox
+		    NO:
+			
+
+    3. Create child welcome letter on CHILD B (ACTIVE):
+	    A. If current status (from 1. above) is "Sponsored":0
+		    YES:
+			    CRM creates Child Welcome Letter interaction
+			    Summary = Sponsorship TransferredCategory = Child LettersSubcategory = Child Welcome LetterStatus = PendingContact Method = MailExpectant Date = (2months from today, last day of the 2nd month)Sponsor ID = enter sponsor name
+
+    */
+
+      --use this UFN to get current sponex value for the given sponsorship:
+      --dbo.USR_UFN_SPONSORSHIP_GETCURRENTOPPORTUNITYSTATUSCODEID(sponsorshipId)
+
+	    --compare the results of the above UFN to these variables:
+	    declare @formerlySponsoredCurrentStatusId uniqueidentifier = null;
+	    declare @formerlyProspecctSponsoredCurrentStatusId uniqueidentifier = null;
+	    declare @prospecctSponsoredCurrentStatusId uniqueidentifier = null;
+	    declare @sponsoredCurrentStatusId uniqueidentifier = null;
+
+	    declare @sponsoredInitialStatusId uniqueidentifier = null;
+	    declare @prospectSponsoredInitialStatusId uniqueidentifier = null;
+
+	    declare @currentSponsorshipStatusId uniqueidentifier = null;
+	    declare @newReactivatedCurrentSponsorshipStatusId uniqueidentifier = null;
+	    declare @constituencyCodeId uniqueidentifier = null;
+
+	    declare @newInitialSponsorshipStatusText nvarchar(100) = '';
+	    declare @newCurrentSponsorshipStatusText nvarchar(100) = '';
+
+	    -- get the current status values for use later:
+	    set @formerlySponsoredCurrentStatusId = dbo.USR_UFN_CURRENTOPPORTUNITYSPONSORSHIPSTATUSCODE_GETID_FORDESCRIPTION('Formerly Sponsored');
+	    set @formerlyProspecctSponsoredCurrentStatusId = dbo.USR_UFN_CURRENTOPPORTUNITYSPONSORSHIPSTATUSCODE_GETID_FORDESCRIPTION('Formerly Prospect Sponsored');
+	    set @prospecctSponsoredCurrentStatusId = dbo.USR_UFN_CURRENTOPPORTUNITYSPONSORSHIPSTATUSCODE_GETID_FORDESCRIPTION('Prospect Sponsored');
+	    set @sponsoredCurrentStatusId = dbo.USR_UFN_CURRENTOPPORTUNITYSPONSORSHIPSTATUSCODE_GETID_FORDESCRIPTION('Sponsored');
+
+	    -- get the initial status values for use later:
+	    set @sponsoredInitialStatusId = dbo.USR_UFN_INITIALOPPORTUNITYSPONSORSHIPSTATUSCODE_GETID_FORDESCRIPTION('Sponsored');
+	    set @prospectSponsoredInitialStatusId = dbo.USR_UFN_INITIALOPPORTUNITYSPONSORSHIPSTATUSCODE_GETID_FORDESCRIPTION('Prospect Sponsored');
+
+	    --make sure we found the codes we need to proceed:
+	    if @formerlySponsoredCurrentStatusId is null
+		    RAISERROR ('Cannot locate the Current Opportunity Sponsorship Status Code of Formerly Sponsored', 16, 1);
+    
+	    if @formerlyProspecctSponsoredCurrentStatusId is null
+		    RAISERROR ('Cannot locate the Current Opportunity Sponsorship Status Code of Formerly Prospect Sponsored', 16, 1);
+
+	    --get the current sponsorship status from sponsorship extension table for the given sponsorship:
+	    set @currentSponsorshipStatusId = dbo.USR_UFN_SPONSORSHIP_GETCURRENTOPPORTUNITYSTATUSCODEID(@ID);
+  
+	    --if we didn't get one, raise an error:
+	    if @currentSponsorshipStatusId is null
+	      RAISERROR ('Cannot locate the Current Sponsorship Extension Status!', 16, 1);  
+
+      --Test the current sponex status value, and set the replacement value to the correct ID:
+      /*
+	    1. Edit Sponsorship Extension Table (Current status) FROMCHILD A (INACTIVE when form is saved)
+	    A. Is the existing Sponsorship Extension Status of the From Child sponsorship being transferred "Prospect Sponsored"?
+		    YES:
+			    CRM changes extension table current sponsorship status to Formerly Prospect Sponsored			
+		    NO:
+			    CRM does not change extension value
+      */
+
+      if @currentSponsorshipStatusId = @prospecctSponsoredCurrentStatusId
+	      begin
+	        set @newReactivatedCurrentSponsorshipStatusId = dbo.USR_UFN_CURRENTOPPORTUNITYSPONSORSHIPSTATUSCODE_GETID_FORDESCRIPTION('Formerly Prospect Sponsored');
+	        set @newInitialSponsorshipStatusText = 'Prospect Sponsored';
+	        set @newCurrentSponsorshipStatusText = 'Prospect Sponsored';
+	        --set @constituencyCodeId = dbo.USR_UFN_CONSTITUENT_GETID_FORCODE('Prospect Sponsor');
+	      end
+      else
+        begin
+          /*
+	        B. Is the existing Sponsorship Extension Status of the sponsorship being reactivated "Sponsored"?
+		        YES:
+			        CRM changes extension table current sponsorship status to Formeryly Sponsored			
+		        NO:
+			        CRM does not change extension value
+          */
+  
+          if @currentSponsorshipStatusId = @sponsoredCurrentStatusId 
+	          begin
+	            set @newReactivatedCurrentSponsorshipStatusId = dbo.USR_UFN_CURRENTOPPORTUNITYSPONSORSHIPSTATUSCODE_GETID_FORDESCRIPTION('Formerly Sponsored');
+	            set @newInitialSponsorshipStatusText = 'Sponsored';
+	            set @newCurrentSponsorshipStatusText = 'Sponsored';
+		          /*
+		          3. Create child welcome letter on CHILD B (ACTIVE):
+		          A. If current status (from 1. above) is "Sponsored":0
+			          YES:
+				          CRM creates Child Welcome Letter interaction
+				          Summary = Sponsorship Transferred
+				          Category = Child Letters
+				          Subcategory = Child Welcome Letter
+				          Status = Pending
+				          Contact Method = Mail
+				          Expectant Date = (2months from today, last day of the 2nd month)
+				          Sponsor ID = enter sponsor name
+		          */
+		          declare @CHILDWELCOMELETTERINTERACTIONID uniqueidentifier = null;
+		          declare @EXPECTEDDATE as date;
+		          select @EXPECTEDDATE = EOMONTH( getdate(), 2 );
+		          exec dbo.USR_USP_INTERACTION_CHILDLETTER_ADD_PENDING
+					          @id = @CHILDWELCOMELETTERINTERACTIONID output,								-- This returns the ID of the interaction created
+					          @sponsorhipOpportunityChildID = @TRANSFERCHILDIDENTIFIER,		-- The Constituent ID to create the interaction for
+					          @summary = 'Sponsorship Transferred',								-- The summary / objective of the interaction
+					          @categoryName = 'Child Letters',							-- Name of the interaction category (not the guid)
+					          @subcategoryName = 'Child Welcome Letter',						-- Name of the interaction subcategory (not the guid)
+					          @expectedDate = @EXPECTEDDATE,  --  @currentDate, Expected Date of the interaction
+					          @owner = null,								-- Owner / Fundraiser assigned to the interaction 
+					          @contactMethodDesc = 'Mail',						-- Email, Event, Mail, Phone, Task
+					          @comment = '',								-- Comment
+					          @sponsorID = @currentSponsorId,							-- Constituent ID of the sponsor the child is to write to
+					          @changeAgentID = @CHANGEAGENTID
+		            --set @constituencyCodeId = dbo.USR_UFN_CONSTITUENT_GETID_FORCODE('Sponsor');
+	          end
+        end
+
+
+	    /*
+	    2. Add Sponsorship Extension Table (Initial and Current status) on new Sponsorship for CHILD B (ACTIVE)
+		    A. If current status (from 1. above) is "Prospect Sponsored",
+			    YES:
+				    CRM adds initial sponsorship status of Prospect Sponsored
+				    CRM adds current sponsorship status of Prospect Sponsored
+				    CRM checks the Current record? checkbox
+			    NO:
+		    B. If current status (from 1. above) is "Sponsored"
+			    YES:
+				    CRM adds initial sponsorship status of Sponsored
+				    CRM adds current sponsorship status of Sponsored
+				    CRM checks the Current record? checkbox
+			    NO:
+	    */
+	    /*
+	    use this sproc to do the insert:
+	    dbo.USR_USP_INSERTNEWSPONSORSHIP_SPONSORSHIPEXTENSION (
+		    @SPONSORSHIPID uniqueidentifier,				-- id of the newly created sponsorship record
+		    @initialStatusText nvarchar(100),				-- description of the initial status codetable value
+		    @currentStatusText nvarchar(100),				-- description of the current status codetable value
+		    @CHANGEAGENTID uniqueidentifier = null,			-- id of the user
+		    @SPONSORSHIPOPPORTUNITYID uniqueidentifier		-- opportunityid that's being sponsored
+	    */
+      -- Only do the insert if this was prospect or sponsored sponex status:
+      if @currentSponsorshipStatusId = @prospecctSponsoredCurrentStatusId or @currentSponsorshipStatusId = @sponsoredCurrentStatusId
+        begin
+          -- perform the update of sponsorship extension current status:
+          if @newReactivatedCurrentSponsorshipStatusId is not null
+	          begin
+		          update dbo.USR_SPONSORSHIPEXTENSION
+		          set 
+			          [CURRENTOPPORTUNITYSPONSORSHIPSTATUSCODEID] = @newReactivatedCurrentSponsorshipStatusId
+			          ,[CHANGEDBYID] = @CHANGEAGENTID
+			          ,[DATECHANGED] = getdate()
+		          where ID = @ID;
+	          end
+	        
+          exec dbo.USR_USP_INSERTNEWSPONSORSHIP_SPONSORSHIPEXTENSION 
+		        @SPONSORSHIPID = @newSponsorshipId,
+		        @initialStatusText = @newInitialSponsorshipStatusText,
+		        @currentStatusText = @newCurrentSponsorshipStatusText,
+		        @CHANGEAGENTID = @CHANGEAGENTID,
+		        @SPONSORSHIPOPPORTUNITYID = @TRANSFERCHILDIDENTIFIER
+        end
+
+  end try
 
   begin catch
 		exec dbo.USP_RAISE_ERROR
