@@ -1,0 +1,13 @@
+﻿<DataFormAddInSpec
+	xmlns="bb_appfx_dataformaddin"
+	xmlns:c="bb_appfx_commontypes"
+	ID="0b6215d3-b289-4342-802d-3fc148a9d8d4" 
+	Name="OCM Sponsorship Reassign AddIn"
+	Description="An addin for the Reassign Sponsorship Edit Form data form" 
+	Author="Mark Sellers"
+	DataFormInstanceID="421a8ead-9eab-4fa8-8219-760fb3726e95"
+	>
+
+	<DataFormAddIn AssemblyName="MoM.Sponsorship.UIModel" ClassName="MoM.Sponsorship.UIModel.OCMSponsorshipReassignAddIn" />
+
+</DataFormAddInSpec>

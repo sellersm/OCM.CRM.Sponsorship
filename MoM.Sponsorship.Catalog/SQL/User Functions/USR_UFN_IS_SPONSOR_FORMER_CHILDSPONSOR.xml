@@ -1,0 +1,81 @@
+﻿<SQLFunctionSpec
+	xmlns="bb_appfx_sqlfunction"
+	xmlns:c="bb_appfx_commontypes" 
+	ID="5d5083ab-a94f-4938-b1c3-67ecc4383ae6"
+	Name="USR_UFN_IS_SPONSOR_FORMER_CHILDSPONSOR"
+	Description="REPLACE_WITH_DESCRIPTION"
+	Author="Mark Sellers"
+	DBFunctionName="USR_UFN_IS_SPONSOR_FORMER_CHILDSPONSOR"
+  GrantServiceRolePermission="true"  
+	>
+
+	<CreateFunctionSQL>
+		<![CDATA[
+create function dbo.USR_UFN_IS_SPONSOR_FORMER_CHILDSPONSOR(
+  @SPONSORID uniqueidentifier,
+  @CHILDID uniqueidentifier
+)
+returns bit
+with execute as caller
+as begin  
+    -- determine if given Sponsor has ever been a sponsor of the given child:
+    declare @isFormerSponsor bit = 0;
+    
+		declare @formerSponsorsTable table (
+			FinancialSponsorID uniqueidentifier,
+			CorrespondingSponsorID uniqueidentifier
+		)
+
+		;with
+		[ROOT_CTE] as (
+			select  distinct 	
+			[V_QUERY_SPONSORSHIP\Sponsorship Opportunity\Child].[ID] as [Sponsorship Opportunity\Child\System record ID],
+			[V_QUERY_SPONSORSHIP].[ID] as [System record ID],
+			[V_QUERY_SPONSORSHIP\Financial sponsor].[LOOKUPID] as [Financial Sponsor\Lookup ID],
+			[V_QUERY_SPONSORSHIP\Financial sponsor].[NAME] as [Financial Sponsor],
+			[V_QUERY_SPONSORSHIP\Financial sponsor].[ID] as [Financial sponsor\System record ID],
+			[V_QUERY_SPONSORSHIP].[ISSOLESPONSORSHIP] as [Sole sponsorship],
+			[V_QUERY_SPONSORSHIP\Sponsor\Constituent].[LOOKUPID] as [Correspondent\Lookup ID],
+			[V_QUERY_SPONSORSHIP\Sponsor\Constituent].[NAME] as [Correspondent],
+			[V_QUERY_SPONSORSHIP\Sponsor].[ID] as [Sponsor\System record ID],
+			[V_QUERY_SPONSORSHIP\Context transactions\Gift sponsorship donor].[NAME] as [Context transactions\Gift sponsorship donor\Name],
+			--[V_QUERY_SPONSORSHIP\Context transactions\Gift sponsorship donor].[ID] as [Context transactions\Gift sponsorship donor\System record ID],
+			[V_QUERY_SPONSORSHIP].[STATUS] as [Status],
+			[V_QUERY_SPONSORSHIP].[STARTDATE] as [Start date],
+			[V_QUERY_SPONSORSHIP].[ENDDATE] as [End date],
+			[V_QUERY_SPONSORSHIP].[PLANNEDENDDATE] as [Expiration date],
+			[V_QUERY_SPONSORSHIP].[ID] as [QUERYRECID]
+			from [V_QUERY_SPONSORSHIP] as [V_QUERY_SPONSORSHIP]
+			left outer join [V_QUERY_SPONSORSHIPOPPORTUNITY] as [V_QUERY_SPONSORSHIP\Sponsorship Opportunity] on [V_QUERY_SPONSORSHIP].[SPONSORSHIPOPPORTUNITYID] = [V_QUERY_SPONSORSHIP\Sponsorship Opportunity].[ID]
+			left outer join [V_QUERY_SPONSORSHIPOPPORTUNITYCHILD] as [V_QUERY_SPONSORSHIP\Sponsorship Opportunity\Child] on [V_QUERY_SPONSORSHIP\Sponsorship Opportunity].[ID] = [V_QUERY_SPONSORSHIP\Sponsorship Opportunity\Child].[ID]
+			left outer join [V_QUERY_CONSTITUENT] as [V_QUERY_SPONSORSHIP\Financial sponsor] on [V_QUERY_SPONSORSHIP].[FINANCIALSPONSOR] = [V_QUERY_SPONSORSHIP\Financial sponsor].[ID]
+			left outer join [V_QUERY_SPONSOR] as [V_QUERY_SPONSORSHIP\Sponsor] on [V_QUERY_SPONSORSHIP].[CONSTITUENTID] = [V_QUERY_SPONSORSHIP\Sponsor].[ID]
+			left outer join [V_QUERY_CONSTITUENT] as [V_QUERY_SPONSORSHIP\Sponsor\Constituent] on [V_QUERY_SPONSORSHIP\Sponsor].[ID] = [V_QUERY_SPONSORSHIP\Sponsor\Constituent].[ID]
+			left outer join [V_QUERY_SPONSORSHIPTRANSACTION] as [V_QUERY_SPONSORSHIP\Context transactions] on [V_QUERY_SPONSORSHIP].[ID] = [V_QUERY_SPONSORSHIP\Context transactions].[CONTEXTSPONSORSHIPID]
+			left outer join [V_QUERY_CONSTITUENT] as [V_QUERY_SPONSORSHIP\Context transactions\Gift sponsorship donor] on [V_QUERY_SPONSORSHIP\Context transactions].[GIFTFINANCIALSPONSORID] = [V_QUERY_SPONSORSHIP\Context transactions\Gift sponsorship donor].[ID]
+			where [V_QUERY_SPONSORSHIP].[STATUS] in ('Cancelled', 'Reassigned', 'Declined', 'Terminated', 'Transferred')
+		)
+
+		insert into @formerSponsorsTable
+		select 
+		[Financial sponsor\System record ID],
+		[Sponsor\System record ID]
+		from [ROOT_CTE] as QUERYRESULTS
+		where QUERYRESULTS.[Sponsorship Opportunity\Child\System record ID] = @CHILDID 
+
+		if exists (select 1 from @formerSponsorsTable where FinancialSponsorID = @SPONSORID or CorrespondingSponsorId = @SPONSORID)
+			begin
+				set @isFormerSponsor = 1;
+			end
+		else
+			begin
+				set @isFormerSponsor = 0;
+			end
+      
+   return @isFormerSponsor;
+  
+end
+		]]>
+	</CreateFunctionSQL>
+
+</SQLFunctionSpec>
