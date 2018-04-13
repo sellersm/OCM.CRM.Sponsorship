@@ -768,8 +768,15 @@
     <EmbeddedResource Include="Query Views\OrphanRecurringGifts.Query.xml" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Sponsorship Transfers\OCMSponsorshipReassignForm.Edit.xml" />
-    <EmbeddedResource Include="Sponsorship Reactivation\OCMSponsorshipReactivationFormWrapped.Edit.xml" />
+    <EmbeddedResource Include="SQL\User Functions\USR_UFN_IS_SPONSOR_FORMER_CHILDSPONSOR.xml" />
+    <EmbeddedResource Include="Sponsorship Transfers\OCMSponsorshipTransfer.AddIn.xml" />
+    <EmbeddedResource Include="Sponsorship Transfers\OCMSponsorshipReassign.AddIn.xml" />
+    <EmbeddedResource Include="Sponsorship Transfers\OCMSponsorshipReassignForm.Edit.xml">
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Sponsorship Reactivation\OCMSponsorshipReactivationFormWrapped.Edit.xml">
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
     <EmbeddedResource Include="Sponsorship Transfers\OCMSponsorshipTransferForm.Edit.xml">
       <SubType>Designer</SubType>
     </EmbeddedResource>
