@@ -18,7 +18,8 @@
 	Date          Modified By   Comments
 	22-Mar-2018		MSellers			Initial version.
   02-Apr-2018   MSellers      Fixed a few bugs and changes per changing requirements.
-  -->
+  16-Apr-2018   MSellers      New requirements from Pamela: cancel child A's interactions under certain conditions
+-->
 
 
   <SPDataForm>
@@ -108,11 +109,13 @@ as
     declare @currentSponsorId uniqueidentifier = null;
     declare @newSponsorshipId uniqueidentifier = null;
 	  declare @TRANSFERCHILDIDENTIFIER uniqueidentifier = null;
+    declare @FROMCHILDIDENTIFIER uniqueidentifier = null;
 
     --get the values needed for below, need commitmentId and current Sponsor:
     select 
 	      @commitmentId = s.SPONSORSHIPCOMMITMENTID,
-        @currentSponsorId = CONSTITUENTID
+        @currentSponsorId = CONSTITUENTID,
+        @FROMCHILDIDENTIFIER = s.SPONSORSHIPOPPORTUNITYID
     from dbo.SPONSORSHIP s
     where s.ID = @ID;
     
@@ -159,6 +162,8 @@ as
 	    B. Is the existing Sponsorship Extension Status of the sponsorship being transferred "Sponsored"?
 		    YES:
 			    CRM changes extension table current sponsorship status to Formeryly Sponsored			
+          Are there Pending child letter category interaction(s) for the From Child (A)?
+            YES:CRM changes interaction Status to Canceled and adds to Comments “Sponsorship has been transferred”
 		    NO:
 			    CRM does not change extension value
 
@@ -260,6 +265,33 @@ as
 	            set @newReactivatedCurrentSponsorshipStatusId = dbo.USR_UFN_CURRENTOPPORTUNITYSPONSORSHIPSTATUSCODE_GETID_FORDESCRIPTION('Formerly Sponsored');
 	            set @newInitialSponsorshipStatusText = 'Sponsored';
 	            set @newCurrentSponsorshipStatusText = 'Sponsored';
+              
+              -- MSellers added 4-19-2018 new requirements to cancel pending child letter interactions on Child A:
+              --Are there Pending child letter category interaction(s) for the From Child (A)?
+              --  YES:CRM changes interaction Status to Canceled and adds to Comments “Sponsorship has been transferred”
+
+              declare @interactionIds table (
+							  ID uniqueidentifier
+						  )
+
+						  insert into @interactionIds
+						  select INTERACTION.ID
+						  from dbo.INTERACTION
+						  join dbo.USR_INTERACTIONEXTENSION ie on ie.ID = INTERACTION.ID
+						  where INTERACTIONSUBCATEGORYID in (select isc.ID from dbo.INTERACTIONSUBCATEGORY isc join dbo.INTERACTIONCATEGORY ic on isc.INTERACTIONCATEGORYID = ic.ID and ic.[NAME] like '%child letters%')
+						  and CONSTITUENTID = @FROMCHILDIDENTIFIER
+						  and STATUSCODE = 1   --pending statuscode
+						  and ie.SPONSORID = @currentSponsorId;
+
+						  if exists (select 1 from @interactionIds)
+							  begin
+								  --CRM changes interaction Status to Canceled and adds to Comments “Sponsorship has been transferred”
+								  update dbo.INTERACTION
+								  set STATUSCODE = 4, --cancelled
+									    COMMENT = concat(COMMENT,': Sponsorship has been transferred')
+								  where ID in (select ID from @interactionIds);
+							  end
+              ----- end of new  4-19-2018
 		          /*
 		          3. Create child welcome letter on CHILD B (ACTIVE):
 		          A. If current status (from 1. above) is "Sponsored":0
@@ -308,15 +340,7 @@ as
 				    CRM checks the Current record? checkbox
 			    NO:
 	    */
-	    /*
-	    use this sproc to do the insert:
-	    dbo.USR_USP_INSERTNEWSPONSORSHIP_SPONSORSHIPEXTENSION (
-		    @SPONSORSHIPID uniqueidentifier,				-- id of the newly created sponsorship record
-		    @initialStatusText nvarchar(100),				-- description of the initial status codetable value
-		    @currentStatusText nvarchar(100),				-- description of the current status codetable value
-		    @CHANGEAGENTID uniqueidentifier = null,			-- id of the user
-		    @SPONSORSHIPOPPORTUNITYID uniqueidentifier		-- opportunityid that's being sponsored
-	    */
+      
       -- Only do the insert if this was prospect or sponsored sponex status:
       if @currentSponsorshipStatusId = @prospecctSponsoredCurrentStatusId or @currentSponsorshipStatusId = @sponsoredCurrentStatusId
         begin
