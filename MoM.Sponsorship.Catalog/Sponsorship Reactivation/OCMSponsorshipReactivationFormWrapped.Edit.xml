@@ -20,7 +20,8 @@
 	Date          Modified By   Comments
 	19-Mar-2018		MSellers			Initial version.
   22-Mar-2018   MSellers      Fixed a few bugs and changes per changing requirements.
-  -->  
+  16-Apr-2018   MSellers      Fixed bug: childid variable not populated...
+-->  
   
   
   <c:ImpliedSecurityList>
@@ -186,7 +187,8 @@ begin try
     RAISERROR ('Cannot locate the Current Sponsorship Extension Status!', 16, 1);  
 
 	-- get the current sponsor id:
-	select @currentSponsorId = CONSTITUENTID
+	select @currentSponsorId = CONSTITUENTID,
+         @childId = SPONSORSHIPOPPORTUNITYID
 	from dbo.SPONSORSHIP
 	where ID = @sponsorshipId;
 
