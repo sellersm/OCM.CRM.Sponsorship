@@ -1,4 +1,4 @@
-﻿<EditDataFormTemplateSpec 
+﻿  <EditDataFormTemplateSpec 
 	xmlns="bb_appfx_editdataformtemplate"
 	xmlns:c="bb_appfx_commontypes" 
 	ID="92778dd6-5553-4a47-8915-f22cd4d392f2" 
@@ -11,6 +11,18 @@
 	FormHeader="OCM Sponsorship Reassign"
 	>
 
+  <!-- 
+	  Remarks:    This is our custom Extension to the OoB Sponsorship Reassign form with our customizations added.
+				
+	  History:
+	  Date          Modified By   Comments
+	  22-Mar-2018		MSellers			Initial version.
+    02-Apr-2018   MSellers      Fixed a few bugs and changes per changing requirements.
+    29-May-2018   MSellers      Bug fix, not updating the TO SPONSOR (B) consituency code as per requirements workflow:
+                                SPONSOR B:  CRM adds Prospect Sponsor or Sponsor constituency code 
+                                    (based on child A on sponsor B current sponsorship status)
+  -->  
+  
 	<SPDataForm>
 
 		<!-- define the edit load SP, which is used to load the data for the form -->
@@ -106,8 +118,8 @@ as
 		-- compare the values:
 		if (@NEWSPONSORLOOKUPID is not null) and  (@NEWSPONSORLOOKUPID <> @TOSPONSORLOOKUPID)
 		  begin
-			declare @errorMsg nvarchar(100) = concat('Sponsor ', @TOSPONSORLOOKUPID, ' entered by user does not match Sponsor ', @NEWSPONSORLOOKUPID, ' in the Reassign Form!');
-			raiserror (@errorMsg, 16, 1);
+			  declare @errorMsg nvarchar(100) = concat('Sponsor ', @TOSPONSORLOOKUPID, ' entered by user does not match Sponsor ', @NEWSPONSORLOOKUPID, ' in the Reassign Form!');
+			  raiserror (@errorMsg, 16, 1);
 		  end
 
 		-- we can now do the work for our custom process after the Reassign:
@@ -138,7 +150,8 @@ as
 				declare @prospectSponsoredInitialStatusId uniqueidentifier = null;
 
 				declare @currentSponsorshipStatusId uniqueidentifier = null;
-				declare @newReactivatedCurrentSponsorshipStatusId uniqueidentifier = null;
+				declare @reassignedFromCurrentSponsorshipStatusId uniqueidentifier = null;
+        declare @reassignedToCurrentSponsorshipStatusId uniqueidentifier = null;
 				declare @constituencyCodeId uniqueidentifier = null;
 
 				declare @newInitialSponsorshipStatusText nvarchar(100) = '';
@@ -196,12 +209,12 @@ as
 				*/
 				if @currentSponsorshipStatusId = @prospecctSponsoredCurrentStatusId
 					begin
-						--set @newReactivatedCurrentSponsorshipStatusId = dbo.USR_UFN_CURRENTOPPORTUNITYSPONSORSHIPSTATUSCODE_GETID_FORDESCRIPTION('Formerly Prospect Sponsored');
-						set @newReactivatedCurrentSponsorshipStatusId = @formerlyProspecctSponsoredCurrentStatusId;
+						--set @reassignedFromCurrentSponsorshipStatusId = dbo.USR_UFN_CURRENTOPPORTUNITYSPONSORSHIPSTATUSCODE_GETID_FORDESCRIPTION('Formerly Prospect Sponsored');
+						set @reassignedFromCurrentSponsorshipStatusId = @formerlyProspecctSponsoredCurrentStatusId;
 						set @newInitialSponsorshipStatusText = 'Prospect Sponsored';
 						set @newCurrentSponsorshipStatusText = 'Prospect Sponsored';
 						set @isProspectSponsored = 1;
-						--set @constituencyCodeId = dbo.USR_UFN_CONSTITUENT_GETID_FORCODE('Prospect Sponsor');
+						set @constituencyCodeId = dbo.USR_UFN_CONSTITUENT_GETID_FORCODE('Prospect Sponsor');
 					end
 
 
@@ -213,11 +226,12 @@ as
 
 			  if @currentSponsorshipStatusId = @sponsoredCurrentStatusId 
 				begin
-				  --set @newReactivatedCurrentSponsorshipStatusId = dbo.USR_UFN_CURRENTOPPORTUNITYSPONSORSHIPSTATUSCODE_GETID_FORDESCRIPTION('Formerly Sponsored');
-				  set @newReactivatedCurrentSponsorshipStatusId = @formerlySponsoredCurrentStatusId;
+				  --set @reassignedFromCurrentSponsorshipStatusId = dbo.USR_UFN_CURRENTOPPORTUNITYSPONSORSHIPSTATUSCODE_GETID_FORDESCRIPTION('Formerly Sponsored');
+				  set @reassignedFromCurrentSponsorshipStatusId = @formerlySponsoredCurrentStatusId;
 				  set @newInitialSponsorshipStatusText = 'Sponsored';
 				  set @newCurrentSponsorshipStatusText = 'Sponsored';
 				  set @isSponsored = 1;
+          set @constituencyCodeId = dbo.USR_UFN_CONSTITUENT_GETID_FORCODE('Sponsor');
 				end
 
 
@@ -305,11 +319,11 @@ as
 					end	
 
 				-- perform the update of sponsorship extension current status:
-				if @newReactivatedCurrentSponsorshipStatusId is not null
+				if @reassignedFromCurrentSponsorshipStatusId is not null
 					begin
 						update dbo.USR_SPONSORSHIPEXTENSION
 						set 
-							[CURRENTOPPORTUNITYSPONSORSHIPSTATUSCODEID] = @newReactivatedCurrentSponsorshipStatusId
+							[CURRENTOPPORTUNITYSPONSORSHIPSTATUSCODEID] = @reassignedFromCurrentSponsorshipStatusId
 							,[CHANGEDBYID] = @CHANGEAGENTID
 							,[DATECHANGED] = getdate()
 						where ID = @ID;
@@ -323,6 +337,43 @@ as
 					@CHANGEAGENTID = @CHANGEAGENTID,
 					@SPONSORSHIPOPPORTUNITYID = @SPONSORSHIPOPPORTUNITYID
 
+
+        -- 5/31/2018 MSellers added to fix missing feature from requirements workflow
+        -- check if the new Sponsor already has the necessary constituency code:
+        -- USR_UFN_CONSTITUENT_HAS_CONSTITUENCYCODE_CHECKENDDATE (@CONSTITUENTID,	@constituencyCodeId)
+        --  this UFN will return 1 of 3 values:
+        --   0 means con doesn't have this code: 
+				--   1 means con has this code and it ends in the future:  
+				--   2 means con has this code and it ends today!
+        declare @constituencyCheckCode tinyint = 0;	
+        declare @DATEFROM datetime = getdate();
+        declare @DATETO datetime; -- this isn't set, its usage below means there's no end date of the constituency for the new Sponsor
+        
+        select @constituencyCheckCode = dbo.USR_UFN_CONSTITUENT_HAS_CONSTITUENCYCODE_CHECKENDDATE (@NEWSPONSORID, @constituencyCodeId)
+        set @DATEFROM = getdate();
+        
+        -- perform insert/update of the new Sponsor's constituency code if there isn't one already:
+        if @constituencyCheckCode = 0
+          begin
+		        exec dbo.USR_USP_ADD_CONSTITUENT_CONSTITUENCYCODE
+				        @ID OUTPUT
+				        ,@CHANGEAGENTID
+				        ,@NEWSPONSORID
+				        ,@constituencyCodeId
+				        ,@DATEFROM
+				        ,@DATETO		
+          end
+          
+        -- if sponsor has the code, but it has an end date, remove the end date so it stays active:
+        if @constituencyCheckCode > 0
+          begin
+            --remove the DateTo value in Constituencycode table for the new Sponsor:
+		        update dbo.CONSTITUENCY
+		        set DATETO = null
+		        where CONSTITUENTID = @NEWSPONSORID
+		        and CONSTITUENCYCODEID = @constituencyCodeId;
+          end
+        
 			end
 				
 	end try
