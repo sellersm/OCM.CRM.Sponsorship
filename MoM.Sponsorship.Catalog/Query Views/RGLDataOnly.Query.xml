@@ -21,6 +21,9 @@
 	29-Feb-2016		Memphis			Initial Version on leap year day!
 	07-Mar-2016		Memphis			Added the Total Paid column per Pamela
 	15-Mar-2016		Memphis			Added Number of months sponsorship per Pamela
+  07-Jun-2018   MSellers    per Pamela, needs a new column in the Query called "Acquisition Date"
+	                            If the “Conversion Date” field is not blank, then display the value. 
+	                            If the “Conversion Date” field is blank use the Start Date field value.  
 	-->
 
 	<!-- define the view used to return data for the query -->
@@ -54,11 +57,11 @@ SELECT
 		(select LOOKUPID from dbo.CONSTITUENT where ID = rgl.FINANCIALSPONSORID) as FINANCIALSPONSORID,
        ISACCOUNTCORRECTION,
        (select LOOKUPID from dbo.REVENUE where ID = rgl.RECURRINGGIFTID) as REVENUELOOKUPID,
-	   	coalesce((select sum(RECURRINGGIFTACTIVITY.AMOUNT) from dbo.RECURRINGGIFTACTIVITY where SOURCEREVENUEID = RECURRINGGIFTID and TYPECODE = 0), 0) as TOTALPAIDAMOUNT
+	   	coalesce((select sum(RECURRINGGIFTACTIVITY.AMOUNT) from dbo.RECURRINGGIFTACTIVITY where SOURCEREVENUEID = RECURRINGGIFTID and TYPECODE = 0), 0) as TOTALPAIDAMOUNT,
+		case when (CONVERSIONDATE <> '' and CONVERSIONDATE is not null) then CONVERSIONDATE else rgl.STARTDATE end as ACQUISITIONDATE
   FROM dbo.USR_COMMITMENTLINE_RECURRINGGIFT rgl
 	join dbo.CONSTITUENT sponsor on sponsor.ID = SPONSORID
 	inner join revenue r on r.id = rgl.recurringgiftid
-
 			]]>
 		</ViewSQL>
 	</ViewImplementation>
@@ -86,6 +89,7 @@ SELECT
 			<OutputField Name="ISACCOUNTCORRECTION" Caption="Account Correction" DataType="Boolean" />
 			<OutputField Name="REVENUELOOKUPID" Caption="RG ID" DataType="String" />
 			<OutputField Name="TOTALPAIDAMOUNT" Caption="Total Paid" DataType="Money" />
+      <OutputField Name="ACQUISITIONDATE" Caption="Acquisition Date" DataType="Date" />
 		</OutputFields>
 	</Output>
 
