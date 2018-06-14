@@ -21,6 +21,11 @@
     29-May-2018   MSellers      Bug fix, not updating the TO SPONSOR (B) consituency code as per requirements workflow:
                                 SPONSOR B:  CRM adds Prospect Sponsor or Sponsor constituency code 
                                     (based on child A on sponsor B current sponsorship status)
+    13-Jun-2018   MSellers      Updated to fix issue with reassign from Sponsor to a new Corresponding Sponsor
+                                From Sponsor will be the original Sponsor
+                                To Sponsor will be the new Corresponding Sponsor
+                                All the SponEx code should be executed no matter what
+                                
   -->  
   
 	<SPDataForm>
@@ -139,249 +144,260 @@ as
 				and	STATUSCODE = 1; --@statusCode_Pending;
 			end
 
-		if dbo.USR_UFN_SPONSORSHIP_GETACTIVECHILDSPONSORSHIPSFORSPONSOR (@NEWSPONSORID) > 0
-			begin
-				declare @formerlySponsoredCurrentStatusId uniqueidentifier = null;
-				declare @formerlyProspecctSponsoredCurrentStatusId uniqueidentifier = null;
-				declare @prospecctSponsoredCurrentStatusId uniqueidentifier = null;
-				declare @sponsoredCurrentStatusId uniqueidentifier = null;
 
-				declare @sponsoredInitialStatusId uniqueidentifier = null;
-				declare @prospectSponsoredInitialStatusId uniqueidentifier = null;
+		-- 6-13-2018 MSellers: no matter what, we need to manage the Sponsorship Extension changes for the OLD (From) Sponsorship, at least:
+		declare @formerlySponsoredCurrentStatusId uniqueidentifier = null;
+		declare @formerlyProspecctSponsoredCurrentStatusId uniqueidentifier = null;
+		declare @prospecctSponsoredCurrentStatusId uniqueidentifier = null;
+		declare @sponsoredCurrentStatusId uniqueidentifier = null;
 
-				declare @currentSponsorshipStatusId uniqueidentifier = null;
-				declare @reassignedFromCurrentSponsorshipStatusId uniqueidentifier = null;
-        declare @reassignedToCurrentSponsorshipStatusId uniqueidentifier = null;
-				declare @constituencyCodeId uniqueidentifier = null;
+		declare @sponsoredInitialStatusId uniqueidentifier = null;
+		declare @prospectSponsoredInitialStatusId uniqueidentifier = null;
 
-				declare @newInitialSponsorshipStatusText nvarchar(100) = '';
-				declare @newCurrentSponsorshipStatusText nvarchar(100) = '';
+		declare @currentSponsorshipStatusId uniqueidentifier = null;
+		declare @reassignedFromCurrentSponsorshipStatusId uniqueidentifier = null;
+		declare @reassignedToCurrentSponsorshipStatusId uniqueidentifier = null;
+		declare @constituencyCodeId uniqueidentifier = null;
 
-				declare @isProspectSponsored bit = 0;
-				declare @isSponsored bit = 0;
+		declare @newInitialSponsorshipStatusText nvarchar(100) = '';
+		declare @newCurrentSponsorshipStatusText nvarchar(100) = '';
 
-				-- get the current status values for use later:
-				set @formerlySponsoredCurrentStatusId = dbo.USR_UFN_CURRENTOPPORTUNITYSPONSORSHIPSTATUSCODE_GETID_FORDESCRIPTION('Formerly Sponsored');
-				set @formerlyProspecctSponsoredCurrentStatusId = dbo.USR_UFN_CURRENTOPPORTUNITYSPONSORSHIPSTATUSCODE_GETID_FORDESCRIPTION('Formerly Prospect Sponsored');
-				set @prospecctSponsoredCurrentStatusId = dbo.USR_UFN_CURRENTOPPORTUNITYSPONSORSHIPSTATUSCODE_GETID_FORDESCRIPTION('Prospect Sponsored');
-				set @sponsoredCurrentStatusId = dbo.USR_UFN_CURRENTOPPORTUNITYSPONSORSHIPSTATUSCODE_GETID_FORDESCRIPTION('Sponsored');
+		declare @isProspectSponsored bit = 0;
+		declare @isSponsored bit = 0;
 
-				-- get the initial status values for use later:
-				set @sponsoredInitialStatusId = dbo.USR_UFN_INITIALOPPORTUNITYSPONSORSHIPSTATUSCODE_GETID_FORDESCRIPTION('Sponsored');
-				set @prospectSponsoredInitialStatusId = dbo.USR_UFN_INITIALOPPORTUNITYSPONSORSHIPSTATUSCODE_GETID_FORDESCRIPTION('Prospect Sponsored');
+		-- get the current status values for use later:
+		set @formerlySponsoredCurrentStatusId = dbo.USR_UFN_CURRENTOPPORTUNITYSPONSORSHIPSTATUSCODE_GETID_FORDESCRIPTION('Formerly Sponsored');
+		set @formerlyProspecctSponsoredCurrentStatusId = dbo.USR_UFN_CURRENTOPPORTUNITYSPONSORSHIPSTATUSCODE_GETID_FORDESCRIPTION('Formerly Prospect Sponsored');
+		set @prospecctSponsoredCurrentStatusId = dbo.USR_UFN_CURRENTOPPORTUNITYSPONSORSHIPSTATUSCODE_GETID_FORDESCRIPTION('Prospect Sponsored');
+		set @sponsoredCurrentStatusId = dbo.USR_UFN_CURRENTOPPORTUNITYSPONSORSHIPSTATUSCODE_GETID_FORDESCRIPTION('Sponsored');
 
-				--make sure we found the codes we need to proceed:
-				if @formerlySponsoredCurrentStatusId is null
-					RAISERROR ('Cannot locate the Current Opportunity Sponsorship Status Code of Formerly Sponsored', 16, 1);
+		-- get the initial status values for use later:
+		set @sponsoredInitialStatusId = dbo.USR_UFN_INITIALOPPORTUNITYSPONSORSHIPSTATUSCODE_GETID_FORDESCRIPTION('Sponsored');
+		set @prospectSponsoredInitialStatusId = dbo.USR_UFN_INITIALOPPORTUNITYSPONSORSHIPSTATUSCODE_GETID_FORDESCRIPTION('Prospect Sponsored');
 
-				if @prospecctSponsoredCurrentStatusId is null
-					RAISERROR ('Cannot locate the Current Opportunity Sponsorship Status Code of Prospect Sponsored', 16, 1);
+		--make sure we found the codes we need to proceed:
+		if @formerlySponsoredCurrentStatusId is null
+			RAISERROR ('Cannot locate the Current Opportunity Sponsorship Status Code of Formerly Sponsored', 16, 1);
 
-				if @sponsoredCurrentStatusId is null
-					RAISERROR ('Cannot locate the Current Opportunity Sponsorship Status Code of Sponsored', 16, 1);
+		if @prospecctSponsoredCurrentStatusId is null
+			RAISERROR ('Cannot locate the Current Opportunity Sponsorship Status Code of Prospect Sponsored', 16, 1);
 
-				if @formerlyProspecctSponsoredCurrentStatusId is null
-					RAISERROR ('Cannot locate the Current Opportunity Sponsorship Status Code of Formerly Prospect Sponsored', 16, 1);
+		if @sponsoredCurrentStatusId is null
+			RAISERROR ('Cannot locate the Current Opportunity Sponsorship Status Code of Sponsored', 16, 1);
 
-				if @sponsoredInitialStatusId is null
-					RAISERROR ('Cannot locate the Initial Opportunity Sponsorship Status Code of Sponsored', 16, 1);
+		if @formerlyProspecctSponsoredCurrentStatusId is null
+			RAISERROR ('Cannot locate the Current Opportunity Sponsorship Status Code of Formerly Prospect Sponsored', 16, 1);
 
-				if @prospectSponsoredInitialStatusId is null
-					RAISERROR ('Cannot locate the Initial Opportunity Sponsorship Status Code of Prospect Sponsored', 16, 1);
+		if @sponsoredInitialStatusId is null
+			RAISERROR ('Cannot locate the Initial Opportunity Sponsorship Status Code of Sponsored', 16, 1);
 
-				--get the current sponsorship status from sponsorship extension table for the from/reassigned (old) sponsorship:
-				set @currentSponsorshipStatusId = dbo.USR_UFN_SPONSORSHIP_GETCURRENTOPPORTUNITYSTATUSCODEID(@ID);
+		if @prospectSponsoredInitialStatusId is null
+			RAISERROR ('Cannot locate the Initial Opportunity Sponsorship Status Code of Prospect Sponsored', 16, 1);
+
+		--get the current sponsorship status from sponsorship extension table for the from/reassigned (old) sponsorship:
+		set @currentSponsorshipStatusId = dbo.USR_UFN_SPONSORSHIP_GETCURRENTOPPORTUNITYSTATUSCODEID(@ID);
   
-				--if we didn't get one, raise an error:
-				if @currentSponsorshipStatusId is null
-					RAISERROR ('Cannot locate the Current Sponsorship Extension Status!', 16, 1);  
+		--if we didn't get one, raise an error:
+		if @currentSponsorshipStatusId is null
+			RAISERROR ('Cannot locate the Current Sponsorship Extension Status!', 16, 1);  
 
-				-- 1.Edit Sponsorship Extension Table (Current status)CHILD A on SPONSOR A (INACTIVE)
-				/*
-				If Prospect Sponsored
-					then 
-						CRM changes extension table current sponsorship status to Formerly Prospect Sponsored
-						1.1 Add Sponsorship Extension Table (Initial and Current status) CHILD A on SPONSOR B (ACTIVE)
-							NOTE: these are added on the NEWLY created Sponsorship from the Reassign to Sponsor B:
-							CRM adds initial sponsorship status of Prospect Sponsored
-							CRM adds current sponsorship status of Prospect Sponsored
-							CRM checks the Current record? checkbox
-				*/
-				if @currentSponsorshipStatusId = @prospecctSponsoredCurrentStatusId
-					begin
-						--set @reassignedFromCurrentSponsorshipStatusId = dbo.USR_UFN_CURRENTOPPORTUNITYSPONSORSHIPSTATUSCODE_GETID_FORDESCRIPTION('Formerly Prospect Sponsored');
-						set @reassignedFromCurrentSponsorshipStatusId = @formerlyProspecctSponsoredCurrentStatusId;
-						set @newInitialSponsorshipStatusText = 'Prospect Sponsored';
-						set @newCurrentSponsorshipStatusText = 'Prospect Sponsored';
-						set @isProspectSponsored = 1;
-						set @constituencyCodeId = dbo.USR_UFN_CONSTITUENT_GETID_FORCODE('Prospect Sponsor');
-					end
-
-
-				/*
-				If Sponsored
-					then 
-						CRM changes extension table current sponsorship status to Formerly Sponsored
-				*/
-
-			  if @currentSponsorshipStatusId = @sponsoredCurrentStatusId 
-				begin
-				  --set @reassignedFromCurrentSponsorshipStatusId = dbo.USR_UFN_CURRENTOPPORTUNITYSPONSORSHIPSTATUSCODE_GETID_FORDESCRIPTION('Formerly Sponsored');
-				  set @reassignedFromCurrentSponsorshipStatusId = @formerlySponsoredCurrentStatusId;
-				  set @newInitialSponsorshipStatusText = 'Sponsored';
-				  set @newCurrentSponsorshipStatusText = 'Sponsored';
-				  set @isSponsored = 1;
-          set @constituencyCodeId = dbo.USR_UFN_CONSTITUENT_GETID_FORCODE('Sponsor');
-				end
-
-
-				/*
-						1.2 Cancel pending child letter interactions CHILD A on SPONSOR A (INACTIVE):
-							If Pending interaction category of Child Letter on child record WITH Sponsor A ID?
-								then CRM changes interaction Status to Cancelled with a comment of Sponsorship reassigned
-				*/
-
-				if @isSponsored = 1
-					begin
-						--Does Child have Pending interaction category of Child Letter WITH Sponsor A ID?
-						declare @interactionIds table (
-							ID uniqueidentifier
-						)
-
-						insert into @interactionIds
-						select INTERACTION.ID
-						from dbo.INTERACTION
-						join dbo.USR_INTERACTIONEXTENSION ie on ie.ID = INTERACTION.ID
-						where INTERACTIONSUBCATEGORYID in (select isc.ID from dbo.INTERACTIONSUBCATEGORY isc join dbo.INTERACTIONCATEGORY ic on isc.INTERACTIONCATEGORYID = ic.ID and ic.[NAME] like '%child letters%')
-						and CONSTITUENTID = @SPONSORSHIPOPPORTUNITYID
-						and STATUSCODE = 1   --pending statuscode
-						and ie.SPONSORID = @FROMSPONSORID;
-
-						if exists (select 1 from @interactionIds)
-							begin
-								--CRM changes child letter interaction status to Pending
-								--CRM replaces current comments with Sponsorship reactivation; status changed from cancelled to pending
-								update dbo.INTERACTION
-								set STATUSCODE = 4, --cancelled
-									COMMENT = concat(COMMENT,': Sponsorship reassigned')
-								where ID in (select ID from @interactionIds);
-							end
-						
-						/*
-						1.4 Create child welcome letterCHILD A on SPONSOR B (ACTIVE):
-							IF SPONSOR B not spouse or was a former sponsor, CRM creates Child Welcome Letter interaction
-						*/
-						declare @isSpouseSponsor bit = 0;
-						if exists (select 1 from dbo.RELATIONSHIP where RECIPROCALCONSTITUENTID = @FROMSPONSORID and RELATIONSHIPCONSTITUENTID = @NEWSPONSORID
-									and ISSPOUSE = 1 and ENDDATE is null)
-							begin
-								--print 'These 2 Sponsors are spouses!';
-								set @isSpouseSponsor = 1;
-							end
-
-						--Check IF SPONSOR B was a former sponsor:
-						-- use the new UFN: dbo.USR_UFN_IS_SPONSOR_FORMER_CHILDSPONSOR
-						-- returns 1 if YES, 0 if NO
-						declare @isFormerSponsor bit = 0;
-						set @isFormerSponsor = dbo.USR_UFN_IS_SPONSOR_FORMER_CHILDSPONSOR(@NEWSPONSORID, @SPONSORSHIPOPPORTUNITYID);
-
-						--IF SPONSOR B not spouse or was a former sponsor, CRM creates Child Welcome Letter interaction
-						if @isSpouseSponsor = 0 and @isFormerSponsor = 0
-							begin
-								--create Child Welcome Letter interaction
-								/*
-									Summary = Sponsorship Reassigned
-									Category = Child Letters
-									Subcategory = Child Welcome Letter
-									Status = Pending
-									Contact Method = Mail
-									Expectant Date = (2months from today, last day of the 2nd month)
-									Sponsor ID = SPONSOR B
-								*/
-								declare @CHILDWELCOMELETTERINTERACTIONID uniqueidentifier = null;
-								declare @EXPECTEDDATE as date;
-								select @EXPECTEDDATE = EOMONTH( getdate(), 2 );
-								exec dbo.USR_USP_INTERACTION_CHILDLETTER_ADD_PENDING
-											@id = @CHILDWELCOMELETTERINTERACTIONID output,								-- This returns the ID of the interaction created
-											@sponsorhipOpportunityChildID = @SPONSORSHIPOPPORTUNITYID,		-- The Constituent ID to create the interaction for
-											@summary = 'Sponsorship Reassigned',								-- The summary / objective of the interaction
-											@categoryName = 'Child Letters',							-- Name of the interaction category (not the guid)
-											@subcategoryName = 'Child Welcome Letter',						-- Name of the interaction subcategory (not the guid)
-											@expectedDate = @EXPECTEDDATE,  --  @currentDate, Expected Date of the interaction
-											@owner = null,								-- Owner / Fundraiser assigned to the interaction 
-											@contactMethodDesc = 'Mail',						-- Email, Event, Mail, Phone, Task
-											@comment = '',								-- Comment
-											@sponsorID = @NEWSPONSORID,							-- Constituent ID of the sponsor the child is to write to
-											@changeAgentID = @CHANGEAGENTID
-
-							end
-
-					end	
-
-				-- perform the update of sponsorship extension current status:
-				if @reassignedFromCurrentSponsorshipStatusId is not null
-					begin
-						update dbo.USR_SPONSORSHIPEXTENSION
-						set 
-							[CURRENTOPPORTUNITYSPONSORSHIPSTATUSCODEID] = @reassignedFromCurrentSponsorshipStatusId
-							,[CHANGEDBYID] = @CHANGEAGENTID
-							,[DATECHANGED] = getdate()
-						where ID = @ID;
-					end
-
-				-- perform the insert of new Sponsorship Extension values for the newly created Sponsorship for Sponsor B (ToSponsor):
-				exec dbo.USR_USP_INSERTNEWSPONSORSHIP_SPONSORSHIPEXTENSION 
-					@SPONSORSHIPID = @NEWSPONSORSHIPID,
-					@initialStatusText = @newInitialSponsorshipStatusText,
-					@currentStatusText = @newCurrentSponsorshipStatusText,
-					@CHANGEAGENTID = @CHANGEAGENTID,
-					@SPONSORSHIPOPPORTUNITYID = @SPONSORSHIPOPPORTUNITYID
-
-
-        -- 5/31/2018 MSellers added to fix missing feature from requirements workflow
-        -- check if the new Sponsor already has the necessary constituency code:
-        -- USR_UFN_CONSTITUENT_HAS_CONSTITUENCYCODE_CHECKENDDATE (@CONSTITUENTID,	@constituencyCodeId)
-        --  this UFN will return 1 of 3 values:
-        --   0 means con doesn't have this code: 
-				--   1 means con has this code and it ends in the future:  
-				--   2 means con has this code and it ends today!
-        declare @constituencyCheckCode tinyint = 0;	
-        declare @DATEFROM datetime = getdate();
-        declare @DATETO datetime; -- this isn't set, its usage below means there's no end date of the constituency for the new Sponsor
-        
-        select @constituencyCheckCode = dbo.USR_UFN_CONSTITUENT_HAS_CONSTITUENCYCODE_CHECKENDDATE (@NEWSPONSORID, @constituencyCodeId)
-        set @DATEFROM = getdate();
-        
-        -- perform insert/update of the new Sponsor's constituency code if there isn't one already:
-        if @constituencyCheckCode = 0
-          begin
-		        exec dbo.USR_USP_ADD_CONSTITUENT_CONSTITUENCYCODE
-				        @ID OUTPUT
-				        ,@CHANGEAGENTID
-				        ,@NEWSPONSORID
-				        ,@constituencyCodeId
-				        ,@DATEFROM
-				        ,@DATETO		
-          end
-          
-        -- if sponsor has the code, but it has an end date, remove the end date so it stays active:
-        if @constituencyCheckCode > 0
-          begin
-            --remove the DateTo value in Constituencycode table for the new Sponsor:
-		        update dbo.CONSTITUENCY
-		        set DATETO = null
-		        where CONSTITUENTID = @NEWSPONSORID
-		        and CONSTITUENCYCODEID = @constituencyCodeId;
-          end
-        
+		-- 1.Edit Sponsorship Extension Table (Current status)CHILD A on SPONSOR A (INACTIVE)
+		/*
+		If Prospect Sponsored
+			then 
+				CRM changes extension table current sponsorship status to Formerly Prospect Sponsored
+				1.1 Add Sponsorship Extension Table (Initial and Current status) CHILD A on SPONSOR B (ACTIVE)
+					NOTE: these are added on the NEWLY created Sponsorship from the Reassign to Sponsor B:
+					CRM adds initial sponsorship status of Prospect Sponsored
+					CRM adds current sponsorship status of Prospect Sponsored
+					CRM checks the Current record? checkbox
+		*/
+		if @currentSponsorshipStatusId = @prospecctSponsoredCurrentStatusId
+			begin
+				--set @reassignedFromCurrentSponsorshipStatusId = dbo.USR_UFN_CURRENTOPPORTUNITYSPONSORSHIPSTATUSCODE_GETID_FORDESCRIPTION('Formerly Prospect Sponsored');
+				set @reassignedFromCurrentSponsorshipStatusId = @formerlyProspecctSponsoredCurrentStatusId;
+				set @newInitialSponsorshipStatusText = 'Prospect Sponsored';
+				set @newCurrentSponsorshipStatusText = 'Prospect Sponsored';
+				set @isProspectSponsored = 1;
+				set @constituencyCodeId = dbo.USR_UFN_CONSTITUENT_GETID_FORCODE('Prospect Sponsor');
 			end
-				
+
+
+		/*
+		If Sponsored
+			then 
+				CRM changes extension table current sponsorship status to Formerly Sponsored
+		*/
+
+		if @currentSponsorshipStatusId = @sponsoredCurrentStatusId 
+		begin
+			--set @reassignedFromCurrentSponsorshipStatusId = dbo.USR_UFN_CURRENTOPPORTUNITYSPONSORSHIPSTATUSCODE_GETID_FORDESCRIPTION('Formerly Sponsored');
+			set @reassignedFromCurrentSponsorshipStatusId = @formerlySponsoredCurrentStatusId;
+			set @newInitialSponsorshipStatusText = 'Sponsored';
+			set @newCurrentSponsorshipStatusText = 'Sponsored';
+			set @isSponsored = 1;
+			set @constituencyCodeId = dbo.USR_UFN_CONSTITUENT_GETID_FORCODE('Sponsor');
+		end
+
+
+		/*
+				1.2 Cancel pending child letter interactions CHILD A on SPONSOR A (INACTIVE):
+					If Pending interaction category of Child Letter on child record WITH Sponsor A ID?
+						then CRM changes interaction Status to Cancelled with a comment of Sponsorship reassigned
+		*/
+
+		if @isSponsored = 1
+			begin
+				--Does Child have Pending interaction category of Child Letter WITH Sponsor A ID?
+				declare @interactionIds table (
+					ID uniqueidentifier
+				)
+
+				insert into @interactionIds
+				select INTERACTION.ID
+				from dbo.INTERACTION
+				join dbo.USR_INTERACTIONEXTENSION ie on ie.ID = INTERACTION.ID
+				where INTERACTIONSUBCATEGORYID in (select isc.ID from dbo.INTERACTIONSUBCATEGORY isc join dbo.INTERACTIONCATEGORY ic on isc.INTERACTIONCATEGORYID = ic.ID and ic.[NAME] like '%child letters%')
+				and CONSTITUENTID = @SPONSORSHIPOPPORTUNITYID
+				and STATUSCODE = 1   --pending statuscode
+				and ie.SPONSORID = @FROMSPONSORID;
+
+				if exists (select 1 from @interactionIds)
+					begin
+						--CRM changes child letter interaction status to Pending
+						--CRM replaces current comments with Sponsorship reactivation; status changed from cancelled to pending
+						update dbo.INTERACTION
+						set STATUSCODE = 4, --cancelled
+							COMMENT = concat(COMMENT,': Sponsorship reassigned')
+						where ID in (select ID from @interactionIds);
+					end
+						
+				/*
+				1.4 Create child welcome letterCHILD A on SPONSOR B (ACTIVE):
+					IF SPONSOR B not spouse or was a former sponsor, CRM creates Child Welcome Letter interaction
+				*/
+				declare @isSpouseSponsor bit = 0;
+				if exists (select 1 from dbo.RELATIONSHIP where RECIPROCALCONSTITUENTID = @FROMSPONSORID and RELATIONSHIPCONSTITUENTID = @NEWSPONSORID
+							and ISSPOUSE = 1 and ENDDATE is null)
+					begin
+						--print 'These 2 Sponsors are spouses!';
+						set @isSpouseSponsor = 1;
+					end
+
+				--Check IF SPONSOR B was a former sponsor:
+				-- use the new UFN: dbo.USR_UFN_IS_SPONSOR_FORMER_CHILDSPONSOR
+				-- returns 1 if YES, 0 if NO
+				declare @isFormerSponsor bit = 0;
+				set @isFormerSponsor = dbo.USR_UFN_IS_SPONSOR_FORMER_CHILDSPONSOR(@NEWSPONSORID, @SPONSORSHIPOPPORTUNITYID);
+
+				--IF SPONSOR B not spouse or was a former sponsor, CRM creates Child Welcome Letter interaction
+				if @isSpouseSponsor = 0 and @isFormerSponsor = 0
+					begin
+						--create Child Welcome Letter interaction
+						/*
+							Summary = Sponsorship Reassigned
+							Category = Child Letters
+							Subcategory = Child Welcome Letter
+							Status = Pending
+							Contact Method = Mail
+							Expectant Date = (2months from today, last day of the 2nd month)
+							Sponsor ID = SPONSOR B
+						*/
+						declare @CHILDWELCOMELETTERINTERACTIONID uniqueidentifier = null;
+						declare @EXPECTEDDATE as date;
+						select @EXPECTEDDATE = EOMONTH( getdate(), 2 );
+						exec dbo.USR_USP_INTERACTION_CHILDLETTER_ADD_PENDING
+									@id = @CHILDWELCOMELETTERINTERACTIONID output,								-- This returns the ID of the interaction created
+									@sponsorhipOpportunityChildID = @SPONSORSHIPOPPORTUNITYID,		-- The Constituent ID to create the interaction for
+									@summary = 'Sponsorship Reassigned',								-- The summary / objective of the interaction
+									@categoryName = 'Child Letters',							-- Name of the interaction category (not the guid)
+									@subcategoryName = 'Child Welcome Letter',						-- Name of the interaction subcategory (not the guid)
+									@expectedDate = @EXPECTEDDATE,  --  @currentDate, Expected Date of the interaction
+									@owner = null,								-- Owner / Fundraiser assigned to the interaction 
+									@contactMethodDesc = 'Mail',						-- Email, Event, Mail, Phone, Task
+									@comment = '',								-- Comment
+									@sponsorID = @NEWSPONSORID,							-- Constituent ID of the sponsor the child is to write to
+									@changeAgentID = @CHANGEAGENTID
+
+					end
+
+			end	
+
+		-- perform the update of sponsorship extension current status:
+		if @reassignedFromCurrentSponsorshipStatusId is not null
+			begin
+				update dbo.USR_SPONSORSHIPEXTENSION
+				set 
+					[CURRENTOPPORTUNITYSPONSORSHIPSTATUSCODEID] = @reassignedFromCurrentSponsorshipStatusId
+					,[CHANGEDBYID] = @CHANGEAGENTID
+					,[DATECHANGED] = getdate()
+				where ID = @ID;
+			end
+
+		-- perform the insert of new Sponsorship Extension values for the newly created Sponsorship for Sponsor B (ToSponsor):
+		exec dbo.USR_USP_INSERTNEWSPONSORSHIP_SPONSORSHIPEXTENSION 
+			@SPONSORSHIPID = @NEWSPONSORSHIPID,
+			@initialStatusText = @newInitialSponsorshipStatusText,
+			@currentStatusText = @newCurrentSponsorshipStatusText,
+			@CHANGEAGENTID = @CHANGEAGENTID,
+			@SPONSORSHIPOPPORTUNITYID = @SPONSORSHIPOPPORTUNITYID
+
+		---------------------
+
+		-- now check the 'To Sponsor' (New sponsor) to see if they have the new sponsorship
+		-- 6-13-2018 MSellers: this New Sponsor may be just the Correspondent, so check for that also
+		--    by calling this UFN:  
+		--		dbo.USR_UFN_SPONSORSHIP_GETCORRESPONDENT(@sponsorshipID)  compare the result to the @NEWSPONSORID value
+		--    IF this new sponsor is ONLY a Corresponding sponsor, then this UFN will return 0: USR_UFN_SPONSORSHIP_GETACTIVECHILDSPONSORSHIPSFORSPONSOR
+		declare @CORRESPONDENTSPONSORID uniqueidentifier;
+		set @CORRESPONDENTSPONSORID = dbo.USR_UFN_SPONSORSHIP_GETCORRESPONDENT(@NEWSPONSORID);
+
+		if (dbo.USR_UFN_SPONSORSHIP_GETACTIVECHILDSPONSORSHIPSFORSPONSOR (@NEWSPONSORID) > 0) or (@NEWSPONSORID = @CORRESPONDENTSPONSORID)
+			begin
+				-- 5/31/2018 MSellers added to fix missing feature from requirements workflow
+				-- check if the new Sponsor already has the necessary constituency code:
+				-- USR_UFN_CONSTITUENT_HAS_CONSTITUENCYCODE_CHECKENDDATE (@CONSTITUENTID,	@constituencyCodeId)
+				--  this UFN will return 1 of 3 values:
+				--   0 means con doesn't have this code: 
+						--   1 means con has this code and it ends in the future:  
+						--   2 means con has this code and it ends today!
+				declare @constituencyCheckCode tinyint = 0;	
+				declare @DATEFROM datetime = getdate();
+				declare @DATETO datetime; -- this isn't set, its usage below means there's no end date of the constituency for the new Sponsor
+        
+				select @constituencyCheckCode = dbo.USR_UFN_CONSTITUENT_HAS_CONSTITUENCYCODE_CHECKENDDATE (@NEWSPONSORID, @constituencyCodeId)
+				set @DATEFROM = getdate();
+        
+				-- perform insert/update of the new Sponsor's constituency code if there isn't one already:
+				if @constituencyCheckCode = 0
+				  begin
+						exec dbo.USR_USP_ADD_CONSTITUENT_CONSTITUENCYCODE
+								@ID OUTPUT
+								,@CHANGEAGENTID
+								,@NEWSPONSORID
+								,@constituencyCodeId
+								,@DATEFROM
+								,@DATETO		
+				  end
+          
+				-- if sponsor has the code, but it has an end date, remove the end date so it stays active:
+				if @constituencyCheckCode > 0
+				  begin
+					--remove the DateTo value in Constituencycode table for the new Sponsor:
+					update dbo.CONSTITUENCY
+					set DATETO = null
+					where CONSTITUENTID = @NEWSPONSORID
+					and CONSTITUENCYCODEID = @constituencyCodeId;
+				  end        
+			end	-- if (dbo.USR_UFN_SPONSORSHIP_GETACTIVECHILDSPONSORSHIPSFORSPONSOR (@NEWSPONSORID) > 0) or (@NEWSPONSORID = @CORRESPONDENTSPONSORID)
+
 	end try
 
 	begin catch
 		exec dbo.USP_RAISE_ERROR
 		return 1
 	end catch
+
 
 return 0;
 				]]>
