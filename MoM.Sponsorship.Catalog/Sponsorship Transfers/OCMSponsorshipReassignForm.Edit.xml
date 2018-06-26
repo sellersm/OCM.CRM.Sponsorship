@@ -25,6 +25,7 @@
                                 From Sponsor will be the original Sponsor
                                 To Sponsor will be the new Corresponding Sponsor
                                 All the SponEx code should be executed no matter what
+    26-Jun-2018   MSellers      Fixing bug that throws PK violation error in Constituency table.
                                 
   -->  
   
@@ -369,10 +370,12 @@ as
 				set @DATEFROM = getdate();
         
 				-- perform insert/update of the new Sponsor's constituency code if there isn't one already:
+        -- MSellers added 6-26-2018: need a new GUID value to pass into the sproc below:
+        declare @NEWCONSTITUENCYID uniqueidentifier = newid();
 				if @constituencyCheckCode = 0
 				  begin
 						exec dbo.USR_USP_ADD_CONSTITUENT_CONSTITUENCYCODE
-								@ID OUTPUT
+								@NEWCONSTITUENCYID OUTPUT
 								,@CHANGEAGENTID
 								,@NEWSPONSORID
 								,@constituencyCodeId
